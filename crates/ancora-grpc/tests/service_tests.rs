@@ -155,3 +155,28 @@ async fn resume_unknown_run_returns_not_found() {
         .status;
     assert_eq!(status, "not_found");
 }
+
+#[tokio::test]
+async fn poll_exhausted_run_returns_empty_event() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    for _ in 0..2 {
+        client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    }
+    let e = client
+        .poll_run(Request::new(PollRunRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner()
+        .event;
+    assert!(e.is_empty(), "expected empty after events exhausted, got: {e}");
+}
