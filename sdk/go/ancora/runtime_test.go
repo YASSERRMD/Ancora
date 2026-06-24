@@ -23,6 +23,12 @@ func TestNewRuntimeReturnsNonNil(t *testing.T) {
 	rt.Free()
 }
 
+func TestFreeRuntimeIsIdempotent(t *testing.T) {
+	rt := mustRuntime(t)
+	rt.Free()
+	rt.Free()
+}
+
 func drainEvents(t *testing.T, run *ancora.Run) []string {
 	t.Helper()
 	var events []string
