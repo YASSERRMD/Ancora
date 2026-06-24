@@ -45,12 +45,27 @@ impl GraphExecutor {
         }
     }
 
-    fn next_node(&self, from: &str, _output: &str) -> Result<Option<String>, AncoraError> {
-        for edge in &self.graph.edges {
-            if edge.from == from && edge.condition.is_none() {
+    fn next_node(&self, from: &str, output: &str) -> Result<Option<String>, AncoraError> {
+        let outgoing: Vec<_> = self.graph.edges.iter()
+            .filter(|e| e.from == from)
+            .collect();
+
+        // Conditional edges take priority: pick the first whose condition matches.
+        for edge in &outgoing {
+            if let Some(cond) = &edge.condition {
+                if output.contains(cond.as_str()) {
+                    return Ok(Some(edge.to.clone()));
+                }
+            }
+        }
+
+        // Fall back to the first unconditional edge.
+        for edge in &outgoing {
+            if edge.condition.is_none() {
                 return Ok(Some(edge.to.clone()));
             }
         }
+
         Ok(None)
     }
 }
