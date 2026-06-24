@@ -34,6 +34,7 @@ export const RunEventSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('token'), run_id: z.string(), text: z.string() }),
   z.object({ kind: z.literal('completed'), run_id: z.string() }),
   z.object({ kind: z.literal('resumed'), run_id: z.string(), decision: z.string() }),
+  z.object({ kind: z.literal('tool_call'), run_id: z.string(), name: z.string(), input: z.string() }),
 ])
 
 export type RunEvent = z.infer<typeof RunEventSchema>
