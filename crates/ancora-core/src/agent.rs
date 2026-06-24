@@ -248,4 +248,46 @@ mod tests {
         assert_eq!(result, "the answer");
         assert_eq!(agent.step, 1);
     }
+
+    #[test]
+    fn loop_halts_at_max_steps() {
+        struct AlwaysTool;
+        impl ModelClient for AlwaysTool {
+            fn complete(
+                &self,
+                _: &[ProtoMessage],
+                _: &AgentSpec,
+            ) -> Result<ProtoMessage, AncoraError> {
+                Ok(ProtoMessage {
+                    id: String::new(),
+                    role: Role::Assistant as i32,
+                    content: vec![ContentBlock {
+                        block: Some(Block::ToolCall(ToolCallContent {
+                            tool_call_id: "tc-1".to_string(),
+                            tool_name: "noop".to_string(),
+                            arguments_json: "{}".to_string(),
+                        })),
+                    }],
+                    created_at_ns: 0,
+                    usage: None,
+                    cost: None,
+                    model_id: String::new(),
+                })
+            }
+        }
+        struct EchoTool;
+        impl ToolDispatcher for EchoTool {
+            fn dispatch(&self, call: &ToolCallContent) -> Result<ToolResultContent, AncoraError> {
+                Ok(ToolResultContent {
+                    tool_call_id: call.tool_call_id.clone(),
+                    result_json: r#""ok""#.to_string(),
+                    is_error: false,
+                })
+            }
+        }
+
+        let mut agent = Agent::new(make_spec(2), "run-loop-2", Arc::new(MemoryStore::new()));
+        let err = agent.run_loop("go", &AlwaysTool, &EchoTool).unwrap_err();
+        assert!(matches!(err, AncoraError::MaxSteps { max_steps: 2 }));
+    }
 }
