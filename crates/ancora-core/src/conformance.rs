@@ -11,3 +11,10 @@ pub enum ConformanceResult {
     Failed { reason: String },
     Skipped { reason: String },
 }
+
+/// Single agent node runs to completion.
+pub const SINGLE_AGENT: ConformanceScenario = ConformanceScenario {
+    id: "single-agent",
+    description: "A single agent node runs to completion without error",
+    tags: &["agent", "basic"],
+};
