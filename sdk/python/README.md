@@ -32,6 +32,17 @@ maturin develop --release
 | macOS (x86_64, arm64) | 3.9, 3.10, 3.11, 3.12 |
 | Windows (x86_64) | 3.9, 3.10, 3.11, 3.12 |
 
+Linux wheels are built against `manylinux2014` for maximum compatibility.
+macOS wheels are built for both Intel and Apple Silicon.
+
+## Running tests
+
+```bash
+cd sdk/python
+pip install -e ".[test]"
+python -m pytest tests/ -q
+```
+
 ## Usage
 
 ```python
