@@ -7,6 +7,11 @@
 #include <stdlib.h>
 
 /**
+ * ABI version. Incremented on every breaking ABI change.
+ */
+#define ANCORA_ABI_VERSION 1
+
+/**
  * Return codes used by all extern "C" functions.
  */
 typedef enum AncorErrorCode {
