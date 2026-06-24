@@ -1,0 +1,26 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "ancora"
+version = "0.1.0"
+description = "Python SDK for the Ancora agent runtime"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "YASSERRMD", email = "arafath.yasser@gmail.com" }]
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
+    "Operating System :: OS Independent",
+]
+
+[tool.maturin]
+manifest-path = "../../crates/ancora-py/Cargo.toml"
+module-name = "ancora._ancora"
+python-source = "."
+features = ["pyo3/extension-module"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
