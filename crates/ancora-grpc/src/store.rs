@@ -54,4 +54,8 @@ impl RunStore {
     pub fn event_count(&self, id: &str) -> usize {
         self.runs.lock().unwrap().get(id).map_or(0, |e| e.events.len())
     }
+
+    pub fn contains(&self, id: &str) -> bool {
+        self.runs.lock().unwrap().contains_key(id)
+    }
 }
