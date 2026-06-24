@@ -13,6 +13,16 @@ pub enum NodeKind {
     Subgraph,
 }
 
+impl NodeKind {
+    pub fn to_str(self) -> &'static str {
+        match self {
+            NodeKind::Agent => "agent",
+            NodeKind::Function => "function",
+            NodeKind::Subgraph => "subgraph",
+        }
+    }
+}
+
 /// Configuration specific to each node kind.
 pub enum NodeSpec {
     Agent(AgentSpec),
