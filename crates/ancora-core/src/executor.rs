@@ -98,17 +98,26 @@ impl GraphExecutor {
     }
 
     /// Run `node_id` repeatedly, feeding each output as the next input, until the
-    /// output contains `exit_condition`.
+    /// output contains `exit_condition` or `max_iterations` is reached.
+    ///
+    /// Returns `AncoraError::MaxSteps` when the iteration cap fires before the condition.
+    /// `max_iterations == 0` means unlimited (no cap enforced).
     pub fn run_loop_node(
         &mut self,
         node_id: &str,
         input: &str,
         exit_condition: &str,
+        max_iterations: u32,
         executor: &dyn NodeExecutor,
     ) -> Result<String, AncoraError> {
         let mut current_input = input.to_string();
+        let mut iteration = 0u32;
 
         loop {
+            if max_iterations > 0 && iteration >= max_iterations {
+                return Err(AncoraError::MaxSteps { max_steps: max_iterations });
+            }
+
             let output = {
                 let node = self.graph.nodes.iter()
                     .find(|n| n.id == node_id)
@@ -121,6 +130,7 @@ impl GraphExecutor {
             }
 
             current_input = output;
+            iteration += 1;
         }
     }
 
