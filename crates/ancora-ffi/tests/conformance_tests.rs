@@ -63,3 +63,12 @@ fn single_agent_scenario_run_id_is_nonempty() {
     assert!(!id.is_empty(), "single-agent: run id must be non-empty");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn multi_agent_verifier_scenario_two_runs_have_different_ids() {
+    let rt = make_rt();
+    let id1 = start_run(rt);
+    let id2 = start_run(rt);
+    assert_ne!(id1, id2, "multi-agent-verifier: each run must have a unique id");
+    ancora_free_runtime(rt);
+}
