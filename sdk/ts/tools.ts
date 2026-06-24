@@ -19,3 +19,31 @@ export function defineTool<S extends z.ZodObject<z.ZodRawShape>>(opts: {
     handler: opts.handler,
   }
 }
+
+export class ToolRegistry {
+  private _tools: Map<string, ToolDef> = new Map()
+
+  register(tool: ToolDef): this {
+    this._tools.set(tool.spec.name, tool)
+    return this
+  }
+
+  has(name: string): boolean {
+    return this._tools.has(name)
+  }
+
+  get names(): string[] {
+    return Array.from(this._tools.keys())
+  }
+
+  get specs(): ToolSpec[] {
+    return Array.from(this._tools.values()).map((t) => t.spec)
+  }
+
+  async dispatch(name: string, input: unknown): Promise<unknown> {
+    const tool = this._tools.get(name)
+    if (!tool) throw new Error(`Tool not found: ${name}`)
+    const result = tool.handler(input)
+    return result instanceof Promise ? await result : result
+  }
+}
