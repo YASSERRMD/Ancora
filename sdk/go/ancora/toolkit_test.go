@@ -157,6 +157,21 @@ func TestGoToolRegistryCountAfterMultipleRegistrations(t *testing.T) {
 	}
 }
 
+func TestToolFuncWithJsonInputAndOutput(t *testing.T) {
+	uppercaseTool := ancora.ToolFunc(func(input []byte) ([]byte, error) {
+		return []byte(string(input) + "-processed"), nil
+	})
+	reg := ancora.NewGoToolRegistry()
+	reg.Register("process", uppercaseTool)
+	out, err := reg.Invoke("process", []byte("data"))
+	if err != nil {
+		t.Fatalf("Invoke: %v", err)
+	}
+	if string(out) != "data-processed" {
+		t.Fatalf("expected 'data-processed', got: %s", out)
+	}
+}
+
 func TestGoToolRegistryOverwriteExistingTool(t *testing.T) {
 	reg := ancora.NewGoToolRegistry()
 	reg.Register("echo", func(in []byte) ([]byte, error) { return []byte("v1"), nil })
