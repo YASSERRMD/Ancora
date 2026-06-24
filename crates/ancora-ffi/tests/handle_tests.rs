@@ -23,3 +23,10 @@ fn buffer_new_and_free_does_not_leak() {
     assert!(!buf.ptr.is_null());
     ancora_buffer_free(buf);
 }
+
+#[test]
+fn buffer_free_null_is_noop() {
+    use ancora_ffi::buffer::AncorBuffer;
+    let empty = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    ancora_buffer_free(empty);
+}
