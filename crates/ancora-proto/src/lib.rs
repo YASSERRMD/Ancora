@@ -10,6 +10,10 @@ pub mod contracts {
     include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
 }
 
+pub mod journal {
+    include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
+}
+
 #[cfg(test)]
 mod tests {
     use prost::Message;
@@ -192,5 +196,120 @@ mod tests {
         assert_eq!(tool, decoded);
         assert_eq!(decoded.effect_class, EffectClass::EffectWrite as i32);
         assert!(!decoded.idempotency_key_template.is_empty());
+    }
+
+    #[test]
+    fn journal_event_ordering_and_round_trip() {
+        use super::journal::{
+            journal_event::Event, ActivityRecordedEvent, JournalEvent, NodeEnteredEvent,
+            RunStartedEvent,
+        };
+
+        let events = vec![
+            JournalEvent {
+                event_id: "evt-1".to_string(),
+                run_id: "run-abc".to_string(),
+                seq: 0,
+                recorded_at_ns: 1_000,
+                event: Some(Event::RunStarted(RunStartedEvent {
+                    run_id: "run-abc".to_string(),
+                    spec_bytes: b"spec".to_vec(),
+                    spec_type: "AgentSpec".to_string(),
+                })),
+            },
+            JournalEvent {
+                event_id: "evt-2".to_string(),
+                run_id: "run-abc".to_string(),
+                seq: 1,
+                recorded_at_ns: 2_000,
+                event: Some(Event::NodeEntered(NodeEnteredEvent {
+                    node_id: "node-1".to_string(),
+                    node_kind: "agent".to_string(),
+                })),
+            },
+            JournalEvent {
+                event_id: "evt-3".to_string(),
+                run_id: "run-abc".to_string(),
+                seq: 2,
+                recorded_at_ns: 3_000,
+                event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
+                    activity_key: "run-abc-node-1-0".to_string(),
+                    activity_kind: "model_call".to_string(),
+                    input_json: r#"{"messages":[]}"#.to_string(),
+                    result_json: r#"{"text":"hello"}"#.to_string(),
+                    replayed: false,
+                })),
+            },
+        ];
+
+        // Round-trip each event and assert seq is monotonically increasing.
+        let mut prev_seq = 0u64;
+        for (i, event) in events.iter().enumerate() {
+            let encoded = event.encode_to_vec();
+            let decoded = JournalEvent::decode(encoded.as_slice())
+                .unwrap_or_else(|_| panic!("decode event {i}"));
+            assert_eq!(event, &decoded);
+            if i > 0 {
+                assert!(
+                    decoded.seq > prev_seq,
+                    "seq must be monotonically increasing"
+                );
+            }
+            prev_seq = decoded.seq;
+        }
+    }
+
+    #[test]
+    fn journal_all_event_variants_round_trip() {
+        use super::journal::{
+            journal_event::Event, ErrorEvent, HumanDecisionReceivedEvent,
+            HumanDecisionRequestedEvent, JournalEvent, NodeExitedEvent, RetryScheduledEvent,
+            RunCancelledEvent, RunCompletedEvent,
+        };
+
+        let variants: Vec<Event> = vec![
+            Event::NodeExited(NodeExitedEvent {
+                node_id: "n1".to_string(),
+                success: true,
+            }),
+            Event::HumanDecisionRequested(HumanDecisionRequestedEvent {
+                prompt: "Approve?".to_string(),
+                options: vec!["yes".to_string(), "no".to_string()],
+                timeout_at_ns: 0,
+            }),
+            Event::HumanDecisionReceived(HumanDecisionReceivedEvent {
+                decision: "yes".to_string(),
+            }),
+            Event::RunCompleted(RunCompletedEvent {
+                output_json: r#"{"answer":42}"#.to_string(),
+            }),
+            Event::Error(ErrorEvent {
+                code: "ERR_MODEL".to_string(),
+                message: "model timeout".to_string(),
+                detail: "".to_string(),
+            }),
+            Event::RetryScheduled(RetryScheduledEvent {
+                target_id: "node-1".to_string(),
+                attempt: 2,
+                delay_ms: 500,
+            }),
+            Event::RunCancelled(RunCancelledEvent {
+                reason: "user request".to_string(),
+            }),
+        ];
+
+        for (i, variant) in variants.into_iter().enumerate() {
+            let env = JournalEvent {
+                event_id: format!("evt-{i}"),
+                run_id: "run-x".to_string(),
+                seq: i as u64,
+                recorded_at_ns: i as i64 * 1000,
+                event: Some(variant),
+            };
+            let encoded = env.encode_to_vec();
+            let decoded = JournalEvent::decode(encoded.as_slice())
+                .unwrap_or_else(|_| panic!("decode variant {i}"));
+            assert_eq!(env, decoded);
+        }
     }
 }
