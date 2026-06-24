@@ -1,0 +1,16 @@
+{
+  "name": "@ancora/sdk-linux-x64-gnu",
+  "version": "0.1.0",
+  "description": "Ancora SDK prebuilt addon for Linux x64 GNU",
+  "os": ["linux"],
+  "cpu": ["x64"],
+  "main": "ancora.linux-x64-gnu.node",
+  "files": [
+    "ancora.linux-x64-gnu.node"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YASSERRMD/Ancora"
+  }
+}
