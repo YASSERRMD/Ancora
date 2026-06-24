@@ -69,3 +69,13 @@ pub extern "C" fn ancora_tool_invoke(
     };
     unsafe { cb(input_bytes, input_len, out) }
 }
+
+/// Return the number of registered tools. Returns 0 if `rt` is null.
+#[no_mangle]
+pub extern "C" fn ancora_tool_count(rt: *mut AncorRuntime) -> usize {
+    if rt.is_null() {
+        return 0;
+    }
+    let inner = unsafe { &*(rt.cast::<InnerRuntime>()) };
+    inner.tools.lock().unwrap().count()
+}
