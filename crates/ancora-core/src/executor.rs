@@ -140,6 +140,94 @@ impl GraphExecutor {
         }
     }
 
+    /// Resume a run that was previously suspended at an AwaitHuman node.
+    ///
+    /// `decision` is treated as the output of the AwaitHuman node.
+    /// Execution continues from the next node in the graph.
+    pub fn resume(
+        &mut self,
+        suspended: &SuspendedRun,
+        decision: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<RunOutcome, AncoraError> {
+        self.journal_seq += 1;
+        let seq = self.journal_seq;
+        self.store.append(&suspended.run_id.clone(), JournalEvent {
+            event_id: uuid::Uuid::new_v4().to_string(),
+            run_id: suspended.run_id.clone(),
+            seq,
+            recorded_at_ns: 0,
+            event: Some(JournalEventVariant::HumanDecisionReceived(
+                ancora_proto::ancora::HumanDecisionReceivedEvent {
+                    decision: decision.to_string(),
+                },
+            )),
+        }).map(|_| ())?;
+
+        self.journal_node_exited(&suspended.node_id, true)?;
+
+        let mut current_output = decision.to_string();
+
+        match self.next_node(&suspended.node_id, &current_output)? {
+            None => return Ok(RunOutcome::Completed(current_output)),
+            Some(next_id) => {
+                let mut current_id = next_id;
+
+                loop {
+                    let node_kind = {
+                        let node = self.graph.nodes.iter()
+                            .find(|n| n.id == current_id)
+                            .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                        node.kind
+                    };
+
+                    if node_kind == NodeKind::AwaitHuman {
+                        self.journal_node_entered(&current_id, node_kind.to_str())?;
+                        self.journal_seq += 1;
+                        let seq2 = self.journal_seq;
+                        self.store.append(&self.run_id.clone(), JournalEvent {
+                            event_id: uuid::Uuid::new_v4().to_string(),
+                            run_id: self.run_id.clone(),
+                            seq: seq2,
+                            recorded_at_ns: 0,
+                            event: Some(JournalEventVariant::HumanDecisionRequested(
+                                HumanDecisionRequestedEvent {
+                                    prompt: current_output.clone(),
+                                    options: vec![],
+                                    timeout_at_ns: 0,
+                                },
+                            )),
+                        }).map(|_| ())?;
+                        return Ok(RunOutcome::Suspended(SuspendedRun {
+                            run_id: self.run_id.clone(),
+                            node_id: current_id,
+                            pending_input: current_output,
+                            deadline_ms: None,
+                        }));
+                    }
+
+                    self.journal_node_entered(&current_id, node_kind.to_str())?;
+
+                    let output = {
+                        let node = self.graph.nodes.iter()
+                            .find(|n| n.id == current_id)
+                            .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                        executor.execute(node, &current_output)?
+                    };
+
+                    self.journal_node_exited(&current_id, true)?;
+
+                    current_output = output;
+
+                    match self.next_node(&current_id, &current_output)? {
+                        Some(next) => current_id = next,
+                        None => return Ok(RunOutcome::Completed(current_output)),
+                    }
+                }
+            }
+        }
+    }
+
     /// Run `worker_id` and pass the result to `verifier_id` for approval.
     ///
     /// On rejection the worker is re-executed up to `max_rework` times.
