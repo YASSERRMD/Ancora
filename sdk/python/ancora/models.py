@@ -35,3 +35,16 @@ class RetryPolicy(BaseModel):
     initial_backoff_ms: int = Field(default=0, ge=0)
     max_backoff_ms: int = Field(default=0, ge=0)
     jitter: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class AgentSpec(BaseModel):
+    """Specifies a single agent in the graph."""
+
+    name: str = ""
+    model_id: str = ""
+    instructions: str = ""
+    output_schema_json: str = ""
+    tools: List[ToolSpec] = Field(default_factory=list)
+    max_steps: int = Field(default=0, ge=0)
+    model_retry: Optional[RetryPolicy] = None
+    model_params_json: str = ""
