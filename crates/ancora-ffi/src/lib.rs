@@ -2,5 +2,7 @@ pub mod buffer;
 pub mod error_code;
 pub mod handles;
 pub mod run_id;
+pub mod run_ops;
+pub mod runs;
 pub mod runtime;
 pub mod version;
