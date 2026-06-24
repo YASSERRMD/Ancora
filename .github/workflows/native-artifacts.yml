@@ -47,3 +47,6 @@ jobs:
             cargo build --release -p ancora-ffi --target ${{ matrix.target }}
           fi
         shell: bash
+      - name: Generate C header via cbindgen
+        if: matrix.use_cross != true
+        run: cargo build -p ancora-ffi --target ${{ matrix.target }}
