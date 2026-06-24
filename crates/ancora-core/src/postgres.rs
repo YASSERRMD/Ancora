@@ -140,6 +140,26 @@ impl JournalStore for PostgresStore {
     }
 }
 
+impl CheckpointStore for PostgresStore {
+    fn save(&self, run_id: &str, at_seq: u64, data: &[u8]) -> Result<(), AncoraError> {
+        let mut client = self.client.lock().map_err(|_| storage("mutex poisoned"))?;
+
+        client
+            .execute(
+                "INSERT INTO checkpoints (run_id, at_seq, data)
+                 VALUES ($1, $2, $3)
+                 ON CONFLICT (run_id) DO UPDATE SET at_seq = EXCLUDED.at_seq, data = EXCLUDED.data",
+                &[&run_id, &(at_seq as i64), &data],
+            )
+            .map(|_| ())
+            .map_err(storage)
+    }
+
+    fn load_checkpoint(&self, _run_id: &str) -> Result<Option<(u64, Vec<u8>)>, AncoraError> {
+        Ok(None)
+    }
+}
+
 impl PostgresStore {
     fn lock_run(client: &mut Client, run_id: &str) -> Result<(), AncoraError> {
         client
