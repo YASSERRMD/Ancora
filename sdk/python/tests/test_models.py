@@ -77,3 +77,13 @@ def test_agent_spec_with_retry_policy():
     spec = AgentSpec(name="agent", model_id="m", model_retry=retry)
     assert spec.model_retry is not None
     assert spec.model_retry.max_attempts == 3
+
+
+def test_tool_spec_rejects_extra_fields():
+    with pytest.raises(Exception):
+        ToolSpec(name="t", unknown_field="x")
+
+
+def test_agent_spec_rejects_extra_fields():
+    with pytest.raises(Exception):
+        AgentSpec(name="a", bogus_key="v")
