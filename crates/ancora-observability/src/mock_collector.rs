@@ -42,13 +42,42 @@ impl MockCollector {
 }
 
 fn handle_request(stream: &mut TcpStream, received: &Arc<Mutex<Vec<String>>>) {
-    let mut buf = [0u8; 65536];
-    let n = stream.read(&mut buf).unwrap_or(0);
-    let raw = String::from_utf8_lossy(&buf[..n]).to_string();
-    let body = extract_body(&raw);
+    let mut raw = Vec::new();
+    let mut buf = [0u8; 4096];
+    loop {
+        let n = stream.read(&mut buf).unwrap_or(0);
+        if n == 0 {
+            break;
+        }
+        raw.extend_from_slice(&buf[..n]);
+        if let Some(header_end) = find_header_end(&raw) {
+            let headers = String::from_utf8_lossy(&raw[..header_end]).to_string();
+            let content_length = parse_content_length(&headers);
+            let body_so_far = raw.len().saturating_sub(header_end + 4);
+            if body_so_far >= content_length {
+                break;
+            }
+        }
+    }
+    let raw_str = String::from_utf8_lossy(&raw).to_string();
+    let body = extract_body(&raw_str);
     received.lock().unwrap().push(body);
     let resp = b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\n{}";
     let _ = stream.write_all(resp);
+}
+
+fn find_header_end(buf: &[u8]) -> Option<usize> {
+    buf.windows(4).position(|w| w == b"\r\n\r\n")
+}
+
+fn parse_content_length(headers: &str) -> usize {
+    for line in headers.lines() {
+        let lower = line.to_lowercase();
+        if lower.starts_with("content-length:") {
+            return lower.trim_start_matches("content-length:").trim().parse().unwrap_or(0);
+        }
+    }
+    0
 }
 
 fn extract_body(raw: &str) -> String {
