@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 // jsonSchema is the internal representation used for schema generation.
@@ -44,15 +45,8 @@ func SchemaFromStruct(v any) (string, error) {
 		if name == "" || name == "-" {
 			name = f.Name
 		}
-		if idx := len(name); idx > 0 {
-			if comma := name; len(comma) > 0 {
-				for j, c := range comma {
-					if c == ',' {
-						name = comma[:j]
-						break
-					}
-				}
-			}
+		if i := strings.IndexByte(name, ','); i >= 0 {
+			name = name[:i]
 		}
 
 		prop := jsonSchema{
