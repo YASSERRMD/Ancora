@@ -41,3 +41,24 @@ impl tonic::service::Interceptor for AuthInterceptor {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tonic::service::Interceptor;
+
+    fn req_with_token(token: &str) -> Request<()> {
+        let mut req = Request::new(());
+        req.metadata_mut().insert(
+            "authorization",
+            format!("Bearer {token}").parse().unwrap(),
+        );
+        req
+    }
+
+    #[test]
+    fn valid_token_passes() {
+        let mut interceptor = AuthInterceptor::new("secret");
+        assert!(interceptor.call(req_with_token("secret")).is_ok());
+    }
+}
