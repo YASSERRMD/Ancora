@@ -8,6 +8,7 @@ use ancora_proto::ancora::{
 use crate::error::AncoraError;
 use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
+use crate::stream::{StreamEvent, StreamSender};
 use crate::suspend::{RunOutcome, SuspendedRun};
 
 /// Executes a single graph node given its input and returns its output.
@@ -32,11 +33,24 @@ pub struct GraphExecutor {
     pub run_id: String,
     store: Arc<dyn JournalStore>,
     journal_seq: u64,
+    stream: Option<StreamSender>,
 }
 
 impl GraphExecutor {
     pub fn new(graph: Graph, run_id: impl Into<String>, store: Arc<dyn JournalStore>) -> Self {
-        Self { graph, run_id: run_id.into(), store, journal_seq: 0 }
+        Self { graph, run_id: run_id.into(), store, journal_seq: 0, stream: None }
+    }
+
+    /// Attach a stream sender so node lifecycle events are forwarded to the caller.
+    pub fn with_stream(mut self, sender: StreamSender) -> Self {
+        self.stream = Some(sender);
+        self
+    }
+
+    fn stream_event(&self, event: StreamEvent) {
+        if let Some(ref tx) = self.stream {
+            let _ = tx.send(event);
+        }
     }
 
     /// Execute the graph from `entry_node` to completion, returning the final node output.
@@ -55,6 +69,10 @@ impl GraphExecutor {
             };
 
             self.journal_node_entered(&current_id, node_kind)?;
+            self.stream_event(StreamEvent::NodeEntered {
+                node_id: current_id.clone(),
+                node_kind: node_kind.to_string(),
+            });
 
             let output = {
                 let node = self.graph.nodes.iter()
@@ -64,12 +82,16 @@ impl GraphExecutor {
             };
 
             self.journal_node_exited(&current_id, true)?;
+            self.stream_event(StreamEvent::NodeExited { node_id: current_id.clone() });
 
             current_output = output;
 
             match self.next_node(&current_id, &current_output)? {
                 Some(next_id) => current_id = next_id,
-                None => return Ok(current_output),
+                None => {
+                    self.stream_event(StreamEvent::RunCompleted { output: current_output.clone() });
+                    return Ok(current_output);
+                }
             }
         }
     }
@@ -939,5 +961,32 @@ mod tests {
         suspended.deadline_ms = Some(1000);
         let err = exec.resume(&suspended, "too-late", 2000, &PrefixExecutor).unwrap_err();
         assert!(matches!(err, AncoraError::Timeout { timeout_ms: 1000 }));
+    }
+
+    #[test]
+    fn stream_emits_ordered_events() {
+        use crate::stream::open_stream;
+
+        let graph = Graph {
+            id: "g-stream".to_string(),
+            nodes: vec![function_node("a"), function_node("b")],
+            edges: vec![edge("a", "b", None)],
+            entry_node: "a".to_string(),
+        };
+
+        let (tx, rx) = open_stream();
+        let mut exec = GraphExecutor::new(graph, "run-stream-1", Arc::new(MemoryStore::new()))
+            .with_stream(tx);
+
+        exec.run("in", &PrefixExecutor).unwrap();
+
+        let events: Vec<_> = rx.try_iter().collect();
+        assert_eq!(events, vec![
+            crate::stream::StreamEvent::NodeEntered { node_id: "a".to_string(), node_kind: "function".to_string() },
+            crate::stream::StreamEvent::NodeExited { node_id: "a".to_string() },
+            crate::stream::StreamEvent::NodeEntered { node_id: "b".to_string(), node_kind: "function".to_string() },
+            crate::stream::StreamEvent::NodeExited { node_id: "b".to_string() },
+            crate::stream::StreamEvent::RunCompleted { output: "[b][a]in".to_string() },
+        ]);
     }
 }
