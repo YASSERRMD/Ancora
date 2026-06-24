@@ -19,6 +19,7 @@ sqlite = ["dep:rusqlite"]
 [dev-dependencies]
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
+tempfile = "3.27.0"
 
 [dependencies.rusqlite]
 version = "0.32"

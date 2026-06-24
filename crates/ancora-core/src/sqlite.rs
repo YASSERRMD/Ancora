@@ -227,3 +227,102 @@ impl CheckpointStore for SqliteStore {
         Ok(result.map(|(seq, data)| (seq as u64, data)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ancora_proto::ancora::{
+        journal_event::Event, ActivityRecordedEvent, JournalEvent, RunStartedEvent,
+    };
+    use tempfile::NamedTempFile;
+
+    fn run_started(label: &str) -> JournalEvent {
+        JournalEvent {
+            event_id: label.to_string(),
+            run_id: String::new(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::RunStarted(RunStartedEvent {
+                run_id: label.to_string(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".to_string(),
+            })),
+        }
+    }
+
+    fn activity(key: &str) -> JournalEvent {
+        JournalEvent {
+            event_id: key.to_string(),
+            run_id: String::new(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: key.to_string(),
+                activity_kind: "model_call".to_string(),
+                input_json: "{}".to_string(),
+                result_json: "{}".to_string(),
+                replayed: false,
+            })),
+        }
+    }
+
+    #[test]
+    fn in_memory_append_and_read() {
+        let store = SqliteStore::open_in_memory().unwrap();
+        let s0 = store.append("run-a", run_started("e0")).unwrap();
+        let s1 = store.append("run-a", run_started("e1")).unwrap();
+        assert_eq!(s0, 0);
+        assert_eq!(s1, 1);
+        let events = store.read("run-a").unwrap();
+        assert_eq!(events.len(), 2);
+        assert!(events[0].seq < events[1].seq);
+    }
+
+    #[test]
+    fn sqlite_store_survives_reopen_and_replays_events() {
+        let file = NamedTempFile::new().unwrap();
+        let path = file.path().to_path_buf();
+
+        {
+            let store = SqliteStore::open(&path).unwrap();
+            store.append("run-b", run_started("first")).unwrap();
+            store.append("run-b", run_started("second")).unwrap();
+            store.save("run-b", 1, b"blob").unwrap();
+        }
+
+        {
+            let store = SqliteStore::open(&path).unwrap();
+            let events = store.read("run-b").unwrap();
+            assert_eq!(events.len(), 2, "events must survive reopen");
+            assert_eq!(events[0].seq, 0);
+            assert_eq!(events[1].seq, 1);
+
+            let (seq, data) = store.load_checkpoint("run-b").unwrap().unwrap();
+            assert_eq!(seq, 1);
+            assert_eq!(data, b"blob");
+        }
+    }
+
+    #[test]
+    fn duplicate_idempotency_key_is_rejected() {
+        let store = SqliteStore::open_in_memory().unwrap();
+        store.append("run-c", activity("key-xyz")).unwrap();
+
+        let err = store.append("run-c", activity("key-xyz")).unwrap_err();
+        assert!(
+            matches!(err, AncoraError::JournalWrite(_)),
+            "expected JournalWrite, got {err:?}"
+        );
+    }
+
+    #[test]
+    fn load_by_seq_returns_correct_event() {
+        let store = SqliteStore::open_in_memory().unwrap();
+        store.append("run-d", run_started("a")).unwrap();
+        store.append("run-d", run_started("b")).unwrap();
+
+        let ev = store.load("run-d", 1).unwrap().unwrap();
+        assert_eq!(ev.seq, 1);
+        assert!(store.load("run-d", 99).unwrap().is_none());
+    }
+}
