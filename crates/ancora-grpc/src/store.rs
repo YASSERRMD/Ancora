@@ -89,4 +89,17 @@ mod tests {
         store.resume("r3", "ok");
         assert_eq!(store.event_count("r3"), 2);
     }
+
+    #[test]
+    fn contains_returns_true_after_insert() {
+        let store = RunStore::new();
+        store.insert("r4".into());
+        assert!(store.contains("r4"));
+    }
+
+    #[test]
+    fn contains_returns_false_for_unknown() {
+        let store = RunStore::new();
+        assert!(!store.contains("nobody"));
+    }
 }
