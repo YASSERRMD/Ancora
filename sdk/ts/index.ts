@@ -1,3 +1,5 @@
+import { loadBinding } from './load-binding'
+
 let nativeBinding: NativeModule | null = null
 
 interface NativeModule {
@@ -15,15 +17,8 @@ interface NativeRuntimeInstance {
 
 function loadNativeModule(): NativeModule {
   if (nativeBinding) return nativeBinding
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    nativeBinding = require('./ancora.node') as NativeModule
-    return nativeBinding
-  } catch {
-    throw new Error(
-      'ancora native module not found. Build it first with: npm run build'
-    )
-  }
+  nativeBinding = loadBinding() as NativeModule
+  return nativeBinding
 }
 
 export class Runtime {

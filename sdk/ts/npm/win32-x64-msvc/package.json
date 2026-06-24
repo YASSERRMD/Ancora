@@ -1,0 +1,17 @@
+{
+  "name": "@ancora/sdk-win32-x64-msvc",
+  "version": "0.1.0",
+  "description": "Ancora SDK prebuilt addon for Windows x64 MSVC",
+  "os": ["win32"],
+  "cpu": ["x64"],
+  "main": "ancora.win32-x64-msvc.node",
+  "files": [
+    "ancora.win32-x64-msvc.node",
+    "README.md"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YASSERRMD/Ancora"
+  }
+}

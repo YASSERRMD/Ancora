@@ -2,4 +2,4 @@ node_modules/
 dist/
 *.node
 *.tgz
-npm/
+npm/**/*.node

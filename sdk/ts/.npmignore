@@ -2,6 +2,10 @@ __tests__/
 *.ts
 !*.d.ts
 tsconfig.json
+wasm/tsconfig.json
+wasm/esbuild.config.mjs
 jest.config.js
 node_modules/
 src/
+npm/
+*.tgz
