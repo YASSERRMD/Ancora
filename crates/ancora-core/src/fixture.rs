@@ -190,6 +190,14 @@ pub fn build_fixture(entries: &[(&str, &str, &str, &str)]) -> Fixture {
     f
 }
 
+/// Replay multiple activities from a fixture in the given key order.
+pub fn replay_fixture_sequence(
+    fixture: &Fixture,
+    keys: &[&str],
+) -> Result<Vec<String>, AncoraError> {
+    keys.iter().map(|k| replay_fixture(fixture, k)).collect()
+}
+
 /// Replay a fixture: returns the recorded result for a given activity key.
 /// Returns `Ok(result_json)` for known keys and `Err` for unknown keys.
 pub fn replay_fixture(fixture: &Fixture, activity_key: &str) -> Result<String, AncoraError> {
