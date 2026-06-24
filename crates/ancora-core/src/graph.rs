@@ -45,3 +45,53 @@ pub struct Graph {
     /// Id of the node to execute first.
     pub entry_node: String,
 }
+
+impl Graph {
+    /// Check that the graph satisfies structural invariants:
+    /// - At least one node
+    /// - No duplicate node ids
+    /// - Entry node exists
+    /// - Every edge source and target refer to an existing node
+    pub fn validate(&self) -> Result<(), AncoraError> {
+        if self.nodes.is_empty() {
+            return Err(AncoraError::GraphInvalid("graph has no nodes".to_string()));
+        }
+
+        // Check for duplicate ids
+        let mut seen = std::collections::HashSet::new();
+        for node in &self.nodes {
+            if !seen.insert(node.id.as_str()) {
+                return Err(AncoraError::GraphInvalid(format!(
+                    "duplicate node id '{}'",
+                    node.id
+                )));
+            }
+        }
+
+        // Entry node must exist
+        if !seen.contains(self.entry_node.as_str()) {
+            return Err(AncoraError::GraphInvalid(format!(
+                "entry node '{}' does not exist",
+                self.entry_node
+            )));
+        }
+
+        // Every edge must reference existing nodes
+        for edge in &self.edges {
+            if !seen.contains(edge.from.as_str()) {
+                return Err(AncoraError::GraphInvalid(format!(
+                    "edge source '{}' does not exist",
+                    edge.from
+                )));
+            }
+            if !seen.contains(edge.to.as_str()) {
+                return Err(AncoraError::GraphInvalid(format!(
+                    "edge target '{}' does not exist",
+                    edge.to
+                )));
+            }
+        }
+
+        Ok(())
+    }
+}
