@@ -198,7 +198,7 @@ impl PostgresStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ancora_proto::ancora::{journal_event::Event, RunStartedEvent};
+    use ancora_proto::ancora::{journal_event::Event, ActivityRecordedEvent, RunStartedEvent};
 
     fn postgres_url() -> Option<String> {
         std::env::var("POSTGRES_URL").ok()
@@ -214,6 +214,22 @@ mod tests {
                 run_id: label.to_string(),
                 spec_bytes: vec![],
                 spec_type: "AgentSpec".to_string(),
+            })),
+        }
+    }
+
+    fn activity(key: &str) -> JournalEvent {
+        JournalEvent {
+            event_id: key.to_string(),
+            run_id: String::new(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: key.to_string(),
+                activity_kind: "model_call".to_string(),
+                input_json: "{}".to_string(),
+                result_json: "{}".to_string(),
+                replayed: false,
             })),
         }
     }
