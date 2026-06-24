@@ -346,4 +346,45 @@ mod tests {
             .collect();
         assert_eq!(node_entered_ids, vec!["a-node", "b-node", "c-node"]);
     }
+
+    #[test]
+    fn loop_exits_on_condition_and_on_cap() {
+        // Node "counter" appends "+1" to input each iteration; exits when output contains "done"
+        struct CounterExecutor {
+            target: u32,
+        }
+        impl NodeExecutor for CounterExecutor {
+            fn execute(&self, _node: &Node, input: &str) -> Result<String, AncoraError> {
+                let count = input.parse::<u32>().unwrap_or(0) + 1;
+                if count >= self.target {
+                    Ok(format!("{count}:done"))
+                } else {
+                    Ok(count.to_string())
+                }
+            }
+        }
+
+        let graph = Graph {
+            id: "g-loop".to_string(),
+            nodes: vec![function_node("counter")],
+            edges: vec![],
+            entry_node: "counter".to_string(),
+        };
+
+        // Case 1: exits on condition after 3 iterations
+        let mut exec = GraphExecutor::new(graph, "run-loop-c1", Arc::new(MemoryStore::new()));
+        let result = exec.run_loop_node("counter", "0", "done", 10, &CounterExecutor { target: 3 }).unwrap();
+        assert!(result.contains("done"), "loop must exit when condition is met");
+
+        // Case 2: exits on cap (condition never met because target > cap)
+        let graph2 = Graph {
+            id: "g-loop2".to_string(),
+            nodes: vec![function_node("counter")],
+            edges: vec![],
+            entry_node: "counter".to_string(),
+        };
+        let mut exec2 = GraphExecutor::new(graph2, "run-loop-c2", Arc::new(MemoryStore::new()));
+        let err = exec2.run_loop_node("counter", "0", "done", 2, &CounterExecutor { target: 99 }).unwrap_err();
+        assert!(matches!(err, AncoraError::MaxSteps { max_steps: 2 }));
+    }
 }
