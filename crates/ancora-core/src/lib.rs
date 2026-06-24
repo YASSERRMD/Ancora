@@ -1,3 +1,4 @@
+pub mod activity;
 pub mod error;
 pub mod journal;
 pub mod run;
