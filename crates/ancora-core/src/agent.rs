@@ -185,3 +185,67 @@ fn tool_result_message(result: ToolResultContent) -> ProtoMessage {
         model_id: String::new(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use ancora_proto::ancora::{
+        content_block::Block, ContentBlock, Role, TextContent, ToolCallContent, ToolResultContent,
+    };
+
+    use super::*;
+    use crate::journal::MemoryStore;
+
+    fn make_spec(max_steps: u32) -> AgentSpec {
+        AgentSpec {
+            name: "test".to_string(),
+            model_id: "mock".to_string(),
+            instructions: String::new(),
+            output_schema_json: String::new(),
+            tools: vec![],
+            max_steps,
+            model_retry: None,
+            model_params_json: String::new(),
+        }
+    }
+
+    fn text_response(text: &str) -> ProtoMessage {
+        ProtoMessage {
+            id: String::new(),
+            role: Role::Assistant as i32,
+            content: vec![ContentBlock {
+                block: Some(Block::Text(TextContent { text: text.to_string() })),
+            }],
+            created_at_ns: 0,
+            usage: None,
+            cost: None,
+            model_id: String::new(),
+        }
+    }
+
+    #[test]
+    fn loop_terminates_on_final_output() {
+        struct AlwaysText;
+        impl ModelClient for AlwaysText {
+            fn complete(
+                &self,
+                _: &[ProtoMessage],
+                _: &AgentSpec,
+            ) -> Result<ProtoMessage, AncoraError> {
+                Ok(text_response("the answer"))
+            }
+        }
+        struct Noop;
+        impl ToolDispatcher for Noop {
+            fn dispatch(&self, _: &ToolCallContent) -> Result<ToolResultContent, AncoraError> {
+                unreachable!("no tools should be called")
+            }
+        }
+
+        let mut agent = Agent::new(make_spec(10), "run-loop-1", Arc::new(MemoryStore::new()));
+        let result = agent.run_loop("hello", &AlwaysText, &Noop).unwrap();
+        assert_eq!(result, "the answer");
+        assert_eq!(agent.step, 1);
+    }
+}
