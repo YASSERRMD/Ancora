@@ -26,3 +26,12 @@ class ToolSpec(BaseModel):
     output_schema_json: str = ""
     effect_class: EffectClass = EffectClass.UNSPECIFIED
     idempotency_key_template: str = ""
+
+
+class RetryPolicy(BaseModel):
+    """Retry policy attached to a model call or tool call."""
+
+    max_attempts: int = Field(default=0, ge=0)
+    initial_backoff_ms: int = Field(default=0, ge=0)
+    max_backoff_ms: int = Field(default=0, ge=0)
+    jitter: float = Field(default=0.0, ge=0.0, le=1.0)
