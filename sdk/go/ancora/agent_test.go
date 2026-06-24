@@ -34,6 +34,42 @@ func TestAgentStartRunHasNonEmptyID(t *testing.T) {
 	}
 }
 
+func TestEventChanReceivesAtLeastOneEvent(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	ch := run.EventChan()
+	ev, ok := <-ch
+	if !ok || ev == nil {
+		t.Fatal("EventChan should deliver at least one event")
+	}
+}
+
+func TestDrainEventsReturnsStartedAndCompleted(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	events, err := run.DrainEvents()
+	if err != nil {
+		t.Fatalf("DrainEvents: %v", err)
+	}
+	var hasStarted, hasCompleted bool
+	for _, e := range events {
+		if contains(e, "started") {
+			hasStarted = true
+		}
+		if contains(e, "completed") {
+			hasCompleted = true
+		}
+	}
+	if !hasStarted {
+		t.Fatalf("missing started event, got: %v", events)
+	}
+	if !hasCompleted {
+		t.Fatalf("missing completed event, got: %v", events)
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
