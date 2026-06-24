@@ -224,3 +224,19 @@ async fn drive_full_run_start_poll_poll_resume_poll() {
     assert!(e2.contains("completed"), "e2={e2}");
     assert!(e3.contains("resumed"), "e3={e3}");
 }
+
+#[tokio::test]
+async fn poll_unknown_run_returns_empty_event() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let e = client
+        .poll_run(Request::new(PollRunRequest { run_id: "ghost".into() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .event;
+    assert!(e.is_empty(), "expected empty for unknown run, got: {e}");
+}
