@@ -134,6 +134,13 @@ fn format_trace_contains_graph_name() {
 }
 
 #[test]
+fn spec_error_duplicate_id_display_contains_id() {
+    use ancora_cli_lib::spec::SpecError;
+    let e = SpecError::DuplicateNodeId("my-node".into());
+    assert!(e.to_string().contains("my-node"));
+}
+
+#[test]
 fn run_graph_with_depends_on_chain_succeeds() {
     let yaml = r#"
 name: chain
