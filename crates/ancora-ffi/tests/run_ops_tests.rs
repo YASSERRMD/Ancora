@@ -88,3 +88,17 @@ fn run_poll_returns_empty_after_all_events_consumed() {
     ancora_buffer_free(e2);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn run_cost_returns_json_with_total_usd() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = cstr(&id);
+    let mut cost = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let code = ancora_run_cost(rt, c_id.as_ptr(), &mut cost);
+    assert_eq!(code, AncorErrorCode::Ok);
+    let s = buf_to_string(&cost);
+    assert!(s.contains("total_usd"), "cost should contain total_usd, got: {s}");
+    ancora_buffer_free(cost);
+    ancora_free_runtime(rt);
+}
