@@ -175,3 +175,16 @@ fn ffi_run_start_null_ptr_guard() {
     let code = ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out);
     assert_eq!(code, AncorErrorCode::NullPtr, "null rt must return NullPtr");
 }
+
+#[test]
+fn ffi_run_cost_returns_ok_for_valid_run() {
+    use ancora_ffi::run_ops::ancora_run_cost;
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = std::ffi::CString::new(id.as_str()).unwrap();
+    let mut cost = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let code = ancora_run_cost(rt, c_id.as_ptr(), &mut cost);
+    assert_eq!(code, AncorErrorCode::Ok);
+    ancora_buffer_free(cost);
+    ancora_free_runtime(rt);
+}
