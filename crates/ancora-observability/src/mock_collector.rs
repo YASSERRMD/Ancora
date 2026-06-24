@@ -109,6 +109,19 @@ mod tests {
     }
 
     #[test]
+    fn exporter_body_contains_span_attributes() {
+        use crate::attrs::GEN_AI_REQUEST_MODEL;
+        let collector = MockCollector::start();
+        let endpoint = format!("http://127.0.0.1:{}/v1/traces", collector.port);
+        let exporter = OtlpHttpExporter::new(endpoint);
+        exporter.emit(Span::new("attr-test").set(GEN_AI_REQUEST_MODEL, "gpt-4o-mini"));
+        exporter.export().unwrap();
+        collector.wait_for_request();
+        let body = &collector.bodies()[0];
+        assert!(body.contains("gpt-4o-mini"));
+    }
+
+    #[test]
     fn exporter_body_is_valid_otlp_json() {
         let collector = MockCollector::start();
         let endpoint = format!("http://127.0.0.1:{}/v1/traces", collector.port);
