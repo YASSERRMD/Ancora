@@ -32,3 +32,32 @@ pub extern "C" fn ancora_run_start(
     unsafe { *out_run_id = ancora_buffer_from_str(&run_id) };
     AncorErrorCode::Ok
 }
+
+/// Poll the next event for a run. Writes event JSON bytes into `out_event`.
+/// Returns an empty buffer in `out_event` when all events are consumed.
+/// Returns `NullPtr` if any pointer is null.
+#[no_mangle]
+pub extern "C" fn ancora_run_poll(
+    rt: *mut AncorRuntime,
+    run_id: *const c_char,
+    out_event: *mut AncorBuffer,
+) -> AncorErrorCode {
+    if rt.is_null() || run_id.is_null() || out_event.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let id = unsafe { std::ffi::CStr::from_ptr(run_id) }
+        .to_str()
+        .unwrap_or("");
+    let inner = unsafe { &mut *rt.cast::<InnerRuntime>() };
+    let mut guard = inner.runs.lock().unwrap();
+    if let Some(run) = guard.get_mut(id) {
+        if let Some(event) = run.poll_event() {
+            unsafe { *out_event = ancora_buffer_from_str(&event) };
+        } else {
+            unsafe { *out_event = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 } };
+        }
+    } else {
+        unsafe { *out_event = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 } };
+    }
+    AncorErrorCode::Ok
+}
