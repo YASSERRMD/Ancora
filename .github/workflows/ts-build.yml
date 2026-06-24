@@ -5,9 +5,11 @@ on:
     branches: [main]
     paths:
       - 'crates/ancora-napi/**'
+      - 'sdk/ts/npm/**'
   pull_request:
     paths:
       - 'crates/ancora-napi/**'
+      - 'sdk/ts/npm/**'
 
 jobs:
   build-native:
@@ -29,6 +31,9 @@ jobs:
           - name: win32-x64-msvc
             host: windows-latest
             target: x86_64-pc-windows-msvc
+          - name: linux-arm64-gnu
+            host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,13 +45,26 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.settings.target }}
+      - name: Install cross-compilation tools (linux-arm64)
+        if: matrix.settings.name == 'linux-arm64-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
       - name: Install npm deps
         working-directory: sdk/ts
         run: npm ci
       - name: Build native addon
         working-directory: sdk/ts
         run: npx napi build --platform --release --target ${{ matrix.settings.target }}
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
       - name: Verify .node file exists
         working-directory: sdk/ts
         shell: bash
         run: ls *.node
+      - name: Upload prebuilt artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ancora-${{ matrix.settings.name }}
+          path: sdk/ts/ancora.*.node
+          if-no-files-found: error
