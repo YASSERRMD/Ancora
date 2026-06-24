@@ -42,6 +42,7 @@ python-source = "."
 features = ["pyo3/extension-module"]
 strip = true
 profile = "release"
+python-packages = ["ancora"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
