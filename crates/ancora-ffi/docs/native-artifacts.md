@@ -1,0 +1,16 @@
+# Consuming Native Artifacts
+
+The CI workflow `native-artifacts.yml` produces two artifact categories for each supported platform:
+
+- `ancora-ffi-<platform>` - the compiled cdylib (`.so`, `.dylib`, or `.dll`)
+- `ancora-header-<platform>` - the generated `ancora.h` C header
+
+## Supported targets
+
+| Artifact suffix | Target triple |
+|---|---|
+| `linux-x86_64` | `x86_64-unknown-linux-gnu` |
+| `linux-aarch64` | `aarch64-unknown-linux-gnu` |
+| `macos-x86_64` | `x86_64-apple-darwin` |
+| `macos-arm64` | `aarch64-apple-darwin` |
+| `windows-x86_64` | `x86_64-pc-windows-msvc` |
