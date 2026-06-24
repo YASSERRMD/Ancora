@@ -20,3 +20,15 @@ pub extern "C" fn ancora_buffer_new(bytes: *const u8, len: usize) -> AncorBuffer
     std::mem::forget(vec);
     AncorBuffer { ptr, len: out_len }
 }
+
+/// Free a buffer previously created by `ancora_buffer_new` or `ancora_buffer_from_str`.
+/// Passing a zero-length or null-ptr buffer is a no-op.
+#[no_mangle]
+pub extern "C" fn ancora_buffer_free(buf: AncorBuffer) {
+    if buf.ptr.is_null() || buf.len == 0 {
+        return;
+    }
+    unsafe {
+        drop(Vec::from_raw_parts(buf.ptr, buf.len, buf.len));
+    }
+}
