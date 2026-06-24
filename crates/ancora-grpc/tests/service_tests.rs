@@ -136,3 +136,22 @@ async fn resume_then_poll_yields_resumed_event() {
         .event;
     assert!(e.contains("resumed"), "expected resumed event, got: {e}");
 }
+
+#[tokio::test]
+async fn resume_unknown_run_returns_not_found() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let status = client
+        .resume_run(Request::new(ResumeRunRequest {
+            run_id: "no-such-run".into(),
+            decision: b"x".to_vec(),
+        }))
+        .await
+        .unwrap()
+        .into_inner()
+        .status;
+    assert_eq!(status, "not_found");
+}
