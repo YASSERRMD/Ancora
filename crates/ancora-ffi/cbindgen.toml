@@ -1,0 +1,4 @@
+language = "C"
+include_guard = "ANCORA_H"
+documentation = true
+no_includes = false
