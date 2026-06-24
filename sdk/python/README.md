@@ -128,6 +128,31 @@ agent.memory.delete("step")
 agent.memory.clear()
 ```
 
+## Conformance suite
+
+Verify that your runtime produces the expected event sequences:
+
+```python
+import asyncio
+import ancora
+from ancora import ConformanceSuite, register_builtin_scenarios
+
+async def main():
+    suite = ConformanceSuite()
+    register_builtin_scenarios(suite)
+
+    rt = ancora.Runtime()
+    results = await suite.run_all(rt)
+    rt.free()
+
+    for name, passed in results.items():
+        print(f"{name}: {'PASS' if passed else 'FAIL'}")
+
+asyncio.run(main())
+```
+
+Register custom scenarios with `suite.register(name, async_fn)`.
+
 ## Pydantic models and wire format
 
 Build agent specs with Pydantic validation and serialize to JSON wire bytes:
