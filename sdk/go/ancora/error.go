@@ -1,8 +1,5 @@
 package ancora
 
-// #include "ancora.h"
-import "C"
-
 // ErrorCode maps to the C AncorErrorCode enum.
 type ErrorCode int32
 
@@ -13,8 +10,8 @@ const (
 	ErrInternal    ErrorCode = 3
 )
 
-func asError(code C.AncorErrorCode) error {
-	if code == C.Ok {
+func asError(code uint32) error {
+	if code == 0 {
 		return nil
 	}
 	return ErrorCode(code)
