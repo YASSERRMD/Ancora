@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/ancora-proto",
+    "crates/ancora-core",
 ]
 
 [workspace.package]
