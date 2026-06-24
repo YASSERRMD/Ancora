@@ -11,8 +11,9 @@ pub(crate) struct InnerRun {
 
 impl InnerRun {
     pub fn new(id: &str, spec: &str) -> Self {
+        let escaped_spec = spec.replace('\\', "\\\\").replace('"', "\\\"");
         let mut events = VecDeque::new();
-        events.push_back(format!(r#"{{"kind":"started","run_id":"{}","spec":"{}"}}"#, id, spec));
+        events.push_back(format!(r#"{{"kind":"started","run_id":"{}","spec":"{}"}}"#, id, escaped_spec));
         events.push_back(format!(r#"{{"kind":"completed","run_id":"{}"}}"#, id));
         Self { id: id.to_string(), events }
     }
