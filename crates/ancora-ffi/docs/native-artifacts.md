@@ -63,3 +63,9 @@ System.loadLibrary("ancora_ffi")
 ```
 
 Declare the FFI interface with JNA or a JNI wrapper generated from the C header.
+
+## Artifact naming convention
+
+Artifacts are named `ancora-ffi-<platform>-<version>` where `<version>` corresponds to the crate version from `Cargo.toml`. The header artifact is always named `ancora-header-<platform>-<version>`.
+
+Platform values match the `artifact_suffix` column in the target matrix table above.
