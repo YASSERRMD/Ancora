@@ -2,6 +2,7 @@ pub mod attrs;
 pub mod backends;
 pub mod builders;
 pub mod exporter;
+pub mod mock_collector;
 pub mod otlp;
 pub mod otlp_grpc;
 pub mod otlp_http;
