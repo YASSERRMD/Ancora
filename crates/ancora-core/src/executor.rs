@@ -85,28 +85,33 @@ impl GraphExecutor {
         Ok(current)
     }
 
-    /// Run a round-robin group chat where each agent in `agent_ids` speaks once per round.
+    /// Run a round-robin group chat for up to `max_rounds` rounds.
     ///
-    /// Each agent receives the previous agent's output as its input. Returns all
-    /// (agent_id, response) pairs from one full round.
+    /// Each round cycles through all `agent_ids` in order. Each agent receives the
+    /// previous agent's output as its input. Returns all (agent_id, response) pairs
+    /// across all completed rounds. `max_rounds == 0` runs exactly one round.
     pub fn run_group_chat(
         &mut self,
         agent_ids: &[String],
         initial_message: &str,
+        max_rounds: u32,
         executor: &dyn NodeExecutor,
     ) -> Result<Vec<(String, String)>, AncoraError> {
+        let rounds = max_rounds.max(1);
         let mut results = Vec::new();
         let mut current = initial_message.to_string();
 
-        for agent_id in agent_ids {
-            let output = {
-                let node = self.graph.nodes.iter()
-                    .find(|n| n.id == *agent_id)
-                    .ok_or_else(|| AncoraError::NodeNotFound(agent_id.clone()))?;
-                executor.execute(node, &current)?
-            };
-            current = output.clone();
-            results.push((agent_id.clone(), output));
+        for _round in 0..rounds {
+            for agent_id in agent_ids {
+                let output = {
+                    let node = self.graph.nodes.iter()
+                        .find(|n| n.id == *agent_id)
+                        .ok_or_else(|| AncoraError::NodeNotFound(agent_id.clone()))?;
+                    executor.execute(node, &current)?
+                };
+                current = output.clone();
+                results.push((agent_id.clone(), output));
+            }
         }
 
         Ok(results)
