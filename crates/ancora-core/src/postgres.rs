@@ -204,6 +204,10 @@ mod tests {
         std::env::var("POSTGRES_URL").ok()
     }
 
+    fn unique_run() -> String {
+        format!("pg-run-{}", uuid::Uuid::new_v4())
+    }
+
     fn run_started(label: &str) -> JournalEvent {
         JournalEvent {
             event_id: label.to_string(),
