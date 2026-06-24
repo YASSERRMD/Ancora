@@ -1,5 +1,8 @@
 # Ancora Python SDK
 
+[![py-smoke](https://github.com/YASSERRMD/Ancora/actions/workflows/py-smoke.yml/badge.svg)](https://github.com/YASSERRMD/Ancora/actions/workflows/py-smoke.yml)
+[![py-wheels](https://github.com/YASSERRMD/Ancora/actions/workflows/py-wheels.yml/badge.svg)](https://github.com/YASSERRMD/Ancora/actions/workflows/py-wheels.yml)
+
 Python bindings for the Ancora agent runtime via PyO3 and maturin.
 
 ## Install
