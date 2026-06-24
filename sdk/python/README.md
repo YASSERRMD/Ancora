@@ -21,6 +21,14 @@ cd sdk/python
 maturin develop --release
 ```
 
+## Supported platforms
+
+| Platform | Python |
+|----------|--------|
+| Linux (x86_64, aarch64) | 3.9, 3.10, 3.11, 3.12 |
+| macOS (x86_64, arm64) | 3.9, 3.10, 3.11, 3.12 |
+| Windows (x86_64) | 3.9, 3.10, 3.11, 3.12 |
+
 ## Usage
 
 ```python
