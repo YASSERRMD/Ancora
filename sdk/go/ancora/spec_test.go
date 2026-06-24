@@ -53,6 +53,31 @@ func TestRoundTripSpecThroughFFI(t *testing.T) {
 	}
 }
 
+func TestToolSpecBuilderSetsName(t *testing.T) {
+	tool := ancora.NewToolSpecBuilder().WithToolName("search").Build()
+	if tool.GetName() != "search" {
+		t.Fatalf("expected tool name 'search', got: %q", tool.GetName())
+	}
+}
+
+func TestConvenienceNewAgentSpecSetsAllFields(t *testing.T) {
+	spec := ancora.NewAgentSpec("a", "m", "i")
+	if spec.GetName() != "a" || spec.GetModelId() != "m" || spec.GetInstructions() != "i" {
+		t.Fatalf("NewAgentSpec fields wrong: %v", spec)
+	}
+}
+
+func TestAgentSpecWithToolAttachesTool(t *testing.T) {
+	tool := ancora.NewToolSpec("calc", "does math")
+	spec := ancora.NewAgentSpecBuilder().WithTool(tool).Build()
+	if len(spec.GetTools()) != 1 {
+		t.Fatalf("expected 1 tool, got: %d", len(spec.GetTools()))
+	}
+	if spec.GetTools()[0].GetName() != "calc" {
+		t.Fatalf("wrong tool name: %q", spec.GetTools()[0].GetName())
+	}
+}
+
 func TestAgentSpecRoundTrip(t *testing.T) {
 	original := ancora.NewAgentSpec("test-agent", "gpt-4o", "You are helpful.")
 	bytes, err := proto.Marshal(original)
