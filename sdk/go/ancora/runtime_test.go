@@ -29,6 +29,18 @@ func TestFreeRuntimeIsIdempotent(t *testing.T) {
 	rt.Free()
 }
 
+func TestStartRunReturnsNonEmptyID(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	run, err := rt.StartRun([]byte("{}"))
+	if err != nil {
+		t.Fatalf("StartRun: %v", err)
+	}
+	if run.ID() == "" {
+		t.Fatal("StartRun returned empty run ID")
+	}
+}
+
 func drainEvents(t *testing.T, run *ancora.Run) []string {
 	t.Helper()
 	var events []string
