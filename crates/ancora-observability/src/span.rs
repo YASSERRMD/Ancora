@@ -25,6 +25,10 @@ impl Span {
         self.attributes.insert(key.into(), value.into());
         self
     }
+
+    pub fn get(&self, key: &str) -> Option<&SpanValue> {
+        self.attributes.get(key)
+    }
 }
 
 impl From<String> for SpanValue {
