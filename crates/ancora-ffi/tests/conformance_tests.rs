@@ -45,3 +45,13 @@ fn single_agent_scenario_start_returns_ok() {
     ancora_buffer_free(out);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn single_agent_scenario_produces_started_and_completed_events() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let events = drain_events(rt, &id);
+    assert!(events.iter().any(|e| e.contains("started")), "single-agent: missing started event, got: {events:?}");
+    assert!(events.iter().any(|e| e.contains("completed")), "single-agent: missing completed event, got: {events:?}");
+    ancora_free_runtime(rt);
+}
