@@ -102,4 +102,10 @@ mod tests {
         let store = RunStore::new();
         assert!(!store.contains("nobody"));
     }
+
+    #[test]
+    fn resume_unknown_run_returns_false() {
+        let store = RunStore::new();
+        assert!(!store.resume("ghost", "nope"));
+    }
 }
