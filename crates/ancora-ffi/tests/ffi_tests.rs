@@ -15,3 +15,10 @@ fn ancora_version_is_valid_utf8() {
     let s = unsafe { std::ffi::CStr::from_ptr(ptr) }.to_str().unwrap();
     assert!(!s.is_empty());
 }
+
+#[test]
+fn create_and_free_runtime_does_not_panic() {
+    let rt = ancora_create_runtime();
+    assert!(!rt.is_null());
+    ancora_free_runtime(rt);
+}
