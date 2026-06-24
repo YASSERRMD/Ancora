@@ -35,3 +35,12 @@ fn studio_server_binds_to_os_assigned_port() {
     let server = make_server();
     assert!(server.port() > 0);
 }
+
+#[test]
+fn get_runs_returns_200() {
+    let server = make_server();
+    let port = server.port();
+    std::thread::spawn(move || { server.handle_one().ok(); });
+    let resp = http_get(port, "/runs");
+    assert!(resp.starts_with("HTTP/1.1 200"), "got: {resp}");
+}
