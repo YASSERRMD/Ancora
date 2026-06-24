@@ -1,6 +1,7 @@
 pub mod activity;
 pub mod eval;
 pub mod eval_metrics;
+pub mod eval_report;
 pub mod eval_runner;
 pub mod eval_semantic;
 pub mod cancel;
