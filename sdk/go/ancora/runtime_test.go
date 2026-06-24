@@ -15,6 +15,14 @@ func mustRuntime(t *testing.T) *ancora.Runtime {
 	return rt
 }
 
+func TestNewRuntimeReturnsNonNil(t *testing.T) {
+	rt := mustRuntime(t)
+	if rt == nil {
+		t.Fatal("NewRuntime returned nil")
+	}
+	rt.Free()
+}
+
 func drainEvents(t *testing.T, run *ancora.Run) []string {
 	t.Helper()
 	var events []string
