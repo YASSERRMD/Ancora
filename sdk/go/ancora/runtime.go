@@ -22,6 +22,26 @@ func NewRuntime() (*Runtime, error) {
 	return r, nil
 }
 
+// StartRun starts a new agent run from spec bytes and returns a Run handle.
+func (r *Runtime) StartRun(spec []byte) (*Run, error) {
+	if len(spec) == 0 {
+		spec = []byte("{}")
+	}
+	var out C.AncorBuffer
+	code := C.ancora_run_start(
+		r.ptr,
+		(*C.uint8_t)(&spec[0]),
+		C.uintptr_t(len(spec)),
+		&out,
+	)
+	if err := asError(code); err != nil {
+		return nil, err
+	}
+	id := bufferToString(out)
+	C.ancora_buffer_free(out)
+	return &Run{rt: r, id: id}, nil
+}
+
 // Free releases the underlying runtime. Idempotent; subsequent calls are no-ops.
 func (r *Runtime) Free() {
 	if r.ptr != nil {
