@@ -15,6 +15,24 @@ type Run struct {
 // ID returns the unique run identifier.
 func (r *Run) ID() string { return r.id }
 
+// PollEvent pops the next event from the run's event queue.
+// Returns nil, nil when no more events are available.
+func (r *Run) PollEvent() ([]byte, error) {
+	cid := C.CString(r.id)
+	defer C.free(unsafe.Pointer(cid))
+	var out C.AncorBuffer
+	code := C.ancora_run_poll(r.rt.ptr, cid, &out)
+	if err := asError(code); err != nil {
+		return nil, err
+	}
+	if out.ptr == nil || out.len == 0 {
+		return nil, nil
+	}
+	b := bufferToBytes(out)
+	C.ancora_buffer_free(out)
+	return b, nil
+}
+
 // bufferToBytes copies an AncorBuffer into a Go byte slice.
 // The caller must still free the original C buffer.
 func bufferToBytes(buf C.AncorBuffer) []byte {
