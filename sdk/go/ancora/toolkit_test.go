@@ -172,6 +172,23 @@ func TestToolFuncWithJsonInputAndOutput(t *testing.T) {
 	}
 }
 
+func TestGoToolRegistryUnregisterRemovesTool(t *testing.T) {
+	reg := ancora.NewGoToolRegistry()
+	reg.Register("echo", echoTool)
+	reg.Unregister("echo")
+	if reg.Has("echo") {
+		t.Fatal("Has should return false after Unregister")
+	}
+	if reg.Count() != 0 {
+		t.Fatalf("expected count 0 after Unregister, got: %d", reg.Count())
+	}
+}
+
+func TestGoToolRegistryUnregisterUnknownIsNoop(t *testing.T) {
+	reg := ancora.NewGoToolRegistry()
+	reg.Unregister("missing") // must not panic
+}
+
 func TestGoToolRegistryOverwriteExistingTool(t *testing.T) {
 	reg := ancora.NewGoToolRegistry()
 	reg.Register("echo", func(in []byte) ([]byte, error) { return []byte("v1"), nil })
