@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use ancora_proto::ancora::{
     journal_event::Event as JournalEventVariant, HumanDecisionRequestedEvent, JournalEvent,
-    NodeEnteredEvent, NodeExitedEvent,
+    NodeEnteredEvent, NodeExitedEvent, RunCancelledEvent,
 };
 
 use crate::cancel::CancellationToken;
@@ -82,12 +82,27 @@ impl GraphExecutor {
         self
     }
 
-    fn check_cancel(&self) -> Result<(), AncoraError> {
+    fn check_cancel(&mut self) -> Result<(), AncoraError> {
         if self.cancel.as_ref().is_some_and(|t| t.is_cancelled()) {
             self.run_compensations();
+            self.journal_cancellation()?;
             return Err(AncoraError::Cancelled("run was cancelled".to_string()));
         }
         Ok(())
+    }
+
+    fn journal_cancellation(&mut self) -> Result<(), AncoraError> {
+        self.journal_seq += 1;
+        let seq = self.journal_seq;
+        self.store.append(&self.run_id.clone(), JournalEvent {
+            event_id: uuid::Uuid::new_v4().to_string(),
+            run_id: self.run_id.clone(),
+            seq,
+            recorded_at_ns: 0,
+            event: Some(JournalEventVariant::RunCancelled(RunCancelledEvent {
+                reason: "run was cancelled".to_string(),
+            })),
+        }).map(|_| ())
     }
 
     fn stream_event(&self, event: StreamEvent) {
