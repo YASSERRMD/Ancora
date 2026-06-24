@@ -74,3 +74,54 @@ pub fn write_once(
     store.append(run_id, journal_event)?;
     Ok(result)
 }
+
+/// A compensating action paired with a write activity.
+///
+/// If the write succeeds but the broader transaction must be rolled back,
+/// `compensate` is called once. It is also guarded by an idempotency key so
+/// it cannot be applied twice.
+pub struct CompensatingAction {
+    /// Key of the write this action compensates.
+    pub write_key: String,
+    /// Function to call when rolling back. Returns a JSON result string.
+    pub compensate: Box<dyn Fn() -> Result<String, AncoraError> + Send + Sync>,
+}
+
+/// Execute `action.compensate()` at most once.
+///
+/// Uses `<write_key>:compensate` as the journal key so the compensating action
+/// is idempotent even if the rollback path is retried.
+pub fn run_compensating_action(
+    run_id: &str,
+    action: &CompensatingAction,
+    store: &dyn JournalStore,
+) -> Result<String, AncoraError> {
+    let key = format!("{}:compensate", action.write_key);
+
+    for event in store.read(run_id)? {
+        if let Some(Event::ActivityRecorded(ref recorded)) = event.event {
+            if recorded.activity_key == key {
+                return Ok(recorded.result_json.clone());
+            }
+        }
+    }
+
+    let result = (action.compensate)()?;
+
+    let journal_event = JournalEvent {
+        event_id: key.clone(),
+        run_id: run_id.to_string(),
+        seq: 0,
+        recorded_at_ns: 0,
+        event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
+            activity_key: key,
+            activity_kind: "compensate".to_string(),
+            input_json: String::new(),
+            result_json: result.clone(),
+            replayed: false,
+        })),
+    };
+
+    store.append(run_id, journal_event)?;
+    Ok(result)
+}
