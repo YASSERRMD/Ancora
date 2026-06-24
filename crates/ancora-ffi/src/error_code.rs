@@ -4,4 +4,5 @@
 pub enum AncorErrorCode {
     Ok = 0,
     NullPtr = 1,
+    InvalidUtf8 = 2,
 }
