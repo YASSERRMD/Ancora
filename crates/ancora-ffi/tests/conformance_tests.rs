@@ -216,3 +216,15 @@ fn ffi_journal_equals_native_event_sequence_after_resume() {
         "FFI post-resume journal must end with completed event, got: {kinds:?}");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn conformance_single_agent_tag_contains_agent() {
+    let s = &conformance::SINGLE_AGENT;
+    assert!(s.tags.contains(&"agent"), "single-agent scenario must have 'agent' tag");
+}
+
+#[test]
+fn conformance_human_in_loop_tag_contains_suspend() {
+    let s = &conformance::HUMAN_IN_LOOP;
+    assert!(s.tags.contains(&"suspend"), "human-in-loop scenario must have 'suspend' tag");
+}
