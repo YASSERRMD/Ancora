@@ -54,3 +54,13 @@ fn get_run_timeline_returns_200_with_run_id() {
     assert!(resp.starts_with("HTTP/1.1 200"), "got: {resp}");
     assert!(resp.contains("run-abc"), "body missing run_id: {resp}");
 }
+
+#[test]
+fn post_replay_returns_200_with_ok_status() {
+    let server = make_server();
+    let port = server.port();
+    std::thread::spawn(move || { server.handle_one().ok(); });
+    let resp = http_post(port, "/runs/run-xyz/replay");
+    assert!(resp.starts_with("HTTP/1.1 200"), "got: {resp}");
+    assert!(resp.contains("\"ok\"") || resp.contains("ok"), "body missing status: {resp}");
+}
