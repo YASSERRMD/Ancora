@@ -1,0 +1,12 @@
+[package]
+name = "ancora-tools"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Typed local function tools for Ancora agents"
+
+[dependencies]
+serde_json = "1"
+thiserror = "2"

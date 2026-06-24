@@ -5,6 +5,7 @@ members = [
     "crates/ancora-core",
     "crates/ancora-inference",
     "crates/ancora-memory",
+    "crates/ancora-tools",
 ]
 
 [workspace.package]
