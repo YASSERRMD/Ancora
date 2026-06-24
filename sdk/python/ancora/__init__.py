@@ -13,9 +13,11 @@ Example::
 from ancora._ancora import AncorError, Runtime, version
 from ancora.agent import Agent
 from ancora.builder import AgentSpecBuilder, ToolSpecBuilder
+from ancora.conformance import ConformanceSuite
 from ancora.memory import MemoryStore
 from ancora.models import AgentSpec, EffectClass, RetryPolicy, StreamEvent, ToolSpec
 from ancora.run import Run
+from ancora.scenarios import register_builtin_scenarios
 from ancora.tools import Tool, ToolRegistry, tool
 from ancora.wire import from_wire_bytes, to_wire_bytes
 
@@ -24,6 +26,7 @@ __all__ = [
     "Agent",
     "AgentSpec",
     "AgentSpecBuilder",
+    "ConformanceSuite",
     "EffectClass",
     "MemoryStore",
     "RetryPolicy",
@@ -35,6 +38,7 @@ __all__ = [
     "ToolSpec",
     "ToolSpecBuilder",
     "from_wire_bytes",
+    "register_builtin_scenarios",
     "to_wire_bytes",
     "tool",
     "version",
