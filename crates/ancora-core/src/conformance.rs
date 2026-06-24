@@ -58,4 +58,13 @@ mod tests {
     fn scenario_count_is_at_least_four() {
         assert!(all_scenarios().len() >= 4);
     }
+
+    #[test]
+    fn all_scenario_ids_are_unique() {
+        let scenarios = all_scenarios();
+        let mut ids = std::collections::HashSet::new();
+        for s in &scenarios {
+            assert!(ids.insert(s.id), "duplicate scenario id: {}", s.id);
+        }
+    }
 }
