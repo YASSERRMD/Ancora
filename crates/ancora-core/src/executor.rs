@@ -121,3 +121,48 @@ impl GraphExecutor {
         Ok(None)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use super::*;
+    use crate::graph::{Edge, NodeKind, NodeSpec};
+    use crate::journal::MemoryStore;
+
+    fn function_node(id: &str) -> Node {
+        Node {
+            id: id.to_string(),
+            kind: NodeKind::Function,
+            spec: NodeSpec::Function { name: id.to_string() },
+        }
+    }
+
+    fn edge(from: &str, to: &str, condition: Option<&str>) -> Edge {
+        Edge {
+            from: from.to_string(),
+            to: to.to_string(),
+            condition: condition.map(|s| s.to_string()),
+        }
+    }
+
+    struct PrefixExecutor;
+    impl NodeExecutor for PrefixExecutor {
+        fn execute(&self, node: &Node, input: &str) -> Result<String, AncoraError> {
+            Ok(format!("[{}]{}", node.id, input))
+        }
+    }
+
+    #[test]
+    fn sequential_graph_runs_in_order() {
+        let graph = Graph {
+            id: "g-seq".to_string(),
+            nodes: vec![function_node("a"), function_node("b"), function_node("c")],
+            edges: vec![edge("a", "b", None), edge("b", "c", None)],
+            entry_node: "a".to_string(),
+        };
+        let mut exec = GraphExecutor::new(graph, "run-seq-1", Arc::new(MemoryStore::new()));
+        let result = exec.run("start", &PrefixExecutor).unwrap();
+        assert_eq!(result, "[c][b][a]start");
+    }
+}
