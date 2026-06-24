@@ -50,6 +50,61 @@ fn extract_activity_key(event: &JournalEvent) -> Option<String> {
     }
 }
 
+impl JournalStore for PostgresStore {
+    fn append(&self, run_id: &str, mut event: JournalEvent) -> Result<u64, AncoraError> {
+        let mut client = self.client.lock().map_err(|_| storage("mutex poisoned"))?;
+
+        Self::lock_run(&mut client, run_id)?;
+
+        let row = client
+            .query_one(
+                "SELECT COUNT(*) FROM journal_events WHERE run_id = $1",
+                &[&run_id],
+            )
+            .map_err(storage)?;
+        let seq = row.get::<_, i64>(0) as u64;
+
+        event.seq = seq;
+        event.run_id = run_id.to_string();
+
+        let activity_key = extract_activity_key(&event);
+        let proto_bytes = event.encode_to_vec();
+
+        client
+            .execute(
+                "INSERT INTO journal_events
+                    (run_id, seq, event_id, recorded_at_ns, activity_key, proto_bytes)
+                 VALUES ($1, $2, $3, $4, $5, $6)",
+                &[
+                    &run_id,
+                    &(seq as i64),
+                    &event.event_id,
+                    &event.recorded_at_ns,
+                    &activity_key,
+                    &proto_bytes,
+                ],
+            )
+            .map_err(|e| {
+                let msg = e.to_string();
+                if msg.contains("unique") || msg.contains("duplicate") {
+                    AncoraError::JournalWrite(format!("duplicate activity_key: {e}"))
+                } else {
+                    storage(e)
+                }
+            })?;
+
+        Ok(seq)
+    }
+
+    fn read(&self, _run_id: &str) -> Result<Vec<JournalEvent>, AncoraError> {
+        Ok(vec![])
+    }
+
+    fn load(&self, _run_id: &str, _seq: u64) -> Result<Option<JournalEvent>, AncoraError> {
+        Ok(None)
+    }
+}
+
 impl PostgresStore {
     fn lock_run(client: &mut Client, run_id: &str) -> Result<(), AncoraError> {
         client
