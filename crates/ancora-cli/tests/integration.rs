@@ -134,6 +134,24 @@ fn format_trace_contains_graph_name() {
 }
 
 #[test]
+fn run_graph_with_depends_on_chain_succeeds() {
+    let yaml = r#"
+name: chain
+nodes:
+  - id: a
+    kind: agent
+  - id: b
+    kind: agent
+    depends_on: [a]
+  - id: c
+    kind: tool
+    depends_on: [b]
+"#;
+    let f = write_graph(yaml);
+    ancora_cli_lib::spec::run_graph(f.path().to_str().unwrap(), "memory").unwrap();
+}
+
+#[test]
 fn format_trace_lists_all_nodes() {
     let spec = GraphSpec {
         name: "g".into(),
