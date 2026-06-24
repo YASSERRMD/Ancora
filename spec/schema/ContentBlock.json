@@ -1,0 +1,144 @@
+{
+  "$id": "https://ancora.dev/schema/ContentBlock.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One content block within a message (exactly one variant present)",
+  "oneOf": [
+    {
+      "properties": {
+        "text": {
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    {
+      "properties": {
+        "toolCall": {
+          "properties": {
+            "argumentsJson": {
+              "type": "string"
+            },
+            "toolCallId": {
+              "type": "string"
+            },
+            "toolName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "toolCallId",
+            "toolName",
+            "argumentsJson"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "toolCall"
+      ]
+    },
+    {
+      "properties": {
+        "toolResult": {
+          "properties": {
+            "isError": {
+              "type": "boolean"
+            },
+            "resultJson": {
+              "type": "string"
+            },
+            "toolCallId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "toolCallId",
+            "resultJson"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "toolResult"
+      ]
+    },
+    {
+      "properties": {
+        "image": {
+          "properties": {
+            "inlineBase64": {
+              "type": "string"
+            },
+            "mediaType": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "image"
+      ]
+    },
+    {
+      "properties": {
+        "audio": {
+          "properties": {
+            "inlineBase64": {
+              "type": "string"
+            },
+            "mediaType": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "audio"
+      ]
+    },
+    {
+      "properties": {
+        "document": {
+          "properties": {
+            "filename": {
+              "type": "string"
+            },
+            "inlineBase64": {
+              "type": "string"
+            },
+            "mediaType": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "document"
+      ]
+    }
+  ],
+  "title": "ContentBlock",
+  "type": "object"
+}

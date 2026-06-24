@@ -1,0 +1,24 @@
+{
+  "$id": "https://ancora.dev/schema/TokenUsage.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "cacheReadTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "cacheWriteTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "inputTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "outputTokens": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "title": "TokenUsage",
+  "type": "object"
+}

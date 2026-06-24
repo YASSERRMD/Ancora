@@ -1,0 +1,42 @@
+{
+  "$defs": {
+    "EffectClass": {
+      "enum": [
+        "EFFECT_UNSPECIFIED",
+        "EFFECT_PURE",
+        "EFFECT_READ",
+        "EFFECT_WRITE"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "https://ancora.dev/schema/ToolSpec.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Describes a single tool that an agent may invoke",
+  "properties": {
+    "description": {
+      "type": "string"
+    },
+    "effectClass": {
+      "$ref": "#/$defs/EffectClass"
+    },
+    "idempotencyKeyTemplate": {
+      "type": "string"
+    },
+    "inputSchemaJson": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "outputSchemaJson": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "effectClass"
+  ],
+  "title": "ToolSpec",
+  "type": "object"
+}

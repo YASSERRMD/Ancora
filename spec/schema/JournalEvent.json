@@ -1,0 +1,58 @@
+{
+  "$id": "https://ancora.dev/schema/JournalEvent.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A single entry in the durable event journal",
+  "properties": {
+    "activityRecorded": {
+      "type": "object"
+    },
+    "error": {
+      "type": "object"
+    },
+    "eventId": {
+      "type": "string"
+    },
+    "humanDecisionReceived": {
+      "type": "object"
+    },
+    "humanDecisionRequested": {
+      "type": "object"
+    },
+    "nodeEntered": {
+      "type": "object"
+    },
+    "nodeExited": {
+      "type": "object"
+    },
+    "recordedAtNs": {
+      "type": "integer"
+    },
+    "retryScheduled": {
+      "type": "object"
+    },
+    "runCancelled": {
+      "type": "object"
+    },
+    "runCompleted": {
+      "type": "object"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "runStarted": {
+      "type": "object"
+    },
+    "seq": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "eventId",
+    "runId",
+    "seq",
+    "recordedAtNs"
+  ],
+  "title": "JournalEvent",
+  "type": "object"
+}
