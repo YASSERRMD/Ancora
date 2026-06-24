@@ -34,3 +34,14 @@ fn drain_events(rt: *mut ancora_ffi::handles::AncorRuntime, run_id: &str) -> Vec
     }
     events
 }
+
+#[test]
+fn single_agent_scenario_start_returns_ok() {
+    let rt = make_rt();
+    let spec = b"{}";
+    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let code = ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
+    assert_eq!(code, AncorErrorCode::Ok, "single-agent: start must return Ok");
+    ancora_buffer_free(out);
+    ancora_free_runtime(rt);
+}
