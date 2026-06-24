@@ -52,3 +52,37 @@ func (b *AgentSpecBuilder) Build() *AgentSpec {
 func (b *AgentSpecBuilder) BuildBytes() ([]byte, error) {
 	return proto.Marshal(b.Build())
 }
+
+// ToolSpecBuilder constructs a ToolSpec incrementally.
+type ToolSpecBuilder struct {
+	spec ToolSpec
+}
+
+// NewToolSpecBuilder returns a builder for a ToolSpec.
+func NewToolSpecBuilder() *ToolSpecBuilder {
+	return &ToolSpecBuilder{}
+}
+
+// WithToolName sets the tool's stable machine-readable identifier.
+func (b *ToolSpecBuilder) WithToolName(name string) *ToolSpecBuilder {
+	b.spec.Name = name
+	return b
+}
+
+// WithDescription sets the human-readable description shown to the model.
+func (b *ToolSpecBuilder) WithDescription(desc string) *ToolSpecBuilder {
+	b.spec.Description = desc
+	return b
+}
+
+// WithInputSchema sets the JSON Schema string for the tool's input arguments.
+func (b *ToolSpecBuilder) WithInputSchema(schema string) *ToolSpecBuilder {
+	b.spec.InputSchemaJson = schema
+	return b
+}
+
+// Build returns the ToolSpec proto message.
+func (b *ToolSpecBuilder) Build() *ToolSpec {
+	spec := b.spec
+	return &spec
+}
