@@ -116,4 +116,15 @@ mod tests {
             assert_eq!(r.pass_count, 0);
         }
     }
+
+    #[test]
+    fn rollout_results_have_correct_rollout_indices() {
+        let mut runner = EvalRunner::new(3);
+        runner.register_scorer(Arc::new(ExactMatchScorer));
+        let cases = vec![EvalCase::new("c1", "q", "a", "exact_match")];
+        let generate: GenerateFn = Arc::new(|_| "a".into());
+        let results = runner.run(&cases, &generate);
+        let indices: Vec<usize> = results[0].rollouts.iter().map(|r| r.rollout).collect();
+        assert_eq!(indices, vec![0, 1, 2]);
+    }
 }
