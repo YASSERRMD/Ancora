@@ -1,0 +1,33 @@
+name: ts-examples
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/ts/**'
+      - 'sdk/ts/**'
+  pull_request:
+    paths:
+      - 'examples/ts/**'
+      - 'sdk/ts/**'
+
+jobs:
+  typecheck:
+    name: Type-check TS examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: sdk/ts/package-lock.json
+      - name: Install SDK deps
+        working-directory: sdk/ts
+        run: npm ci
+      - name: Type check SDK
+        working-directory: sdk/ts
+        run: npx tsc --noEmit
+      - name: Run SDK tests
+        working-directory: sdk/ts
+        run: npm test -- --ci --passWithNoTests

@@ -1,0 +1,20 @@
+{
+  "name": "ancora-ts-examples",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runnable TypeScript examples for the Ancora SDK",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "run:single-agent": "ts-node single-agent.ts",
+    "run:streaming-chat": "ts-node streaming-chat.ts",
+    "run:mcp-tool-use": "ts-node mcp-tool-use.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "ancora": "file:../../sdk/ts",
+    "zod": "^3.25.76"
+  }
+}
