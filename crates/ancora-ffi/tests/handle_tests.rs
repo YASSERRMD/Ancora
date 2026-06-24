@@ -48,3 +48,20 @@ fn runtime_new_via_error_code_api_returns_ok() {
     assert!(!rt.is_null());
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn runtime_new_null_out_returns_null_ptr_error() {
+    let code = ancora_runtime_new(std::ptr::null_mut());
+    assert_eq!(code, AncorErrorCode::NullPtr);
+}
+
+#[test]
+fn run_id_to_str_round_trips() {
+    let s = std::ffi::CString::new("my-run-id").unwrap();
+    let id = ancora_run_id_new(s.as_ptr());
+    assert!(!id.is_null());
+    let buf = ancora_run_id_to_str(id.cast_const());
+    assert_eq!(buf.len, "my-run-id".len());
+    ancora_buffer_free(buf);
+    ancora_run_id_free(id);
+}
