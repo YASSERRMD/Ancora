@@ -11,5 +11,17 @@ Example::
 """
 
 from ancora._ancora import AncorError, Runtime, version
+from ancora.models import AgentSpec, EffectClass, RetryPolicy, ToolSpec
+from ancora.wire import from_wire_bytes, to_wire_bytes
 
-__all__ = ["AncorError", "Runtime", "version"]
+__all__ = [
+    "AncorError",
+    "AgentSpec",
+    "EffectClass",
+    "RetryPolicy",
+    "Runtime",
+    "ToolSpec",
+    "from_wire_bytes",
+    "to_wire_bytes",
+    "version",
+]
