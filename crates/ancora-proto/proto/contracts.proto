@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package ancora;
+
+option java_package = "dev.ancora";
+option java_outer_classname = "ContractsPb";
+option go_package = "github.com/YASSERRMD/Ancora/bindings/go/ancora";
+
+// ---- Effect class ----
+
+// Classifies the observable side effect a tool may produce.
+enum EffectClass {
+  EFFECT_UNSPECIFIED = 0;
+  // No observable side effects; safe to retry or replay at any time.
+  EFFECT_PURE = 1;
+  // Reads external state without modifying it.
+  EFFECT_READ = 2;
+  // Modifies external state; requires idempotency key for safe replay.
+  EFFECT_WRITE = 3;
+}
+
+// ---- Tool contract ----
+
+// Describes a single tool that an agent may invoke.
+message ToolSpec {
+  // Stable machine-readable identifier.
+  string name = 1;
+  // Human-readable description shown to the model.
+  string description = 2;
+  // JSON Schema (serialized as a JSON string) for the input arguments.
+  string input_schema_json = 3;
+  // JSON Schema (serialized as a JSON string) for the output value.
+  string output_schema_json = 4;
+  // Observable side-effect class of this tool.
+  EffectClass effect_class = 5;
+  // For EFFECT_WRITE tools: a client-supplied idempotency key template.
+  // Supports simple variable substitution: {run_id}, {node_id}, {seq}.
+  // Empty for non-write tools.
+  string idempotency_key_template = 6;
+}
+
+// ---- Agent contract ----
+
+// Retry policy attached to a model call or tool call.
+message RetryPolicy {
+  uint32 max_attempts = 1;
+  // Initial backoff in milliseconds.
+  uint32 initial_backoff_ms = 2;
+  // Maximum backoff in milliseconds.
+  uint32 max_backoff_ms = 3;
+  // Jitter fraction in [0, 1]. 0 means no jitter.
+  float jitter = 4;
+}
+
+// Specifies a single agent in the graph.
+message AgentSpec {
+  // Stable machine-readable identifier.
+  string name = 1;
+  // Model identifier (e.g. "llama3", "gpt-4o").
+  string model_id = 2;
+  // System prompt / instructions sent before the conversation.
+  string instructions = 3;
+  // JSON Schema (serialized as a JSON string) for the structured output.
+  // Empty means free-form text output.
+  string output_schema_json = 4;
+  // Tools available to this agent.
+  repeated ToolSpec tools = 5;
+  // Maximum number of reason-act loop iterations before forced termination.
+  uint32 max_steps = 6;
+  // Retry policy for the model call.
+  RetryPolicy model_retry = 7;
+  // Additional model parameters as a JSON object (temperature, top_p, etc.).
+  string model_params_json = 8;
+}
