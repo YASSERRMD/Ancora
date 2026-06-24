@@ -141,6 +141,14 @@ fn spec_error_duplicate_id_display_contains_id() {
 }
 
 #[test]
+fn spec_error_unknown_dep_display_contains_dep_and_node() {
+    use ancora_cli_lib::spec::SpecError;
+    let e = SpecError::UnknownDependency { node: "n1".into(), dep: "bad-dep".into() };
+    let s = e.to_string();
+    assert!(s.contains("n1") && s.contains("bad-dep"));
+}
+
+#[test]
 fn run_graph_with_depends_on_chain_succeeds() {
     let yaml = r#"
 name: chain
