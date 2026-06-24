@@ -203,4 +203,14 @@ mod tests {
         let events = store.read("run-1").unwrap();
         assert_eq!(events.len(), 2);
     }
+
+    #[test]
+    fn crash_and_recover_scenario_clone_shares_state() {
+        use crate::journal::{JournalStore, MemoryStore};
+        let store = MemoryStore::new();
+        let store2 = store.clone();
+        store.append("run-x", make_journal_event("e1")).unwrap();
+        let events = store2.read("run-x").unwrap();
+        assert_eq!(events.len(), 1, "cloned store must share the same backing state");
+    }
 }
