@@ -59,3 +59,10 @@ jobs:
             target/${{ matrix.target }}/release/libancora_ffi.dylib
             target/${{ matrix.target }}/release/ancora_ffi.dll
           if-no-files-found: ignore
+      - name: Upload C header artifact
+        if: matrix.use_cross != true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ancora-header-${{ matrix.artifact_suffix }}
+          path: target/${{ matrix.target }}/release/build/ancora-ffi-*/out/ancora.h
+          if-no-files-found: ignore
