@@ -17,6 +17,7 @@ uuid = { version = "1.23.3", features = ["v4"] }
 
 [features]
 sqlite = ["dep:rusqlite"]
+postgres = ["dep:postgres"]
 
 [dev-dependencies]
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
