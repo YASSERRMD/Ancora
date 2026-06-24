@@ -24,8 +24,17 @@ export class RunHandle {
     return this.events()
   }
 
-  resume(decision: string): void {
+  resume(decision: string | Uint8Array): void {
     this._rt.resumeRun(this.runId, decision)
+  }
+
+  async run(decision: string | Uint8Array): Promise<RunEvent[]> {
+    this.resume(decision)
+    const collected: RunEvent[] = []
+    for await (const ev of this) {
+      collected.push(ev)
+    }
+    return collected
   }
 }
 
