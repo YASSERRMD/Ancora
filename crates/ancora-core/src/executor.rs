@@ -143,13 +143,21 @@ impl GraphExecutor {
     /// Resume a run that was previously suspended at an AwaitHuman node.
     ///
     /// `decision` is treated as the output of the AwaitHuman node.
+    /// `now_ms` is the caller-supplied current time in Unix epoch milliseconds used to
+    /// enforce the optional deadline stored in `suspended`.
     /// Execution continues from the next node in the graph.
     pub fn resume(
         &mut self,
         suspended: &SuspendedRun,
         decision: &str,
+        now_ms: u64,
         executor: &dyn NodeExecutor,
     ) -> Result<RunOutcome, AncoraError> {
+        if let Some(deadline) = suspended.deadline_ms {
+            if now_ms > deadline {
+                return Err(AncoraError::Timeout { timeout_ms: deadline });
+            }
+        }
         self.journal_seq += 1;
         let seq = self.journal_seq;
         self.store.append(&suspended.run_id.clone(), JournalEvent {
