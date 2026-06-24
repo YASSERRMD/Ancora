@@ -14,6 +14,12 @@ impl InnerRun {
         let escaped_spec = spec.replace('\\', "\\\\").replace('"', "\\\"");
         let mut events = VecDeque::new();
         events.push_back(format!(r#"{{"kind":"started","run_id":"{}","spec":"{}"}}"#, id, escaped_spec));
+        for token in &["Hello", " ", "world"] {
+            events.push_back(format!(
+                r#"{{"kind":"token","run_id":"{}","text":"{}"}}"#,
+                id, token
+            ));
+        }
         events.push_back(format!(r#"{{"kind":"completed","run_id":"{}"}}"#, id));
         Self { id: id.to_string(), events }
     }
