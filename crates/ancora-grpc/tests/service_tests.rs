@@ -80,3 +80,28 @@ async fn poll_run_second_event_is_completed() {
         .event;
     assert!(e2.contains("completed"), "expected completed, got: {e2}");
 }
+
+#[tokio::test]
+async fn resume_run_returns_ok() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let status = client
+        .resume_run(Request::new(ResumeRunRequest {
+            run_id,
+            decision: b"approved".to_vec(),
+        }))
+        .await
+        .unwrap()
+        .into_inner()
+        .status;
+    assert_eq!(status, "ok");
+}
