@@ -165,4 +165,57 @@ mod tests {
         let result = exec.run("start", &PrefixExecutor).unwrap();
         assert_eq!(result, "[c][b][a]start");
     }
+
+    #[test]
+    fn conditional_routing_picks_correct_branch() {
+        // Graph: start -> left (if output contains "go-left") or right (unconditional fallback)
+        let graph = Graph {
+            id: "g-cond".to_string(),
+            nodes: vec![function_node("start"), function_node("left"), function_node("right")],
+            edges: vec![
+                edge("start", "left", Some("go-left")),
+                edge("start", "right", None),
+            ],
+            entry_node: "start".to_string(),
+        };
+
+        // Executor that returns its own id as output, ignoring input.
+        struct IdExecutor;
+        impl NodeExecutor for IdExecutor {
+            fn execute(&self, node: &Node, _input: &str) -> Result<String, AncoraError> {
+                Ok(node.id.clone())
+            }
+        }
+
+        // "start" returns "start" which does not contain "go-left" -> takes unconditional edge to "right"
+        let mut exec = GraphExecutor::new(graph, "run-cond-1", Arc::new(MemoryStore::new()));
+        let result = exec.run("", &IdExecutor).unwrap();
+        assert_eq!(result, "right");
+
+        // A graph where the start node outputs "go-left" -> takes conditional edge to "left"
+        let graph2 = Graph {
+            id: "g-cond2".to_string(),
+            nodes: vec![function_node("start"), function_node("left"), function_node("right")],
+            edges: vec![
+                edge("start", "left", Some("go-left")),
+                edge("start", "right", None),
+            ],
+            entry_node: "start".to_string(),
+        };
+
+        struct GoLeftExecutor;
+        impl NodeExecutor for GoLeftExecutor {
+            fn execute(&self, node: &Node, _input: &str) -> Result<String, AncoraError> {
+                if node.id == "start" {
+                    Ok("go-left".to_string())
+                } else {
+                    Ok(node.id.clone())
+                }
+            }
+        }
+
+        let mut exec2 = GraphExecutor::new(graph2, "run-cond-2", Arc::new(MemoryStore::new()));
+        let result2 = exec2.run("", &GoLeftExecutor).unwrap();
+        assert_eq!(result2, "left");
+    }
 }
