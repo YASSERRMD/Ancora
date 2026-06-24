@@ -1,0 +1,36 @@
+name: py-smoke
+
+on:
+  pull_request:
+    paths:
+      - 'sdk/python/**'
+      - 'crates/ancora-py/**'
+  push:
+    branches: [main]
+
+jobs:
+  smoke:
+    name: smoke test ${{ matrix.os }} py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ['3.9', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: install maturin
+        run: pip install maturin
+      - name: build and install
+        run: |
+          cd sdk/python
+          pip install -e ".[test]"
+          maturin develop --release
+      - name: run tests
+        run: |
+          cd sdk/python
+          python -m pytest tests/ -q
