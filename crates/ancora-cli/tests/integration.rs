@@ -1,3 +1,4 @@
+use ancora_cli_lib::spec::{GraphSpec, NodeSpec};
 use std::io::Write;
 use tempfile::NamedTempFile;
 
@@ -47,4 +48,45 @@ fn open_store_sqlite_returns_ok() {
 #[test]
 fn open_store_unknown_returns_error() {
     assert!(ancora_cli_lib::store::open_store("redis").is_err());
+}
+
+#[test]
+fn graph_spec_validate_accepts_valid_graph() {
+    let spec = GraphSpec {
+        name: "test".into(),
+        nodes: vec![
+            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
+            NodeSpec { id: "b".into(), kind: "agent".into(), model: None, depends_on: vec!["a".into()] },
+        ],
+    };
+    spec.validate().unwrap();
+}
+
+#[test]
+fn graph_spec_validate_detects_duplicate_id() {
+    let spec = GraphSpec {
+        name: "test".into(),
+        nodes: vec![
+            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
+            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
+        ],
+    };
+    assert!(spec.validate().is_err());
+}
+
+#[test]
+fn graph_spec_validate_detects_unknown_dependency() {
+    let spec = GraphSpec {
+        name: "test".into(),
+        nodes: vec![
+            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec!["nonexistent".into()] },
+        ],
+    };
+    assert!(spec.validate().is_err());
+}
+
+#[test]
+fn graph_spec_empty_nodes_is_valid() {
+    let spec = GraphSpec { name: "empty".into(), nodes: vec![] };
+    spec.validate().unwrap();
 }
