@@ -115,3 +115,13 @@ fn register_two_tools_count_is_two() {
     assert_eq!(ancora_tool_count(rt), 2);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn unregister_removes_tool_from_exists() {
+    let rt = make_rt();
+    let name = cstr("echo");
+    ancora_tool_register(rt, name.as_ptr(), echo_cb);
+    ancora_tool_unregister(rt, name.as_ptr());
+    assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 0);
+    ancora_free_runtime(rt);
+}
