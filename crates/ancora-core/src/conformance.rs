@@ -125,4 +125,16 @@ mod tests {
         };
         assert_eq!(graph.nodes.len(), 1);
     }
+
+    #[test]
+    fn multi_agent_verifier_scenario_graph_is_valid() {
+        use crate::graph::{Edge, Graph};
+        let graph = Graph {
+            id: "g-multi".to_string(),
+            nodes: vec![make_agent_node("agent"), make_agent_node("verifier")],
+            edges: vec![Edge { from: "agent".into(), to: "verifier".into(), condition: None }],
+            entry_node: "agent".to_string(),
+        };
+        assert!(graph.validate().is_ok());
+    }
 }
