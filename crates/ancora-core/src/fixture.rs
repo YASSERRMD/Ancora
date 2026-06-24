@@ -82,3 +82,18 @@ pub fn load_fixture_from_file(path: &Path) -> Result<Fixture, AncoraError> {
     }
     Ok(fixture)
 }
+
+/// Replay a fixture: returns a generator that replays recorded results.
+/// Returns `Ok(result_json)` for known keys and `Err` for unknown keys.
+pub fn replay_fixture(fixture: &Fixture, activity_key: &str) -> Result<String, AncoraError> {
+    fixture
+        .get_result(activity_key)
+        .map(|s| s.to_string())
+        .ok_or_else(|| {
+            AncoraError::Nondeterminism {
+                seq: 0,
+                expected: activity_key.to_string(),
+                got: "<not in fixture>".to_string(),
+            }
+        })
+}
