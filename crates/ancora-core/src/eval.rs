@@ -118,4 +118,23 @@ mod tests {
         let s = ContainsScorer;
         assert_eq!(s.score("no match here", "42"), 0.0);
     }
+
+    #[test]
+    fn normalized_edit_scorer_identical_is_one() {
+        let s = NormalizedEditScorer;
+        assert!((s.score("hello", "hello") - 1.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn normalized_edit_scorer_completely_different_less_than_one() {
+        let s = NormalizedEditScorer;
+        let v = s.score("abc", "xyz");
+        assert!(v < 1.0 && v >= 0.0);
+    }
+
+    #[test]
+    fn normalized_edit_scorer_empty_both_is_one() {
+        let s = NormalizedEditScorer;
+        assert!((s.score("", "") - 1.0).abs() < 1e-9);
+    }
 }
