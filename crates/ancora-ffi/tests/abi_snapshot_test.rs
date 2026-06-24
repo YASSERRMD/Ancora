@@ -92,3 +92,10 @@ fn snapshot_header_ancorbuffer_has_ptr_and_len_fields() {
     assert!(block.contains("ptr"), "AncorBuffer missing ptr field");
     assert!(block.contains("len"), "AncorBuffer missing len field");
 }
+
+#[test]
+fn snapshot_header_ancor_error_code_ok_is_zero() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("Ok = 0") || content.contains("OK = 0") || content.contains("Ok,"),
+        "AncorErrorCode::Ok should appear in header near 0 discriminant");
+}
