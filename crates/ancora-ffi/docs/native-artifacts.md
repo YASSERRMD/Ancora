@@ -14,3 +14,25 @@ The CI workflow `native-artifacts.yml` produces two artifact categories for each
 | `macos-x86_64` | `x86_64-apple-darwin` |
 | `macos-arm64` | `aarch64-apple-darwin` |
 | `windows-x86_64` | `x86_64-pc-windows-msvc` |
+
+## Linking in C
+
+Download `ancora-ffi-<platform>` and `ancora-header-<platform>` from CI artifacts.
+
+```c
+#include "ancora.h"
+
+int main(void) {
+    AncorRuntime *rt = NULL;
+    ancora_runtime_new(&rt);
+    // ...
+    ancora_free_runtime(rt);
+    return 0;
+}
+```
+
+Compile with:
+
+```sh
+cc myapp.c -L/path/to/artifact -lancora_ffi -o myapp
+```
