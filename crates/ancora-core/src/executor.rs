@@ -13,6 +13,17 @@ pub trait NodeExecutor: Send + Sync {
     fn execute(&self, node: &Node, input: &str) -> Result<String, AncoraError>;
 }
 
+/// The decision returned by a verifier node.
+pub enum VerifierResult {
+    Approved { output: String },
+    Rejected { reason: String },
+}
+
+/// Inspects a candidate output and decides whether to approve or reject it.
+pub trait VerifierNode: Send + Sync {
+    fn verify(&self, node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError>;
+}
+
 /// Runs a validated `Graph` sequentially, passing each node's output as the next node's input.
 pub struct GraphExecutor {
     pub graph: Graph,
@@ -59,6 +70,130 @@ impl GraphExecutor {
                 None => return Ok(current_output),
             }
         }
+    }
+
+    /// Run `worker_id` and pass the result to `verifier_id` for approval.
+    ///
+    /// On rejection the worker is re-executed up to `max_rework` times.
+    /// Returns `Ok(output)` on approval or `Err(OutputValidation)` when the rework budget is exhausted.
+    /// `max_rework == 0` means try once with no retry.
+    pub fn run_with_verifier(
+        &mut self,
+        worker_id: &str,
+        verifier_id: &str,
+        input: &str,
+        max_rework: u32,
+        executor: &dyn NodeExecutor,
+        verifier: &dyn VerifierNode,
+    ) -> Result<String, AncoraError> {
+        let attempts = max_rework + 1;
+
+        for attempt in 1..=attempts {
+            let candidate = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == worker_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(worker_id.to_string()))?;
+                executor.execute(node, input)?
+            };
+
+            let v_node = self.graph.nodes.iter()
+                .find(|n| n.id == verifier_id)
+                .ok_or_else(|| AncoraError::NodeNotFound(verifier_id.to_string()))?;
+
+            match verifier.verify(v_node, &candidate)? {
+                VerifierResult::Approved { output } => return Ok(output),
+                VerifierResult::Rejected { reason } => {
+                    if attempt >= attempts {
+                        return Err(AncoraError::OutputValidation { attempts: attempt, reason });
+                    }
+                }
+            }
+        }
+
+        unreachable!("loop always returns")
+    }
+
+    /// Run consensus across `voter_ids`. When the top vote count is shared by multiple
+    /// outputs (a tie), call `arbiter_id` with the tied outputs joined by newline to
+    /// make the final decision.
+    pub fn run_with_arbiter(
+        &mut self,
+        voter_ids: &[String],
+        arbiter_id: &str,
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        if voter_ids.is_empty() {
+            return Err(AncoraError::Internal("consensus requires at least one voter".to_string()));
+        }
+
+        let mut tallies: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+
+        for voter_id in voter_ids {
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *voter_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(voter_id.clone()))?;
+                executor.execute(node, input)?
+            };
+            *tallies.entry(output).or_insert(0) += 1;
+        }
+
+        let max_votes = tallies.values().copied().max().unwrap_or(0);
+        let mut tied: Vec<String> = tallies.into_iter()
+            .filter(|(_, v)| *v == max_votes)
+            .map(|(k, _)| k)
+            .collect();
+        tied.sort();
+
+        if tied.len() == 1 {
+            return Ok(tied.remove(0));
+        }
+
+        // Call arbiter to break the tie.
+        let arbiter_input = tied.join("\n");
+        let arbiter_node = self.graph.nodes.iter()
+            .find(|n| n.id == arbiter_id)
+            .ok_or_else(|| AncoraError::NodeNotFound(arbiter_id.to_string()))?;
+        executor.execute(arbiter_node, &arbiter_input)
+    }
+
+    /// Run all nodes in `voter_ids` on the same `input` and return the output that
+    /// received the most votes. Ties between outputs of equal vote count are broken by
+    /// lexicographic order so the result is always deterministic.
+    ///
+    /// Returns `Err(Internal)` when `voter_ids` is empty.
+    pub fn run_consensus(
+        &mut self,
+        voter_ids: &[String],
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        if voter_ids.is_empty() {
+            return Err(AncoraError::Internal("consensus requires at least one voter".to_string()));
+        }
+
+        let mut tallies: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+
+        for voter_id in voter_ids {
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *voter_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(voter_id.clone()))?;
+                executor.execute(node, input)?
+            };
+            *tallies.entry(output).or_insert(0) += 1;
+        }
+
+        // Pick the output with the most votes; break ties lexicographically.
+        let winner = tallies.into_iter()
+            .max_by(|(a_out, a_votes), (b_out, b_votes)| {
+                a_votes.cmp(b_votes).then_with(|| b_out.cmp(a_out))
+            })
+            .map(|(output, _)| output)
+            .expect("tallies is non-empty");
+
+        Ok(winner)
     }
 
     /// Transfer control sequentially through `agent_ids`, passing each agent's output
@@ -494,5 +629,77 @@ mod tests {
         let mut exec2 = GraphExecutor::new(graph2, "run-chat-2", Arc::new(MemoryStore::new()));
         let one_round = exec2.run_group_chat(&agents, "hello", 1, &PrefixExecutor).unwrap();
         assert_eq!(one_round.len(), 2, "one round with 2 agents must produce exactly 2 turns");
+    }
+
+    #[test]
+    fn verifier_rejection_triggers_bounded_rework() {
+        use std::sync::atomic::{AtomicU32, Ordering};
+
+        let graph = Graph {
+            id: "g-verify".to_string(),
+            nodes: vec![function_node("worker"), function_node("verifier")],
+            edges: vec![],
+            entry_node: "worker".to_string(),
+        };
+
+        // Worker appends its call count to the output.
+        let call_count = Arc::new(AtomicU32::new(0));
+        let cc = Arc::clone(&call_count);
+        struct CountingWorker(Arc<AtomicU32>);
+        impl NodeExecutor for CountingWorker {
+            fn execute(&self, _node: &Node, _input: &str) -> Result<String, AncoraError> {
+                let n = self.0.fetch_add(1, Ordering::SeqCst) + 1;
+                Ok(format!("output-{n}"))
+            }
+        }
+
+        // Verifier rejects everything.
+        struct AlwaysReject;
+        impl VerifierNode for AlwaysReject {
+            fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
+                Ok(VerifierResult::Rejected { reason: format!("rejected {candidate}") })
+            }
+        }
+
+        let mut exec = GraphExecutor::new(graph, "run-verify-1", Arc::new(MemoryStore::new()));
+        let err = exec.run_with_verifier(
+            "worker", "verifier", "in", 2, &CountingWorker(cc), &AlwaysReject,
+        ).unwrap_err();
+
+        assert!(matches!(err, AncoraError::OutputValidation { attempts: 3, .. }));
+        assert_eq!(call_count.load(Ordering::SeqCst), 3, "worker must be called 1 + max_rework times");
+    }
+
+    #[test]
+    fn consensus_selects_majority_result() {
+        let graph = Graph {
+            id: "g-consensus".to_string(),
+            nodes: vec![
+                function_node("v1"),
+                function_node("v2"),
+                function_node("v3"),
+                function_node("v4"),
+                function_node("v5"),
+            ],
+            edges: vec![],
+            entry_node: "v1".to_string(),
+        };
+
+        // v1, v2, v4 return "A"; v3, v5 return "B" -> majority is "A"
+        struct MajorityVoter;
+        impl NodeExecutor for MajorityVoter {
+            fn execute(&self, node: &Node, _input: &str) -> Result<String, AncoraError> {
+                match node.id.as_str() {
+                    "v3" | "v5" => Ok("B".to_string()),
+                    _ => Ok("A".to_string()),
+                }
+            }
+        }
+
+        let voters: Vec<String> = vec!["v1", "v2", "v3", "v4", "v5"]
+            .into_iter().map(|s| s.to_string()).collect();
+        let mut exec = GraphExecutor::new(graph, "run-consensus-1", Arc::new(MemoryStore::new()));
+        let result = exec.run_consensus(&voters, "in", &MajorityVoter).unwrap();
+        assert_eq!(result, "A", "majority vote must select A (3 votes vs 2)");
     }
 }
