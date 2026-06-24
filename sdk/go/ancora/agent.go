@@ -32,3 +32,13 @@ func (a *Agent) Spec() *AgentSpec { return a.spec }
 
 // Runtime returns the Runtime backing this agent.
 func (a *Agent) Runtime() *Runtime { return a.rt }
+
+// StartWithEvents launches a new run and returns both the run handle and
+// an event channel that receives events as they arrive.
+func (a *Agent) StartWithEvents() (*Run, <-chan []byte, error) {
+	run, err := a.Start()
+	if err != nil {
+		return nil, nil, err
+	}
+	return run, run.EventChan(), nil
+}
