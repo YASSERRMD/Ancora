@@ -18,3 +18,22 @@ func NewGoToolRegistry() *GoToolRegistry {
 func (r *GoToolRegistry) Register(name string, fn ToolFunc) {
 	r.tools[name] = fn
 }
+
+// Invoke calls the named tool with the given input bytes.
+// Returns ErrInternal if the tool is not registered.
+func (r *GoToolRegistry) Invoke(name string, input []byte) ([]byte, error) {
+	fn, ok := r.tools[name]
+	if !ok {
+		return nil, ErrInternal
+	}
+	return fn(input)
+}
+
+// Count returns the number of registered tools.
+func (r *GoToolRegistry) Count() int { return len(r.tools) }
+
+// Has reports whether a tool with the given name is registered.
+func (r *GoToolRegistry) Has(name string) bool {
+	_, ok := r.tools[name]
+	return ok
+}
