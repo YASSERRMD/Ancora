@@ -57,6 +57,21 @@ impl StudioServer {
         let body = serde_json::to_string(&resp).unwrap_or_default();
         (200, body)
     }
+
+    fn route(&self, method: &str, path: &str) -> (u16, String) {
+        match (method, path) {
+            ("GET", "/runs") => self.list_runs(),
+            ("GET", p) if p.starts_with("/runs/") && p.ends_with("/timeline") => {
+                let id = p.trim_start_matches("/runs/").trim_end_matches("/timeline");
+                self.run_timeline(id)
+            }
+            ("POST", p) if p.starts_with("/runs/") && p.ends_with("/replay") => {
+                let id = p.trim_start_matches("/runs/").trim_end_matches("/replay");
+                self.replay_run(id)
+            }
+            _ => (404, r#"{"error":"not found"}"#.into()),
+        }
+    }
 }
 
 fn write_response(stream: &mut TcpStream, status: u16, body: &str) {
