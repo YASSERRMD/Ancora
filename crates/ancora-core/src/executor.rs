@@ -110,6 +110,42 @@ impl GraphExecutor {
         ids
     }
 
+    /// Execute all parallel branches from `from` against `input`.
+    ///
+    /// Returns (node_id, output) pairs in sorted node-id order. Journal entries are
+    /// written in the same stable order so replay produces identical journal sequences.
+    pub fn run_parallel_branches(
+        &mut self,
+        from: &str,
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<Vec<(String, String)>, AncoraError> {
+        let ids = self.fan_out_ids(from);
+        let mut results = Vec::with_capacity(ids.len());
+
+        for node_id in &ids {
+            let node_kind = self.graph.nodes.iter()
+                .find(|n| n.id == *node_id)
+                .map(|n| n.kind.to_str())
+                .ok_or_else(|| AncoraError::NodeNotFound(node_id.clone()))?;
+
+            self.journal_node_entered(node_id, node_kind)?;
+
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *node_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(node_id.clone()))?;
+                executor.execute(node, input)?
+            };
+
+            self.journal_node_exited(node_id, true)?;
+
+            results.push((node_id.clone(), output));
+        }
+
+        Ok(results)
+    }
+
     fn next_node(&self, from: &str, output: &str) -> Result<Option<String>, AncoraError> {
         let outgoing: Vec<_> = self.graph.edges.iter()
             .filter(|e| e.from == from)
