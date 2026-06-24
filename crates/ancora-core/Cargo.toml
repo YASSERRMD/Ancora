@@ -12,5 +12,14 @@ ancora-proto = { path = "../ancora-proto" }
 thiserror = "2"
 tracing = "0.1"
 
+[features]
+sqlite = ["dep:rusqlite"]
+
 [dev-dependencies]
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+[dependencies.rusqlite]
+version = "0.32"
+features = ["bundled"]
+optional = true
