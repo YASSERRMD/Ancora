@@ -36,3 +36,12 @@ fn register_tool_count_is_one() {
     assert_eq!(ancora_tool_count(rt), 1);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn tool_exists_returns_one_after_register() {
+    let rt = make_rt();
+    let name = cstr("echo");
+    ancora_tool_register(rt, name.as_ptr(), echo_cb);
+    assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 1);
+    ancora_free_runtime(rt);
+}
