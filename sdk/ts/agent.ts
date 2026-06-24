@@ -20,6 +20,10 @@ export class RunHandle {
     }
   }
 
+  [Symbol.asyncIterator](): AsyncGenerator<RunEvent> {
+    return this.events()
+  }
+
   resume(decision: string): void {
     this._rt.resumeRun(this.runId, decision)
   }
