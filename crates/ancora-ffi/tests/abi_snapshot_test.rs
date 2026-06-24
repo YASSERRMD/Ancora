@@ -33,3 +33,11 @@ fn snapshot_header_declares_ancora_free_runtime() {
     let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
     assert!(content.contains("ancora_free_runtime"), "ancora_free_runtime missing from header");
 }
+
+#[test]
+fn snapshot_header_declares_tool_ops() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("ancora_tool_register"), "ancora_tool_register missing");
+    assert!(content.contains("ancora_tool_invoke"), "ancora_tool_invoke missing");
+    assert!(content.contains("ancora_tool_unregister"), "ancora_tool_unregister missing");
+}
