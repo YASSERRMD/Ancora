@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "model": "claude-3-5-sonnet",
+    "instructions": "You are a helpful assistant.",
+    "tools": [],
+    "max_tokens": 1024,
+    "temperature": 0.7
+  },
+  "events": [
+    { "kind": "started", "run_id": "fixture-run-1", "spec": "{\"model\":\"claude-3-5-sonnet\"}" },
+    { "kind": "token",   "run_id": "fixture-run-1", "text": "Hello" },
+    { "kind": "token",   "run_id": "fixture-run-1", "text": ", " },
+    { "kind": "token",   "run_id": "fixture-run-1", "text": "world!" },
+    { "kind": "completed", "run_id": "fixture-run-1" }
+  ],
+  "tool_call_events": [
+    { "kind": "tool_call", "run_id": "fixture-run-2", "name": "get_weather", "input": "{\"city\":\"Paris\"}" }
+  ],
+  "resumed_events": [
+    { "kind": "resumed", "run_id": "fixture-run-2", "decision": "{\"temperature\":\"22C\"}" }
+  ]
+}
