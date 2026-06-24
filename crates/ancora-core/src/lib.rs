@@ -1,6 +1,8 @@
 pub mod activity;
 pub mod cancel;
 pub mod cost;
+#[cfg(feature = "postgres")]
+pub mod postgres;
 pub mod agent;
 pub mod executor;
 pub mod graph;
