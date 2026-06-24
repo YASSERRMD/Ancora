@@ -11,3 +11,9 @@ type AgentSpecBuilder struct {
 func NewAgentSpecBuilder() *AgentSpecBuilder {
 	return &AgentSpecBuilder{}
 }
+
+// WithName sets the agent's stable machine-readable identifier.
+func (b *AgentSpecBuilder) WithName(name string) *AgentSpecBuilder {
+	b.spec.Name = name
+	return b
+}
