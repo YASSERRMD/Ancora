@@ -83,6 +83,20 @@ pub fn load_fixture_from_file(path: &Path) -> Result<Fixture, AncoraError> {
     Ok(fixture)
 }
 
+/// Build a fixture from a slice of (key, kind, input, result) tuples.
+pub fn build_fixture(entries: &[(&str, &str, &str, &str)]) -> Fixture {
+    let mut f = Fixture::new();
+    for (key, kind, input, result) in entries {
+        f.add(FixtureEntry {
+            activity_key: key.to_string(),
+            activity_kind: kind.to_string(),
+            input_json: input.to_string(),
+            result_json: result.to_string(),
+        });
+    }
+    f
+}
+
 /// Replay a fixture: returns the recorded result for a given activity key.
 /// Returns `Ok(result_json)` for known keys and `Err` for unknown keys.
 pub fn replay_fixture(fixture: &Fixture, activity_key: &str) -> Result<String, AncoraError> {
