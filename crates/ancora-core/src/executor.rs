@@ -2,9 +2,10 @@ use std::sync::Arc;
 
 use ancora_proto::ancora::{
     journal_event::Event as JournalEventVariant, HumanDecisionRequestedEvent, JournalEvent,
-    NodeEnteredEvent, NodeExitedEvent,
+    NodeEnteredEvent, NodeExitedEvent, RunCancelledEvent,
 };
 
+use crate::cancel::CancellationToken;
 use crate::error::AncoraError;
 use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
@@ -34,17 +35,74 @@ pub struct GraphExecutor {
     store: Arc<dyn JournalStore>,
     journal_seq: u64,
     stream: Option<StreamSender>,
+    cancel: Option<CancellationToken>,
+    compensations: Vec<(String, Box<dyn Fn() + Send + Sync>)>,
 }
 
 impl GraphExecutor {
     pub fn new(graph: Graph, run_id: impl Into<String>, store: Arc<dyn JournalStore>) -> Self {
-        Self { graph, run_id: run_id.into(), store, journal_seq: 0, stream: None }
+        Self {
+            graph,
+            run_id: run_id.into(),
+            store,
+            journal_seq: 0,
+            stream: None,
+            cancel: None,
+            compensations: Vec::new(),
+        }
+    }
+
+    /// Register a compensation function for `node_id`.
+    ///
+    /// When the run is cancelled, all activated compensations are called in
+    /// reverse registration order.
+    pub fn register_compensation(
+        &mut self,
+        node_id: impl Into<String>,
+        f: impl Fn() + Send + Sync + 'static,
+    ) {
+        self.compensations.push((node_id.into(), Box::new(f)));
+    }
+
+    fn run_compensations(&self) {
+        for (_, f) in self.compensations.iter().rev() {
+            f();
+        }
     }
 
     /// Attach a stream sender so node lifecycle events are forwarded to the caller.
     pub fn with_stream(mut self, sender: StreamSender) -> Self {
         self.stream = Some(sender);
         self
+    }
+
+    /// Attach a cancellation token; the executor checks it before each node.
+    pub fn with_cancel(mut self, token: CancellationToken) -> Self {
+        self.cancel = Some(token);
+        self
+    }
+
+    fn check_cancel(&mut self) -> Result<(), AncoraError> {
+        if self.cancel.as_ref().is_some_and(|t| t.is_cancelled()) {
+            self.run_compensations();
+            self.journal_cancellation()?;
+            return Err(AncoraError::Cancelled("run was cancelled".to_string()));
+        }
+        Ok(())
+    }
+
+    fn journal_cancellation(&mut self) -> Result<(), AncoraError> {
+        self.journal_seq += 1;
+        let seq = self.journal_seq;
+        self.store.append(&self.run_id.clone(), JournalEvent {
+            event_id: uuid::Uuid::new_v4().to_string(),
+            run_id: self.run_id.clone(),
+            seq,
+            recorded_at_ns: 0,
+            event: Some(JournalEventVariant::RunCancelled(RunCancelledEvent {
+                reason: "run was cancelled".to_string(),
+            })),
+        }).map(|_| ())
     }
 
     fn stream_event(&self, event: StreamEvent) {
@@ -61,6 +119,8 @@ impl GraphExecutor {
         let mut current_output = input.to_string();
 
         loop {
+            self.check_cancel()?;
+
             let node_kind = {
                 let node = self.graph.nodes.iter()
                     .find(|n| n.id == current_id)
@@ -988,5 +1048,54 @@ mod tests {
             crate::stream::StreamEvent::NodeExited { node_id: "b".to_string() },
             crate::stream::StreamEvent::RunCompleted { output: "[b][a]in".to_string() },
         ]);
+    }
+
+    #[test]
+    fn cancel_stops_execution_and_compensates() {
+        use std::sync::{Arc, Mutex};
+        use crate::cancel::cancellation_pair;
+
+        let graph = Graph {
+            id: "g-cancel".to_string(),
+            nodes: vec![function_node("a"), function_node("b"), function_node("c")],
+            edges: vec![edge("a", "b", None), edge("b", "c", None)],
+            entry_node: "a".to_string(),
+        };
+
+        let log: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+        let log2 = Arc::clone(&log);
+
+        let (token, handle) = cancellation_pair();
+
+        // Cancel before "b" runs (i.e., after "a" completes and we loop again).
+        // PrefixExecutor appends to log via our wrapper.
+        struct CancelAfterFirst {
+            handle: crate::cancel::CancellationHandle,
+            count: std::sync::atomic::AtomicU32,
+        }
+        impl NodeExecutor for CancelAfterFirst {
+            fn execute(&self, node: &Node, input: &str) -> Result<String, AncoraError> {
+                let n = self.count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                if n == 0 {
+                    self.handle.cancel();
+                }
+                Ok(format!("[{}]{}", node.id, input))
+            }
+        }
+
+        let mut exec = GraphExecutor::new(graph, "run-cancel-1", Arc::new(MemoryStore::new()))
+            .with_cancel(token);
+        exec.register_compensation("a", move || {
+            log2.lock().unwrap().push("compensate-a".to_string());
+        });
+
+        let exec_impl = CancelAfterFirst {
+            handle,
+            count: std::sync::atomic::AtomicU32::new(0),
+        };
+
+        let err = exec.run("in", &exec_impl).unwrap_err();
+        assert!(matches!(err, AncoraError::Cancelled(_)), "expected Cancelled");
+        assert_eq!(*log.lock().unwrap(), vec!["compensate-a"], "compensation must fire");
     }
 }
