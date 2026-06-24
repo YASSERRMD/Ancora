@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package ancora;
 
+option go_package = "ancora.io/sdk/ancora/grpc;runservice";
+
 service RunService {
   rpc StartRun(StartRunRequest) returns (StartRunResponse);
   rpc PollRun(PollRunRequest) returns (PollRunResponse);
