@@ -41,3 +41,36 @@ impl SpanEmitter for InMemoryExporter {
         self.spans.lock().unwrap().push(span);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::span::SpanValue;
+
+    #[test]
+    fn exporter_collects_emitted_spans() {
+        let exp = InMemoryExporter::new();
+        exp.emit(Span::new("op1"));
+        exp.emit(Span::new("op2"));
+        assert_eq!(exp.len(), 2);
+        assert_eq!(exp.spans()[0].name, "op1");
+        assert_eq!(exp.spans()[1].name, "op2");
+    }
+
+    #[test]
+    fn exporter_clear_empties_spans() {
+        let exp = InMemoryExporter::new();
+        exp.emit(Span::new("op"));
+        assert!(!exp.is_empty());
+        exp.clear();
+        assert!(exp.is_empty());
+    }
+
+    #[test]
+    fn exporter_preserves_span_attributes() {
+        let exp = InMemoryExporter::new();
+        exp.emit(Span::new("op").set("k", "v"));
+        let spans = exp.spans();
+        assert_eq!(spans[0].get("k"), Some(&SpanValue::String("v".into())));
+    }
+}
