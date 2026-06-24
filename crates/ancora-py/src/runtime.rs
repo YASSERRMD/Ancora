@@ -3,8 +3,6 @@ use std::sync::Mutex;
 
 use pyo3::prelude::*;
 
-use crate::error::AncorError;
-
 pub(crate) struct InnerRuntime {
     pub _runs: Mutex<HashMap<String, ()>>,
     pub _store: ancora_core::journal::MemoryStore,
@@ -61,6 +59,7 @@ impl PyRuntime {
         slf
     }
 
+    #[pyo3(signature = (_exc_type=None, _exc_val=None, _exc_tb=None))]
     fn __exit__(
         &mut self,
         _exc_type: Option<&Bound<'_, PyAny>>,
