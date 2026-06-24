@@ -28,3 +28,7 @@ tempfile = "3.27.0"
 version = "0.32"
 features = ["bundled"]
 optional = true
+
+[dependencies.postgres]
+version = "0.19"
+optional = true
