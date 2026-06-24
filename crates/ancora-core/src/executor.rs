@@ -97,6 +97,43 @@ impl GraphExecutor {
         ).map(|_| ())
     }
 
+    /// Run `node_id` repeatedly, feeding each output as the next input, until the
+    /// output contains `exit_condition` or `max_iterations` is reached.
+    ///
+    /// Returns `AncoraError::MaxSteps` when the iteration cap fires before the condition.
+    /// `max_iterations == 0` means unlimited (no cap enforced).
+    pub fn run_loop_node(
+        &mut self,
+        node_id: &str,
+        input: &str,
+        exit_condition: &str,
+        max_iterations: u32,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        let mut current_input = input.to_string();
+        let mut iteration = 0u32;
+
+        loop {
+            if max_iterations > 0 && iteration >= max_iterations {
+                return Err(AncoraError::MaxSteps { max_steps: max_iterations });
+            }
+
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == node_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(node_id.to_string()))?;
+                executor.execute(node, &current_input)?
+            };
+
+            if output.contains(exit_condition) {
+                return Ok(output);
+            }
+
+            current_input = output;
+            iteration += 1;
+        }
+    }
+
     /// Return node ids of all unconditional outgoing edges from `from`, sorted by node id.
     ///
     /// Sorting by node id ensures the join order is stable regardless of the order
@@ -308,5 +345,46 @@ mod tests {
             })
             .collect();
         assert_eq!(node_entered_ids, vec!["a-node", "b-node", "c-node"]);
+    }
+
+    #[test]
+    fn loop_exits_on_condition_and_on_cap() {
+        // Node "counter" appends "+1" to input each iteration; exits when output contains "done"
+        struct CounterExecutor {
+            target: u32,
+        }
+        impl NodeExecutor for CounterExecutor {
+            fn execute(&self, _node: &Node, input: &str) -> Result<String, AncoraError> {
+                let count = input.parse::<u32>().unwrap_or(0) + 1;
+                if count >= self.target {
+                    Ok(format!("{count}:done"))
+                } else {
+                    Ok(count.to_string())
+                }
+            }
+        }
+
+        let graph = Graph {
+            id: "g-loop".to_string(),
+            nodes: vec![function_node("counter")],
+            edges: vec![],
+            entry_node: "counter".to_string(),
+        };
+
+        // Case 1: exits on condition after 3 iterations
+        let mut exec = GraphExecutor::new(graph, "run-loop-c1", Arc::new(MemoryStore::new()));
+        let result = exec.run_loop_node("counter", "0", "done", 10, &CounterExecutor { target: 3 }).unwrap();
+        assert!(result.contains("done"), "loop must exit when condition is met");
+
+        // Case 2: exits on cap (condition never met because target > cap)
+        let graph2 = Graph {
+            id: "g-loop2".to_string(),
+            nodes: vec![function_node("counter")],
+            edges: vec![],
+            entry_node: "counter".to_string(),
+        };
+        let mut exec2 = GraphExecutor::new(graph2, "run-loop-c2", Arc::new(MemoryStore::new()));
+        let err = exec2.run_loop_node("counter", "0", "done", 2, &CounterExecutor { target: 99 }).unwrap_err();
+        assert!(matches!(err, AncoraError::MaxSteps { max_steps: 2 }));
     }
 }
