@@ -75,3 +75,27 @@ func (s *SqliteStore) HasRun(runID string) (bool, error) {
 	err := s.db.QueryRow(`SELECT COUNT(*) FROM runs WHERE id = ?`, runID).Scan(&n)
 	return n > 0, err
 }
+
+// EventCount returns the number of stored events for runID.
+func (s *SqliteStore) EventCount(runID string) (int, error) {
+	var n int
+	err := s.db.QueryRow(`SELECT COUNT(*) FROM run_events WHERE run_id = ?`, runID).Scan(&n)
+	return n, err
+}
+
+// RunCount returns the total number of recorded runs.
+func (s *SqliteStore) RunCount() (int, error) {
+	var n int
+	err := s.db.QueryRow(`SELECT COUNT(*) FROM runs`).Scan(&n)
+	return n, err
+}
+
+// DeleteRun removes a run and all its events from the store.
+func (s *SqliteStore) DeleteRun(runID string) error {
+	_, err := s.db.Exec(`DELETE FROM run_events WHERE run_id = ?`, runID)
+	if err != nil {
+		return err
+	}
+	_, err = s.db.Exec(`DELETE FROM runs WHERE id = ?`, runID)
+	return err
+}
