@@ -8,6 +8,7 @@ members = [
     "crates/ancora-tools",
     "crates/ancora-policy",
     "crates/ancora-observability",
+    "crates/ancora-cli",
 ]
 
 [workspace.package]
