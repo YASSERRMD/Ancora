@@ -1,5 +1,6 @@
 use std::os::raw::c_char;
 
+use crate::buffer::{ancora_buffer_from_str, AncorBuffer};
 use crate::handles::AncorRunId;
 
 struct InnerRunId {
@@ -33,4 +34,16 @@ pub extern "C" fn ancora_run_id_free(ptr: *mut AncorRunId) {
     unsafe {
         drop(Box::from_raw(ptr.cast::<InnerRunId>()));
     }
+}
+
+/// Return the run ID string as an owned `AncorBuffer`.
+/// The buffer must be freed with `ancora_buffer_free`.
+/// Returns a zero-length buffer if `ptr` is null.
+#[no_mangle]
+pub extern "C" fn ancora_run_id_to_str(ptr: *const AncorRunId) -> AncorBuffer {
+    if ptr.is_null() {
+        return AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    }
+    let inner = unsafe { &*(ptr.cast::<InnerRunId>()) };
+    ancora_buffer_from_str(&inner.id)
 }
