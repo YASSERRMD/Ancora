@@ -78,9 +78,10 @@ where
                 }
                 if attempt < policy.max_attempts {
                     let exp = (attempt - 1) as u32;
+                    let shift = exp.min(63);
                     let base = policy
                         .initial_backoff_ms
-                        .saturating_mul(1u64.saturating_shl(exp));
+                        .saturating_mul(1u64 << shift);
                     let capped = base.min(policy.max_backoff_ms);
                     let jittered = (capped as f64 * (1.0 - policy.jitter * 0.5)) as u64;
                     sleep_fn(jittered);
