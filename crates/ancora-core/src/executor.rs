@@ -443,4 +443,24 @@ mod tests {
         let err = exec2.run_loop_node("counter", "0", "done", 2, &CounterExecutor { target: 99 }).unwrap_err();
         assert!(matches!(err, AncoraError::MaxSteps { max_steps: 2 }));
     }
+
+    #[test]
+    fn handoff_transfers_context_correctly() {
+        let agents: Vec<String> = vec!["alice".to_string(), "bob".to_string(), "carol".to_string()];
+        let graph = Graph {
+            id: "g-handoff".to_string(),
+            nodes: agents.iter().map(|id| function_node(id)).collect(),
+            edges: vec![],
+            entry_node: "alice".to_string(),
+        };
+
+        let mut exec = GraphExecutor::new(graph, "run-handoff-1", Arc::new(MemoryStore::new()));
+        let result = exec.run_handoff(&agents, "start", &PrefixExecutor).unwrap();
+
+        // PrefixExecutor produces "[id]input" so the chain is:
+        // alice("start") -> "[alice]start"
+        // bob("[alice]start") -> "[bob][alice]start"
+        // carol("[bob][alice]start") -> "[carol][bob][alice]start"
+        assert_eq!(result, "[carol][bob][alice]start");
+    }
 }
