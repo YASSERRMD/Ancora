@@ -48,6 +48,15 @@ impl StudioServer {
         let body = serde_json::to_string(&timeline).unwrap_or_default();
         (200, body)
     }
+
+    fn replay_run(&self, run_id: &str) -> (u16, String) {
+        if run_id.is_empty() {
+            return (400, r#"{"error":"missing run id"}"#.into());
+        }
+        let resp = ReplayResponse { run_id: run_id.into(), status: "ok".into() };
+        let body = serde_json::to_string(&resp).unwrap_or_default();
+        (200, body)
+    }
 }
 
 fn write_response(stream: &mut TcpStream, status: u16, body: &str) {
