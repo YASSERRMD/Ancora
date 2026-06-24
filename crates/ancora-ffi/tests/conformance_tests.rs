@@ -125,3 +125,14 @@ fn all_conformance_scenarios_have_nonempty_descriptions() {
         assert!(!scenario.description.is_empty(), "scenario description must be non-empty");
     }
 }
+
+#[test]
+fn journal_single_agent_event_order_is_started_then_completed() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let events = drain_events(rt, &id);
+    let kinds: Vec<_> = events.iter().map(|e| event_kind(e)).collect();
+    assert_eq!(kinds, vec!["started", "completed"],
+        "journal must begin with started and end with completed");
+    ancora_free_runtime(rt);
+}
