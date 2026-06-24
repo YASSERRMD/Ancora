@@ -74,4 +74,11 @@ mod tests {
             assert!(!s.description.is_empty(), "empty description for scenario '{}'", s.id);
         }
     }
+
+    #[test]
+    fn all_scenarios_have_at_least_one_tag() {
+        for s in all_scenarios() {
+            assert!(!s.tags.is_empty(), "scenario '{}' has no tags", s.id);
+        }
+    }
 }
