@@ -38,4 +38,14 @@ mod tests {
         assert_eq!(resp.content, "hello");
         assert_eq!(resp.tokens_out, 5);
     }
+
+    #[test]
+    fn mock_client_stream_complete_emits_token() {
+        let client = MockClient { response: "streamed".to_string() };
+        let mut tokens = Vec::new();
+        client.stream_complete(&req("input"), &mut |ev| tokens.push(ev)).unwrap();
+        assert_eq!(tokens.len(), 1);
+        assert_eq!(tokens[0].text, "streamed");
+        assert!(tokens[0].finished);
+    }
 }
