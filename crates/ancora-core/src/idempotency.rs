@@ -180,4 +180,66 @@ mod tests {
         assert_eq!(r2, r#""done""#, "must return journaled result on retry");
         assert_eq!(counter.load(Ordering::SeqCst), 1, "must not re-execute");
     }
+
+    #[test]
+    fn compensating_action_runs_on_rollback() {
+        let store = MemoryStore::new();
+        let comp_counter = Arc::new(AtomicUsize::new(0));
+
+        let cc = Arc::clone(&comp_counter);
+        let action = CompensatingAction {
+            write_key: "write-k2".to_string(),
+            compensate: Box::new(move || {
+                cc.fetch_add(1, Ordering::SeqCst);
+                Ok(r#""compensated""#.to_string())
+            }),
+        };
+
+        let r = run_compensating_action("run-w2", &action, &store).unwrap();
+        assert_eq!(r, r#""compensated""#);
+        assert_eq!(comp_counter.load(Ordering::SeqCst), 1);
+
+        let r2 = run_compensating_action("run-w2", &action, &store).unwrap();
+        assert_eq!(r2, r#""compensated""#, "replay must return journaled result");
+        assert_eq!(
+            comp_counter.load(Ordering::SeqCst),
+            1,
+            "must not re-run compensator"
+        );
+    }
+
+    #[test]
+    fn compensating_key_is_distinct_from_write_key() {
+        let store = MemoryStore::new();
+        let counter = Arc::new(AtomicUsize::new(0));
+        let comp_counter = Arc::new(AtomicUsize::new(0));
+
+        let act = make("write-k3", r#""done""#, Arc::clone(&counter));
+        write_once("run-w3", WriteActivity::new(&act).unwrap(), &store).unwrap();
+
+        let cc = Arc::clone(&comp_counter);
+        let action = CompensatingAction {
+            write_key: "write-k3".to_string(),
+            compensate: Box::new(move || {
+                cc.fetch_add(1, Ordering::SeqCst);
+                Ok(r#""undone""#.to_string())
+            }),
+        };
+        run_compensating_action("run-w3", &action, &store).unwrap();
+
+        let events = store.read("run-w3").unwrap();
+        let keys: Vec<String> = events
+            .iter()
+            .filter_map(|e| {
+                if let Some(Event::ActivityRecorded(ref a)) = e.event {
+                    Some(a.activity_key.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        assert!(keys.contains(&"write-k3".to_string()));
+        assert!(keys.contains(&"write-k3:compensate".to_string()));
+    }
 }
