@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "RetryPolicy": {
+      "properties": {
+        "initialBackoffMs": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "jitter": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        "maxAttempts": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maxBackoffMs": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://ancora.dev/schema/AgentSpec.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Specifies a single agent in the graph",
+  "properties": {
+    "instructions": {
+      "type": "string"
+    },
+    "maxSteps": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "modelId": {
+      "type": "string"
+    },
+    "modelParamsJson": {
+      "type": "string"
+    },
+    "modelRetry": {
+      "$ref": "#/$defs/RetryPolicy"
+    },
+    "name": {
+      "type": "string"
+    },
+    "outputSchemaJson": {
+      "type": "string"
+    },
+    "tools": {
+      "items": {
+        "$ref": "ToolSpec.json"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "modelId"
+  ],
+  "title": "AgentSpec",
+  "type": "object"
+}

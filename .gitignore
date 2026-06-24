@@ -34,9 +34,9 @@ venv/
 *.test
 *.out
 
-# .NET
-bin/
-obj/
+# .NET (match only under bindings/dotnet to avoid conflicting with Rust src/bin)
+bindings/dotnet/**/bin/
+bindings/dotnet/**/obj/
 *.user
 *.suo
 .vs/

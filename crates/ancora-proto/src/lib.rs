@@ -1,29 +1,20 @@
+/// All generated protobuf types plus their pbjson serde implementations.
 pub mod ancora {
     include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
-}
-
-pub mod messages {
-    include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
-}
-
-pub mod contracts {
-    include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
-}
-
-pub mod journal {
-    include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
+    include!(concat!(env!("OUT_DIR"), "/ancora.serde.rs"));
 }
 
 #[cfg(test)]
 mod tests {
     use prost::Message;
 
-    use super::ancora::{Ping, Pong};
-    use super::contracts::{AgentSpec, EffectClass, RetryPolicy, ToolSpec};
-    use super::messages::{
-        content_block::Block, image_content::Source as ImageSource, AudioContent, ContentBlock,
-        DocumentContent, ImageContent, Message as AncMsg, Role, TextContent, TokenUsage,
-        ToolCallContent, ToolResultContent,
+    use super::ancora::{
+        content_block::Block, image_content::Source as ImageSource, journal_event::Event,
+        ActivityRecordedEvent, AgentSpec, AudioContent, ContentBlock, DocumentContent, EffectClass,
+        ErrorEvent, HumanDecisionReceivedEvent, HumanDecisionRequestedEvent, ImageContent,
+        JournalEvent, Message as AncMsg, NodeEnteredEvent, NodeExitedEvent, Ping, Pong,
+        RetryPolicy, RetryScheduledEvent, Role, RunCancelledEvent, RunCompletedEvent,
+        RunStartedEvent, TextContent, TokenUsage, ToolCallContent, ToolResultContent, ToolSpec,
     };
 
     #[test]
@@ -111,7 +102,7 @@ mod tests {
     fn audio_content_round_trip() {
         let block = ContentBlock {
             block: Some(Block::Audio(AudioContent {
-                source: Some(super::messages::audio_content::Source::InlineBase64(
+                source: Some(super::ancora::audio_content::Source::InlineBase64(
                     "dGVzdA==".to_string(),
                 )),
                 media_type: "audio/wav".to_string(),
@@ -126,7 +117,7 @@ mod tests {
     fn document_content_round_trip() {
         let block = ContentBlock {
             block: Some(Block::Document(DocumentContent {
-                source: Some(super::messages::document_content::Source::InlineBase64(
+                source: Some(super::ancora::document_content::Source::InlineBase64(
                     "cGRm".to_string(),
                 )),
                 media_type: "application/pdf".to_string(),
@@ -200,11 +191,6 @@ mod tests {
 
     #[test]
     fn journal_event_ordering_and_round_trip() {
-        use super::journal::{
-            journal_event::Event, ActivityRecordedEvent, JournalEvent, NodeEnteredEvent,
-            RunStartedEvent,
-        };
-
         let events = vec![
             JournalEvent {
                 event_id: "evt-1".to_string(),
@@ -242,7 +228,6 @@ mod tests {
             },
         ];
 
-        // Round-trip each event and assert seq is monotonically increasing.
         let mut prev_seq = 0u64;
         for (i, event) in events.iter().enumerate() {
             let encoded = event.encode_to_vec();
@@ -261,12 +246,6 @@ mod tests {
 
     #[test]
     fn journal_all_event_variants_round_trip() {
-        use super::journal::{
-            journal_event::Event, ErrorEvent, HumanDecisionReceivedEvent,
-            HumanDecisionRequestedEvent, JournalEvent, NodeExitedEvent, RetryScheduledEvent,
-            RunCancelledEvent, RunCompletedEvent,
-        };
-
         let variants: Vec<Event> = vec![
             Event::NodeExited(NodeExitedEvent {
                 node_id: "n1".to_string(),
@@ -311,5 +290,70 @@ mod tests {
                 .unwrap_or_else(|_| panic!("decode variant {i}"));
             assert_eq!(env, decoded);
         }
+    }
+
+    // ---- JSON serde equivalence tests (Phase 07) ----
+
+    #[test]
+    fn proto_json_message_equivalence() {
+        let msg = AncMsg {
+            id: "msg-json-1".to_string(),
+            role: Role::User as i32,
+            content: vec![ContentBlock {
+                block: Some(Block::Text(TextContent {
+                    text: "Hello JSON".to_string(),
+                })),
+            }],
+            created_at_ns: 0,
+            usage: None,
+            cost: None,
+            model_id: "".to_string(),
+        };
+        // Encode to proto binary and back.
+        let proto_bytes = msg.encode_to_vec();
+        let from_proto = AncMsg::decode(proto_bytes.as_slice()).expect("proto decode");
+        // Encode to JSON and back via serde_json.
+        let json = serde_json::to_string(&msg).expect("json serialize");
+        let from_json: AncMsg = serde_json::from_str(&json).expect("json deserialize");
+        assert_eq!(from_proto, from_json);
+    }
+
+    #[test]
+    fn proto_json_journal_event_equivalence() {
+        let event = JournalEvent {
+            event_id: "e1".to_string(),
+            run_id: "r1".to_string(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::RunStarted(RunStartedEvent {
+                run_id: "r1".to_string(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".to_string(),
+            })),
+        };
+        let proto_bytes = event.encode_to_vec();
+        let from_proto = JournalEvent::decode(proto_bytes.as_slice()).expect("proto decode");
+        let json = serde_json::to_string(&event).expect("json serialize");
+        let from_json: JournalEvent = serde_json::from_str(&json).expect("json deserialize");
+        assert_eq!(from_proto, from_json);
+    }
+
+    #[test]
+    fn proto_json_agent_spec_equivalence() {
+        let spec = AgentSpec {
+            name: "test-agent".to_string(),
+            model_id: "local-model".to_string(),
+            instructions: "Be helpful.".to_string(),
+            output_schema_json: "".to_string(),
+            tools: vec![],
+            max_steps: 5,
+            model_retry: None,
+            model_params_json: "".to_string(),
+        };
+        let proto_bytes = spec.encode_to_vec();
+        let from_proto = AgentSpec::decode(proto_bytes.as_slice()).expect("proto decode");
+        let json = serde_json::to_string(&spec).expect("json serialize");
+        let from_json: AgentSpec = serde_json::from_str(&json).expect("json deserialize");
+        assert_eq!(from_proto, from_json);
     }
 }

@@ -1,0 +1,59 @@
+{
+  "$defs": {
+    "ContentBlock": {
+      "$ref": "ContentBlock.json"
+    },
+    "Cost": {
+      "$ref": "Cost.json"
+    },
+    "Role": {
+      "enum": [
+        "ROLE_UNSPECIFIED",
+        "ROLE_SYSTEM",
+        "ROLE_USER",
+        "ROLE_ASSISTANT",
+        "ROLE_TOOL"
+      ],
+      "type": "string"
+    },
+    "TokenUsage": {
+      "$ref": "TokenUsage.json"
+    }
+  },
+  "$id": "https://ancora.dev/schema/Message.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A single turn in a conversation",
+  "properties": {
+    "content": {
+      "items": {
+        "$ref": "#/$defs/ContentBlock"
+      },
+      "type": "array"
+    },
+    "cost": {
+      "$ref": "#/$defs/Cost"
+    },
+    "createdAtNs": {
+      "description": "Unix epoch, nanoseconds",
+      "type": "integer"
+    },
+    "id": {
+      "type": "string"
+    },
+    "modelId": {
+      "type": "string"
+    },
+    "role": {
+      "$ref": "#/$defs/Role"
+    },
+    "usage": {
+      "$ref": "#/$defs/TokenUsage"
+    }
+  },
+  "required": [
+    "id",
+    "role"
+  ],
+  "title": "Message",
+  "type": "object"
+}

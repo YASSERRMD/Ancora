@@ -1,0 +1,25 @@
+{
+  "$id": "https://ancora.dev/schema/Cost.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Cost amounts in micro-cents (millionths of a US cent)",
+  "properties": {
+    "cacheReadMicroCents": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "cacheWriteMicroCents": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "inputMicroCents": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "outputMicroCents": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "title": "Cost",
+  "type": "object"
+}
