@@ -12,6 +12,16 @@ pub fn run() {
                 std::process::exit(1);
             }
         }
+        Some("serve") => {
+            let port: u16 = args
+                .get(2)
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(7700);
+            if let Err(e) = crate::studio::serve(port) {
+                eprintln!("error: {e}");
+                std::process::exit(1);
+            }
+        }
         Some("help") | None => print_help(),
         Some(cmd) => {
             eprintln!("unknown command: {cmd}");
@@ -26,6 +36,7 @@ fn print_help() {
     println!();
     println!("USAGE:");
     println!("  ancora run <graph.yaml> [store]");
+    println!("  ancora serve [port]");
     println!();
     println!("STORE:");
     println!("  memory    in-memory (default)");
