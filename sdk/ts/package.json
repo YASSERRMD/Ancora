@@ -19,6 +19,7 @@
   "scripts": {
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
+    "build:dts": "tsc --declaration --emitDeclarationOnly --outDir .",
     "build:wasm": "node wasm/esbuild.config.mjs",
     "test": "jest",
     "prepublishOnly": "napi prepublish -t npm"
@@ -47,6 +48,10 @@
   "files": [
     "index.js",
     "index.d.ts",
+    "*.js",
+    "*.d.ts",
+    "wasm/*.js",
+    "wasm/*.d.ts",
     "*.node"
   ],
   "dependencies": {
