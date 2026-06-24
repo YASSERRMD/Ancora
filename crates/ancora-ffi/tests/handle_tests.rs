@@ -14,3 +14,12 @@ fn error_codes_are_distinct() {
     assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::InvalidUtf8 as i32);
     assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::Internal as i32);
 }
+
+#[test]
+fn buffer_new_and_free_does_not_leak() {
+    let data = b"hello world";
+    let buf = ancora_buffer_new(data.as_ptr(), data.len());
+    assert_eq!(buf.len, data.len());
+    assert!(!buf.ptr.is_null());
+    ancora_buffer_free(buf);
+}
