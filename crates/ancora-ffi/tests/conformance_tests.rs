@@ -200,3 +200,19 @@ fn ffi_journal_equals_native_event_sequence_single_agent() {
         "FFI journal must equal native single-agent journal sequence");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn ffi_journal_equals_native_event_sequence_after_resume() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    drain_events(rt, &id);
+    let c_id = std::ffi::CString::new(id.as_str()).unwrap();
+    ancora_run_resume(rt, c_id.as_ptr(), b"yes".as_ptr(), 3);
+    let events = drain_events(rt, &id);
+    let kinds: Vec<&str> = events.iter().map(|e| event_kind(e)).collect();
+    assert!(kinds.iter().any(|k| *k == "resumed"),
+        "FFI post-resume journal must contain resumed event, got: {kinds:?}");
+    assert!(kinds.iter().any(|k| *k == "completed"),
+        "FFI post-resume journal must end with completed event, got: {kinds:?}");
+    ancora_free_runtime(rt);
+}
