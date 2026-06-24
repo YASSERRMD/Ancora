@@ -83,7 +83,7 @@ pub fn load_fixture_from_file(path: &Path) -> Result<Fixture, AncoraError> {
     Ok(fixture)
 }
 
-/// Replay a fixture: returns a generator that replays recorded results.
+/// Replay a fixture: returns the recorded result for a given activity key.
 /// Returns `Ok(result_json)` for known keys and `Err` for unknown keys.
 pub fn replay_fixture(fixture: &Fixture, activity_key: &str) -> Result<String, AncoraError> {
     fixture
@@ -96,4 +96,46 @@ pub fn replay_fixture(fixture: &Fixture, activity_key: &str) -> Result<String, A
                 got: "<not in fixture>".to_string(),
             }
         })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_entry(key: &str, result: &str) -> FixtureEntry {
+        FixtureEntry {
+            activity_key: key.into(),
+            activity_kind: "model_call".into(),
+            input_json: "{}".into(),
+            result_json: result.into(),
+        }
+    }
+
+    #[test]
+    fn fixture_stores_and_retrieves_entries() {
+        let mut f = Fixture::new();
+        f.add(make_entry("step-1", r#""output1""#));
+        assert_eq!(f.get_result("step-1"), Some(r#""output1""#));
+        assert_eq!(f.len(), 1);
+    }
+
+    #[test]
+    fn fixture_returns_none_for_missing_key() {
+        let f = Fixture::new();
+        assert_eq!(f.get_result("missing"), None);
+    }
+
+    #[test]
+    fn replay_fixture_returns_recorded_result() {
+        let mut f = Fixture::new();
+        f.add(make_entry("k1", r#""answer""#));
+        let result = replay_fixture(&f, "k1").unwrap();
+        assert_eq!(result, r#""answer""#);
+    }
+
+    #[test]
+    fn replay_fixture_errors_for_unknown_key() {
+        let f = Fixture::new();
+        assert!(replay_fixture(&f, "not_there").is_err());
+    }
 }
