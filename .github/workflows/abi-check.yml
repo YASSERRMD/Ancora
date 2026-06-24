@@ -1,0 +1,15 @@
+name: abi-check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  abi-snapshot:
+    name: ABI snapshot check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
