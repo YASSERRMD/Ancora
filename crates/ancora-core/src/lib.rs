@@ -12,6 +12,7 @@ pub mod idempotency;
 pub mod journal;
 pub mod replay;
 pub mod retry;
+pub mod routing;
 pub mod run;
 pub mod spans;
 pub mod stream;

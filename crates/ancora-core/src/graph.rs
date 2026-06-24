@@ -38,6 +38,8 @@ pub struct Node {
     pub id: String,
     pub kind: NodeKind,
     pub spec: NodeSpec,
+    /// Explicit model override for this node; overrides the spec's model_id when set.
+    pub model_id: Option<String>,
 }
 
 /// A directed connection between two nodes.
@@ -117,6 +119,7 @@ mod tests {
         Node {
             id: id.to_string(),
             kind: NodeKind::Agent,
+            model_id: None,
             spec: NodeSpec::Agent(ancora_proto::ancora::AgentSpec {
                 name: id.to_string(),
                 model_id: "mock".to_string(),

@@ -10,6 +10,7 @@ use crate::cost::{CostSummary, CostTracker};
 use crate::error::AncoraError;
 use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
+use crate::routing::ModelRouter;
 use crate::stream::{StreamEvent, StreamSender};
 use crate::suspend::{RunOutcome, SuspendedRun};
 
@@ -39,6 +40,7 @@ pub struct GraphExecutor {
     cancel: Option<CancellationToken>,
     compensations: Vec<(String, Box<dyn Fn() + Send + Sync>)>,
     costs: CostTracker,
+    model_router: Option<ModelRouter>,
 }
 
 impl GraphExecutor {
@@ -52,6 +54,7 @@ impl GraphExecutor {
             cancel: None,
             compensations: Vec::new(),
             costs: CostTracker::new(0.0, 0.0),
+            model_router: None,
         }
     }
 
@@ -59,6 +62,22 @@ impl GraphExecutor {
     pub fn with_cost_tracker(mut self, tracker: CostTracker) -> Self {
         self.costs = tracker;
         self
+    }
+
+    /// Attach a model router so different nodes can use different models.
+    pub fn with_model_router(mut self, router: ModelRouter) -> Self {
+        self.model_router = Some(router);
+        self
+    }
+
+    /// Return the model id that should be used for `node`.
+    /// Falls back to the node's own model_id, then to `"default"`.
+    pub fn resolve_model_for_node(&self, node: &Node) -> String {
+        let node_override = node.model_id.as_deref();
+        if let Some(router) = &self.model_router {
+            return router.resolve(&node.id, node_override).to_owned();
+        }
+        node_override.filter(|s| !s.is_empty()).unwrap_or("default").to_owned()
     }
 
     /// Return the aggregated cost summary for all activity recorded so far.
@@ -671,6 +690,7 @@ mod tests {
         Node {
             id: id.to_string(),
             kind: NodeKind::Function,
+            model_id: None,
             spec: NodeSpec::Function { name: id.to_string() },
         }
     }
@@ -973,6 +993,7 @@ mod tests {
                 Node {
                     id: "await".to_string(),
                     kind: NodeKind::AwaitHuman,
+                    model_id: None,
                     spec: NodeSpec::Function { name: "await".to_string() },
                 },
                 function_node("post"),
@@ -1017,6 +1038,7 @@ mod tests {
                 Node {
                     id: "await".to_string(),
                     kind: NodeKind::AwaitHuman,
+                    model_id: None,
                     spec: NodeSpec::Function { name: "await".to_string() },
                 },
             ],
@@ -1111,5 +1133,23 @@ mod tests {
         let err = exec.run("in", &exec_impl).unwrap_err();
         assert!(matches!(err, AncoraError::Cancelled(_)), "expected Cancelled");
         assert_eq!(*log.lock().unwrap(), vec!["compensate-a"], "compensation must fire");
+    }
+
+    #[test]
+    fn node_uses_its_bound_model() {
+        use crate::routing::ModelRouter;
+        let graph = Graph {
+            id: "g-routing".to_string(),
+            nodes: vec![function_node("n1")],
+            edges: vec![],
+            entry_node: "n1".to_string(),
+        };
+        let store: Arc<dyn crate::journal::JournalStore> = Arc::new(MemoryStore::new());
+        let mut router = ModelRouter::new("large");
+        router.bind("n1", "small");
+        let exec = GraphExecutor::new(graph, "run-routing-1", store)
+            .with_model_router(router);
+        let node = &exec.graph.nodes[0];
+        assert_eq!(exec.resolve_model_for_node(node), "small");
     }
 }
