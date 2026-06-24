@@ -104,3 +104,14 @@ fn tool_count_zero_on_fresh_runtime() {
     assert_eq!(ancora_tool_count(rt), 0);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn register_two_tools_count_is_two() {
+    let rt = make_rt();
+    let n1 = cstr("echo");
+    let n2 = cstr("ping");
+    ancora_tool_register(rt, n1.as_ptr(), echo_cb);
+    ancora_tool_register(rt, n2.as_ptr(), echo_cb);
+    assert_eq!(ancora_tool_count(rt), 2);
+    ancora_free_runtime(rt);
+}
