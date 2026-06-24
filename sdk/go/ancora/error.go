@@ -1,23 +1,23 @@
 package ancora
 
-// ErrorCode maps to the C AncorErrorCode enum.
-type ErrorCode int32
+// AncorError is the Go mapping of the C AncorErrorCode FFI enum.
+type AncorError int32
 
 const (
-	ErrOk          ErrorCode = 0
-	ErrNullPtr     ErrorCode = 1
-	ErrInvalidUTF8 ErrorCode = 2
-	ErrInternal    ErrorCode = 3
+	ErrOk          AncorError = 0
+	ErrNullPtr     AncorError = 1
+	ErrInvalidUTF8 AncorError = 2
+	ErrInternal    AncorError = 3
 )
 
 func asError(code uint32) error {
 	if code == 0 {
 		return nil
 	}
-	return ErrorCode(code)
+	return AncorError(code)
 }
 
-func (e ErrorCode) Error() string {
+func (e AncorError) Error() string {
 	switch e {
 	case ErrOk:
 		return "ok"
