@@ -28,4 +28,9 @@ impl StudioServer {
         let listener = std::net::TcpListener::bind(format!("127.0.0.1:{}", port))?;
         Ok(Self { listener, store })
     }
+
+    /// Return the port the server is listening on.
+    pub fn port(&self) -> u16 {
+        self.listener.local_addr().unwrap().port()
+    }
 }
