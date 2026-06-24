@@ -97,6 +97,55 @@ impl GraphExecutor {
         ).map(|_| ())
     }
 
+    /// Return node ids of all unconditional outgoing edges from `from`, sorted by node id.
+    ///
+    /// Sorting by node id ensures the join order is stable regardless of the order
+    /// in which edges were defined or branches complete.
+    pub fn fan_out_ids(&self, from: &str) -> Vec<String> {
+        let mut ids: Vec<String> = self.graph.edges.iter()
+            .filter(|e| e.from == from && e.condition.is_none())
+            .map(|e| e.to.clone())
+            .collect();
+        ids.sort();
+        ids
+    }
+
+    /// Execute all parallel branches from `from` against `input`.
+    ///
+    /// Returns (node_id, output) pairs in sorted node-id order. Journal entries are
+    /// written in the same stable order so replay produces identical journal sequences.
+    pub fn run_parallel_branches(
+        &mut self,
+        from: &str,
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<Vec<(String, String)>, AncoraError> {
+        let ids = self.fan_out_ids(from);
+        let mut results = Vec::with_capacity(ids.len());
+
+        for node_id in &ids {
+            let node_kind = self.graph.nodes.iter()
+                .find(|n| n.id == *node_id)
+                .map(|n| n.kind.to_str())
+                .ok_or_else(|| AncoraError::NodeNotFound(node_id.clone()))?;
+
+            self.journal_node_entered(node_id, node_kind)?;
+
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *node_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(node_id.clone()))?;
+                executor.execute(node, input)?
+            };
+
+            self.journal_node_exited(node_id, true)?;
+
+            results.push((node_id.clone(), output));
+        }
+
+        Ok(results)
+    }
+
     fn next_node(&self, from: &str, output: &str) -> Result<Option<String>, AncoraError> {
         let outgoing: Vec<_> = self.graph.edges.iter()
             .filter(|e| e.from == from)
@@ -217,5 +266,47 @@ mod tests {
         let mut exec2 = GraphExecutor::new(graph2, "run-cond-2", Arc::new(MemoryStore::new()));
         let result2 = exec2.run("", &GoLeftExecutor).unwrap();
         assert_eq!(result2, "left");
+    }
+
+    #[test]
+    fn parallel_results_join_deterministically() {
+        // Fan-out from "root" to branches "c-node", "a-node", "b-node" (deliberately out of order).
+        // The join must produce results sorted by node id: a-node, b-node, c-node.
+        let graph = Graph {
+            id: "g-par".to_string(),
+            nodes: vec![
+                function_node("root"),
+                function_node("c-node"),
+                function_node("a-node"),
+                function_node("b-node"),
+            ],
+            edges: vec![
+                edge("root", "c-node", None),
+                edge("root", "a-node", None),
+                edge("root", "b-node", None),
+            ],
+            entry_node: "root".to_string(),
+        };
+
+        let store = Arc::new(MemoryStore::new());
+        let store_ref = Arc::clone(&store);
+        let mut exec = GraphExecutor::new(graph, "run-par-1", store);
+        let results = exec.run_parallel_branches("root", "input", &PrefixExecutor).unwrap();
+
+        let ids: Vec<&str> = results.iter().map(|(id, _)| id.as_str()).collect();
+        assert_eq!(ids, vec!["a-node", "b-node", "c-node"], "branches must join in sorted order");
+
+        // Verify journal entries are in the same sorted order.
+        let events = store_ref.read("run-par-1").unwrap();
+        let node_entered_ids: Vec<String> = events.iter()
+            .filter_map(|e| {
+                if let Some(ancora_proto::ancora::journal_event::Event::NodeEntered(ev)) = &e.event {
+                    Some(ev.node_id.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert_eq!(node_entered_ids, vec!["a-node", "b-node", "c-node"]);
     }
 }
