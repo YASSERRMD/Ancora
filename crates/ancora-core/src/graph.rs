@@ -95,3 +95,85 @@ impl Graph {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn agent_node(id: &str) -> Node {
+        Node {
+            id: id.to_string(),
+            kind: NodeKind::Agent,
+            spec: NodeSpec::Agent(ancora_proto::ancora::AgentSpec {
+                name: id.to_string(),
+                model_id: "mock".to_string(),
+                instructions: String::new(),
+                output_schema_json: String::new(),
+                tools: vec![],
+                max_steps: 1,
+                model_retry: None,
+                model_params_json: String::new(),
+            }),
+        }
+    }
+
+    fn edge(from: &str, to: &str) -> Edge {
+        Edge {
+            from: from.to_string(),
+            to: to.to_string(),
+            condition: None,
+        }
+    }
+
+    #[test]
+    fn malformed_graphs_are_rejected() {
+        // Empty nodes
+        let empty = Graph { id: "g1".to_string(), nodes: vec![], edges: vec![], entry_node: "a".to_string() };
+        assert!(matches!(empty.validate(), Err(AncoraError::GraphInvalid(_))));
+
+        // Entry node missing
+        let missing_entry = Graph {
+            id: "g2".to_string(),
+            nodes: vec![agent_node("a")],
+            edges: vec![],
+            entry_node: "missing".to_string(),
+        };
+        assert!(matches!(missing_entry.validate(), Err(AncoraError::GraphInvalid(_))));
+
+        // Duplicate node ids
+        let dupe = Graph {
+            id: "g3".to_string(),
+            nodes: vec![agent_node("a"), agent_node("a")],
+            edges: vec![],
+            entry_node: "a".to_string(),
+        };
+        assert!(matches!(dupe.validate(), Err(AncoraError::GraphInvalid(_))));
+
+        // Edge source does not exist
+        let bad_src = Graph {
+            id: "g4".to_string(),
+            nodes: vec![agent_node("a")],
+            edges: vec![edge("ghost", "a")],
+            entry_node: "a".to_string(),
+        };
+        assert!(matches!(bad_src.validate(), Err(AncoraError::GraphInvalid(_))));
+
+        // Edge target does not exist
+        let bad_tgt = Graph {
+            id: "g5".to_string(),
+            nodes: vec![agent_node("a")],
+            edges: vec![edge("a", "ghost")],
+            entry_node: "a".to_string(),
+        };
+        assert!(matches!(bad_tgt.validate(), Err(AncoraError::GraphInvalid(_))));
+
+        // Valid graph passes
+        let valid = Graph {
+            id: "g6".to_string(),
+            nodes: vec![agent_node("a"), agent_node("b")],
+            edges: vec![edge("a", "b")],
+            entry_node: "a".to_string(),
+        };
+        valid.validate().unwrap();
+    }
+}
