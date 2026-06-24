@@ -228,3 +228,13 @@ fn conformance_human_in_loop_tag_contains_suspend() {
     let s = &conformance::HUMAN_IN_LOOP;
     assert!(s.tags.contains(&"suspend"), "human-in-loop scenario must have 'suspend' tag");
 }
+
+#[test]
+fn all_four_scenarios_can_be_started_via_ffi() {
+    let rt = make_rt();
+    for _ in conformance::all_scenarios() {
+        let id = start_run(rt);
+        assert!(!id.is_empty(), "each scenario start must yield a non-empty run id");
+    }
+    ancora_free_runtime(rt);
+}
