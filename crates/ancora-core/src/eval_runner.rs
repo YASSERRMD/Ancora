@@ -118,6 +118,17 @@ mod tests {
     }
 
     #[test]
+    fn case_result_pass_rate_correct_for_zero_passes() {
+        let mut runner = EvalRunner::new(4);
+        runner.register_scorer(Arc::new(ExactMatchScorer));
+        let cases = vec![EvalCase::new("c1", "q", "a", "exact_match")];
+        let generate: GenerateFn = Arc::new(|_| "wrong".into());
+        let results = runner.run(&cases, &generate);
+        assert_eq!(results[0].pass_count, 0);
+        assert_eq!(results[0].pass_rate(), 0.0);
+    }
+
+    #[test]
     fn rollout_results_have_correct_rollout_indices() {
         let mut runner = EvalRunner::new(3);
         runner.register_scorer(Arc::new(ExactMatchScorer));
