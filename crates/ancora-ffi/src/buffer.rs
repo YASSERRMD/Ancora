@@ -32,3 +32,8 @@ pub extern "C" fn ancora_buffer_free(buf: AncorBuffer) {
         drop(Vec::from_raw_parts(buf.ptr, buf.len, buf.len));
     }
 }
+
+/// Build a buffer from a Rust string slice (UTF-8 bytes, no null terminator).
+pub fn ancora_buffer_from_str(s: &str) -> AncorBuffer {
+    ancora_buffer_new(s.as_ptr(), s.len())
+}
