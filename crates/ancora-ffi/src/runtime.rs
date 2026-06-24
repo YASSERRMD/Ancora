@@ -1,5 +1,9 @@
+use std::collections::HashMap;
+use std::sync::Mutex;
+
 use crate::error_code::AncorErrorCode;
 use crate::handles::AncorRuntime;
+use crate::runs::InnerRun;
 
 /// Allocate a new runtime. The caller owns the returned pointer.
 /// Returns null on allocation failure.
@@ -20,6 +24,18 @@ pub extern "C" fn ancora_runtime_new(out: *mut *mut AncorRuntime) -> AncorErrorC
     AncorErrorCode::Ok
 }
 
+/// Allocate a runtime with serialized config bytes and write pointer to `out`.
+/// Config bytes are currently ignored (reserved for future use).
+/// Returns `NullPtr` if `out` is null.
+#[no_mangle]
+pub extern "C" fn ancora_runtime_new_with_config(
+    _config_bytes: *const u8,
+    _config_len: usize,
+    out: *mut *mut AncorRuntime,
+) -> AncorErrorCode {
+    ancora_runtime_new(out)
+}
+
 /// Free a runtime previously created by `ancora_create_runtime`.
 /// Passing null is a no-op.
 #[no_mangle]
@@ -32,12 +48,16 @@ pub extern "C" fn ancora_free_runtime(ptr: *mut AncorRuntime) {
     }
 }
 
-struct InnerRuntime {
+pub(crate) struct InnerRuntime {
+    pub runs: Mutex<HashMap<String, InnerRun>>,
     _store: ancora_core::journal::MemoryStore,
 }
 
 impl InnerRuntime {
-    fn new() -> Self {
-        Self { _store: ancora_core::journal::MemoryStore::new() }
+    pub fn new() -> Self {
+        Self {
+            runs: Mutex::new(HashMap::new()),
+            _store: ancora_core::journal::MemoryStore::new(),
+        }
     }
 }
