@@ -1,5 +1,9 @@
+use std::collections::HashMap;
+use std::sync::Mutex;
+
 use crate::error_code::AncorErrorCode;
 use crate::handles::AncorRuntime;
+use crate::runs::InnerRun;
 
 /// Allocate a new runtime. The caller owns the returned pointer.
 /// Returns null on allocation failure.
@@ -32,12 +36,16 @@ pub extern "C" fn ancora_free_runtime(ptr: *mut AncorRuntime) {
     }
 }
 
-struct InnerRuntime {
+pub(crate) struct InnerRuntime {
+    pub runs: Mutex<HashMap<String, InnerRun>>,
     _store: ancora_core::journal::MemoryStore,
 }
 
 impl InnerRuntime {
-    fn new() -> Self {
-        Self { _store: ancora_core::journal::MemoryStore::new() }
+    pub fn new() -> Self {
+        Self {
+            runs: Mutex::new(HashMap::new()),
+            _store: ancora_core::journal::MemoryStore::new(),
+        }
     }
 }
