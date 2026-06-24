@@ -36,3 +36,40 @@ pub fn journal_event_span(run_id: &str, event_name: &str) -> Span {
         .set(ANCORA_RUN_ID, run_id)
         .set("event.name", event_name)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::span::SpanValue;
+
+    #[test]
+    fn run_span_carries_genai_operation_and_system() {
+        let span = run_span("run-1", "chat", "openai");
+        assert_eq!(span.attributes.get(GEN_AI_OPERATION_NAME), Some(&SpanValue::String("chat".into())));
+        assert_eq!(span.attributes.get(GEN_AI_SYSTEM), Some(&SpanValue::String("openai".into())));
+        assert_eq!(span.attributes.get(ANCORA_RUN_ID), Some(&SpanValue::String("run-1".into())));
+    }
+
+    #[test]
+    fn node_span_carries_model_and_token_usage() {
+        let span = node_span("run-2", "n1", "agent", "gpt-4o", 100, 50, 0.002);
+        assert_eq!(span.attributes.get(GEN_AI_REQUEST_MODEL), Some(&SpanValue::String("gpt-4o".into())));
+        assert_eq!(span.attributes.get(GEN_AI_USAGE_INPUT_TOKENS), Some(&SpanValue::Int(100)));
+        assert_eq!(span.attributes.get(GEN_AI_USAGE_OUTPUT_TOKENS), Some(&SpanValue::Int(50)));
+    }
+
+    #[test]
+    fn node_span_carries_cost_and_node_ids() {
+        let span = node_span("run-3", "n2", "tool", "gpt-4o-mini", 0, 0, 0.0);
+        assert_eq!(span.attributes.get(ANCORA_NODE_ID), Some(&SpanValue::String("n2".into())));
+        assert_eq!(span.attributes.get(ANCORA_NODE_KIND), Some(&SpanValue::String("tool".into())));
+        assert_eq!(span.attributes.get(ANCORA_COST_USD), Some(&SpanValue::Float(0.0)));
+    }
+
+    #[test]
+    fn journal_event_span_carries_event_name() {
+        let span = journal_event_span("run-4", "node.started");
+        assert_eq!(span.attributes.get("event.name"), Some(&SpanValue::String("node.started".into())));
+        assert_eq!(span.attributes.get(ANCORA_RUN_ID), Some(&SpanValue::String("run-4".into())));
+    }
+}
