@@ -1,5 +1,6 @@
 pub mod activity;
 pub mod error;
+pub mod idempotency;
 pub mod journal;
 pub mod replay;
 pub mod run;
