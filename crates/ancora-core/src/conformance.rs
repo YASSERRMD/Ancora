@@ -67,4 +67,11 @@ mod tests {
             assert!(ids.insert(s.id), "duplicate scenario id: {}", s.id);
         }
     }
+
+    #[test]
+    fn all_scenario_descriptions_are_non_empty() {
+        for s in all_scenarios() {
+            assert!(!s.description.is_empty(), "empty description for scenario '{}'", s.id);
+        }
+    }
 }
