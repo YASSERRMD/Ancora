@@ -180,3 +180,25 @@ async fn poll_exhausted_run_returns_empty_event() {
         .event;
     assert!(e.is_empty(), "expected empty after events exhausted, got: {e}");
 }
+
+#[tokio::test]
+async fn two_independent_runs_have_different_ids() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let id1 = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let id2 = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    assert_ne!(id1, id2);
+}
