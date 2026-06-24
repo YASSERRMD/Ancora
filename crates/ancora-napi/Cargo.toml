@@ -1,0 +1,17 @@
+[package]
+name = "ancora-napi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ancora-core = { path = "../ancora-core" }
+napi = { version = "2", default-features = false, features = ["napi4"] }
+napi-derive = "2"
+uuid = { version = "1", features = ["v4"] }
+
+[build-dependencies]
+napi-build = "2"
