@@ -294,3 +294,33 @@ async fn stream_events_arrive_in_order() {
     }
     assert_eq!(events, vec!["started", "completed"]);
 }
+
+#[tokio::test]
+async fn decision_stream_emits_resumed_event() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::{wrappers::ReceiverStream, StreamExt};
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    let (tx, rx) = tokio::sync::mpsc::channel(4);
+    tx.send(DecisionRequest { run_id: run_id.clone(), decision: b"yes".to_vec() })
+        .await
+        .unwrap();
+    drop(tx);
+    let mut out_stream = client
+        .decision_stream(Request::new(ReceiverStream::new(rx)))
+        .await
+        .unwrap()
+        .into_inner();
+    let ev = out_stream.next().await.unwrap().unwrap().event;
+    assert!(ev.contains("resumed"), "expected resumed, got: {ev}");
+}
