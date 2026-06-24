@@ -76,6 +76,58 @@ async def main():
 asyncio.run(main())
 ```
 
+## Streaming tokens
+
+Stream tokens as they arrive using the `stream_tokens` async generator:
+
+```python
+import asyncio
+import ancora
+
+async def main():
+    rt = ancora.Runtime()
+    spec = ancora.AgentSpec(name="a", model_id="llama3")
+    agent = ancora.Agent(rt, spec)
+    run = await agent.run()
+
+    tokens = []
+    async for token in run.stream_tokens():
+        tokens.append(token)
+    print("".join(tokens))
+
+    rt.free()
+
+asyncio.run(main())
+```
+
+To receive all raw event bytes (including non-token events), use `stream_events()`:
+
+```python
+async for raw in run.stream_events():
+    event = ancora.StreamEvent.from_bytes(raw)
+    print(event.kind)
+```
+
+## Memory store
+
+Persist agent state across steps using `MemoryStore`:
+
+```python
+from ancora import MemoryStore, Agent, AgentSpec, Runtime
+
+rt = Runtime()
+mem = MemoryStore()
+mem.write("user", "Alice")
+
+spec = AgentSpec(name="a", model_id="llama3")
+agent = Agent(rt, spec, memory=mem)
+
+print(agent.memory.read("user"))   # "Alice"
+agent.memory.write("step", 1)
+agent.memory.delete("step")
+agent.memory.clear()
+```
+
 ## Pydantic models and wire format
 
 Build agent specs with Pydantic validation and serialize to JSON wire bytes:
