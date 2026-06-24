@@ -267,4 +267,46 @@ mod tests {
         let result2 = exec2.run("", &GoLeftExecutor).unwrap();
         assert_eq!(result2, "left");
     }
+
+    #[test]
+    fn parallel_results_join_deterministically() {
+        // Fan-out from "root" to branches "c-node", "a-node", "b-node" (deliberately out of order).
+        // The join must produce results sorted by node id: a-node, b-node, c-node.
+        let graph = Graph {
+            id: "g-par".to_string(),
+            nodes: vec![
+                function_node("root"),
+                function_node("c-node"),
+                function_node("a-node"),
+                function_node("b-node"),
+            ],
+            edges: vec![
+                edge("root", "c-node", None),
+                edge("root", "a-node", None),
+                edge("root", "b-node", None),
+            ],
+            entry_node: "root".to_string(),
+        };
+
+        let store = Arc::new(MemoryStore::new());
+        let store_ref = Arc::clone(&store);
+        let mut exec = GraphExecutor::new(graph, "run-par-1", store);
+        let results = exec.run_parallel_branches("root", "input", &PrefixExecutor).unwrap();
+
+        let ids: Vec<&str> = results.iter().map(|(id, _)| id.as_str()).collect();
+        assert_eq!(ids, vec!["a-node", "b-node", "c-node"], "branches must join in sorted order");
+
+        // Verify journal entries are in the same sorted order.
+        let events = store_ref.read("run-par-1").unwrap();
+        let node_entered_ids: Vec<String> = events.iter()
+            .filter_map(|e| {
+                if let Some(ancora_proto::ancora::journal_event::Event::NodeEntered(ev)) = &e.event {
+                    Some(ev.node_id.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert_eq!(node_entered_ids, vec!["a-node", "b-node", "c-node"]);
+    }
 }
