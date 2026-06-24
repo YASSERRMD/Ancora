@@ -155,8 +155,21 @@ impl CheckpointStore for PostgresStore {
             .map_err(storage)
     }
 
-    fn load_checkpoint(&self, _run_id: &str) -> Result<Option<(u64, Vec<u8>)>, AncoraError> {
-        Ok(None)
+    fn load_checkpoint(&self, run_id: &str) -> Result<Option<(u64, Vec<u8>)>, AncoraError> {
+        let mut client = self.client.lock().map_err(|_| storage("mutex poisoned"))?;
+
+        let rows = client
+            .query(
+                "SELECT at_seq, data FROM checkpoints WHERE run_id = $1",
+                &[&run_id],
+            )
+            .map_err(storage)?;
+
+        Ok(rows.into_iter().next().map(|row| {
+            let at_seq: i64 = row.get(0);
+            let data: Vec<u8> = row.get(1);
+            (at_seq as u64, data)
+        }))
     }
 }
 
