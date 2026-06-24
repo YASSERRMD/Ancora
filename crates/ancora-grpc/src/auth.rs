@@ -4,3 +4,9 @@ use tonic::{Request, Status};
 pub struct AuthConfig {
     pub token: String,
 }
+
+impl AuthConfig {
+    pub fn new(token: impl Into<String>) -> Self {
+        Self { token: token.into() }
+    }
+}
