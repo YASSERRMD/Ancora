@@ -90,9 +90,12 @@ jobs:
           pattern: ts-publish-*
           path: sdk/ts/npm
           merge-multiple: false
-      - name: Compile TypeScript
+      - name: Type check
         working-directory: sdk/ts
         run: npx tsc --noEmit
+      - name: Generate declarations
+        working-directory: sdk/ts
+        run: npm run build:dts
       - name: Publish (dry-run)
         if: github.event.inputs.dry_run == 'true' || github.event_name == 'workflow_dispatch'
         working-directory: sdk/ts
