@@ -113,6 +113,51 @@ impl GraphExecutor {
         unreachable!("loop always returns")
     }
 
+    /// Run consensus across `voter_ids`. When the top vote count is shared by multiple
+    /// outputs (a tie), call `arbiter_id` with the tied outputs joined by newline to
+    /// make the final decision.
+    pub fn run_with_arbiter(
+        &mut self,
+        voter_ids: &[String],
+        arbiter_id: &str,
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        if voter_ids.is_empty() {
+            return Err(AncoraError::Internal("consensus requires at least one voter".to_string()));
+        }
+
+        let mut tallies: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+
+        for voter_id in voter_ids {
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *voter_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(voter_id.clone()))?;
+                executor.execute(node, input)?
+            };
+            *tallies.entry(output).or_insert(0) += 1;
+        }
+
+        let max_votes = tallies.values().copied().max().unwrap_or(0);
+        let mut tied: Vec<String> = tallies.into_iter()
+            .filter(|(_, v)| *v == max_votes)
+            .map(|(k, _)| k)
+            .collect();
+        tied.sort();
+
+        if tied.len() == 1 {
+            return Ok(tied.remove(0));
+        }
+
+        // Call arbiter to break the tie.
+        let arbiter_input = tied.join("\n");
+        let arbiter_node = self.graph.nodes.iter()
+            .find(|n| n.id == arbiter_id)
+            .ok_or_else(|| AncoraError::NodeNotFound(arbiter_id.to_string()))?;
+        executor.execute(arbiter_node, &arbiter_input)
+    }
+
     /// Run all nodes in `voter_ids` on the same `input` and return the output that
     /// received the most votes. Ties between outputs of equal vote count are broken by
     /// lexicographic order so the result is always deterministic.
