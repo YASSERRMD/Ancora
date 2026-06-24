@@ -39,3 +39,12 @@ fn buffer_from_str_roundtrips() {
     assert_eq!(slice, b"ancora-test");
     ancora_buffer_free(buf);
 }
+
+#[test]
+fn runtime_new_via_error_code_api_returns_ok() {
+    let mut rt = std::ptr::null_mut();
+    let code = ancora_runtime_new(&mut rt);
+    assert_eq!(code, AncorErrorCode::Ok);
+    assert!(!rt.is_null());
+    ancora_free_runtime(rt);
+}
