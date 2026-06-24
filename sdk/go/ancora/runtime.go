@@ -21,3 +21,12 @@ func NewRuntime() (*Runtime, error) {
 	runtime.SetFinalizer(r, (*Runtime).Free)
 	return r, nil
 }
+
+// Free releases the underlying runtime. Idempotent; subsequent calls are no-ops.
+func (r *Runtime) Free() {
+	if r.ptr != nil {
+		C.ancora_free_runtime(r.ptr)
+		r.ptr = nil
+	}
+	runtime.SetFinalizer(r, nil)
+}
