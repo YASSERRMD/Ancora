@@ -1,19 +1,19 @@
 package ancora
 
-import "runtime"
-
-// #include "ancora.h"
-import "C"
+import (
+	"runtime"
+	"unsafe"
+)
 
 // Runtime is an opaque handle to an Ancora runtime instance.
 type Runtime struct {
-	ptr *C.AncorRuntime
+	ptr unsafe.Pointer
 }
 
-// NewRuntime allocates a new runtime. Returns an error if allocation fails.
+// NewRuntime allocates a new runtime. The GC calls Free when the handle
+// becomes unreachable.
 func NewRuntime() (*Runtime, error) {
-	var ptr *C.AncorRuntime
-	code := C.ancora_runtime_new(&ptr)
+	ptr, code := cRuntimeNew()
 	if err := asError(code); err != nil {
 		return nil, err
 	}
@@ -27,25 +27,17 @@ func (r *Runtime) StartRun(spec []byte) (*Run, error) {
 	if len(spec) == 0 {
 		spec = []byte("{}")
 	}
-	var out C.AncorBuffer
-	code := C.ancora_run_start(
-		r.ptr,
-		(*C.uint8_t)(&spec[0]),
-		C.uintptr_t(len(spec)),
-		&out,
-	)
+	id, code := cRunStart(r.ptr, spec)
 	if err := asError(code); err != nil {
 		return nil, err
 	}
-	id := bufferToString(out)
-	C.ancora_buffer_free(out)
 	return &Run{rt: r, id: id}, nil
 }
 
 // Free releases the underlying runtime. Idempotent; subsequent calls are no-ops.
 func (r *Runtime) Free() {
 	if r.ptr != nil {
-		C.ancora_free_runtime(r.ptr)
+		cRuntimeFree(r.ptr)
 		r.ptr = nil
 	}
 	runtime.SetFinalizer(r, nil)
