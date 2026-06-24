@@ -34,6 +34,10 @@ impl GraphSpec {
     pub fn agent_nodes(&self) -> Vec<&NodeSpec> {
         self.nodes.iter().filter(|n| n.is_agent()).collect()
     }
+
+    pub fn from_yaml(yaml: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        Ok(serde_yaml::from_str(yaml)?)
+    }
 }
 
 /// Error types for spec validation.
