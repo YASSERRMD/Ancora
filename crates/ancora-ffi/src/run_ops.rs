@@ -61,3 +61,31 @@ pub extern "C" fn ancora_run_poll(
     }
     AncorErrorCode::Ok
 }
+
+/// Resume a suspended run by providing a decision as bytes.
+#[no_mangle]
+pub extern "C" fn ancora_run_resume(
+    rt: *mut AncorRuntime,
+    run_id: *const c_char,
+    decision_bytes: *const u8,
+    decision_len: usize,
+) -> AncorErrorCode {
+    if rt.is_null() || run_id.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let id = unsafe { std::ffi::CStr::from_ptr(run_id) }
+        .to_str()
+        .unwrap_or("");
+    let decision = if decision_bytes.is_null() || decision_len == 0 {
+        String::new()
+    } else {
+        let slice = unsafe { std::slice::from_raw_parts(decision_bytes, decision_len) };
+        String::from_utf8_lossy(slice).into_owned()
+    };
+    let inner = unsafe { &mut *rt.cast::<InnerRuntime>() };
+    let mut guard = inner.runs.lock().unwrap();
+    if let Some(run) = guard.get_mut(id) {
+        run.resume(&decision);
+    }
+    AncorErrorCode::Ok
+}
