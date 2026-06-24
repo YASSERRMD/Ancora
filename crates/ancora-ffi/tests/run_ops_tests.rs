@@ -123,6 +123,28 @@ fn run_start_with_null_runtime_returns_null_ptr() {
 }
 
 #[test]
+fn resume_after_poll_adds_resumed_event() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = cstr(&id);
+    let zero = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut e1 = zero;
+    let mut e2 = zero;
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
+    let decision = b"approved";
+    ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len());
+    let mut e3 = zero;
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e3);
+    let s3 = buf_to_string(&e3);
+    assert!(s3.contains("resumed"), "expected resumed event, got: {s3}");
+    ancora_buffer_free(e1);
+    ancora_buffer_free(e2);
+    ancora_buffer_free(e3);
+    ancora_free_runtime(rt);
+}
+
+#[test]
 fn drive_full_run_start_poll_poll_cost() {
     let rt = make_rt();
     let id = start_run(rt);
