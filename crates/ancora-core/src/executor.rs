@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use ancora_proto::ancora::{
-    journal_event::Event as JournalEventVariant, JournalEvent, NodeEnteredEvent, NodeExitedEvent,
+    journal_event::Event as JournalEventVariant, HumanDecisionRequestedEvent, JournalEvent,
+    NodeEnteredEvent, NodeExitedEvent,
 };
 
 use crate::error::AncoraError;
@@ -96,6 +97,21 @@ impl GraphExecutor {
 
             if node_kind == NodeKind::AwaitHuman {
                 self.journal_node_entered(&current_id, node_kind.to_str())?;
+                self.journal_seq += 1;
+                let seq = self.journal_seq;
+                self.store.append(&self.run_id.clone(), JournalEvent {
+                    event_id: uuid::Uuid::new_v4().to_string(),
+                    run_id: self.run_id.clone(),
+                    seq,
+                    recorded_at_ns: 0,
+                    event: Some(JournalEventVariant::HumanDecisionRequested(
+                        HumanDecisionRequestedEvent {
+                            prompt: current_output.clone(),
+                            options: vec![],
+                            timeout_at_ns: 0,
+                        },
+                    )),
+                }).map(|_| ())?;
                 return Ok(RunOutcome::Suspended(SuspendedRun {
                     run_id: self.run_id.clone(),
                     node_id: current_id,
