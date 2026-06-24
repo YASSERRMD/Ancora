@@ -115,6 +115,14 @@ fn run_resume_returns_ok() {
 }
 
 #[test]
+fn run_start_with_null_runtime_returns_null_ptr() {
+    let spec = b"{}";
+    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let code = ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out);
+    assert_eq!(code, AncorErrorCode::NullPtr);
+}
+
+#[test]
 fn drive_full_run_start_poll_poll_cost() {
     let rt = make_rt();
     let id = start_run(rt);
