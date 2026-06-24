@@ -10,3 +10,5 @@ pub const ANCORA_RUN_ID: &str = "ancora.run_id";
 pub const ANCORA_NODE_ID: &str = "ancora.node_id";
 pub const ANCORA_NODE_KIND: &str = "ancora.node_kind";
 pub const ANCORA_COST_USD: &str = "ancora.cost_usd";
+pub const ANCORA_GRAPH_ID: &str = "ancora.graph_id";
+pub const ANCORA_TOTAL_COST_USD: &str = "ancora.total_cost_usd";
