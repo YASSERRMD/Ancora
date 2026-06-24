@@ -1,0 +1,16 @@
+{
+  "name": "@ancora/sdk-darwin-arm64",
+  "version": "0.1.0",
+  "description": "Ancora SDK prebuilt addon for macOS arm64",
+  "os": ["darwin"],
+  "cpu": ["arm64"],
+  "main": "ancora.darwin-arm64.node",
+  "files": [
+    "ancora.darwin-arm64.node"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YASSERRMD/Ancora"
+  }
+}
