@@ -86,6 +86,47 @@ func TestGoToolExecutesWithinRun(t *testing.T) {
 	}
 }
 
+func TestRuntimeToolkitRegisterTool(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	tk := ancora.NewRuntimeToolkit(rt)
+	tk.RegisterTool("calc", echoTool)
+	if !tk.Tools().Has("calc") {
+		t.Fatal("toolkit must have tool after RegisterTool")
+	}
+}
+
+func TestRuntimeToolkitRuntimeAccessor(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	tk := ancora.NewRuntimeToolkit(rt)
+	if tk.Runtime() != rt {
+		t.Fatal("RuntimeToolkit.Runtime() must return original runtime")
+	}
+}
+
+func TestToolWithSchemaRoundTrips(t *testing.T) {
+	type calcInput struct {
+		A int `json:"a" schema:"first operand"`
+		B int `json:"b" schema:"second operand"`
+	}
+	schema, err := ancora.SchemaFromStruct(calcInput{})
+	if err != nil {
+		t.Fatalf("SchemaFromStruct: %v", err)
+	}
+	tool := ancora.NewToolSpecBuilder().
+		WithToolName("calc").
+		WithDescription("adds two numbers").
+		WithInputSchema(schema).
+		Build()
+	if tool.GetInputSchemaJson() == "" {
+		t.Fatal("ToolSpec must carry input schema JSON")
+	}
+	if !contains(tool.GetInputSchemaJson(), `"a"`) {
+		t.Fatalf("schema missing field 'a', got: %s", tool.GetInputSchemaJson())
+	}
+}
+
 func TestGoToolRegistryOverwriteExistingTool(t *testing.T) {
 	reg := ancora.NewGoToolRegistry()
 	reg.Register("echo", func(in []byte) ([]byte, error) { return []byte("v1"), nil })
