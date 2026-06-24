@@ -98,6 +98,14 @@ mod tests {
     }
 
     #[test]
+    fn graph_span_carries_graph_id_and_total_cost() {
+        let span = graph_span("run-5", "graph-abc", 0.05);
+        assert_eq!(span.attributes.get(ANCORA_GRAPH_ID), Some(&SpanValue::String("graph-abc".into())));
+        assert_eq!(span.attributes.get(ANCORA_TOTAL_COST_USD), Some(&SpanValue::Float(0.05)));
+        assert_eq!(span.attributes.get(ANCORA_RUN_ID), Some(&SpanValue::String("run-5".into())));
+    }
+
+    #[test]
     fn node_span_with_finish_reason_carries_finish_reason() {
         let span = node_span_with_finish_reason("r1", "n1", "agent", "gpt-4o", 10, 5, 0.001, "stop");
         assert_eq!(
