@@ -61,3 +61,15 @@ fn snapshot_header_declares_run_ops() {
     assert!(content.contains("ancora_run_poll"), "ancora_run_poll missing");
     assert!(content.contains("ancora_run_resume"), "ancora_run_resume missing");
 }
+
+#[test]
+fn snapshot_header_declares_ancora_version_function() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("ancora_version"), "ancora_version missing from header");
+}
+
+#[test]
+fn snapshot_header_declares_runtime_new() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("ancora_runtime_new"), "ancora_runtime_new missing from header");
+}
