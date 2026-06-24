@@ -21,3 +21,10 @@ pub struct CompletionResponse {
     pub tokens_in: u64,
     pub tokens_out: u64,
 }
+
+/// A token fragment emitted during streaming completion.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TokenEvent {
+    pub text: String,
+    pub finished: bool,
+}
