@@ -63,6 +63,20 @@ func TestPollEventReturnsStartedEvent(t *testing.T) {
 	}
 }
 
+func TestPollReturnsNilWhenQueueDrained(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	run, _ := rt.StartRun([]byte("{}"))
+	drainEvents(t, run)
+	ev, err := run.PollEvent()
+	if err != nil {
+		t.Fatalf("PollEvent after drain: %v", err)
+	}
+	if ev != nil {
+		t.Fatalf("expected nil after drain, got: %s", ev)
+	}
+}
+
 func drainEvents(t *testing.T, run *ancora.Run) []string {
 	t.Helper()
 	var events []string
