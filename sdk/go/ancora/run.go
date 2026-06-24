@@ -6,6 +6,15 @@ import "unsafe"
 // #include <stdlib.h>
 import "C"
 
+// Run is a handle to a live agent run, identified by its string ID.
+type Run struct {
+	rt *Runtime
+	id string
+}
+
+// ID returns the unique run identifier.
+func (r *Run) ID() string { return r.id }
+
 // bufferToBytes copies an AncorBuffer into a Go byte slice.
 // The caller must still free the original C buffer.
 func bufferToBytes(buf C.AncorBuffer) []byte {
