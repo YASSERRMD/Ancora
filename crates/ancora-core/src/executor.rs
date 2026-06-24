@@ -74,32 +74,43 @@ impl GraphExecutor {
 
     /// Run `worker_id` and pass the result to `verifier_id` for approval.
     ///
-    /// Returns `Ok(output)` on approval or `Err(OutputValidation)` on rejection.
+    /// On rejection the worker is re-executed up to `max_rework` times.
+    /// Returns `Ok(output)` on approval or `Err(OutputValidation)` when the rework budget is exhausted.
+    /// `max_rework == 0` means try once with no retry.
     pub fn run_with_verifier(
         &mut self,
         worker_id: &str,
         verifier_id: &str,
         input: &str,
+        max_rework: u32,
         executor: &dyn NodeExecutor,
         verifier: &dyn VerifierNode,
     ) -> Result<String, AncoraError> {
-        let candidate = {
-            let node = self.graph.nodes.iter()
-                .find(|n| n.id == worker_id)
-                .ok_or_else(|| AncoraError::NodeNotFound(worker_id.to_string()))?;
-            executor.execute(node, input)?
-        };
+        let attempts = max_rework + 1;
 
-        let v_node = self.graph.nodes.iter()
-            .find(|n| n.id == verifier_id)
-            .ok_or_else(|| AncoraError::NodeNotFound(verifier_id.to_string()))?;
+        for attempt in 1..=attempts {
+            let candidate = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == worker_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(worker_id.to_string()))?;
+                executor.execute(node, input)?
+            };
 
-        match verifier.verify(v_node, &candidate)? {
-            VerifierResult::Approved { output } => Ok(output),
-            VerifierResult::Rejected { reason } => {
-                Err(AncoraError::OutputValidation { attempts: 1, reason })
+            let v_node = self.graph.nodes.iter()
+                .find(|n| n.id == verifier_id)
+                .ok_or_else(|| AncoraError::NodeNotFound(verifier_id.to_string()))?;
+
+            match verifier.verify(v_node, &candidate)? {
+                VerifierResult::Approved { output } => return Ok(output),
+                VerifierResult::Rejected { reason } => {
+                    if attempt >= attempts {
+                        return Err(AncoraError::OutputValidation { attempts: attempt, reason });
+                    }
+                }
             }
         }
+
+        unreachable!("loop always returns")
     }
 
     /// Transfer control sequentially through `agent_ids`, passing each agent's output
