@@ -41,3 +41,15 @@ fn snapshot_header_declares_tool_ops() {
     assert!(content.contains("ancora_tool_invoke"), "ancora_tool_invoke missing");
     assert!(content.contains("ancora_tool_unregister"), "ancora_tool_unregister missing");
 }
+
+#[test]
+fn snapshot_header_declares_ancorerrorcode_enum() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("AncorErrorCode"), "AncorErrorCode missing from header");
+}
+
+#[test]
+fn snapshot_header_declares_ancorbuffer_struct() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("AncorBuffer"), "AncorBuffer missing from header");
+}
