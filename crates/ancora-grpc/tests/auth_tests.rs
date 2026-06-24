@@ -21,3 +21,16 @@ async fn bind_authed_server(token: &str) -> u16 {
     tokio::time::sleep(std::time::Duration::from_millis(30)).await;
     port
 }
+
+#[tokio::test]
+async fn authenticated_request_succeeds() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_authed_server("mytoken").await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let mut req = Request::new(StartRunRequest { agent_spec: b"{}".to_vec() });
+    req.metadata_mut().insert("authorization", "Bearer mytoken".parse().unwrap());
+    let resp = client.start_run(req).await;
+    assert!(resp.is_ok(), "authenticated request should succeed");
+}
