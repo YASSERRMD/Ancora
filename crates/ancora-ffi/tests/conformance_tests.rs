@@ -162,3 +162,16 @@ fn conformance_scenario_human_in_loop_id_matches_expected() {
     let scenario = &conformance::HUMAN_IN_LOOP;
     assert_eq!(scenario.id, "human-in-loop");
 }
+
+#[test]
+fn conformance_scenario_count_is_four() {
+    assert_eq!(conformance::all_scenarios().len(), 4, "there must be exactly 4 conformance scenarios");
+}
+
+#[test]
+fn ffi_run_start_null_ptr_guard() {
+    let spec = b"{}";
+    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let code = ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out);
+    assert_eq!(code, AncorErrorCode::NullPtr, "null rt must return NullPtr");
+}
