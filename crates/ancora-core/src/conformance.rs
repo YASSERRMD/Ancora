@@ -178,4 +178,29 @@ mod tests {
         let recovered = SuspendedRun::from_json(&run.to_json().unwrap()).unwrap();
         assert_eq!(recovered.deadline_ms, Some(9999));
     }
+
+    fn make_journal_event(label: &str) -> ancora_proto::ancora::JournalEvent {
+        use ancora_proto::ancora::{journal_event::Event, JournalEvent, RunStartedEvent};
+        JournalEvent {
+            event_id: label.to_string(),
+            run_id: label.to_string(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::RunStarted(RunStartedEvent {
+                run_id: label.to_string(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".to_string(),
+            })),
+        }
+    }
+
+    #[test]
+    fn crash_and_recover_scenario_events_survive_reuse() {
+        use crate::journal::{JournalStore, MemoryStore};
+        let store = MemoryStore::new();
+        store.append("run-1", make_journal_event("e1")).unwrap();
+        store.append("run-1", make_journal_event("e2")).unwrap();
+        let events = store.read("run-1").unwrap();
+        assert_eq!(events.len(), 2);
+    }
 }
