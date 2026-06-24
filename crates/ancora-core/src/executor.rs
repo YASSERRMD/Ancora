@@ -61,6 +61,30 @@ impl GraphExecutor {
         }
     }
 
+    /// Transfer control sequentially through `agent_ids`, passing each agent's output
+    /// as the next agent's input. Returns the final agent's output.
+    pub fn run_handoff(
+        &mut self,
+        agent_ids: &[String],
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        if agent_ids.is_empty() {
+            return Ok(input.to_string());
+        }
+        let mut current = input.to_string();
+        for agent_id in agent_ids {
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *agent_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(agent_id.clone()))?;
+                executor.execute(node, &current)?
+            };
+            current = output;
+        }
+        Ok(current)
+    }
+
     fn journal_node_entered(&mut self, node_id: &str, node_kind: &str) -> Result<(), AncoraError> {
         let seq = self.journal_seq;
         self.journal_seq += 1;
