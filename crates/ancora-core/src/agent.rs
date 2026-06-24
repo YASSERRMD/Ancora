@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
 use ancora_proto::ancora::{
-    content_block::Block, AgentSpec, ContentBlock, Message as ProtoMessage, Role, TextContent,
-    ToolCallContent, ToolResultContent,
+    content_block::Block,
+    journal_event::Event as JournalEventVariant,
+    ActivityRecordedEvent, AgentSpec, ContentBlock, JournalEvent, Message as ProtoMessage, Role,
+    TextContent, ToolCallContent, ToolResultContent,
 };
 
 use crate::error::AncoraError;
@@ -37,6 +39,7 @@ pub struct Agent {
     pub run: Run,
     messages: Vec<ProtoMessage>,
     step: u32,
+    journal_seq: u64,
     store: Arc<dyn JournalStore>,
 }
 
@@ -47,6 +50,7 @@ impl Agent {
             run: Run::new(run_id),
             messages: Vec::new(),
             step: 0,
+            journal_seq: 0,
             store,
         }
     }
@@ -80,6 +84,9 @@ impl Agent {
             .collect::<Vec<_>>()
             .join("");
 
+        let key = format!("step:{}:model", self.step);
+        self.journal_append(key, "model_call", &text)?;
+
         self.messages.push(response);
         self.step += 1;
 
@@ -108,16 +115,46 @@ impl Agent {
                 return Err(AncoraError::MaxSteps { max_steps });
             }
 
+            let step_num = self.step;
+
             match self.step(model)? {
                 StepOutcome::FinalOutput { text } => return Ok(text),
                 StepOutcome::ToolCalls { calls } => {
                     for call in &calls {
                         let result = dispatcher.dispatch(call)?;
+                        let key = format!("step:{}:tool:{}", step_num, call.tool_call_id);
+                        self.journal_append(key, "tool_result", &result.result_json)?;
                         self.messages.push(tool_result_message(result));
                     }
                 }
             }
         }
+    }
+
+    fn journal_append(
+        &mut self,
+        key: String,
+        kind: &str,
+        result_json: &str,
+    ) -> Result<(), AncoraError> {
+        let seq = self.journal_seq;
+        self.journal_seq += 1;
+        self.store.append(
+            &self.run.id,
+            JournalEvent {
+                event_id: key.clone(),
+                run_id: self.run.id.clone(),
+                seq,
+                recorded_at_ns: 0,
+                event: Some(JournalEventVariant::ActivityRecorded(ActivityRecordedEvent {
+                    activity_key: key,
+                    activity_kind: kind.to_string(),
+                    input_json: String::new(),
+                    result_json: result_json.to_string(),
+                    replayed: false,
+                })),
+            },
+        ).map(|_| ())
     }
 }
 
