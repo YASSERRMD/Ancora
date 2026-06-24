@@ -139,6 +139,12 @@ mod tests {
     }
 
     #[test]
+    fn spans_to_otlp_with_empty_slice_produces_empty_scope_spans() {
+        let req = spans_to_otlp(&[]);
+        assert_eq!(req.resource_spans[0].scope_spans[0].spans.len(), 0);
+    }
+
+    #[test]
     fn spans_to_otlp_roundtrips_via_json() {
         let spans = vec![Span::new("op").set("k", "v")];
         let req = spans_to_otlp(&spans);
