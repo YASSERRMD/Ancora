@@ -32,3 +32,10 @@ pub const HUMAN_IN_LOOP: ConformanceScenario = ConformanceScenario {
     description: "A run suspends awaiting human approval and then resumes correctly",
     tags: &["suspend", "resume", "human"],
 };
+
+/// Run journal survives a simulated process restart and replays correctly.
+pub const CRASH_AND_RECOVER: ConformanceScenario = ConformanceScenario {
+    id: "crash-and-recover",
+    description: "A run journal persists across restart and replays deterministically",
+    tags: &["journal", "replay", "recovery"],
+};
