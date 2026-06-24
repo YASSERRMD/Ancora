@@ -36,5 +36,14 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
+      - name: Install cross (arm64 linux only)
+        if: matrix.use_cross == true
+        run: cargo install cross --locked
       - name: Build cdylib
-        run: cargo build --release -p ancora-ffi --target ${{ matrix.target }}
+        run: |
+          if [ "${{ matrix.use_cross }}" = "true" ]; then
+            cross build --release -p ancora-ffi --target ${{ matrix.target }}
+          else
+            cargo build --release -p ancora-ffi --target ${{ matrix.target }}
+          fi
+        shell: bash
