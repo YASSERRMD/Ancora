@@ -59,3 +59,15 @@ impl RunStore {
         self.runs.lock().unwrap().contains_key(id)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new_run_has_two_events() {
+        let store = RunStore::new();
+        store.insert("r1".into());
+        assert_eq!(store.event_count("r1"), 2);
+    }
+}
