@@ -90,3 +90,35 @@ fn graph_spec_empty_nodes_is_valid() {
     let spec = GraphSpec { name: "empty".into(), nodes: vec![] };
     spec.validate().unwrap();
 }
+
+#[test]
+fn node_spec_is_agent_returns_true_for_agent_kind() {
+    let n = NodeSpec { id: "n".into(), kind: "agent".into(), model: None, depends_on: vec![] };
+    assert!(n.is_agent());
+    assert!(!n.is_tool());
+}
+
+#[test]
+fn node_spec_effective_model_defaults_to_default() {
+    let n = NodeSpec { id: "n".into(), kind: "agent".into(), model: None, depends_on: vec![] };
+    assert_eq!(n.effective_model(), "default");
+}
+
+#[test]
+fn node_spec_effective_model_uses_explicit_model() {
+    let n = NodeSpec { id: "n".into(), kind: "agent".into(), model: Some("gpt-4o".into()), depends_on: vec![] };
+    assert_eq!(n.effective_model(), "gpt-4o");
+}
+
+#[test]
+fn graph_spec_agent_nodes_filters_correctly() {
+    let spec = GraphSpec {
+        name: "test".into(),
+        nodes: vec![
+            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
+            NodeSpec { id: "t".into(), kind: "tool".into(), model: None, depends_on: vec![] },
+        ],
+    };
+    assert_eq!(spec.agent_nodes().len(), 1);
+    assert_eq!(spec.node_count(), 2);
+}
