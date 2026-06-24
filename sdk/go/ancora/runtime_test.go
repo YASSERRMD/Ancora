@@ -77,6 +77,26 @@ func TestPollReturnsNilWhenQueueDrained(t *testing.T) {
 	}
 }
 
+func TestResumeRunProducesResumedEvent(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	run, _ := rt.StartRun([]byte("{}"))
+	drainEvents(t, run)
+	if err := run.Resume([]byte("approved")); err != nil {
+		t.Fatalf("Resume: %v", err)
+	}
+	events := drainEvents(t, run)
+	found := false
+	for _, e := range events {
+		if contains(e, "resumed") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected resumed event, got: %v", events)
+	}
+}
+
 func drainEvents(t *testing.T, run *ancora.Run) []string {
 	t.Helper()
 	var events []string
