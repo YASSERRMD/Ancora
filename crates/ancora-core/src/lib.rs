@@ -1,5 +1,6 @@
 pub mod activity;
 pub mod cancel;
+pub mod cost;
 pub mod agent;
 pub mod executor;
 pub mod graph;
