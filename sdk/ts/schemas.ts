@@ -37,3 +37,10 @@ export const RunEventSchema = z.discriminatedUnion('kind', [
 ])
 
 export type RunEvent = z.infer<typeof RunEventSchema>
+
+export const ToolCallSchema = z.object({
+  name: z.string().min(1),
+  input: z.record(z.unknown()),
+})
+
+export type ToolCall = z.infer<typeof ToolCallSchema>
