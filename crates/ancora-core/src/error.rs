@@ -99,3 +99,52 @@ impl AncoraError {
         }
     }
 }
+
+/// Build an `AncoraError` from a wire `ErrorCode` and a message string.
+/// Used when deserializing error events from the journal.
+impl From<(ErrorCode, String)> for AncoraError {
+    fn from((code, message): (ErrorCode, String)) -> Self {
+        match code {
+            ErrorCode::ErrorNondeterminism => AncoraError::Nondeterminism {
+                seq: 0,
+                expected: message.clone(),
+                got: message,
+            },
+            ErrorCode::ErrorJournalGap => AncoraError::JournalGap { seq: 0 },
+            ErrorCode::ErrorJournalWrite => AncoraError::JournalWrite(message),
+            ErrorCode::ErrorMaxSteps => AncoraError::MaxSteps { max_steps: 0 },
+            ErrorCode::ErrorOutputValidation => AncoraError::OutputValidation {
+                attempts: 0,
+                reason: message,
+            },
+            ErrorCode::ErrorTimeout => AncoraError::Timeout { timeout_ms: 0 },
+            ErrorCode::ErrorModelRefused => AncoraError::ModelRefused(message),
+            ErrorCode::ErrorModelHttp => AncoraError::ModelHttp {
+                status: 0,
+                body: message,
+            },
+            ErrorCode::ErrorModelParse => AncoraError::ModelParse(message),
+            ErrorCode::ErrorModelUnreachable => AncoraError::ModelUnreachable(message),
+            ErrorCode::ErrorToolFailed => AncoraError::ToolFailed {
+                name: String::new(),
+                message,
+            },
+            ErrorCode::ErrorToolNotFound => AncoraError::ToolNotFound(message),
+            ErrorCode::ErrorToolInputInvalid => AncoraError::ToolInputInvalid {
+                name: String::new(),
+                reason: message,
+            },
+            ErrorCode::ErrorToolDenied => AncoraError::ToolDenied(message),
+            ErrorCode::ErrorPolicyResidency => AncoraError::PolicyResidency(message),
+            ErrorCode::ErrorPolicyPermission => AncoraError::PolicyPermission(message),
+            ErrorCode::ErrorGraphInvalid => AncoraError::GraphInvalid(message),
+            ErrorCode::ErrorNodeNotFound => AncoraError::NodeNotFound(message),
+            ErrorCode::ErrorCancelled => AncoraError::Cancelled(message),
+            ErrorCode::ErrorInvalidState => AncoraError::InvalidState(message),
+            ErrorCode::ErrorStorage => AncoraError::Storage(message),
+            ErrorCode::ErrorInternal | ErrorCode::ErrorUnspecified => {
+                AncoraError::Internal(message)
+            }
+        }
+    }
+}
