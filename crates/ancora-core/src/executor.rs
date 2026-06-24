@@ -61,6 +61,62 @@ impl GraphExecutor {
         }
     }
 
+    /// Transfer control sequentially through `agent_ids`, passing each agent's output
+    /// as the next agent's input. Returns the final agent's output.
+    pub fn run_handoff(
+        &mut self,
+        agent_ids: &[String],
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        if agent_ids.is_empty() {
+            return Ok(input.to_string());
+        }
+        let mut current = input.to_string();
+        for agent_id in agent_ids {
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *agent_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(agent_id.clone()))?;
+                executor.execute(node, &current)?
+            };
+            current = output;
+        }
+        Ok(current)
+    }
+
+    /// Run a round-robin group chat for up to `max_rounds` rounds.
+    ///
+    /// Each round cycles through all `agent_ids` in order. Each agent receives the
+    /// previous agent's output as its input. Returns all (agent_id, response) pairs
+    /// across all completed rounds. `max_rounds == 0` runs exactly one round.
+    pub fn run_group_chat(
+        &mut self,
+        agent_ids: &[String],
+        initial_message: &str,
+        max_rounds: u32,
+        executor: &dyn NodeExecutor,
+    ) -> Result<Vec<(String, String)>, AncoraError> {
+        let rounds = max_rounds.max(1);
+        let mut results = Vec::new();
+        let mut current = initial_message.to_string();
+
+        for _round in 0..rounds {
+            for agent_id in agent_ids {
+                let output = {
+                    let node = self.graph.nodes.iter()
+                        .find(|n| n.id == *agent_id)
+                        .ok_or_else(|| AncoraError::NodeNotFound(agent_id.clone()))?;
+                    executor.execute(node, &current)?
+                };
+                current = output.clone();
+                results.push((agent_id.clone(), output));
+            }
+        }
+
+        Ok(results)
+    }
+
     fn journal_node_entered(&mut self, node_id: &str, node_kind: &str) -> Result<(), AncoraError> {
         let seq = self.journal_seq;
         self.journal_seq += 1;
@@ -386,5 +442,57 @@ mod tests {
         let mut exec2 = GraphExecutor::new(graph2, "run-loop-c2", Arc::new(MemoryStore::new()));
         let err = exec2.run_loop_node("counter", "0", "done", 2, &CounterExecutor { target: 99 }).unwrap_err();
         assert!(matches!(err, AncoraError::MaxSteps { max_steps: 2 }));
+    }
+
+    #[test]
+    fn handoff_transfers_context_correctly() {
+        let agents: Vec<String> = vec!["alice".to_string(), "bob".to_string(), "carol".to_string()];
+        let graph = Graph {
+            id: "g-handoff".to_string(),
+            nodes: agents.iter().map(|id| function_node(id)).collect(),
+            edges: vec![],
+            entry_node: "alice".to_string(),
+        };
+
+        let mut exec = GraphExecutor::new(graph, "run-handoff-1", Arc::new(MemoryStore::new()));
+        let result = exec.run_handoff(&agents, "start", &PrefixExecutor).unwrap();
+
+        // PrefixExecutor produces "[id]input" so the chain is:
+        // alice("start") -> "[alice]start"
+        // bob("[alice]start") -> "[bob][alice]start"
+        // carol("[bob][alice]start") -> "[carol][bob][alice]start"
+        assert_eq!(result, "[carol][bob][alice]start");
+    }
+
+    #[test]
+    fn group_chat_respects_turn_cap() {
+        let agents: Vec<String> = vec!["x".to_string(), "y".to_string()];
+        let graph = Graph {
+            id: "g-chat".to_string(),
+            nodes: agents.iter().map(|id| function_node(id)).collect(),
+            edges: vec![],
+            entry_node: "x".to_string(),
+        };
+
+        let mut exec = GraphExecutor::new(graph, "run-chat-1", Arc::new(MemoryStore::new()));
+        let results = exec.run_group_chat(&agents, "hello", 2, &PrefixExecutor).unwrap();
+
+        // 2 agents * 2 rounds = 4 total turns; turns alternate x, y, x, y
+        assert_eq!(results.len(), 4, "turn count must equal agents * rounds");
+        assert_eq!(results[0].0, "x");
+        assert_eq!(results[1].0, "y");
+        assert_eq!(results[2].0, "x");
+        assert_eq!(results[3].0, "y");
+
+        // With 1 round the cap produces exactly 2 turns
+        let graph2 = Graph {
+            id: "g-chat2".to_string(),
+            nodes: agents.iter().map(|id| function_node(id)).collect(),
+            edges: vec![],
+            entry_node: "x".to_string(),
+        };
+        let mut exec2 = GraphExecutor::new(graph2, "run-chat-2", Arc::new(MemoryStore::new()));
+        let one_round = exec2.run_group_chat(&agents, "hello", 1, &PrefixExecutor).unwrap();
+        assert_eq!(one_round.len(), 2, "one round with 2 agents must produce exactly 2 turns");
     }
 }
