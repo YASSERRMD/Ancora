@@ -425,3 +425,30 @@ async fn stream_after_partial_poll_yields_remaining_events() {
     }
     assert_eq!(count, 1, "one event consumed by poll, one should remain");
 }
+
+#[tokio::test]
+async fn stream_first_event_contains_started_text() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let first = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner()
+        .next()
+        .await
+        .unwrap()
+        .unwrap()
+        .event;
+    assert!(first.contains("started"), "got: {first}");
+}
