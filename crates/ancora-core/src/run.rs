@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 use crate::error::AncoraError;
 
 /// Lifecycle state of a single run.
@@ -57,13 +59,22 @@ impl RunStatus {
 }
 
 impl Run {
-    /// Create a new run in the `Pending` state.
+    /// Create a new run in the `Pending` state with a caller-supplied id.
     pub fn new(id: impl Into<String>) -> Self {
         Self {
             id: id.into(),
             status: RunStatus::Pending,
             seq: 0,
         }
+    }
+
+    /// Create a new run whose id is a freshly generated UUID v4.
+    ///
+    /// Use this as the sole entry point for ID generation so callers are never
+    /// tempted to construct IDs inline. The ID is stable once assigned; it is
+    /// not re-generated on journal replay.
+    pub fn generate() -> Self {
+        Self::new(Uuid::new_v4().to_string())
     }
 
     /// Transition the run to `next` status, updating `self.status` on success.
