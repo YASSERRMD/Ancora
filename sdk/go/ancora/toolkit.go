@@ -38,6 +38,11 @@ func (r *GoToolRegistry) Has(name string) bool {
 	return ok
 }
 
+// Unregister removes a named tool. No-op if the tool is not registered.
+func (r *GoToolRegistry) Unregister(name string) {
+	delete(r.tools, name)
+}
+
 // RuntimeToolkit pairs a Runtime with a GoToolRegistry for tool-aware runs.
 type RuntimeToolkit struct {
 	rt      *Runtime
