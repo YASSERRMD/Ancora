@@ -13,3 +13,8 @@ type GoToolRegistry struct {
 func NewGoToolRegistry() *GoToolRegistry {
 	return &GoToolRegistry{tools: make(map[string]ToolFunc)}
 }
+
+// Register adds a named tool. Overwrites any existing registration with the same name.
+func (r *GoToolRegistry) Register(name string, fn ToolFunc) {
+	r.tools[name] = fn
+}
