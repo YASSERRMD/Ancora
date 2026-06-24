@@ -86,3 +86,20 @@ func (b *ToolSpecBuilder) Build() *ToolSpec {
 	spec := b.spec
 	return &spec
 }
+
+// NewAgentSpec is a convenience constructor that returns a minimal AgentSpec.
+func NewAgentSpec(name, modelID, instructions string) *AgentSpec {
+	return NewAgentSpecBuilder().
+		WithName(name).
+		WithModelID(modelID).
+		WithInstructions(instructions).
+		Build()
+}
+
+// NewToolSpec is a convenience constructor for a ToolSpec with name and description.
+func NewToolSpec(name, description string) *ToolSpec {
+	return NewToolSpecBuilder().
+		WithToolName(name).
+		WithDescription(description).
+		Build()
+}
