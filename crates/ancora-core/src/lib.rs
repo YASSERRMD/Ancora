@@ -10,6 +10,7 @@ pub mod replay;
 pub mod retry;
 pub mod run;
 pub mod spans;
+pub mod suspend;
 
 #[cfg(feature = "sqlite")]
 pub mod sqlite;

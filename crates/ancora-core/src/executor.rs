@@ -1,12 +1,14 @@
 use std::sync::Arc;
 
 use ancora_proto::ancora::{
-    journal_event::Event as JournalEventVariant, JournalEvent, NodeEnteredEvent, NodeExitedEvent,
+    journal_event::Event as JournalEventVariant, HumanDecisionRequestedEvent, JournalEvent,
+    NodeEnteredEvent, NodeExitedEvent,
 };
 
 use crate::error::AncoraError;
-use crate::graph::{Graph, Node};
+use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
+use crate::suspend::{RunOutcome, SuspendedRun};
 
 /// Executes a single graph node given its input and returns its output.
 pub trait NodeExecutor: Send + Sync {
@@ -68,6 +70,168 @@ impl GraphExecutor {
             match self.next_node(&current_id, &current_output)? {
                 Some(next_id) => current_id = next_id,
                 None => return Ok(current_output),
+            }
+        }
+    }
+
+    /// Run the graph from `entry_node`, stopping when an AwaitHuman node is reached.
+    /// Returns `RunOutcome::Suspended` at that node or `RunOutcome::Completed` if the graph
+    /// finishes without encountering an AwaitHuman node.
+    pub fn run_until_suspend(
+        &mut self,
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<RunOutcome, AncoraError> {
+        self.graph.validate()?;
+
+        let mut current_id = self.graph.entry_node.clone();
+        let mut current_output = input.to_string();
+
+        loop {
+            let node_kind = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == current_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                node.kind
+            };
+
+            if node_kind == NodeKind::AwaitHuman {
+                self.journal_node_entered(&current_id, node_kind.to_str())?;
+                self.journal_seq += 1;
+                let seq = self.journal_seq;
+                self.store.append(&self.run_id.clone(), JournalEvent {
+                    event_id: uuid::Uuid::new_v4().to_string(),
+                    run_id: self.run_id.clone(),
+                    seq,
+                    recorded_at_ns: 0,
+                    event: Some(JournalEventVariant::HumanDecisionRequested(
+                        HumanDecisionRequestedEvent {
+                            prompt: current_output.clone(),
+                            options: vec![],
+                            timeout_at_ns: 0,
+                        },
+                    )),
+                }).map(|_| ())?;
+                return Ok(RunOutcome::Suspended(SuspendedRun {
+                    run_id: self.run_id.clone(),
+                    node_id: current_id,
+                    pending_input: current_output,
+                    deadline_ms: None,
+                }));
+            }
+
+            self.journal_node_entered(&current_id, node_kind.to_str())?;
+
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == current_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                executor.execute(node, &current_output)?
+            };
+
+            self.journal_node_exited(&current_id, true)?;
+
+            current_output = output;
+
+            match self.next_node(&current_id, &current_output)? {
+                Some(next_id) => current_id = next_id,
+                None => return Ok(RunOutcome::Completed(current_output)),
+            }
+        }
+    }
+
+    /// Resume a run that was previously suspended at an AwaitHuman node.
+    ///
+    /// `decision` is treated as the output of the AwaitHuman node.
+    /// `now_ms` is the caller-supplied current time in Unix epoch milliseconds used to
+    /// enforce the optional deadline stored in `suspended`.
+    /// Execution continues from the next node in the graph.
+    pub fn resume(
+        &mut self,
+        suspended: &SuspendedRun,
+        decision: &str,
+        now_ms: u64,
+        executor: &dyn NodeExecutor,
+    ) -> Result<RunOutcome, AncoraError> {
+        if let Some(deadline) = suspended.deadline_ms {
+            if now_ms > deadline {
+                return Err(AncoraError::Timeout { timeout_ms: deadline });
+            }
+        }
+        self.journal_seq += 1;
+        let seq = self.journal_seq;
+        self.store.append(&suspended.run_id.clone(), JournalEvent {
+            event_id: uuid::Uuid::new_v4().to_string(),
+            run_id: suspended.run_id.clone(),
+            seq,
+            recorded_at_ns: 0,
+            event: Some(JournalEventVariant::HumanDecisionReceived(
+                ancora_proto::ancora::HumanDecisionReceivedEvent {
+                    decision: decision.to_string(),
+                },
+            )),
+        }).map(|_| ())?;
+
+        self.journal_node_exited(&suspended.node_id, true)?;
+
+        let mut current_output = decision.to_string();
+
+        match self.next_node(&suspended.node_id, &current_output)? {
+            None => return Ok(RunOutcome::Completed(current_output)),
+            Some(next_id) => {
+                let mut current_id = next_id;
+
+                loop {
+                    let node_kind = {
+                        let node = self.graph.nodes.iter()
+                            .find(|n| n.id == current_id)
+                            .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                        node.kind
+                    };
+
+                    if node_kind == NodeKind::AwaitHuman {
+                        self.journal_node_entered(&current_id, node_kind.to_str())?;
+                        self.journal_seq += 1;
+                        let seq2 = self.journal_seq;
+                        self.store.append(&self.run_id.clone(), JournalEvent {
+                            event_id: uuid::Uuid::new_v4().to_string(),
+                            run_id: self.run_id.clone(),
+                            seq: seq2,
+                            recorded_at_ns: 0,
+                            event: Some(JournalEventVariant::HumanDecisionRequested(
+                                HumanDecisionRequestedEvent {
+                                    prompt: current_output.clone(),
+                                    options: vec![],
+                                    timeout_at_ns: 0,
+                                },
+                            )),
+                        }).map(|_| ())?;
+                        return Ok(RunOutcome::Suspended(SuspendedRun {
+                            run_id: self.run_id.clone(),
+                            node_id: current_id,
+                            pending_input: current_output,
+                            deadline_ms: None,
+                        }));
+                    }
+
+                    self.journal_node_entered(&current_id, node_kind.to_str())?;
+
+                    let output = {
+                        let node = self.graph.nodes.iter()
+                            .find(|n| n.id == current_id)
+                            .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                        executor.execute(node, &current_output)?
+                    };
+
+                    self.journal_node_exited(&current_id, true)?;
+
+                    current_output = output;
+
+                    match self.next_node(&current_id, &current_output)? {
+                        Some(next) => current_id = next,
+                        None => return Ok(RunOutcome::Completed(current_output)),
+                    }
+                }
             }
         }
     }
@@ -701,5 +865,79 @@ mod tests {
         let mut exec = GraphExecutor::new(graph, "run-consensus-1", Arc::new(MemoryStore::new()));
         let result = exec.run_consensus(&voters, "in", &MajorityVoter).unwrap();
         assert_eq!(result, "A", "majority vote must select A (3 votes vs 2)");
+    }
+
+    #[test]
+    fn run_suspends_persists_and_resumes_correctly() {
+        // Graph: pre -> await -> post
+        let graph = Graph {
+            id: "g-suspend".to_string(),
+            nodes: vec![
+                function_node("pre"),
+                Node {
+                    id: "await".to_string(),
+                    kind: NodeKind::AwaitHuman,
+                    spec: NodeSpec::Function { name: "await".to_string() },
+                },
+                function_node("post"),
+            ],
+            edges: vec![
+                edge("pre", "await", None),
+                edge("await", "post", None),
+            ],
+            entry_node: "pre".to_string(),
+        };
+
+        let store: Arc<dyn crate::journal::JournalStore> = Arc::new(MemoryStore::new());
+        let mut exec = GraphExecutor::new(graph, "run-suspend-1", Arc::clone(&store));
+
+        // Phase 1: run until the AwaitHuman node.
+        let outcome = exec.run_until_suspend("start", &PrefixExecutor).unwrap();
+        let suspended = match outcome {
+            RunOutcome::Suspended(s) => s,
+            RunOutcome::Completed(_) => panic!("expected Suspended"),
+        };
+        assert_eq!(suspended.node_id, "await");
+
+        // Persist and restore across a simulated process restart.
+        let json = suspended.to_json().unwrap();
+        let restored = crate::suspend::SuspendedRun::from_json(&json).unwrap();
+        assert_eq!(restored.run_id, "run-suspend-1");
+        assert_eq!(restored.node_id, "await");
+
+        // Phase 2: resume with a human decision.
+        let outcome2 = exec.resume(&restored, "human-ok", 0, &PrefixExecutor).unwrap();
+        match outcome2 {
+            RunOutcome::Completed(out) => assert_eq!(out, "[post]human-ok"),
+            RunOutcome::Suspended(_) => panic!("expected Completed after resume"),
+        }
+    }
+
+    #[test]
+    fn timeout_fires_when_no_decision_arrives() {
+        let graph = Graph {
+            id: "g-timeout".to_string(),
+            nodes: vec![
+                Node {
+                    id: "await".to_string(),
+                    kind: NodeKind::AwaitHuman,
+                    spec: NodeSpec::Function { name: "await".to_string() },
+                },
+            ],
+            edges: vec![],
+            entry_node: "await".to_string(),
+        };
+
+        let mut exec = GraphExecutor::new(graph, "run-timeout-1", Arc::new(MemoryStore::new()));
+        let outcome = exec.run_until_suspend("in", &PrefixExecutor).unwrap();
+        let mut suspended = match outcome {
+            RunOutcome::Suspended(s) => s,
+            RunOutcome::Completed(_) => panic!("expected Suspended"),
+        };
+
+        // Set a deadline that has already passed.
+        suspended.deadline_ms = Some(1000);
+        let err = exec.resume(&suspended, "too-late", 2000, &PrefixExecutor).unwrap_err();
+        assert!(matches!(err, AncoraError::Timeout { timeout_ms: 1000 }));
     }
 }
