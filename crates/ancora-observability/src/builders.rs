@@ -30,6 +30,21 @@ pub fn node_span(
         .set(ANCORA_COST_USD, cost_usd)
 }
 
+/// Build a node span that also records the finish reason from the model.
+pub fn node_span_with_finish_reason(
+    run_id: &str,
+    node_id: &str,
+    node_kind: &str,
+    model: &str,
+    tokens_in: u64,
+    tokens_out: u64,
+    cost_usd: f64,
+    finish_reason: &str,
+) -> Span {
+    node_span(run_id, node_id, node_kind, model, tokens_in, tokens_out, cost_usd)
+        .set(GEN_AI_RESPONSE_FINISH_REASON, finish_reason)
+}
+
 /// Build a span from a journal event name.
 pub fn journal_event_span(run_id: &str, event_name: &str) -> Span {
     Span::new(event_name)
