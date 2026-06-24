@@ -28,3 +28,12 @@ export const AgentSpecSchema = z.object({
 })
 
 export type AgentSpec = z.infer<typeof AgentSpecSchema>
+
+export const RunEventSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('started'), run_id: z.string(), spec: z.string() }),
+  z.object({ kind: z.literal('token'), run_id: z.string(), text: z.string() }),
+  z.object({ kind: z.literal('completed'), run_id: z.string() }),
+  z.object({ kind: z.literal('resumed'), run_id: z.string(), decision: z.string() }),
+])
+
+export type RunEvent = z.infer<typeof RunEventSchema>
