@@ -21,9 +21,11 @@ export function defineTool<S extends z.ZodObject<z.ZodRawShape>>(opts: {
 }
 
 export class ToolRegistry {
-  private _tools: Map<string, ToolDef> = new Map()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _tools: Map<string, ToolDef<any>> = new Map()
 
-  register(tool: ToolDef): this {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register(tool: ToolDef<any>): this {
     this._tools.set(tool.spec.name, tool)
     return this
   }
