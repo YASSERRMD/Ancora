@@ -12,3 +12,8 @@ use crate::journal::{CheckpointStore, JournalStore};
 fn storage(e: impl std::fmt::Display) -> AncoraError {
     AncoraError::Storage(e.to_string())
 }
+
+/// Postgres-backed journal and checkpoint store.
+pub struct PostgresStore {
+    client: Mutex<Client>,
+}
