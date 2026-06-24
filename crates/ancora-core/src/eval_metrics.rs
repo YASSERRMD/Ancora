@@ -110,4 +110,18 @@ mod tests {
         let p2 = pass_at_k(&r, 5);
         assert!(p1 <= p2);
     }
+
+    #[test]
+    fn pass_at_1_equals_pass_rate() {
+        let r = make_result(5, 3);
+        let expected = 3.0 / 5.0;
+        assert!((pass_at_k(&r, 1) - expected).abs() < 1e-9);
+    }
+
+    #[test]
+    fn pass_power_k_halved_pass_rate_at_k2() {
+        let r = make_result(4, 2);
+        let rate = r.pass_rate();
+        assert!((pass_power_k(&r, 2) - rate * rate).abs() < 1e-9);
+    }
 }
