@@ -13,6 +13,8 @@ var exampleDirs = []string{
 	"human-in-loop",
 	"sqlite-persistence",
 	"event-chan",
+	"conformance-runner",
+	"grpc-transport",
 }
 
 func buildExample(t *testing.T, dir string) string {
@@ -106,6 +108,17 @@ func TestEventChanExampleRuns(t *testing.T) {
 	}
 	if !strings.Contains(string(out), "received") {
 		t.Fatalf("expected 'received' in output, got: %s", out)
+	}
+}
+
+func TestConformanceRunnerExampleRuns(t *testing.T) {
+	bin := buildExample(t, "conformance-runner")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "conformance:") {
+		t.Fatalf("expected 'conformance:' summary in output, got: %s", out)
 	}
 }
 
