@@ -26,3 +26,13 @@ unsafe extern "C" fn echo_cb(
     *out = ancora_buffer_from_str(s);
     AncorErrorCode::Ok
 }
+
+#[test]
+fn register_tool_count_is_one() {
+    let rt = make_rt();
+    let name = cstr("echo");
+    let code = ancora_tool_register(rt, name.as_ptr(), echo_cb);
+    assert_eq!(code, AncorErrorCode::Ok);
+    assert_eq!(ancora_tool_count(rt), 1);
+    ancora_free_runtime(rt);
+}
