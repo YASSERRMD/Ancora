@@ -90,3 +90,93 @@ pub fn detect_divergence(expected: &[String], observed: &[String]) -> Result<(),
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use ancora_proto::ancora::{
+        journal_event::Event, ActivityRecordedEvent, JournalEvent, RunStartedEvent,
+    };
+
+    use super::*;
+
+    fn run_started(run_id: &str, seq: u64) -> JournalEvent {
+        JournalEvent {
+            event_id: format!("evt-{seq}"),
+            run_id: run_id.to_string(),
+            seq,
+            recorded_at_ns: 0,
+            event: Some(Event::RunStarted(RunStartedEvent {
+                run_id: run_id.to_string(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".to_string(),
+            })),
+        }
+    }
+
+    fn activity_recorded(run_id: &str, seq: u64, key: &str) -> JournalEvent {
+        JournalEvent {
+            event_id: format!("evt-{seq}"),
+            run_id: run_id.to_string(),
+            seq,
+            recorded_at_ns: 0,
+            event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: key.to_string(),
+                activity_kind: "model_call".to_string(),
+                input_json: "{}".to_string(),
+                result_json: r#""ok""#.to_string(),
+                replayed: false,
+            })),
+        }
+    }
+
+    #[test]
+    fn replay_reproduces_identical_state() {
+        let events = vec![
+            run_started("run-r1", 0),
+            activity_recorded("run-r1", 1, "step-a"),
+            activity_recorded("run-r1", 2, "step-b"),
+        ];
+        let state = replay_events("run-r1", &events).unwrap();
+
+        assert_eq!(state.run.status, RunStatus::Running);
+        assert_eq!(state.run.seq, 2);
+        assert_eq!(state.activity_keys, vec!["step-a", "step-b"]);
+    }
+
+    #[test]
+    fn replay_empty_journal_gives_pending_run() {
+        let state = replay_events("run-r2", &[]).unwrap();
+        assert_eq!(state.run.status, RunStatus::Pending);
+        assert!(state.activity_keys.is_empty());
+    }
+
+    #[test]
+    fn injected_code_change_triggers_divergence_error() {
+        let expected = vec!["step-a".to_string(), "step-b".to_string()];
+        let observed = vec!["step-a".to_string(), "step-X".to_string()];
+
+        let err = detect_divergence(&expected, &observed).unwrap_err();
+        assert!(
+            matches!(err, AncoraError::Nondeterminism { seq: 1, .. }),
+            "expected Nondeterminism at seq 1, got {err:?}"
+        );
+    }
+
+    #[test]
+    fn extra_observed_step_triggers_divergence_error() {
+        let expected = vec!["step-a".to_string()];
+        let observed = vec!["step-a".to_string(), "step-extra".to_string()];
+
+        let err = detect_divergence(&expected, &observed).unwrap_err();
+        assert!(
+            matches!(err, AncoraError::Nondeterminism { seq: 1, .. }),
+            "expected Nondeterminism at seq 1, got {err:?}"
+        );
+    }
+
+    #[test]
+    fn identical_keys_pass_divergence_check() {
+        let keys = vec!["a".to_string(), "b".to_string(), "c".to_string()];
+        detect_divergence(&keys, &keys).unwrap();
+    }
+}
