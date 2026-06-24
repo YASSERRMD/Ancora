@@ -41,6 +41,10 @@ class Tool:
         parsed = json.loads(args_json) if args_json else {}
         return self._fn(**parsed)
 
+    def call_with_kwargs(self, **kwargs: Any) -> Any:
+        """Invoke the tool with explicit keyword arguments."""
+        return self._fn(**kwargs)
+
     def __repr__(self) -> str:
         return f"Tool(name={self.name!r})"
 
@@ -69,6 +73,11 @@ class ToolRegistry:
     def all_specs(self) -> list[ToolSpec]:
         """Return all tool specs in registration order."""
         return [t.spec for t in self._tools.values()]
+
+    @property
+    def names(self) -> list[str]:
+        """Return all registered tool names in registration order."""
+        return list(self._tools.keys())
 
     def __len__(self) -> int:
         return len(self._tools)
