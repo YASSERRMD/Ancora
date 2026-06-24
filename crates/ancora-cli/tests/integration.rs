@@ -1,4 +1,5 @@
 use ancora_cli_lib::spec::{GraphSpec, NodeSpec};
+use ancora_cli_lib::trace::format_trace;
 use std::io::Write;
 use tempfile::NamedTempFile;
 
@@ -123,6 +124,28 @@ fn graph_spec_from_yaml_parses_inline_yaml() {
 fn graph_spec_from_yaml_invalid_yaml_returns_error() {
     let bad = "name: [unclosed";
     assert!(GraphSpec::from_yaml(bad).is_err());
+}
+
+#[test]
+fn format_trace_contains_graph_name() {
+    let spec = GraphSpec { name: "my-graph".into(), nodes: vec![] };
+    let trace = format_trace(&spec);
+    assert!(trace.contains("my-graph"));
+}
+
+#[test]
+fn format_trace_lists_all_nodes() {
+    let spec = GraphSpec {
+        name: "g".into(),
+        nodes: vec![
+            NodeSpec { id: "n1".into(), kind: "agent".into(), model: None, depends_on: vec![] },
+            NodeSpec { id: "n2".into(), kind: "tool".into(), model: None, depends_on: vec![] },
+        ],
+    };
+    let trace = format_trace(&spec);
+    assert!(trace.contains("n1"));
+    assert!(trace.contains("n2"));
+    assert!(trace.contains("nodes: 2"));
 }
 
 #[test]
