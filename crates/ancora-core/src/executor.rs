@@ -5,8 +5,9 @@ use ancora_proto::ancora::{
 };
 
 use crate::error::AncoraError;
-use crate::graph::{Graph, Node};
+use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
+use crate::suspend::{RunOutcome, SuspendedRun};
 
 /// Executes a single graph node given its input and returns its output.
 pub trait NodeExecutor: Send + Sync {
@@ -68,6 +69,57 @@ impl GraphExecutor {
             match self.next_node(&current_id, &current_output)? {
                 Some(next_id) => current_id = next_id,
                 None => return Ok(current_output),
+            }
+        }
+    }
+
+    /// Run the graph from `entry_node`, stopping when an AwaitHuman node is reached.
+    /// Returns `RunOutcome::Suspended` at that node or `RunOutcome::Completed` if the graph
+    /// finishes without encountering an AwaitHuman node.
+    pub fn run_until_suspend(
+        &mut self,
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<RunOutcome, AncoraError> {
+        self.graph.validate()?;
+
+        let mut current_id = self.graph.entry_node.clone();
+        let mut current_output = input.to_string();
+
+        loop {
+            let node_kind = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == current_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                node.kind
+            };
+
+            if node_kind == NodeKind::AwaitHuman {
+                self.journal_node_entered(&current_id, node_kind.to_str())?;
+                return Ok(RunOutcome::Suspended(SuspendedRun {
+                    run_id: self.run_id.clone(),
+                    node_id: current_id,
+                    pending_input: current_output,
+                    deadline_ms: None,
+                }));
+            }
+
+            self.journal_node_entered(&current_id, node_kind.to_str())?;
+
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == current_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
+                executor.execute(node, &current_output)?
+            };
+
+            self.journal_node_exited(&current_id, true)?;
+
+            current_output = output;
+
+            match self.next_node(&current_id, &current_output)? {
+                Some(next_id) => current_id = next_id,
+                None => return Ok(RunOutcome::Completed(current_output)),
             }
         }
     }

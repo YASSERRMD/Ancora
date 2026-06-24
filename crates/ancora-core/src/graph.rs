@@ -11,6 +11,8 @@ pub enum NodeKind {
     Function,
     /// Delegates to a nested `Graph`.
     Subgraph,
+    /// Pauses the run until a human provides a decision.
+    AwaitHuman,
 }
 
 impl NodeKind {
@@ -19,6 +21,7 @@ impl NodeKind {
             NodeKind::Agent => "agent",
             NodeKind::Function => "function",
             NodeKind::Subgraph => "subgraph",
+            NodeKind::AwaitHuman => "await-human",
         }
     }
 }
