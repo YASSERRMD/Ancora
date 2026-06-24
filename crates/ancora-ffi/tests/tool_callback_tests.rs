@@ -90,3 +90,10 @@ fn invoke_unknown_tool_returns_internal_error() {
     assert_eq!(code, AncorErrorCode::Internal);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn register_with_null_rt_returns_null_ptr() {
+    let name = cstr("echo");
+    let code = ancora_tool_register(std::ptr::null_mut(), name.as_ptr(), echo_cb);
+    assert_eq!(code, AncorErrorCode::NullPtr);
+}
