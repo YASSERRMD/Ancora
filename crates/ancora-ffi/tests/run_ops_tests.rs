@@ -32,3 +32,25 @@ fn run_start_returns_non_empty_run_id() {
     ancora_buffer_free(out);
     ancora_free_runtime(rt);
 }
+
+fn start_run(rt: *mut ancora_ffi::handles::AncorRuntime) -> String {
+    let spec = b"{}";
+    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
+    let id = buf_to_string(&out);
+    ancora_buffer_free(out);
+    id
+}
+
+#[test]
+fn run_poll_first_event_is_started() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = cstr(&id);
+    let mut event = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    ancora_run_poll(rt, c_id.as_ptr(), &mut event);
+    let s = buf_to_string(&event);
+    assert!(s.contains("started"), "first event should be started, got: {s}");
+    ancora_buffer_free(event);
+    ancora_free_runtime(rt);
+}
