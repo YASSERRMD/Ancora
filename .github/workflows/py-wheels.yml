@@ -36,3 +36,32 @@ jobs:
         with:
           name: py-wheel-linux-${{ matrix.python }}
           path: dist/*.whl
+
+  build-macos:
+    name: macos ${{ matrix.python }} ${{ matrix.target }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          target: ${{ matrix.target }}
+          args: >-
+            --release
+            --manifest-path sdk/python/pyproject.toml
+            --interpreter python${{ matrix.python }}
+            --out dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: py-wheel-macos-${{ matrix.python }}-${{ matrix.target }}
+          path: dist/*.whl
