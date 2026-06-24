@@ -13,12 +13,27 @@ pub struct NodeSpec {
     pub depends_on: Vec<String>,
 }
 
+impl NodeSpec {
+    pub fn is_agent(&self) -> bool { self.kind == "agent" }
+    pub fn is_tool(&self) -> bool { self.kind == "tool" }
+    pub fn effective_model(&self) -> &str {
+        self.model.as_deref().unwrap_or("default")
+    }
+}
+
 /// Top-level graph spec file format.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GraphSpec {
     pub name: String,
     #[serde(default)]
     pub nodes: Vec<NodeSpec>,
+}
+
+impl GraphSpec {
+    pub fn node_count(&self) -> usize { self.nodes.len() }
+    pub fn agent_nodes(&self) -> Vec<&NodeSpec> {
+        self.nodes.iter().filter(|n| n.is_agent()).collect()
+    }
 }
 
 /// Error types for spec validation.
