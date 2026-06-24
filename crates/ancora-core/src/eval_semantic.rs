@@ -79,4 +79,19 @@ mod tests {
         let s = scorer.score("hello world", "hello world");
         assert!((s - 1.0).abs() < 1e-6);
     }
+
+    #[test]
+    fn semantic_scorer_name_is_semantic_equivalence() {
+        use std::sync::Arc;
+        let scorer = SemanticEquivalenceScorer::new(Arc::new(IdentityEmbed), 0.5);
+        assert_eq!(scorer.name(), "semantic_equivalence");
+    }
+
+    #[test]
+    fn cosine_similarity_partial_overlap() {
+        let a = vec![1.0, 1.0, 0.0];
+        let b = vec![1.0, 0.0, 0.0];
+        let s = cosine_similarity(&a, &b);
+        assert!(s > 0.0 && s < 1.0);
+    }
 }
