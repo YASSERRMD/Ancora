@@ -104,6 +104,14 @@ func TestErrorCodeImplementsError(t *testing.T) {
 	}
 }
 
+func TestRuntimeExplicitFreeRemovesFinalizer(t *testing.T) {
+	rt := mustRuntime(t)
+	rt.Free()
+	// After explicit Free, finalizer is removed and ptr is nil;
+	// a subsequent GC cycle will not double-free.
+	rt.Free() // second call must be a no-op, not a crash
+}
+
 func drainEvents(t *testing.T, run *ancora.Run) []string {
 	t.Helper()
 	var events []string
