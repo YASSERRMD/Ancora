@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package ancora;
+
+option java_package = "dev.ancora";
+option java_outer_classname = "MessagesPb";
+option go_package = "github.com/YASSERRMD/Ancora/bindings/go/ancora";
+
+// ---- Roles ----
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_SYSTEM = 1;
+  ROLE_USER = 2;
+  ROLE_ASSISTANT = 3;
+  ROLE_TOOL = 4;
+}
+
+// ---- Content blocks ----
+
+// Plain UTF-8 text.
+message TextContent {
+  string text = 1;
+}
+
+// A request from the model to invoke a tool.
+message ToolCallContent {
+  string tool_call_id = 1;
+  string tool_name = 2;
+  // JSON-encoded arguments.
+  string arguments_json = 3;
+}
+
+// The result of a tool invocation, returned to the model.
+message ToolResultContent {
+  string tool_call_id = 1;
+  // JSON-encoded result value.
+  string result_json = 2;
+  // Set to true when the tool returned an error.
+  bool is_error = 3;
+}
+
+// A still image, either inline or by reference.
+message ImageContent {
+  oneof source {
+    // Base-64 encoded bytes with MIME type prefix, e.g. "image/png;base64,..."
+    string inline_base64 = 1;
+    // A URL pointing to a publicly accessible image.
+    string url = 2;
+  }
+  string media_type = 3;
+}
+
+// An audio clip, either inline or by reference.
+message AudioContent {
+  oneof source {
+    string inline_base64 = 1;
+    string url = 2;
+  }
+  string media_type = 3;
+}
+
+// A document (PDF, plain text file, etc.).
+message DocumentContent {
+  oneof source {
+    string inline_base64 = 1;
+    string url = 2;
+  }
+  string media_type = 3;
+  string filename = 4;
+}
+
+// One content block within a message.
+message ContentBlock {
+  oneof block {
+    TextContent text = 1;
+    ToolCallContent tool_call = 2;
+    ToolResultContent tool_result = 3;
+    ImageContent image = 4;
+    AudioContent audio = 5;
+    DocumentContent document = 6;
+  }
+}
+
+// ---- Token and cost accounting ----
+
+message TokenUsage {
+  uint64 input_tokens = 1;
+  uint64 output_tokens = 2;
+  uint64 cache_read_tokens = 3;
+  uint64 cache_write_tokens = 4;
+}
+
+// Cost amounts are in millionths of a US cent (micro-cents) to avoid
+// floating-point in the wire format.
+message Cost {
+  uint64 input_micro_cents = 1;
+  uint64 output_micro_cents = 2;
+  uint64 cache_read_micro_cents = 3;
+  uint64 cache_write_micro_cents = 4;
+}
+
+// ---- Message ----
+
+// A single turn in a conversation.
+message Message {
+  string id = 1;
+  Role role = 2;
+  repeated ContentBlock content = 3;
+  // Wall-clock timestamp of creation (Unix epoch, nanoseconds).
+  int64 created_at_ns = 4;
+  TokenUsage usage = 5;
+  Cost cost = 6;
+  // Opaque model identifier that produced this message.
+  string model_id = 7;
+}
