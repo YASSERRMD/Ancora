@@ -87,4 +87,13 @@ mod tests {
         assert_eq!(span.attributes.get("event.name"), Some(&SpanValue::String("node.started".into())));
         assert_eq!(span.attributes.get(ANCORA_RUN_ID), Some(&SpanValue::String("run-4".into())));
     }
+
+    #[test]
+    fn node_span_with_finish_reason_carries_finish_reason() {
+        let span = node_span_with_finish_reason("r1", "n1", "agent", "gpt-4o", 10, 5, 0.001, "stop");
+        assert_eq!(
+            span.attributes.get(GEN_AI_RESPONSE_FINISH_REASON),
+            Some(&SpanValue::String("stop".into()))
+        );
+    }
 }
