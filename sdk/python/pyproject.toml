@@ -21,3 +21,6 @@ manifest-path = "../../crates/ancora-py/Cargo.toml"
 module-name = "ancora._ancora"
 python-source = "."
 features = ["pyo3/extension-module"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
