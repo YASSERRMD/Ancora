@@ -35,6 +35,10 @@ impl StudioServer {
     pub fn port(&self) -> u16 {
         self.listener.local_addr().unwrap().port()
     }
+
+    fn list_runs(&self) -> (u16, String) {
+        (200, r#"{"runs":[]}"#.into())
+    }
 }
 
 fn write_response(stream: &mut TcpStream, status: u16, body: &str) {
