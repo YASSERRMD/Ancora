@@ -24,6 +24,18 @@ pub extern "C" fn ancora_runtime_new(out: *mut *mut AncorRuntime) -> AncorErrorC
     AncorErrorCode::Ok
 }
 
+/// Allocate a runtime with serialized config bytes and write pointer to `out`.
+/// Config bytes are currently ignored (reserved for future use).
+/// Returns `NullPtr` if `out` is null.
+#[no_mangle]
+pub extern "C" fn ancora_runtime_new_with_config(
+    _config_bytes: *const u8,
+    _config_len: usize,
+    out: *mut *mut AncorRuntime,
+) -> AncorErrorCode {
+    ancora_runtime_new(out)
+}
+
 /// Free a runtime previously created by `ancora_create_runtime`.
 /// Passing null is a no-op.
 #[no_mangle]
