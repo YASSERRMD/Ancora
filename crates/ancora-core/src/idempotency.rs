@@ -125,3 +125,59 @@ pub fn run_compensating_action(
     store.append(run_id, journal_event)?;
     Ok(result)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
+
+    use super::*;
+    use crate::journal::MemoryStore;
+
+    struct SimpleActivity {
+        key: String,
+        result: String,
+        counter: Arc<AtomicUsize>,
+    }
+
+    impl Activity for SimpleActivity {
+        fn execute(&self) -> Result<String, AncoraError> {
+            self.counter.fetch_add(1, Ordering::SeqCst);
+            Ok(self.result.clone())
+        }
+        fn key(&self) -> String {
+            self.key.clone()
+        }
+    }
+
+    fn make(key: &str, result: &str, counter: Arc<AtomicUsize>) -> SimpleActivity {
+        SimpleActivity {
+            key: key.to_string(),
+            result: result.to_string(),
+            counter,
+        }
+    }
+
+    #[test]
+    fn empty_key_is_rejected() {
+        let counter = Arc::new(AtomicUsize::new(0));
+        let act = make("", r#""x""#, counter);
+        assert!(WriteActivity::new(&act).is_err());
+    }
+
+    #[test]
+    fn crash_between_effect_and_journal_does_not_double_apply() {
+        let store = MemoryStore::new();
+        let counter = Arc::new(AtomicUsize::new(0));
+
+        let act = make("write-k1", r#""done""#, Arc::clone(&counter));
+        let r1 = write_once("run-w1", WriteActivity::new(&act).unwrap(), &store).unwrap();
+        assert_eq!(r1, r#""done""#);
+        assert_eq!(counter.load(Ordering::SeqCst), 1);
+
+        let act2 = make("write-k1", r#""ignored""#, Arc::clone(&counter));
+        let r2 = write_once("run-w1", WriteActivity::new(&act2).unwrap(), &store).unwrap();
+        assert_eq!(r2, r#""done""#, "must return journaled result on retry");
+        assert_eq!(counter.load(Ordering::SeqCst), 1, "must not re-execute");
+    }
+}
