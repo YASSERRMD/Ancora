@@ -39,3 +39,13 @@ pub const CRASH_AND_RECOVER: ConformanceScenario = ConformanceScenario {
     description: "A run journal persists across restart and replays deterministically",
     tags: &["journal", "replay", "recovery"],
 };
+
+/// Returns all defined conformance scenarios in a stable order.
+pub fn all_scenarios() -> Vec<&'static ConformanceScenario> {
+    vec![
+        &SINGLE_AGENT,
+        &MULTI_AGENT_VERIFIER,
+        &HUMAN_IN_LOOP,
+        &CRASH_AND_RECOVER,
+    ]
+}
