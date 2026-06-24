@@ -21,3 +21,13 @@ pub type StreamReceiver = std::sync::mpsc::Receiver<StreamEvent>;
 pub fn open_stream() -> (StreamSender, StreamReceiver) {
     std::sync::mpsc::channel()
 }
+
+/// Emit each character of `text` as a separate `Token` event on `sender`.
+///
+/// Errors from a disconnected receiver are silently ignored because the
+/// consumer may have dropped the receiver before the run finished.
+pub fn emit_tokens(sender: &StreamSender, text: &str) {
+    for ch in text.chars() {
+        let _ = sender.send(StreamEvent::Token { text: ch.to_string() });
+    }
+}
