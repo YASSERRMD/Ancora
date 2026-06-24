@@ -103,4 +103,19 @@ mod tests {
         let baseline = EvalBaseline::from_results(&results);
         assert_eq!(baseline.case_pass_rates.len(), 2);
     }
+
+    #[test]
+    fn regression_report_no_baseline_entry_treats_as_zero() {
+        let baseline = EvalBaseline { case_pass_rates: vec![] };
+        let current = vec![make_result("new_case", 5, 5)];
+        let report = RegressionReport::build(&baseline, &current);
+        assert_eq!(report.entries[0].baseline_rate, 0.0);
+        assert!(report.is_clean());
+    }
+
+    #[test]
+    fn case_result_pass_rate_zero_n_returns_zero() {
+        let r = make_result("c1", 0, 0);
+        assert_eq!(r.pass_rate(), 0.0);
+    }
 }
