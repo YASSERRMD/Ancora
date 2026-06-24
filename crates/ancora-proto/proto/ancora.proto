@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package ancora;
+
+option java_package = "dev.ancora";
+option java_outer_classname = "AncoraPb";
+option go_package = "github.com/YASSERRMD/Ancora/bindings/go/ancora";
+
+// Placeholder message to verify the proto pipeline compiles end-to-end.
+// Real types are added in Phase 4 and later.
+message Ping {
+  string id = 1;
+}
+
+message Pong {
+  string id = 1;
+}
