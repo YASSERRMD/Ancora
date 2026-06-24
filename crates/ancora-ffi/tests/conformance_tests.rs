@@ -150,3 +150,15 @@ fn journal_human_in_loop_event_order_matches_core_expectation() {
         "human-in-loop journal: first post-resume event must be resumed, got: {kinds:?}");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn conformance_scenario_single_agent_id_matches_expected() {
+    let scenario = &conformance::SINGLE_AGENT;
+    assert_eq!(scenario.id, "single-agent", "single-agent scenario id must be 'single-agent'");
+}
+
+#[test]
+fn conformance_scenario_human_in_loop_id_matches_expected() {
+    let scenario = &conformance::HUMAN_IN_LOOP;
+    assert_eq!(scenario.id, "human-in-loop");
+}
