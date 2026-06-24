@@ -9,8 +9,19 @@ description = "Core engine for Ancora: agent loop, graph, journal, replay, retry
 
 [dependencies]
 ancora-proto = { path = "../ancora-proto" }
+prost = "0.13"
 thiserror = "2"
 tracing = "0.1"
 
+[features]
+sqlite = ["dep:rusqlite"]
+
 [dev-dependencies]
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+tempfile = "3.27.0"
+
+[dependencies.rusqlite]
+version = "0.32"
+features = ["bundled"]
+optional = true
