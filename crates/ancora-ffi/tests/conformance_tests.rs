@@ -55,3 +55,11 @@ fn single_agent_scenario_produces_started_and_completed_events() {
     assert!(events.iter().any(|e| e.contains("completed")), "single-agent: missing completed event, got: {events:?}");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn single_agent_scenario_run_id_is_nonempty() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    assert!(!id.is_empty(), "single-agent: run id must be non-empty");
+    ancora_free_runtime(rt);
+}
