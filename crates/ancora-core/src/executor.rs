@@ -6,6 +6,7 @@ use ancora_proto::ancora::{
 };
 
 use crate::cancel::CancellationToken;
+use crate::cost::{CostSummary, CostTracker};
 use crate::error::AncoraError;
 use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
@@ -37,6 +38,7 @@ pub struct GraphExecutor {
     stream: Option<StreamSender>,
     cancel: Option<CancellationToken>,
     compensations: Vec<(String, Box<dyn Fn() + Send + Sync>)>,
+    costs: CostTracker,
 }
 
 impl GraphExecutor {
@@ -49,7 +51,19 @@ impl GraphExecutor {
             stream: None,
             cancel: None,
             compensations: Vec::new(),
+            costs: CostTracker::new(0.0, 0.0),
         }
+    }
+
+    /// Replace the default zero-rate cost tracker with one configured for actual pricing.
+    pub fn with_cost_tracker(mut self, tracker: CostTracker) -> Self {
+        self.costs = tracker;
+        self
+    }
+
+    /// Return the aggregated cost summary for all activity recorded so far.
+    pub fn cost_summary(&self) -> CostSummary {
+        self.costs.summary()
     }
 
     /// Register a compensation function for `node_id`.
