@@ -95,4 +95,10 @@ mod tests {
         let exp = OtlpHttpExporter::new("http://localhost:1");
         assert!(exp.export().is_ok());
     }
+
+    #[test]
+    fn http_exporter_endpoint_is_accessible() {
+        let exp = OtlpHttpExporter::new("http://localhost:4318/v1/traces");
+        assert_eq!(exp.endpoint(), "http://localhost:4318/v1/traces");
+    }
 }
