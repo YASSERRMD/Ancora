@@ -50,3 +50,12 @@ jobs:
       - name: Generate C header via cbindgen
         if: matrix.use_cross != true
         run: cargo build -p ancora-ffi --target ${{ matrix.target }}
+      - name: Upload cdylib artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ancora-ffi-${{ matrix.artifact_suffix }}
+          path: |
+            target/${{ matrix.target }}/release/libancora_ffi.so
+            target/${{ matrix.target }}/release/libancora_ffi.dylib
+            target/${{ matrix.target }}/release/ancora_ffi.dll
+          if-no-files-found: ignore
