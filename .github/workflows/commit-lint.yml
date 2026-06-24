@@ -1,0 +1,32 @@
+name: commit-lint
+
+on:
+  pull_request:
+
+jobs:
+  conventional-commits:
+    name: conventional commits check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: check conventional commits
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.yml
+
+  no-em-dash:
+    name: no em dash in commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: reject em dash characters in commit messages
+        run: |
+          git log origin/${{ github.base_ref }}..HEAD --format="%B" \
+            | grep -P "—" \
+            && echo "ERROR: em dash found in commit messages" && exit 1 \
+            || echo "No em dash found"
