@@ -13,6 +13,13 @@ const (
 	ErrInternal    ErrorCode = 3
 )
 
+func asError(code C.AncorErrorCode) error {
+	if code == C.Ok {
+		return nil
+	}
+	return ErrorCode(code)
+}
+
 func (e ErrorCode) Error() string {
 	switch e {
 	case ErrOk:
