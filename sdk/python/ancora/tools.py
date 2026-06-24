@@ -79,6 +79,17 @@ class ToolRegistry:
         """Return all registered tool names in registration order."""
         return list(self._tools.keys())
 
+    async def adispatch(self, name: str, args_json: str = "{}") -> Any:
+        """Async dispatch a tool call. Supports both sync and async callables."""
+        import asyncio
+        t = self._tools.get(name)
+        if t is None:
+            raise KeyError(f"No tool registered with name {name!r}")
+        result = t.call_with_json(args_json)
+        if asyncio.iscoroutine(result):
+            return await result
+        return result
+
     def __len__(self) -> int:
         return len(self._tools)
 
