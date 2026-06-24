@@ -10,3 +10,7 @@ description = "Core engine for Ancora: agent loop, graph, journal, replay, retry
 [dependencies]
 ancora-proto = { path = "../ancora-proto" }
 thiserror = "2"
+tracing = "0.1"
+
+[dev-dependencies]
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
