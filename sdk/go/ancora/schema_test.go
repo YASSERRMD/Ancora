@@ -106,6 +106,22 @@ func TestSchemaFromStructBoolFieldHasBooleanType(t *testing.T) {
 	}
 }
 
+func TestSchemaFromStructOmitemptyTagStripped(t *testing.T) {
+	type withOmit struct {
+		Name string `json:"name,omitempty"`
+	}
+	schema, err := ancora.SchemaFromStruct(withOmit{})
+	if err != nil {
+		t.Fatalf("SchemaFromStruct: %v", err)
+	}
+	if !contains(schema, `"name"`) {
+		t.Fatalf("schema must use bare field name without omitempty, got: %s", schema)
+	}
+	if contains(schema, "omitempty") {
+		t.Fatalf("omitempty must not appear in schema, got: %s", schema)
+	}
+}
+
 func TestSchemaFromStructRequiredListContainsFields(t *testing.T) {
 	schema, err := ancora.SchemaFromStruct(searchInput{})
 	if err != nil {
