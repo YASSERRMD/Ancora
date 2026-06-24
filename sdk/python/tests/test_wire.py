@@ -61,3 +61,15 @@ def test_wire_bytes_accessible_from_ancora_namespace():
     data = ancora.to_wire_bytes(spec)
     recovered = ancora.from_wire_bytes(data)
     assert recovered.name == "a"
+
+
+def test_from_wire_bytes_rejects_invalid_json():
+    import pytest
+    with pytest.raises(Exception):
+        from_wire_bytes(b"not json")
+
+
+def test_from_wire_bytes_rejects_unknown_fields():
+    import pytest
+    with pytest.raises(Exception):
+        from_wire_bytes(b'{"name":"a","unknown_field":"x"}')
