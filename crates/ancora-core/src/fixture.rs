@@ -4,7 +4,10 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
+use ancora_proto::ancora::{journal_event::Event, ActivityRecordedEvent, JournalEvent};
+
 use crate::error::AncoraError;
+use crate::journal::JournalStore;
 
 /// One recorded activity entry in a fixture file.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -114,6 +117,51 @@ impl FixtureRecorder {
 
 impl Default for FixtureRecorder {
     fn default() -> Self { Self::new() }
+}
+
+/// A read-only journal store backed by a fixture.
+/// `read` returns ActivityRecorded events for each fixture entry.
+pub struct FixtureJournalStore {
+    fixture: Fixture,
+}
+
+impl FixtureJournalStore {
+    pub fn new(fixture: Fixture) -> Self {
+        Self { fixture }
+    }
+}
+
+impl JournalStore for FixtureJournalStore {
+    fn append(&self, _run_id: &str, _event: JournalEvent) -> Result<u64, AncoraError> {
+        Err(AncoraError::Storage("FixtureJournalStore is read-only".into()))
+    }
+
+    fn read(&self, run_id: &str) -> Result<Vec<JournalEvent>, AncoraError> {
+        let events = self
+            .fixture
+            .entries()
+            .iter()
+            .enumerate()
+            .map(|(i, entry)| JournalEvent {
+                event_id: format!("fixture-{i}"),
+                run_id: run_id.to_string(),
+                seq: i as u64,
+                recorded_at_ns: 0,
+                event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
+                    activity_key: entry.activity_key.clone(),
+                    activity_kind: entry.activity_kind.clone(),
+                    input_json: entry.input_json.clone(),
+                    result_json: entry.result_json.clone(),
+                    replayed: true,
+                })),
+            })
+            .collect();
+        Ok(events)
+    }
+
+    fn load(&self, run_id: &str, seq: u64) -> Result<Option<JournalEvent>, AncoraError> {
+        Ok(self.read(run_id)?.into_iter().nth(seq as usize))
+    }
 }
 
 /// Build a fixture from a slice of (key, kind, input, result) tuples.
