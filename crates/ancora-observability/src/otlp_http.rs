@@ -62,3 +62,32 @@ impl SpanEmitter for OtlpHttpExporter {
         let _ = self.export();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::exporter::SpanEmitter;
+    use crate::span::Span;
+
+    #[test]
+    fn http_exporter_buffers_spans_before_export() {
+        let exp = OtlpHttpExporter::new("http://localhost:1");
+        exp.emit(Span::new("a"));
+        exp.emit(Span::new("b"));
+        assert_eq!(exp.buffered(), 2);
+    }
+
+    #[test]
+    fn http_exporter_clears_buffer_on_failed_export() {
+        let exp = OtlpHttpExporter::new("http://localhost:1");
+        exp.emit(Span::new("x"));
+        let _ = exp.export();
+        assert_eq!(exp.buffered(), 0);
+    }
+
+    #[test]
+    fn http_exporter_export_empty_is_noop() {
+        let exp = OtlpHttpExporter::new("http://localhost:1");
+        assert!(exp.export().is_ok());
+    }
+}
