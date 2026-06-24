@@ -82,3 +82,13 @@ fn snapshot_header_run_start_signature_has_out_param() {
     let sig = &content[idx..end];
     assert!(sig.contains("AncorBuffer"), "ancora_run_start should have AncorBuffer out param");
 }
+
+#[test]
+fn snapshot_header_ancorbuffer_has_ptr_and_len_fields() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    let idx = content.find("AncorBuffer {").unwrap();
+    let end = (idx + 200).min(content.len());
+    let block = &content[idx..end];
+    assert!(block.contains("ptr"), "AncorBuffer missing ptr field");
+    assert!(block.contains("len"), "AncorBuffer missing len field");
+}
