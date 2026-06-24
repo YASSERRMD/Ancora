@@ -1,4 +1,9 @@
-"""Convert Python type hints to JSON Schema objects."""
+"""Convert Python type hints to JSON Schema objects.
+
+Supports a subset of Python types sufficient for Ancora tool parameters:
+``str``, ``int``, ``float``, ``bool``, ``list``, ``dict``, and
+``Optional[T]``.  Unknown annotations are mapped to an empty schema ``{}``.
+"""
 
 from __future__ import annotations
 
