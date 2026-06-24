@@ -372,3 +372,29 @@ async fn decision_stream_multiple_decisions_all_emit_events() {
     }
     assert!(!events.is_empty(), "expected at least one event from two decisions");
 }
+
+#[tokio::test]
+async fn stream_events_count_equals_two_for_fresh_run() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner();
+    let mut count = 0usize;
+    while let Some(Ok(_)) = stream.next().await {
+        count += 1;
+    }
+    assert_eq!(count, 2, "fresh run should yield exactly 2 events");
+}
