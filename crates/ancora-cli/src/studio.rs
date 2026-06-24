@@ -15,3 +15,9 @@ pub struct ReplayResponse {
     pub run_id: String,
     pub status: String,
 }
+
+/// Local HTTP server exposing run timelines and replay.
+pub struct StudioServer {
+    listener: std::net::TcpListener,
+    store: Arc<MemoryStore>,
+}
