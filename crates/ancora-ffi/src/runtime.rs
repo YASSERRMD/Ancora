@@ -4,6 +4,7 @@ use std::sync::Mutex;
 use crate::error_code::AncorErrorCode;
 use crate::handles::AncorRuntime;
 use crate::runs::InnerRun;
+use crate::tool_registry::ToolRegistry;
 
 /// Allocate a new runtime. The caller owns the returned pointer.
 /// Returns null on allocation failure.
@@ -50,6 +51,7 @@ pub extern "C" fn ancora_free_runtime(ptr: *mut AncorRuntime) {
 
 pub(crate) struct InnerRuntime {
     pub runs: Mutex<HashMap<String, InnerRun>>,
+    pub tools: Mutex<ToolRegistry>,
     _store: ancora_core::journal::MemoryStore,
 }
 
@@ -57,6 +59,7 @@ impl InnerRuntime {
     pub fn new() -> Self {
         Self {
             runs: Mutex::new(HashMap::new()),
+            tools: Mutex::new(ToolRegistry::new()),
             _store: ancora_core::journal::MemoryStore::new(),
         }
     }
