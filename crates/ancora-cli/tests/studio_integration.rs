@@ -29,3 +29,9 @@ fn http_post(port: u16, path: &str) -> String {
     stream.read_to_string(&mut resp).unwrap();
     resp
 }
+
+#[test]
+fn studio_server_binds_to_os_assigned_port() {
+    let server = make_server();
+    assert!(server.port() > 0);
+}
