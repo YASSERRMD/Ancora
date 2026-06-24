@@ -76,4 +76,13 @@ mod tests {
         let err = interceptor.call(req).unwrap_err();
         assert_eq!(err.code(), tonic::Code::Unauthenticated);
     }
+
+    #[test]
+    fn token_without_bearer_prefix_returns_unauthenticated() {
+        let mut interceptor = AuthInterceptor::new("secret");
+        let mut req = Request::new(());
+        req.metadata_mut().insert("authorization", "secret".parse().unwrap());
+        let err = interceptor.call(req).unwrap_err();
+        assert_eq!(err.code(), tonic::Code::Unauthenticated);
+    }
 }
