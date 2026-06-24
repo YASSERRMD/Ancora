@@ -58,6 +58,13 @@ impl StudioServer {
         (200, body)
     }
 
+    /// Accept and handle exactly one incoming request.
+    pub fn handle_one(&self) -> std::io::Result<()> {
+        let (stream, _addr) = self.listener.accept()?;
+        self.dispatch(stream);
+        Ok(())
+    }
+
     fn dispatch(&self, stream: TcpStream) {
         let mut stream = stream;
         let mut reader = BufReader::new(stream.try_clone().unwrap());
