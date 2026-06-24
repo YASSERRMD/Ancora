@@ -1,4 +1,19 @@
-"""Pydantic models mirroring the Ancora agent spec protobuf contracts."""
+"""Pydantic models mirroring the Ancora agent spec protobuf contracts.
+
+The field names and semantics match the protobuf definitions in
+``crates/ancora-proto/proto/contracts.proto``. All models use snake_case
+fields matching the JSON wire format expected by the Ancora runtime.
+
+Typical usage::
+
+    from ancora.models import AgentSpec, ToolSpec, EffectClass
+
+    spec = AgentSpec(
+        name="my-agent",
+        model_id="llama3",
+        tools=[ToolSpec(name="search", effect_class=EffectClass.READ)],
+    )
+"""
 
 from __future__ import annotations
 
