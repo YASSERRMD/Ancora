@@ -8,9 +8,9 @@ Usage::
 """
 
 import asyncio
-import json
 
 import ancora
+from examples.helpers import print_event
 
 
 async def main() -> None:
@@ -25,12 +25,7 @@ async def main() -> None:
     print(f"started run: {run.run_id}")
 
     async for raw in run.stream_events():
-        ev = json.loads(raw)
-        kind = ev["kind"]
-        if kind == "token":
-            print(f"  token: {ev['text']!r}")
-        else:
-            print(f"  event: {kind}")
+        print_event(raw)
 
     rt.free()
     print("done.")
