@@ -10,6 +10,7 @@ members = [
     "crates/ancora-observability",
     "crates/ancora-cli",
     "crates/ancora-ffi",
+    "crates/ancora-grpc",
 ]
 
 [workspace.package]
