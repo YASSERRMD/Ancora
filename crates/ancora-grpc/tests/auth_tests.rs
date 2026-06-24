@@ -61,3 +61,16 @@ async fn wrong_token_request_is_rejected() {
     let err = client.start_run(req).await.unwrap_err();
     assert_eq!(err.code(), tonic::Code::Unauthenticated);
 }
+
+#[tokio::test]
+async fn authenticated_start_run_returns_valid_run_id() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_authed_server("tok").await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let mut req = Request::new(StartRunRequest { agent_spec: b"{}".to_vec() });
+    req.metadata_mut().insert("authorization", "Bearer tok".parse().unwrap());
+    let id = client.start_run(req).await.unwrap().into_inner().run_id;
+    assert!(!id.is_empty());
+}
