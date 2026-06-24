@@ -42,6 +42,57 @@ pub fn classify(error: &AncoraError) -> ErrorClass {
     }
 }
 
+/// Outcome returned by `run_with_retry`.
+pub enum RetryOutcome<T> {
+    /// The operation succeeded on attempt `attempt` (1-indexed).
+    Ok { value: T, attempts: u32 },
+    /// All attempts exhausted; the last error is returned.
+    Exhausted { error: AncoraError, attempts: u32 },
+    /// A terminal error stopped retrying early.
+    Terminal { error: AncoraError, attempt: u32 },
+}
+
+/// Execute `op` up to `policy.max_attempts` times, sleeping between attempts.
+///
+/// The delay for attempt `n` (0-indexed) is:
+///   delay = min(initial_backoff_ms * 2^n, max_backoff_ms)
+///   delay = delay * (1 - jitter * jitter_factor)
+///
+/// The `sleep_fn` parameter replaces actual sleep so tests run without delay.
+/// Pass `|_ms| {}` to skip sleeping entirely.
+pub fn run_with_retry<T, F, S>(
+    policy: &RetryPolicy,
+    mut op: F,
+    mut sleep_fn: S,
+) -> RetryOutcome<T>
+where
+    F: FnMut(u32) -> Result<T, AncoraError>,
+    S: FnMut(u64),
+{
+    for attempt in 1..=policy.max_attempts {
+        match op(attempt) {
+            Ok(value) => return RetryOutcome::Ok { value, attempts: attempt },
+            Err(err) => {
+                if classify(&err) == ErrorClass::Terminal {
+                    return RetryOutcome::Terminal { error: err, attempt };
+                }
+                if attempt < policy.max_attempts {
+                    let exp = (attempt - 1) as u32;
+                    let base = policy
+                        .initial_backoff_ms
+                        .saturating_mul(1u64.saturating_shl(exp));
+                    let capped = base.min(policy.max_backoff_ms);
+                    let jittered = (capped as f64 * (1.0 - policy.jitter * 0.5)) as u64;
+                    sleep_fn(jittered);
+                } else {
+                    return RetryOutcome::Exhausted { error: err, attempts: attempt };
+                }
+            }
+        }
+    }
+    unreachable!("loop always returns")
+}
+
 /// Policy that controls how many times an operation is retried and how
 /// long to wait between attempts.
 #[derive(Debug, Clone)]
