@@ -1,4 +1,5 @@
 pub mod activity;
+pub mod cancel;
 pub mod agent;
 pub mod executor;
 pub mod graph;

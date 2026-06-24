@@ -5,6 +5,7 @@ use ancora_proto::ancora::{
     NodeEnteredEvent, NodeExitedEvent,
 };
 
+use crate::cancel::CancellationToken;
 use crate::error::AncoraError;
 use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
@@ -34,17 +35,31 @@ pub struct GraphExecutor {
     store: Arc<dyn JournalStore>,
     journal_seq: u64,
     stream: Option<StreamSender>,
+    cancel: Option<CancellationToken>,
 }
 
 impl GraphExecutor {
     pub fn new(graph: Graph, run_id: impl Into<String>, store: Arc<dyn JournalStore>) -> Self {
-        Self { graph, run_id: run_id.into(), store, journal_seq: 0, stream: None }
+        Self { graph, run_id: run_id.into(), store, journal_seq: 0, stream: None, cancel: None }
     }
 
     /// Attach a stream sender so node lifecycle events are forwarded to the caller.
     pub fn with_stream(mut self, sender: StreamSender) -> Self {
         self.stream = Some(sender);
         self
+    }
+
+    /// Attach a cancellation token; the executor checks it before each node.
+    pub fn with_cancel(mut self, token: CancellationToken) -> Self {
+        self.cancel = Some(token);
+        self
+    }
+
+    fn check_cancel(&self) -> Result<(), AncoraError> {
+        if self.cancel.as_ref().is_some_and(|t| t.is_cancelled()) {
+            return Err(AncoraError::Cancelled("run was cancelled".to_string()));
+        }
+        Ok(())
     }
 
     fn stream_event(&self, event: StreamEvent) {
@@ -61,6 +76,8 @@ impl GraphExecutor {
         let mut current_output = input.to_string();
 
         loop {
+            self.check_cancel()?;
+
             let node_kind = {
                 let node = self.graph.nodes.iter()
                     .find(|n| n.id == current_id)
