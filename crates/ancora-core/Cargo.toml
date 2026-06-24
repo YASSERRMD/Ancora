@@ -1,0 +1,12 @@
+[package]
+name = "ancora-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Core engine for Ancora: agent loop, graph, journal, replay, retry"
+
+[dependencies]
+ancora-proto = { path = "../ancora-proto" }
+thiserror = "2"
