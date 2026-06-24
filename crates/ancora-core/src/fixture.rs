@@ -261,6 +261,45 @@ mod tests {
     }
 
     #[test]
+    fn fixture_journal_store_read_returns_activity_events() {
+        let f = build_fixture(&[
+            ("step-1", "model_call", "{}", r#""r1""#),
+            ("step-2", "tool_call", "{}", r#""r2""#),
+        ]);
+        let store = FixtureJournalStore::new(f);
+        let events = store.read("run-x").unwrap();
+        assert_eq!(events.len(), 2);
+        assert_eq!(events[0].seq, 0);
+        assert_eq!(events[1].seq, 1);
+    }
+
+    #[test]
+    fn fixture_journal_store_load_returns_correct_event() {
+        let f = build_fixture(&[("a", "model_call", "{}", r#""r1""#)]);
+        let store = FixtureJournalStore::new(f);
+        let ev = store.load("run-y", 0).unwrap();
+        assert!(ev.is_some());
+    }
+
+    #[test]
+    fn fixture_journal_store_append_is_error() {
+        use ancora_proto::ancora::{journal_event::Event, JournalEvent, RunStartedEvent};
+        let store = FixtureJournalStore::new(Fixture::new());
+        let ev = JournalEvent {
+            event_id: "e".into(),
+            run_id: "r".into(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::RunStarted(RunStartedEvent {
+                run_id: "r".into(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".into(),
+            })),
+        };
+        assert!(store.append("r", ev).is_err());
+    }
+
+    #[test]
     fn fixture_file_roundtrip() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("fixture.jsonl");
