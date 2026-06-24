@@ -127,6 +127,36 @@ func TestToolWithSchemaRoundTrips(t *testing.T) {
 	}
 }
 
+func TestGoToolWithAgentSpecContainsToolName(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	tk := ancora.NewRuntimeToolkit(rt)
+	tk.RegisterTool("search", echoTool)
+
+	tool := ancora.NewToolSpec("search", "searches the web")
+	spec := ancora.NewAgentSpecBuilder().
+		WithName("searcher").
+		WithModelID("gpt-4o").
+		WithTool(tool).
+		Build()
+	if spec.GetTools()[0].GetName() != "search" {
+		t.Fatalf("AgentSpec tool name mismatch: %q", spec.GetTools()[0].GetName())
+	}
+	if !tk.Tools().Has("search") {
+		t.Fatal("toolkit must have search tool")
+	}
+}
+
+func TestGoToolRegistryCountAfterMultipleRegistrations(t *testing.T) {
+	reg := ancora.NewGoToolRegistry()
+	for _, name := range []string{"a", "b", "c", "d"} {
+		reg.Register(name, echoTool)
+	}
+	if reg.Count() != 4 {
+		t.Fatalf("expected 4 tools, got: %d", reg.Count())
+	}
+}
+
 func TestGoToolRegistryOverwriteExistingTool(t *testing.T) {
 	reg := ancora.NewGoToolRegistry()
 	reg.Register("echo", func(in []byte) ([]byte, error) { return []byte("v1"), nil })
