@@ -74,3 +74,14 @@ async fn authenticated_start_run_returns_valid_run_id() {
     let id = client.start_run(req).await.unwrap().into_inner().run_id;
     assert!(!id.is_empty());
 }
+
+#[tokio::test]
+async fn auth_interceptor_clones_correctly() {
+    use ancora_grpc::auth::AuthInterceptor;
+    use tonic::service::Interceptor;
+    let interceptor = AuthInterceptor::new("abc");
+    let mut cloned = interceptor.clone();
+    let mut req = Request::new(());
+    req.metadata_mut().insert("authorization", "Bearer abc".parse().unwrap());
+    assert!(cloned.call(req).is_ok());
+}
