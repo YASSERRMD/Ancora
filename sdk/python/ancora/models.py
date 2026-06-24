@@ -62,6 +62,12 @@ class AgentSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str = ""
+
+    def wire_bytes(self) -> bytes:
+        """Return this spec serialized to JSON wire bytes."""
+        from ancora.wire import to_wire_bytes
+        return to_wire_bytes(self)
+
     model_id: str = ""
     instructions: str = ""
     output_schema_json: str = ""

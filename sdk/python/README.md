@@ -28,6 +28,30 @@ with ancora.Runtime() as rt:
     print(rt)
 ```
 
+## Async agent runs
+
+Start runs and iterate over events asynchronously:
+
+```python
+import asyncio
+import ancora
+
+async def main():
+    rt = ancora.Runtime()
+    spec = ancora.AgentSpec(name="my-agent", model_id="llama3", instructions="do stuff")
+    agent = ancora.Agent(rt, spec)
+
+    run = await agent.run()
+    print("run started:", run.run_id)
+
+    async for event in run:
+        print(json.loads(event)["kind"])
+
+    rt.free()
+
+asyncio.run(main())
+```
+
 ## Pydantic models and wire format
 
 Build agent specs with Pydantic validation and serialize to JSON wire bytes:

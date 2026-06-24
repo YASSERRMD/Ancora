@@ -14,7 +14,7 @@ develop: venv
 	$(MATURIN) develop
 
 test: develop
-	$(PYTEST) tests/ -v
+	$(PYTEST) tests/ -v --asyncio-mode=auto
 
 clean:
 	rm -rf $(VENV) dist/ *.egg-info/
