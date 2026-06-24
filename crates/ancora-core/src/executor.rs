@@ -866,4 +866,50 @@ mod tests {
         let result = exec.run_consensus(&voters, "in", &MajorityVoter).unwrap();
         assert_eq!(result, "A", "majority vote must select A (3 votes vs 2)");
     }
+
+    #[test]
+    fn run_suspends_persists_and_resumes_correctly() {
+        // Graph: pre -> await -> post
+        let graph = Graph {
+            id: "g-suspend".to_string(),
+            nodes: vec![
+                function_node("pre"),
+                Node {
+                    id: "await".to_string(),
+                    kind: NodeKind::AwaitHuman,
+                    spec: NodeSpec::Function { name: "await".to_string() },
+                },
+                function_node("post"),
+            ],
+            edges: vec![
+                edge("pre", "await", None),
+                edge("await", "post", None),
+            ],
+            entry_node: "pre".to_string(),
+        };
+
+        let store: Arc<dyn crate::journal::JournalStore> = Arc::new(MemoryStore::new());
+        let mut exec = GraphExecutor::new(graph, "run-suspend-1", Arc::clone(&store));
+
+        // Phase 1: run until the AwaitHuman node.
+        let outcome = exec.run_until_suspend("start", &PrefixExecutor).unwrap();
+        let suspended = match outcome {
+            RunOutcome::Suspended(s) => s,
+            RunOutcome::Completed(_) => panic!("expected Suspended"),
+        };
+        assert_eq!(suspended.node_id, "await");
+
+        // Persist and restore across a simulated process restart.
+        let json = suspended.to_json().unwrap();
+        let restored = crate::suspend::SuspendedRun::from_json(&json).unwrap();
+        assert_eq!(restored.run_id, "run-suspend-1");
+        assert_eq!(restored.node_id, "await");
+
+        // Phase 2: resume with a human decision.
+        let outcome2 = exec.resume(&restored, "human-ok", 0, &PrefixExecutor).unwrap();
+        match outcome2 {
+            RunOutcome::Completed(out) => assert_eq!(out, "[post]human-ok"),
+            RunOutcome::Suspended(_) => panic!("expected Completed after resume"),
+        }
+    }
 }
