@@ -23,3 +23,23 @@ func (r *Run) PollEvent() ([]byte, error) {
 func (r *Run) Resume(decision []byte) error {
 	return asError(cRunResume(r.rt.ptr, r.id, decision))
 }
+
+// eventChanBuf is the buffer size for EventChan channels.
+const eventChanBuf = 64
+
+// EventChan spawns a goroutine that polls events and sends them on a channel.
+// The channel is closed when the event queue is empty.
+func (r *Run) EventChan() <-chan []byte {
+	ch := make(chan []byte, eventChanBuf)
+	go func() {
+		defer close(ch)
+		for {
+			ev, err := r.PollEvent()
+			if err != nil || ev == nil {
+				return
+			}
+			ch <- ev
+		}
+	}()
+	return ch
+}
