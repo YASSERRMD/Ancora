@@ -324,3 +324,19 @@ async fn decision_stream_emits_resumed_event() {
     let ev = out_stream.next().await.unwrap().unwrap().event;
     assert!(ev.contains("resumed"), "expected resumed, got: {ev}");
 }
+
+#[tokio::test]
+async fn stream_events_empty_run_returns_no_events() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id: "ghost".into() }))
+        .await
+        .unwrap()
+        .into_inner();
+    assert!(stream.next().await.is_none(), "ghost run should yield no events");
+}
