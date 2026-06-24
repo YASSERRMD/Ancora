@@ -30,3 +30,47 @@ impl<'a> WriteActivity<'a> {
         self.inner.key()
     }
 }
+
+/// Execute a write-effect activity at most once.
+///
+/// - If the journal already contains an `ActivityRecorded` event with the
+///   matching key, return the stored result without calling `execute`.
+/// - Otherwise call `execute`, record the result, and return it.
+///
+/// The short-circuit on retry means a crash after the side effect but before
+/// the journal write cannot cause the effect to be applied twice: the next
+/// attempt will find the journaled result and skip execution.
+pub fn write_once(
+    run_id: &str,
+    activity: WriteActivity<'_>,
+    store: &dyn JournalStore,
+) -> Result<String, AncoraError> {
+    let key = activity.key();
+
+    for event in store.read(run_id)? {
+        if let Some(Event::ActivityRecorded(ref recorded)) = event.event {
+            if recorded.activity_key == key {
+                return Ok(recorded.result_json.clone());
+            }
+        }
+    }
+
+    let result = activity.inner.execute()?;
+
+    let journal_event = JournalEvent {
+        event_id: key.clone(),
+        run_id: run_id.to_string(),
+        seq: 0,
+        recorded_at_ns: 0,
+        event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
+            activity_key: key,
+            activity_kind: "write".to_string(),
+            input_json: String::new(),
+            result_json: result.clone(),
+            replayed: false,
+        })),
+    };
+
+    store.append(run_id, journal_event)?;
+    Ok(result)
+}
