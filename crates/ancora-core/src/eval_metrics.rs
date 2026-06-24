@@ -95,4 +95,19 @@ mod tests {
     fn suite_pass_at_k_empty_returns_zero() {
         assert_eq!(suite_pass_at_k(&[], 1), 0.0);
     }
+
+    #[test]
+    fn suite_pass_at_k_full_pass_suite() {
+        let results = vec![make_result(5, 5), make_result(3, 3)];
+        let s = suite_pass_at_k(&results, 2);
+        assert!((s - 1.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn pass_at_k_partial_decreases_with_k() {
+        let r = make_result(10, 5);
+        let p1 = pass_at_k(&r, 1);
+        let p2 = pass_at_k(&r, 5);
+        assert!(p1 <= p2);
+    }
 }
