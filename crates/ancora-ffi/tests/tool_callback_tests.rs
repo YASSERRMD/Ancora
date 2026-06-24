@@ -97,3 +97,10 @@ fn register_with_null_rt_returns_null_ptr() {
     let code = ancora_tool_register(std::ptr::null_mut(), name.as_ptr(), echo_cb);
     assert_eq!(code, AncorErrorCode::NullPtr);
 }
+
+#[test]
+fn tool_count_zero_on_fresh_runtime() {
+    let rt = make_rt();
+    assert_eq!(ancora_tool_count(rt), 0);
+    ancora_free_runtime(rt);
+}
