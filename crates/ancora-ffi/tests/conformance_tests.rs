@@ -86,3 +86,18 @@ fn human_in_loop_scenario_resume_produces_resumed_event() {
     assert!(events.iter().any(|e| e.contains("resumed")), "human-in-loop: missing resumed event, got: {events:?}");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn crash_and_recover_scenario_events_are_deterministic() {
+    let rt1 = make_rt();
+    let id1 = start_run(rt1);
+    let events1 = drain_events(rt1, &id1);
+    ancora_free_runtime(rt1);
+
+    let rt2 = make_rt();
+    let id2 = start_run(rt2);
+    let events2 = drain_events(rt2, &id2);
+    ancora_free_runtime(rt2);
+
+    assert_eq!(events1, events2, "crash-and-recover: events must be deterministic across runs");
+}
