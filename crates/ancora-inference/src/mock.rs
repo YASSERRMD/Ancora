@@ -6,3 +6,13 @@ use crate::types::{CompletionRequest, CompletionResponse};
 pub struct MockClient {
     pub response: String,
 }
+
+impl ModelClient for MockClient {
+    fn complete(&self, request: &CompletionRequest) -> Result<CompletionResponse, InferenceError> {
+        Ok(CompletionResponse {
+            content: self.response.clone(),
+            tokens_in: request.messages.iter().map(|m| m.content.len() as u64).sum(),
+            tokens_out: self.response.len() as u64,
+        })
+    }
+}
