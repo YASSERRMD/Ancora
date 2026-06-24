@@ -10,3 +10,15 @@ impl AuthConfig {
         Self { token: token.into() }
     }
 }
+
+/// Tonic interceptor that validates a Bearer token in the Authorization header.
+#[derive(Clone)]
+pub struct AuthInterceptor {
+    expected: String,
+}
+
+impl AuthInterceptor {
+    pub fn new(token: impl Into<String>) -> Self {
+        Self { expected: token.into() }
+    }
+}
