@@ -962,4 +962,31 @@ mod tests {
         let err = exec.resume(&suspended, "too-late", 2000, &PrefixExecutor).unwrap_err();
         assert!(matches!(err, AncoraError::Timeout { timeout_ms: 1000 }));
     }
+
+    #[test]
+    fn stream_emits_ordered_events() {
+        use crate::stream::open_stream;
+
+        let graph = Graph {
+            id: "g-stream".to_string(),
+            nodes: vec![function_node("a"), function_node("b")],
+            edges: vec![edge("a", "b", None)],
+            entry_node: "a".to_string(),
+        };
+
+        let (tx, rx) = open_stream();
+        let mut exec = GraphExecutor::new(graph, "run-stream-1", Arc::new(MemoryStore::new()))
+            .with_stream(tx);
+
+        exec.run("in", &PrefixExecutor).unwrap();
+
+        let events: Vec<_> = rx.try_iter().collect();
+        assert_eq!(events, vec![
+            crate::stream::StreamEvent::NodeEntered { node_id: "a".to_string(), node_kind: "function".to_string() },
+            crate::stream::StreamEvent::NodeExited { node_id: "a".to_string() },
+            crate::stream::StreamEvent::NodeEntered { node_id: "b".to_string(), node_kind: "function".to_string() },
+            crate::stream::StreamEvent::NodeExited { node_id: "b".to_string() },
+            crate::stream::StreamEvent::RunCompleted { output: "[b][a]in".to_string() },
+        ]);
+    }
 }
