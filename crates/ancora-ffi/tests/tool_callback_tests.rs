@@ -53,3 +53,14 @@ fn tool_exists_returns_zero_for_unknown() {
     assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 0);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn unregister_tool_count_drops_to_zero() {
+    let rt = make_rt();
+    let name = cstr("echo");
+    ancora_tool_register(rt, name.as_ptr(), echo_cb);
+    assert_eq!(ancora_tool_count(rt), 1);
+    ancora_tool_unregister(rt, name.as_ptr());
+    assert_eq!(ancora_tool_count(rt), 0);
+    ancora_free_runtime(rt);
+}
