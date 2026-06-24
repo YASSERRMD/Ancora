@@ -124,6 +124,56 @@ func TestResumePropagatesDecisionViaAgent(t *testing.T) {
 	}
 }
 
+func TestTwoConcurrentAgentsHaveDifferentRunIDs(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	spec := ancora.NewAgentSpec("a", "m", "i")
+	ag := ancora.NewAgent(rt, spec)
+	run1, _ := ag.Start()
+	run2, _ := ag.Start()
+	if run1.ID() == run2.ID() {
+		t.Fatalf("expected distinct run IDs, both were: %s", run1.ID())
+	}
+}
+
+func TestAgentWithBuilderWorksEndToEnd(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	spec := ancora.NewAgentSpecBuilder().
+		WithName("builder-agent").
+		WithModelID("gpt-4o").
+		WithInstructions("respond briefly").
+		WithMaxSteps(3).
+		Build()
+	ag := ancora.NewAgent(rt, spec)
+	run, err := ag.Start()
+	if err != nil {
+		t.Fatalf("Start: %v", err)
+	}
+	events, _ := run.DrainEvents()
+	if len(events) == 0 {
+		t.Fatal("builder agent run produced no events")
+	}
+}
+
+func TestDrainEventsAfterResumeIncludesCompleted(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	run.DrainEvents()
+	ag.Resume(run, []byte("ok"))
+	events, _ := run.DrainEvents()
+	var hasCompleted bool
+	for _, e := range events {
+		if contains(e, "completed") {
+			hasCompleted = true
+		}
+	}
+	if !hasCompleted {
+		t.Fatalf("post-resume events missing completed: %v", events)
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
