@@ -43,6 +43,25 @@ impl SpanEmitter for NoopEmitter {
     fn emit(&self, _span: Span) {}
 }
 
+/// Fan-out emitter that forwards to multiple backends.
+pub struct MultiEmitter {
+    emitters: Vec<Box<dyn SpanEmitter>>,
+}
+
+impl MultiEmitter {
+    pub fn new(emitters: Vec<Box<dyn SpanEmitter>>) -> Self {
+        Self { emitters }
+    }
+}
+
+impl SpanEmitter for MultiEmitter {
+    fn emit(&self, span: Span) {
+        for e in &self.emitters {
+            e.emit(span.clone());
+        }
+    }
+}
+
 impl SpanEmitter for InMemoryExporter {
     fn emit(&self, span: Span) {
         self.spans.lock().unwrap().push(span);
