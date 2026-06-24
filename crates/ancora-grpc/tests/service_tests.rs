@@ -340,3 +340,35 @@ async fn stream_events_empty_run_returns_no_events() {
         .into_inner();
     assert!(stream.next().await.is_none(), "ghost run should yield no events");
 }
+
+#[tokio::test]
+async fn decision_stream_multiple_decisions_all_emit_events() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::{wrappers::ReceiverStream, StreamExt};
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    let (tx, rx) = tokio::sync::mpsc::channel(4);
+    tx.send(DecisionRequest { run_id: run_id.clone(), decision: b"a".to_vec() }).await.unwrap();
+    tx.send(DecisionRequest { run_id: run_id.clone(), decision: b"b".to_vec() }).await.unwrap();
+    drop(tx);
+    let mut out_stream = client
+        .decision_stream(Request::new(ReceiverStream::new(rx)))
+        .await
+        .unwrap()
+        .into_inner();
+    let mut events = Vec::new();
+    while let Some(Ok(ev)) = out_stream.next().await {
+        events.push(ev.event);
+    }
+    assert!(!events.is_empty(), "expected at least one event from two decisions");
+}
