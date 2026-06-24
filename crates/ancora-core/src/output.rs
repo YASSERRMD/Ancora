@@ -51,3 +51,29 @@ pub fn validate_output(output: &str, schema_json: &str) -> Result<(), String> {
         .map(|_| ())
         .map_err(|e| format!("output is not valid JSON: {e}"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const SCHEMA: &str = r#"{"type":"object"}"#;
+
+    #[test]
+    fn valid_output_passes_invalid_triggers_repair() {
+        let mut repair_calls = 0u32;
+
+        let result = validate_with_repair(
+            "not json".to_string(),
+            SCHEMA,
+            3,
+            |_output, _reason| {
+                repair_calls += 1;
+                Ok(r#"{"fixed": true}"#.to_string())
+            },
+        )
+        .unwrap();
+
+        assert_eq!(result, r#"{"fixed": true}"#);
+        assert_eq!(repair_calls, 1, "repair must be called exactly once");
+    }
+}
