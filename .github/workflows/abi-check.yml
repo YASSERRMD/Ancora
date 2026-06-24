@@ -1,0 +1,21 @@
+name: abi-check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  abi-snapshot:
+    name: ABI snapshot check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Rebuild header
+        run: cargo build -p ancora-ffi
+      - name: Fail if header changed
+        run: |
+          git diff --exit-code crates/ancora-ffi/include/ancora.h || \
+          (echo "ERROR: ancora.h changed without updating the snapshot. Run 'cargo build -p ancora-ffi' and commit include/ancora.h." && exit 1)
