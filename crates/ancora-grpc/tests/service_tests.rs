@@ -105,3 +105,34 @@ async fn resume_run_returns_ok() {
         .status;
     assert_eq!(status, "ok");
 }
+
+#[tokio::test]
+async fn resume_then_poll_yields_resumed_event() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    client
+        .resume_run(Request::new(ResumeRunRequest {
+            run_id: run_id.clone(),
+            decision: b"go".to_vec(),
+        }))
+        .await
+        .unwrap();
+    let e = client
+        .poll_run(Request::new(PollRunRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner()
+        .event;
+    assert!(e.contains("resumed"), "expected resumed event, got: {e}");
+}
