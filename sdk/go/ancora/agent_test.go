@@ -204,6 +204,47 @@ func TestAgentRuntimeAccessor(t *testing.T) {
 	}
 }
 
+func TestDrainEventsOrderStartedBeforeCompleted(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	events, _ := run.DrainEvents()
+	if len(events) < 2 {
+		t.Fatalf("expected at least 2 events, got: %d", len(events))
+	}
+	if !contains(events[0], "started") {
+		t.Fatalf("first event must be started, got: %s", events[0])
+	}
+}
+
+func TestMultipleStartsOnSameAgentAllSucceed(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	for i := 0; i < 3; i++ {
+		run, err := ag.Start()
+		if err != nil {
+			t.Fatalf("Start #%d: %v", i, err)
+		}
+		if run.ID() == "" {
+			t.Fatalf("Start #%d: empty run ID", i)
+		}
+		run.DrainEvents()
+	}
+}
+
+func TestEventChanFromAgentStartReceivesAllEvents(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	var events []string
+	for ev := range run.EventChan() {
+		events = append(events, string(ev))
+	}
+	if len(events) < 2 {
+		t.Fatalf("expected at least 2 events via channel, got: %d", len(events))
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
