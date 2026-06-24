@@ -58,6 +58,32 @@ impl StudioServer {
         (200, body)
     }
 
+    fn dispatch(&self, stream: TcpStream) {
+        let mut stream = stream;
+        let mut reader = BufReader::new(stream.try_clone().unwrap());
+        let mut request_line = String::new();
+        if reader.read_line(&mut request_line).is_err() {
+            write_response(&mut stream, 400, r#"{"error":"bad request"}"#);
+            return;
+        }
+        let parts: Vec<&str> = request_line.trim().splitn(3, ' ').collect();
+        if parts.len() < 2 {
+            write_response(&mut stream, 400, r#"{"error":"bad request"}"#);
+            return;
+        }
+        let method = parts[0].to_string();
+        let path = parts[1].to_string();
+        loop {
+            let mut line = String::new();
+            reader.read_line(&mut line).ok();
+            if line == "\r\n" || line.is_empty() {
+                break;
+            }
+        }
+        let (status, body) = self.route(&method, &path);
+        write_response(&mut stream, status, &body);
+    }
+
     fn route(&self, method: &str, path: &str) -> (u16, String) {
         match (method, path) {
             ("GET", "/runs") => self.list_runs(),
