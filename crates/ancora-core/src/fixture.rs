@@ -300,6 +300,20 @@ mod tests {
     }
 
     #[test]
+    fn fixture_journal_store_integrates_with_replay_events() {
+        use crate::journal::JournalStore;
+        use crate::replay::replay_events;
+        let f = build_fixture(&[
+            ("step-a", "model_call", "{}", r#""ra""#),
+            ("step-b", "model_call", "{}", r#""rb""#),
+        ]);
+        let store = FixtureJournalStore::new(f);
+        let events = store.read("run-z").unwrap();
+        let state = replay_events("run-z", &events).unwrap();
+        assert_eq!(state.activity_keys, vec!["step-a", "step-b"]);
+    }
+
+    #[test]
     fn fixture_file_roundtrip() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("fixture.jsonl");
