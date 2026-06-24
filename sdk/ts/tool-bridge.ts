@@ -13,6 +13,10 @@ export class ToolBridge {
     this._registry = registry
   }
 
+  get registry(): ToolRegistry {
+    return this._registry
+  }
+
   async *run(handle: RunHandle): AsyncGenerator<ToolBridgeEvent> {
     for await (const ev of handle) {
       if (ev.kind === 'tool_call') {
