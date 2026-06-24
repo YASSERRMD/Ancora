@@ -64,3 +64,18 @@ fn unregister_tool_count_drops_to_zero() {
     assert_eq!(ancora_tool_count(rt), 0);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn invoke_echo_tool_returns_input() {
+    let rt = make_rt();
+    let name = cstr("echo");
+    ancora_tool_register(rt, name.as_ptr(), echo_cb);
+    let input = b"hello";
+    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let code = ancora_tool_invoke(rt, name.as_ptr(), input.as_ptr(), input.len(), &mut out);
+    assert_eq!(code, AncorErrorCode::Ok);
+    let slice = unsafe { std::slice::from_raw_parts(out.ptr, out.len) };
+    assert_eq!(slice, b"hello");
+    ancora_buffer_free(out);
+    ancora_free_runtime(rt);
+}
