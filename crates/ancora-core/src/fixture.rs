@@ -138,4 +138,18 @@ mod tests {
         let f = Fixture::new();
         assert!(replay_fixture(&f, "not_there").is_err());
     }
+
+    #[test]
+    fn fixture_file_roundtrip() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("fixture.jsonl");
+        let mut f = Fixture::new();
+        f.add(make_entry("a", r#""alpha""#));
+        f.add(make_entry("b", r#""beta""#));
+        record_fixture_to_file(&f, &path).unwrap();
+        let loaded = load_fixture_from_file(&path).unwrap();
+        assert_eq!(loaded.len(), 2);
+        assert_eq!(loaded.get_result("a"), Some(r#""alpha""#));
+        assert_eq!(loaded.get_result("b"), Some(r#""beta""#));
+    }
 }
