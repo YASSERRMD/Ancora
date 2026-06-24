@@ -1,5 +1,47 @@
 use crate::error::AncoraError;
 
+/// Whether an error should be retried or immediately surfaced to the caller.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ErrorClass {
+    /// The operation can be tried again after a delay.
+    Retryable,
+    /// The error is permanent; retrying will not help.
+    Terminal,
+}
+
+/// Classify an `AncoraError` as retryable or terminal.
+///
+/// Network/transient errors (HTTP failures, model unreachable, timeouts)
+/// are retryable. Logic/contract errors (policy violations, invalid input,
+/// nondeterminism, internal errors) are terminal.
+pub fn classify(error: &AncoraError) -> ErrorClass {
+    match error {
+        AncoraError::ModelHttp { .. }
+        | AncoraError::ModelUnreachable(_)
+        | AncoraError::Timeout { .. }
+        | AncoraError::Storage(_)
+        | AncoraError::ToolFailed { .. } => ErrorClass::Retryable,
+
+        AncoraError::Nondeterminism { .. }
+        | AncoraError::JournalGap { .. }
+        | AncoraError::JournalWrite(_)
+        | AncoraError::MaxSteps { .. }
+        | AncoraError::OutputValidation { .. }
+        | AncoraError::ModelRefused(_)
+        | AncoraError::ModelParse(_)
+        | AncoraError::ToolNotFound(_)
+        | AncoraError::ToolInputInvalid { .. }
+        | AncoraError::ToolDenied(_)
+        | AncoraError::PolicyResidency(_)
+        | AncoraError::PolicyPermission(_)
+        | AncoraError::GraphInvalid(_)
+        | AncoraError::NodeNotFound(_)
+        | AncoraError::Cancelled(_)
+        | AncoraError::InvalidState(_)
+        | AncoraError::Internal(_) => ErrorClass::Terminal,
+    }
+}
+
 /// Policy that controls how many times an operation is retried and how
 /// long to wait between attempts.
 #[derive(Debug, Clone)]
