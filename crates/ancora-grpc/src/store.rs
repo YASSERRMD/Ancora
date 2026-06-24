@@ -70,4 +70,12 @@ mod tests {
         store.insert("r1".into());
         assert_eq!(store.event_count("r1"), 2);
     }
+
+    #[test]
+    fn poll_decrements_event_count() {
+        let store = RunStore::new();
+        store.insert("r2".into());
+        store.poll("r2");
+        assert_eq!(store.event_count("r2"), 1);
+    }
 }
