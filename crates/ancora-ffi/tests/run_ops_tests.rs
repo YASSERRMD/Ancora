@@ -54,3 +54,19 @@ fn run_poll_first_event_is_started() {
     ancora_buffer_free(event);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn run_poll_second_event_is_completed() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = cstr(&id);
+    let mut e1 = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut e2 = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
+    let s = buf_to_string(&e2);
+    assert!(s.contains("completed"), "second event should be completed, got: {s}");
+    ancora_buffer_free(e1);
+    ancora_buffer_free(e2);
+    ancora_free_runtime(rt);
+}
