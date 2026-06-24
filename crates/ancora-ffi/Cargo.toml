@@ -12,3 +12,6 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 ancora-core = { path = "../ancora-core" }
+
+[build-dependencies]
+cbindgen = "0.26"
