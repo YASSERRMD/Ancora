@@ -83,6 +83,39 @@ pub fn load_fixture_from_file(path: &Path) -> Result<Fixture, AncoraError> {
     Ok(fixture)
 }
 
+/// Records activities during a live run to produce a replayable fixture.
+pub struct FixtureRecorder {
+    fixture: std::sync::Mutex<Fixture>,
+}
+
+impl FixtureRecorder {
+    pub fn new() -> Self {
+        Self { fixture: std::sync::Mutex::new(Fixture::new()) }
+    }
+
+    pub fn record(&self, key: &str, kind: &str, input: &str, result: &str) {
+        let entry = FixtureEntry {
+            activity_key: key.to_string(),
+            activity_kind: kind.to_string(),
+            input_json: input.to_string(),
+            result_json: result.to_string(),
+        };
+        self.fixture.lock().unwrap().add(entry);
+    }
+
+    pub fn into_fixture(self) -> Fixture {
+        self.fixture.into_inner().unwrap()
+    }
+
+    pub fn snapshot(&self) -> Fixture {
+        self.fixture.lock().unwrap().clone()
+    }
+}
+
+impl Default for FixtureRecorder {
+    fn default() -> Self { Self::new() }
+}
+
 /// Build a fixture from a slice of (key, kind, input, result) tuples.
 pub fn build_fixture(entries: &[(&str, &str, &str, &str)]) -> Fixture {
     let mut f = Fixture::new();
