@@ -373,6 +373,21 @@ mod tests {
     }
 
     #[test]
+    fn detect_divergence_passes_when_fixture_matches_observed() {
+        use crate::replay::detect_divergence;
+        let keys = vec!["step-a".to_string(), "step-b".to_string()];
+        detect_divergence(&keys, &keys).unwrap();
+    }
+
+    #[test]
+    fn detect_divergence_catches_fixture_key_mismatch() {
+        use crate::replay::detect_divergence;
+        let expected = vec!["step-a".to_string()];
+        let observed = vec!["step-b".to_string()];
+        assert!(detect_divergence(&expected, &observed).is_err());
+    }
+
+    #[test]
     fn fixture_journal_store_integrates_with_replay_events() {
         use crate::journal::JournalStore;
         use crate::replay::replay_events;
