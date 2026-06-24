@@ -61,4 +61,11 @@ mod tests {
         let mut interceptor = AuthInterceptor::new("secret");
         assert!(interceptor.call(req_with_token("secret")).is_ok());
     }
+
+    #[test]
+    fn wrong_token_returns_unauthenticated() {
+        let mut interceptor = AuthInterceptor::new("secret");
+        let err = interceptor.call(req_with_token("wrong")).unwrap_err();
+        assert_eq!(err.code(), tonic::Code::Unauthenticated);
+    }
 }
