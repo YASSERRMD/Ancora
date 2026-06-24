@@ -49,3 +49,47 @@ impl From<f64> for SpanValue {
 impl From<bool> for SpanValue {
     fn from(b: bool) -> Self { SpanValue::Bool(b) }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn span_value_from_str() {
+        assert_eq!(SpanValue::from("hello"), SpanValue::String("hello".into()));
+    }
+
+    #[test]
+    fn span_value_from_i64() {
+        assert_eq!(SpanValue::from(42_i64), SpanValue::Int(42));
+    }
+
+    #[test]
+    fn span_value_from_u64_casts_to_int() {
+        assert_eq!(SpanValue::from(99_u64), SpanValue::Int(99));
+    }
+
+    #[test]
+    fn span_value_from_f64() {
+        assert_eq!(SpanValue::from(1.5_f64), SpanValue::Float(1.5));
+    }
+
+    #[test]
+    fn span_value_from_bool() {
+        assert_eq!(SpanValue::from(true), SpanValue::Bool(true));
+    }
+
+    #[test]
+    fn span_get_returns_attribute() {
+        let span = Span::new("test").set("key", "val");
+        assert_eq!(span.get("key"), Some(&SpanValue::String("val".into())));
+        assert_eq!(span.get("missing"), None);
+    }
+
+    #[test]
+    fn span_builder_chains_multiple_attributes() {
+        let span = Span::new("op").set("a", 1_i64).set("b", true);
+        assert_eq!(span.get("a"), Some(&SpanValue::Int(1)));
+        assert_eq!(span.get("b"), Some(&SpanValue::Bool(true)));
+    }
+}
