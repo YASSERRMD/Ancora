@@ -368,6 +368,25 @@ mod tests {
     }
 
     #[test]
+    fn fixture_entry_serializes_to_json_with_all_fields() {
+        let entry = make_entry("k1", r#""val""#);
+        let json = serde_json::to_string(&entry).unwrap();
+        let decoded: FixtureEntry = serde_json::from_str(&json).unwrap();
+        assert_eq!(decoded, entry);
+    }
+
+    #[test]
+    fn load_fixture_skips_blank_lines() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("fix.jsonl");
+        let entry = make_entry("k1", r#""v1""#);
+        let line = serde_json::to_string(&entry).unwrap();
+        std::fs::write(&path, format!("{}\n\n{}\n", line, line)).unwrap();
+        let loaded = load_fixture_from_file(&path).unwrap();
+        assert_eq!(loaded.len(), 2);
+    }
+
+    #[test]
     fn fixture_file_roundtrip() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("fixture.jsonl");
