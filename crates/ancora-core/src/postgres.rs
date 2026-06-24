@@ -208,6 +208,46 @@ mod tests {
         format!("pg-run-{}", uuid::Uuid::new_v4())
     }
 
+    #[test]
+    fn postgres_store_passes_journal_conformance_suite() {
+        let url = match postgres_url() {
+            Some(u) => u,
+            None => {
+                eprintln!("POSTGRES_URL not set; skipping postgres conformance suite");
+                return;
+            }
+        };
+
+        let store = PostgresStore::connect(&url).expect("connect");
+
+        let run_a = unique_run();
+        let run_b = unique_run();
+        let run_c = unique_run();
+        let run_d = unique_run();
+
+        let s0 = store.append(&run_a, run_started("e0")).unwrap();
+        let s1 = store.append(&run_a, run_started("e1")).unwrap();
+        let s2 = store.append(&run_a, run_started("e2")).unwrap();
+        assert_eq!((s0, s1, s2), (0, 1, 2));
+        let events = store.read(&run_a).unwrap();
+        assert_eq!(events.len(), 3);
+        for (i, ev) in events.iter().enumerate() {
+            assert_eq!(ev.seq, i as u64, "seq must be monotonically increasing");
+        }
+
+        assert!(store.read(&run_b).unwrap().is_empty(), "empty run returns no events");
+
+        store.append(&run_c, activity("key-pg-xyz")).unwrap();
+        let err = store.append(&run_c, activity("key-pg-xyz")).unwrap_err();
+        assert!(matches!(err, AncoraError::JournalWrite(_)), "duplicate key must be rejected");
+
+        store.append(&run_d, run_started("a")).unwrap();
+        store.append(&run_d, run_started("b")).unwrap();
+        let ev = store.load(&run_d, 1).unwrap().unwrap();
+        assert_eq!(ev.seq, 1);
+        assert!(store.load(&run_d, 99).unwrap().is_none(), "missing seq returns None");
+    }
+
     fn run_started(label: &str) -> JournalEvent {
         JournalEvent {
             event_id: label.to_string(),
