@@ -56,6 +56,46 @@ class RetryPolicy(BaseModel):
     jitter: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
+class StreamEvent(BaseModel):
+    """A single event emitted by a streaming run.
+
+    The ``kind`` field identifies the event type:
+
+    - ``"started"`` -- run has begun; ``spec`` contains the serialized agent spec.
+    - ``"token"`` -- a streamed token; ``text`` contains the token string.
+    - ``"completed"`` -- run finished successfully.
+    - ``"resumed"`` -- run was resumed after a human-in-the-loop pause.
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    kind: str = ""
+    run_id: str = ""
+    text: Optional[str] = None
+    spec: Optional[str] = None
+    decision: Optional[str] = None
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "StreamEvent":
+        """Parse a raw event bytes value into a StreamEvent."""
+        return cls.model_validate_json(data)
+
+    @property
+    def is_token(self) -> bool:
+        """Return True if this is a token event."""
+        return self.kind == "token"
+
+    @property
+    def is_started(self) -> bool:
+        """Return True if this is a started event."""
+        return self.kind == "started"
+
+    @property
+    def is_completed(self) -> bool:
+        """Return True if this is a completed event."""
+        return self.kind == "completed"
+
+
 class AgentSpec(BaseModel):
     """Specifies a single agent in the graph."""
 

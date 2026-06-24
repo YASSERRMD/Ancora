@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Optional
 
+from ancora.memory import MemoryStore
 from ancora.models import AgentSpec
 from ancora.run import Run
 from ancora.wire import to_wire_bytes
@@ -41,10 +42,12 @@ class Agent:
         rt: "Runtime",
         spec: AgentSpec,
         registry: "Optional[ToolRegistry]" = None,
+        memory: Optional[MemoryStore] = None,
     ) -> None:
         self._rt = rt
         self._spec = spec
         self._registry = registry
+        self._memory: MemoryStore = memory if memory is not None else MemoryStore()
 
     @property
     def spec(self) -> AgentSpec:
@@ -55,6 +58,11 @@ class Agent:
     def registry(self) -> "Optional[ToolRegistry]":
         """Return the tool registry, if any."""
         return self._registry
+
+    @property
+    def memory(self) -> MemoryStore:
+        """Return the agent's memory store."""
+        return self._memory
 
     def register_tool(self, t: "Tool") -> None:
         """Register a tool with this agent's registry.

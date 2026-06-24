@@ -40,25 +40,28 @@ def test_poll_run_started_event(rt):
 
 def test_poll_run_completed_event(rt):
     run_id = rt.start_run(b'{"name":"a","model_id":"m"}')
-    rt.poll_run(run_id)
-    ev = rt.poll_run(run_id)
-    assert ev is not None
-    decoded = bytes(ev).decode("utf-8")
+    ev = None
+    for _ in range(10):
+        ev = rt.poll_run(run_id)
+        if ev is None:
+            break
+        last_ev = ev
+    decoded = bytes(last_ev).decode("utf-8")
     assert '"kind":"completed"' in decoded
 
 
 def test_poll_run_exhausted_returns_none(rt):
     run_id = rt.start_run(b'{"name":"a","model_id":"m"}')
-    rt.poll_run(run_id)
-    rt.poll_run(run_id)
+    for _ in range(5):
+        rt.poll_run(run_id)
     ev = rt.poll_run(run_id)
     assert ev is None
 
 
 def test_resume_run_adds_resumed_event(rt):
     run_id = rt.start_run(b'{"name":"a","model_id":"m"}')
-    rt.poll_run(run_id)
-    rt.poll_run(run_id)
+    for _ in range(5):
+        rt.poll_run(run_id)
     rt.resume_run(run_id, b"yes")
     ev = rt.poll_run(run_id)
     assert ev is not None

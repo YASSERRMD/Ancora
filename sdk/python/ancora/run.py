@@ -49,3 +49,21 @@ class Run:
         async for ev in self:
             events.append(ev)
         return events
+
+    async def stream_events(self):
+        """Async generator that yields each raw event bytes as it arrives."""
+        async for ev in self:
+            yield ev
+
+    async def stream_tokens(self):
+        """Async generator that yields token text strings from token events."""
+        import json
+        async for ev in self:
+            try:
+                obj = json.loads(ev)
+            except (ValueError, KeyError):
+                continue
+            if obj.get("kind") == "token":
+                text = obj.get("text")
+                if text is not None:
+                    yield text
