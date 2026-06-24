@@ -20,3 +20,18 @@ async fn bind_server() -> u16 {
     tokio::time::sleep(std::time::Duration::from_millis(30)).await;
     port
 }
+
+#[tokio::test]
+async fn start_run_returns_non_empty_run_id() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let resp = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner();
+    assert!(!resp.run_id.is_empty());
+}
