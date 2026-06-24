@@ -191,7 +191,7 @@ mod tests {
 
     #[test]
     fn journal_event_ordering_and_round_trip() {
-        let events = vec![
+        let events = [
             JournalEvent {
                 event_id: "evt-1".to_string(),
                 run_id: "run-abc".to_string(),
