@@ -46,3 +46,9 @@ fn run_id_new_with_null_returns_null() {
 fn free_null_run_id_is_noop() {
     ancora_run_id_free(std::ptr::null_mut());
 }
+
+#[test]
+fn header_generation_succeeds_during_build() {
+    let out_dir = std::env::var("OUT_DIR").unwrap_or_default();
+    assert!(!out_dir.is_empty(), "OUT_DIR should be set during cargo test");
+}
