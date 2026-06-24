@@ -73,6 +73,7 @@ export {
   ToolSpecSchema,
   AgentSpecSchema,
   RunEventSchema,
+  ToolCallSchema,
 } from './schemas'
-export type { ToolSpec, AgentSpec, RunEvent } from './schemas'
+export type { ToolSpec, AgentSpec, RunEvent, ToolCall } from './schemas'
 export { encodeSpec, decodeSpec, parseEvent } from './wire'
