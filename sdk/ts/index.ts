@@ -66,3 +66,14 @@ export class Runtime {
 export function version(): string {
   return loadNativeModule().version()
 }
+
+export {
+  ToolInputPropertySchema,
+  ToolInputSchemaSchema,
+  ToolSpecSchema,
+  AgentSpecSchema,
+  RunEventSchema,
+  ToolCallSchema,
+} from './schemas'
+export type { ToolSpec, AgentSpec, RunEvent, ToolCall } from './schemas'
+export { encodeSpec, decodeSpec, parseEvent, validateSpec, buildSpec } from './wire'
