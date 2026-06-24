@@ -70,3 +70,21 @@ fn run_poll_second_event_is_completed() {
     ancora_buffer_free(e2);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn run_poll_returns_empty_after_all_events_consumed() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = cstr(&id);
+    let empty = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut e1 = empty;
+    let mut e2 = empty;
+    let mut e3 = empty;
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
+    ancora_run_poll(rt, c_id.as_ptr(), &mut e3);
+    assert!(e3.ptr.is_null() && e3.len == 0, "third poll should be empty");
+    ancora_buffer_free(e1);
+    ancora_buffer_free(e2);
+    ancora_free_runtime(rt);
+}
