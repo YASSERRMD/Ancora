@@ -1,3 +1,4 @@
+pub mod edit;
 pub mod embed;
 pub mod entry;
 pub mod scope;
