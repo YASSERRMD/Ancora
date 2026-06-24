@@ -27,3 +27,8 @@ Before merging a PR that changes `include/ancora.h`:
 3. If the change is additive, label the PR `abi:additive`.
 4. If the change is breaking, bump `ANCORA_ABI_VERSION` and label it `abi:breaking`.
 5. Commit the updated snapshot alongside the Rust source change.
+
+## ABI version constant
+
+A `ANCORA_ABI_VERSION` integer constant will be exposed in the header for bindings authors to detect supported features at compile time.
+Increment it on every breaking change. Minor additions do not require a bump.
