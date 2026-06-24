@@ -26,6 +26,45 @@ func (r *TransportRun) Resume(ctx context.Context, decision []byte) error {
 	return r.tr.ResumeRun(ctx, r.runID, decision)
 }
 
+// transportRunChanBuf is the buffer size for TransportRun.EventChan channels.
+const transportRunChanBuf = 64
+
+// DrainEvents collects all pending events from the run into a string slice.
+func (r *TransportRun) DrainEvents(ctx context.Context) ([]string, error) {
+	var out []string
+	for {
+		ev, err := r.PollEvent(ctx)
+		if err != nil {
+			return out, err
+		}
+		if ev == nil {
+			return out, nil
+		}
+		out = append(out, string(ev))
+	}
+}
+
+// EventChan spawns a goroutine polling events and returns a channel.
+// The channel is closed when the event queue is empty or ctx is done.
+func (r *TransportRun) EventChan(ctx context.Context) <-chan []byte {
+	ch := make(chan []byte, transportRunChanBuf)
+	go func() {
+		defer close(ch)
+		for {
+			ev, err := r.PollEvent(ctx)
+			if err != nil || ev == nil {
+				return
+			}
+			select {
+			case ch <- ev:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	return ch
+}
+
 // TransportAgent starts agent runs through a Transport.
 type TransportAgent struct {
 	tr   Transport
