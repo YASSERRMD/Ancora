@@ -108,4 +108,19 @@ mod tests {
         let store = RunStore::new();
         assert!(!store.resume("ghost", "nope"));
     }
+
+    #[test]
+    fn first_event_text_is_started() {
+        let store = RunStore::new();
+        store.insert("r5".into());
+        assert_eq!(store.poll("r5").unwrap(), "started");
+    }
+
+    #[test]
+    fn second_event_text_is_completed() {
+        let store = RunStore::new();
+        store.insert("r6".into());
+        store.poll("r6");
+        assert_eq!(store.poll("r6").unwrap(), "completed");
+    }
 }
