@@ -99,4 +99,25 @@ mod tests {
         let spans = exp.spans();
         assert_eq!(spans[0].get("k"), Some(&SpanValue::String("v".into())));
     }
+
+    #[test]
+    fn noop_emitter_discards_spans() {
+        let noop = NoopEmitter;
+        noop.emit(Span::new("discarded"));
+    }
+
+    #[test]
+    fn multi_emitter_fans_out_to_all_backends() {
+        let a = Arc::new(InMemoryExporter::new());
+        let b = Arc::new(InMemoryExporter::new());
+        let a2 = a.clone();
+        let b2 = b.clone();
+        let multi = MultiEmitter::new(vec![
+            Box::new(InMemoryExporter { spans: a2.spans.clone() }),
+            Box::new(InMemoryExporter { spans: b2.spans.clone() }),
+        ]);
+        multi.emit(Span::new("fanned"));
+        assert_eq!(a.len(), 1);
+        assert_eq!(b.len(), 1);
+    }
 }
