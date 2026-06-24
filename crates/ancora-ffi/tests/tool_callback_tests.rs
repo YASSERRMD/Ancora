@@ -1,0 +1,28 @@
+use ancora_ffi::buffer::{ancora_buffer_free, ancora_buffer_from_str, AncorBuffer};
+use ancora_ffi::error_code::AncorErrorCode;
+use ancora_ffi::runtime::{ancora_free_runtime, ancora_runtime_new};
+use ancora_ffi::tool_ops::{
+    ancora_tool_count, ancora_tool_exists, ancora_tool_invoke, ancora_tool_register,
+    ancora_tool_unregister,
+};
+
+fn make_rt() -> *mut ancora_ffi::handles::AncorRuntime {
+    let mut rt = std::ptr::null_mut();
+    ancora_runtime_new(&mut rt);
+    rt
+}
+
+fn cstr(s: &str) -> std::ffi::CString {
+    std::ffi::CString::new(s).unwrap()
+}
+
+unsafe extern "C" fn echo_cb(
+    input: *const u8,
+    input_len: usize,
+    out: *mut AncorBuffer,
+) -> AncorErrorCode {
+    let slice = std::slice::from_raw_parts(input, input_len);
+    let s = std::str::from_utf8_unchecked(slice);
+    *out = ancora_buffer_from_str(s);
+    AncorErrorCode::Ok
+}
