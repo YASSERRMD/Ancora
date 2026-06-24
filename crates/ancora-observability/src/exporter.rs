@@ -36,6 +36,13 @@ impl InMemoryExporter {
     }
 }
 
+/// No-op emitter that discards all spans.
+pub struct NoopEmitter;
+
+impl SpanEmitter for NoopEmitter {
+    fn emit(&self, _span: Span) {}
+}
+
 impl SpanEmitter for InMemoryExporter {
     fn emit(&self, span: Span) {
         self.spans.lock().unwrap().push(span);
