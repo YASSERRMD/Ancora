@@ -72,3 +72,17 @@ fn multi_agent_verifier_scenario_two_runs_have_different_ids() {
     assert_ne!(id1, id2, "multi-agent-verifier: each run must have a unique id");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn human_in_loop_scenario_resume_produces_resumed_event() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = std::ffi::CString::new(id.as_str()).unwrap();
+    drain_events(rt, &id);
+    let decision = b"approved";
+    let code = ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len());
+    assert_eq!(code, AncorErrorCode::Ok, "human-in-loop: resume must return Ok");
+    let events = drain_events(rt, &id);
+    assert!(events.iter().any(|e| e.contains("resumed")), "human-in-loop: missing resumed event, got: {events:?}");
+    ancora_free_runtime(rt);
+}
