@@ -21,4 +21,21 @@ impl ModelClient for MockClient {
 mod tests {
     use super::*;
     use crate::types::Message;
+
+    fn req(content: &str) -> CompletionRequest {
+        CompletionRequest {
+            model_id: "mock".to_string(),
+            messages: vec![Message { role: "user".to_string(), content: content.to_string() }],
+            max_tokens: None,
+            temperature: None,
+        }
+    }
+
+    #[test]
+    fn mock_client_returns_fixed_response() {
+        let client = MockClient { response: "hello".to_string() };
+        let resp = client.complete(&req("world")).unwrap();
+        assert_eq!(resp.content, "hello");
+        assert_eq!(resp.tokens_out, 5);
+    }
 }
