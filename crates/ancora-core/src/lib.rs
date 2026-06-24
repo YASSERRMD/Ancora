@@ -1,4 +1,5 @@
 pub mod activity;
+pub mod conformance;
 pub mod eval;
 pub mod fixture;
 pub mod eval_metrics;
