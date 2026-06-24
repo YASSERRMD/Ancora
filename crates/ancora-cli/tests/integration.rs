@@ -111,6 +111,21 @@ fn node_spec_effective_model_uses_explicit_model() {
 }
 
 #[test]
+fn graph_spec_from_yaml_parses_inline_yaml() {
+    let yaml = "name: inline-test\nnodes:\n  - id: n1\n    kind: agent\n";
+    let spec = GraphSpec::from_yaml(yaml).unwrap();
+    assert_eq!(spec.name, "inline-test");
+    assert_eq!(spec.nodes.len(), 1);
+    assert_eq!(spec.nodes[0].id, "n1");
+}
+
+#[test]
+fn graph_spec_from_yaml_invalid_yaml_returns_error() {
+    let bad = "name: [unclosed";
+    assert!(GraphSpec::from_yaml(bad).is_err());
+}
+
+#[test]
 fn graph_spec_agent_nodes_filters_correctly() {
     let spec = GraphSpec {
         name: "test".into(),
