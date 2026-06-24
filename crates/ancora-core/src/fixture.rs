@@ -227,6 +227,22 @@ mod tests {
     }
 
     #[test]
+    fn replay_fixture_sequence_replays_in_order() {
+        let f = build_fixture(&[
+            ("a", "m", "{}", r#""r-a""#),
+            ("b", "m", "{}", r#""r-b""#),
+        ]);
+        let results = replay_fixture_sequence(&f, &["a", "b"]).unwrap();
+        assert_eq!(results, vec![r#""r-a""#, r#""r-b""#]);
+    }
+
+    #[test]
+    fn replay_fixture_sequence_fails_on_missing_key() {
+        let f = build_fixture(&[("a", "m", "{}", r#""r-a""#)]);
+        assert!(replay_fixture_sequence(&f, &["a", "missing"]).is_err());
+    }
+
+    #[test]
     fn fixture_merge_adds_new_entries() {
         let mut a = build_fixture(&[("k1", "m", "{}", r#""r1""#)]);
         let b = build_fixture(&[("k2", "m", "{}", r#""r2""#)]);
