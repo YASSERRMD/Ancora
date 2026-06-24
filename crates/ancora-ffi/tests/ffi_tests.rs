@@ -7,3 +7,11 @@ fn ancora_version_returns_non_null() {
     let ptr = ancora_version();
     assert!(!ptr.is_null());
 }
+
+#[test]
+fn ancora_version_is_valid_utf8() {
+    let ptr = ancora_version();
+    assert!(!ptr.is_null());
+    let s = unsafe { std::ffi::CStr::from_ptr(ptr) }.to_str().unwrap();
+    assert!(!s.is_empty());
+}
