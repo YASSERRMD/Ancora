@@ -463,4 +463,36 @@ mod tests {
         // carol("[bob][alice]start") -> "[carol][bob][alice]start"
         assert_eq!(result, "[carol][bob][alice]start");
     }
+
+    #[test]
+    fn group_chat_respects_turn_cap() {
+        let agents: Vec<String> = vec!["x".to_string(), "y".to_string()];
+        let graph = Graph {
+            id: "g-chat".to_string(),
+            nodes: agents.iter().map(|id| function_node(id)).collect(),
+            edges: vec![],
+            entry_node: "x".to_string(),
+        };
+
+        let mut exec = GraphExecutor::new(graph, "run-chat-1", Arc::new(MemoryStore::new()));
+        let results = exec.run_group_chat(&agents, "hello", 2, &PrefixExecutor).unwrap();
+
+        // 2 agents * 2 rounds = 4 total turns; turns alternate x, y, x, y
+        assert_eq!(results.len(), 4, "turn count must equal agents * rounds");
+        assert_eq!(results[0].0, "x");
+        assert_eq!(results[1].0, "y");
+        assert_eq!(results[2].0, "x");
+        assert_eq!(results[3].0, "y");
+
+        // With 1 round the cap produces exactly 2 turns
+        let graph2 = Graph {
+            id: "g-chat2".to_string(),
+            nodes: agents.iter().map(|id| function_node(id)).collect(),
+            edges: vec![],
+            entry_node: "x".to_string(),
+        };
+        let mut exec2 = GraphExecutor::new(graph2, "run-chat-2", Arc::new(MemoryStore::new()));
+        let one_round = exec2.run_group_chat(&agents, "hello", 1, &PrefixExecutor).unwrap();
+        assert_eq!(one_round.len(), 2, "one round with 2 agents must produce exactly 2 turns");
+    }
 }
