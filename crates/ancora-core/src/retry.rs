@@ -94,6 +94,38 @@ where
     unreachable!("loop always returns")
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn retryable() -> AncoraError {
+        AncoraError::ModelHttp { status: 500, body: "err".to_string() }
+    }
+
+    fn terminal() -> AncoraError {
+        AncoraError::PolicyPermission("denied".to_string())
+    }
+
+    #[test]
+    fn retries_stop_at_max_attempts() {
+        let policy = RetryPolicy { max_attempts: 3, initial_backoff_ms: 0, max_backoff_ms: 0, jitter: 0.0 };
+        let mut call_count = 0u32;
+
+        let outcome = run_with_retry(
+            &policy,
+            |_attempt| {
+                call_count += 1;
+                Err::<(), _>(retryable())
+            },
+            |_ms| {},
+        );
+
+        assert_eq!(call_count, 3, "must attempt exactly max_attempts times");
+        assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 3, .. }));
+    }
+
+}
+
 /// Policy that controls how many times an operation is retried and how
 /// long to wait between attempts.
 #[derive(Debug, Clone)]
