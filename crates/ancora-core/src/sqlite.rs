@@ -46,6 +46,9 @@ impl SqliteStore {
     }
 }
 
+/// Schema version 1. Applied once at open time via execute_batch.
+/// New columns must be added in a MIGRATION_V2 constant appended here;
+/// never modify MIGRATION_V1 after it ships.
 const MIGRATION_V1: &str = "
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
