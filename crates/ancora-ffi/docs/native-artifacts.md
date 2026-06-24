@@ -83,3 +83,12 @@ Or via the GitHub API:
 ```sh
 gh api repos/YASSERRMD/Ancora/actions/artifacts --jq '.artifacts[] | select(.name | startswith("ancora-ffi")) | .archive_download_url'
 ```
+
+## Static library
+
+The FFI crate also emits a `staticlib` target (`libancora_ffi.a` / `ancora_ffi.lib`).
+Link it statically to avoid runtime `.so` dependency at the cost of larger binary size:
+
+```sh
+cc myapp.c target/release/libancora_ffi.a -o myapp
+```
