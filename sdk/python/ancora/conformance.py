@@ -40,6 +40,9 @@ CORE_FIXTURE = {
         "event_kinds": ["started", "token", "token", "token", "completed"],
         "event_count": 5,
     },
+    "human_in_loop": {
+        "resume_event_kinds": ["resumed", "completed"],
+    },
 }
 """Expected event sequences for standard scenarios used in journal verification."""
 
