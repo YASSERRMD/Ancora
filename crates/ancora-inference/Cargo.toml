@@ -1,0 +1,11 @@
+[package]
+name = "ancora-inference"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Model-agnostic inference adapter traits for Ancora"
+
+[dependencies]
+thiserror = "2"
