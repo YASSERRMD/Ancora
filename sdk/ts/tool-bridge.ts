@@ -36,3 +36,11 @@ export class ToolBridge {
     }
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createToolBridge(...tools: ToolRegistry extends { register(t: infer T): any } ? T[] : never[]): ToolBridge {
+  const registry = new ToolRegistry()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tools.forEach((t) => registry.register(t as any))
+  return new ToolBridge(registry)
+}
