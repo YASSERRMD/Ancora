@@ -1,0 +1,69 @@
+# Temporary scratch directory
+temp/
+
+# Rust
+/target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Node / TypeScript
+node_modules/
+dist/
+.npm/
+*.tgz
+.yarn/
+.pnp.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg
+*.egg-info/
+.venv/
+venv/
+.env
+*.pyc
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Go
+/bindings/go/vendor/
+*.test
+*.out
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.nupkg
+*.snupkg
+
+# Java
+.gradle/
+*.class
+*.jar
+*.war
+*.ear
+.idea/
+*.iml
+.mvn/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# CI artifacts
+*.profraw
+*.profdata
+lcov.info
+coverage/
