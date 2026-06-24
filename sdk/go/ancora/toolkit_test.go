@@ -60,6 +60,32 @@ func TestGoToolRegistryRegisterTwoTools(t *testing.T) {
 	}
 }
 
+func TestGoToolExecutesWithinRun(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	tk := ancora.NewRuntimeToolkit(rt)
+	tk.RegisterTool("echo", echoTool)
+
+	spec := ancora.NewAgentSpec("tool-agent", "llama3", "use tools")
+	ag := ancora.NewAgent(rt, spec)
+	run, err := ag.Start()
+	if err != nil {
+		t.Fatalf("Start: %v", err)
+	}
+	run.DrainEvents()
+
+	out, err := tk.InvokeTool("echo", []byte(`{"msg":"hello"}`))
+	if err != nil {
+		t.Fatalf("InvokeTool: %v", err)
+	}
+	if string(out) != `{"msg":"hello"}` {
+		t.Fatalf("expected echo output, got: %s", out)
+	}
+	if run.ID() == "" {
+		t.Fatal("run ID must remain valid after tool invocation")
+	}
+}
+
 func TestGoToolRegistryOverwriteExistingTool(t *testing.T) {
 	reg := ancora.NewGoToolRegistry()
 	reg.Register("echo", func(in []byte) ([]byte, error) { return []byte("v1"), nil })
