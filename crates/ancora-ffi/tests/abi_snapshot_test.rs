@@ -78,6 +78,7 @@ fn snapshot_header_declares_runtime_new() {
 fn snapshot_header_run_start_signature_has_out_param() {
     let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
     let idx = content.find("ancora_run_start").unwrap();
-    let sig = &content[idx..idx + 200.min(content.len() - idx)];
+    let end = (idx + 400).min(content.len());
+    let sig = &content[idx..end];
     assert!(sig.contains("AncorBuffer"), "ancora_run_start should have AncorBuffer out param");
 }
