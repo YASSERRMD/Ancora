@@ -20,3 +20,15 @@ fn buf_to_string(buf: &AncorBuffer) -> String {
 fn cstr(s: &str) -> std::ffi::CString {
     std::ffi::CString::new(s).unwrap()
 }
+
+#[test]
+fn run_start_returns_non_empty_run_id() {
+    let rt = make_rt();
+    let spec = b"{}";
+    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let code = ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
+    assert_eq!(code, AncorErrorCode::Ok);
+    assert!(out.len > 0, "run id buffer should not be empty");
+    ancora_buffer_free(out);
+    ancora_free_runtime(rt);
+}
