@@ -53,3 +53,13 @@ module AncorFFI {
 ```
 
 Pass `-I/path/to/header -L/path/to/lib` to the Swift compiler.
+
+## Linking in Kotlin (via JNI/JNA)
+
+Place `libancora_ffi.so` (Linux) or `ancora_ffi.dll` (Windows) on the Java library path:
+
+```kotlin
+System.loadLibrary("ancora_ffi")
+```
+
+Declare the FFI interface with JNA or a JNI wrapper generated from the C header.
