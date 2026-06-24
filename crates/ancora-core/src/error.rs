@@ -148,3 +148,75 @@ impl From<(ErrorCode, String)> for AncoraError {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn all_non_unspecified_codes() -> Vec<ErrorCode> {
+        vec![
+            ErrorCode::ErrorNondeterminism,
+            ErrorCode::ErrorJournalGap,
+            ErrorCode::ErrorJournalWrite,
+            ErrorCode::ErrorMaxSteps,
+            ErrorCode::ErrorOutputValidation,
+            ErrorCode::ErrorTimeout,
+            ErrorCode::ErrorModelRefused,
+            ErrorCode::ErrorModelHttp,
+            ErrorCode::ErrorModelParse,
+            ErrorCode::ErrorModelUnreachable,
+            ErrorCode::ErrorToolFailed,
+            ErrorCode::ErrorToolNotFound,
+            ErrorCode::ErrorToolInputInvalid,
+            ErrorCode::ErrorToolDenied,
+            ErrorCode::ErrorPolicyResidency,
+            ErrorCode::ErrorPolicyPermission,
+            ErrorCode::ErrorGraphInvalid,
+            ErrorCode::ErrorNodeNotFound,
+            ErrorCode::ErrorCancelled,
+            ErrorCode::ErrorInvalidState,
+            ErrorCode::ErrorStorage,
+            ErrorCode::ErrorInternal,
+        ]
+    }
+
+    #[test]
+    fn error_code_round_trips_for_all_non_unspecified_variants() {
+        for code in all_non_unspecified_codes() {
+            let err = AncoraError::from((code, "test".to_string()));
+            assert_eq!(
+                err.error_code() as i32,
+                code as i32,
+                "round-trip failed for code {:?}",
+                code
+            );
+        }
+    }
+
+    #[test]
+    fn error_unspecified_maps_to_internal() {
+        let err = AncoraError::from((ErrorCode::ErrorUnspecified, "fallback".to_string()));
+        assert!(
+            matches!(err, AncoraError::Internal(_)),
+            "ErrorUnspecified must map to AncoraError::Internal"
+        );
+    }
+
+    #[test]
+    fn error_messages_are_non_empty() {
+        let err = AncoraError::Nondeterminism {
+            seq: 7,
+            expected: "foo".to_string(),
+            got: "bar".to_string(),
+        };
+        let msg = err.to_string();
+        assert!(msg.contains("7"), "display should include seq");
+        assert!(msg.contains("foo"));
+        assert!(msg.contains("bar"));
+    }
+
+    #[test]
+    fn coverage_count_matches_proto() {
+        assert_eq!(all_non_unspecified_codes().len(), 22);
+    }
+}
