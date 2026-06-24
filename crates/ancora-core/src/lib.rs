@@ -1,5 +1,6 @@
 pub mod activity;
 pub mod agent;
+pub mod output;
 pub mod error;
 pub mod idempotency;
 pub mod journal;
