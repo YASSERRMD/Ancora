@@ -113,4 +113,16 @@ mod tests {
         };
         assert!(graph.validate().is_ok());
     }
+
+    #[test]
+    fn single_agent_scenario_graph_has_exactly_one_node() {
+        use crate::graph::Graph;
+        let graph = Graph {
+            id: "g-single".to_string(),
+            nodes: vec![make_agent_node("agent1")],
+            edges: vec![],
+            entry_node: "agent1".to_string(),
+        };
+        assert_eq!(graph.nodes.len(), 1);
+    }
 }
