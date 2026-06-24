@@ -78,4 +78,17 @@ mod tests {
         assert_eq!(bodies.len(), 1);
         assert!(bodies[0].contains("test-span"));
     }
+
+    #[test]
+    fn exporter_body_is_valid_otlp_json() {
+        let collector = MockCollector::start();
+        let endpoint = format!("http://127.0.0.1:{}/v1/traces", collector.port);
+        let exporter = OtlpHttpExporter::new(endpoint);
+        exporter.emit(Span::new("json-check").set("model", "gpt-4o"));
+        exporter.export().unwrap();
+        collector.wait_for_request();
+        let body = &collector.bodies()[0];
+        let parsed: serde_json::Value = serde_json::from_str(body).expect("body should be valid json");
+        assert!(parsed.get("resourceSpans").is_some());
+    }
 }
