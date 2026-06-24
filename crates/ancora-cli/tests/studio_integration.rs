@@ -64,3 +64,12 @@ fn post_replay_returns_200_with_ok_status() {
     assert!(resp.starts_with("HTTP/1.1 200"), "got: {resp}");
     assert!(resp.contains("\"ok\"") || resp.contains("ok"), "body missing status: {resp}");
 }
+
+#[test]
+fn unknown_route_returns_404() {
+    let server = make_server();
+    let port = server.port();
+    std::thread::spawn(move || { server.handle_one().ok(); });
+    let resp = http_get(port, "/does-not-exist");
+    assert!(resp.starts_with("HTTP/1.1 404"), "got: {resp}");
+}
