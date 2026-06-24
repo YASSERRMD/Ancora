@@ -52,6 +52,18 @@ impl Fixture {
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
     }
+
+    /// Merge another fixture into this one, overwriting on key collision.
+    pub fn merge(&mut self, other: Fixture) {
+        for entry in other.entries {
+            self.index.insert(entry.activity_key.clone(), entry.result_json.clone());
+            if let Some(existing) = self.entries.iter_mut().find(|e| e.activity_key == entry.activity_key) {
+                *existing = entry;
+            } else {
+                self.entries.push(entry);
+            }
+        }
+    }
 }
 
 /// Write fixture entries to a JSONL file (one JSON object per line).
