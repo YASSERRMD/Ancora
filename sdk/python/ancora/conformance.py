@@ -35,6 +35,14 @@ from ancora.models import AgentSpec, StreamEvent
 
 ScenarioFn = Callable[["ancora._ancora.Runtime"], Awaitable[bool]]
 
+CORE_FIXTURE = {
+    "single_run": {
+        "event_kinds": ["started", "token", "token", "token", "completed"],
+        "event_count": 5,
+    },
+}
+"""Expected event sequences for standard scenarios used in journal verification."""
+
 
 class ConformanceSuite:
     """Registry of named async conformance scenarios.
