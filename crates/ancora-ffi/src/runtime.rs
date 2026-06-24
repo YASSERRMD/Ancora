@@ -9,6 +9,17 @@ pub extern "C" fn ancora_create_runtime() -> *mut AncorRuntime {
     Box::into_raw(boxed).cast()
 }
 
+/// Allocate a runtime and write the pointer to `out`. Returns `NullPtr` if `out` is null.
+#[no_mangle]
+pub extern "C" fn ancora_runtime_new(out: *mut *mut AncorRuntime) -> AncorErrorCode {
+    if out.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let boxed: Box<InnerRuntime> = Box::new(InnerRuntime::new());
+    unsafe { *out = Box::into_raw(boxed).cast() };
+    AncorErrorCode::Ok
+}
+
 /// Free a runtime previously created by `ancora_create_runtime`.
 /// Passing null is a no-op.
 #[no_mangle]
