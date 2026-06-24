@@ -113,6 +113,44 @@ impl GraphExecutor {
         unreachable!("loop always returns")
     }
 
+    /// Run all nodes in `voter_ids` on the same `input` and return the output that
+    /// received the most votes. Ties between outputs of equal vote count are broken by
+    /// lexicographic order so the result is always deterministic.
+    ///
+    /// Returns `Err(Internal)` when `voter_ids` is empty.
+    pub fn run_consensus(
+        &mut self,
+        voter_ids: &[String],
+        input: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        if voter_ids.is_empty() {
+            return Err(AncoraError::Internal("consensus requires at least one voter".to_string()));
+        }
+
+        let mut tallies: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+
+        for voter_id in voter_ids {
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == *voter_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(voter_id.clone()))?;
+                executor.execute(node, input)?
+            };
+            *tallies.entry(output).or_insert(0) += 1;
+        }
+
+        // Pick the output with the most votes; break ties lexicographically.
+        let winner = tallies.into_iter()
+            .max_by(|(a_out, a_votes), (b_out, b_votes)| {
+                a_votes.cmp(b_votes).then_with(|| b_out.cmp(a_out))
+            })
+            .map(|(output, _)| output)
+            .expect("tallies is non-empty");
+
+        Ok(winner)
+    }
+
     /// Transfer control sequentially through `agent_ids`, passing each agent's output
     /// as the next agent's input. Returns the final agent's output.
     pub fn run_handoff(
