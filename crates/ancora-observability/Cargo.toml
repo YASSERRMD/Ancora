@@ -1,0 +1,8 @@
+[package]
+name = "ancora-observability"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "OpenTelemetry GenAI span emission for Ancora"
