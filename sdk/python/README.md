@@ -4,9 +4,21 @@ Python bindings for the Ancora agent runtime via PyO3 and maturin.
 
 ## Install
 
+Pre-built wheels are available on PyPI for Linux, macOS, and Windows on
+CPython 3.9 through 3.12:
+
+```bash
+pip install ancora
+```
+
+## Development install
+
+Build from source using maturin:
+
 ```bash
 pip install maturin
-maturin develop
+cd sdk/python
+maturin develop --release
 ```
 
 ## Usage
