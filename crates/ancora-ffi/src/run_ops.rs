@@ -89,3 +89,25 @@ pub extern "C" fn ancora_run_resume(
     }
     AncorErrorCode::Ok
 }
+
+/// Return a JSON cost summary for a run as an AncorBuffer.
+/// Returns `NullPtr` if any pointer is null.
+#[no_mangle]
+pub extern "C" fn ancora_run_cost(
+    rt: *mut AncorRuntime,
+    run_id: *const c_char,
+    out_cost: *mut AncorBuffer,
+) -> AncorErrorCode {
+    if rt.is_null() || run_id.is_null() || out_cost.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let id = unsafe { std::ffi::CStr::from_ptr(run_id) }
+        .to_str()
+        .unwrap_or("");
+    let inner = unsafe { &*rt.cast::<InnerRuntime>() };
+    let guard = inner.runs.lock().unwrap();
+    let cost_usd = guard.get(id).map(|r| r.cost_usd).unwrap_or(0.0);
+    let json = format!(r#"{{"run_id":"{}","total_usd":{}}}"#, id, cost_usd);
+    unsafe { *out_cost = ancora_buffer_from_str(&json) };
+    AncorErrorCode::Ok
+}
