@@ -34,3 +34,17 @@ async fn authenticated_request_succeeds() {
     let resp = client.start_run(req).await;
     assert!(resp.is_ok(), "authenticated request should succeed");
 }
+
+#[tokio::test]
+async fn unauthenticated_request_is_rejected() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_authed_server("mytoken").await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let resp = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await;
+    let err = resp.unwrap_err();
+    assert_eq!(err.code(), tonic::Code::Unauthenticated);
+}
