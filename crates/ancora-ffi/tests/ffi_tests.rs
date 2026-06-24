@@ -27,3 +27,11 @@ fn create_and_free_runtime_does_not_panic() {
 fn free_null_runtime_is_noop() {
     ancora_free_runtime(std::ptr::null_mut());
 }
+
+#[test]
+fn create_and_free_run_id_does_not_panic() {
+    let s = std::ffi::CString::new("run-test-1").unwrap();
+    let id = ancora_run_id_new(s.as_ptr());
+    assert!(!id.is_null());
+    ancora_run_id_free(id);
+}
