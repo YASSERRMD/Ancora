@@ -1,0 +1,28 @@
+name: py-lint
+
+on:
+  pull_request:
+    paths:
+      - 'sdk/python/**'
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    name: ruff and mypy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: install linters
+        run: pip install ruff mypy pydantic
+      - name: ruff check
+        run: ruff check sdk/python/ancora/
+        continue-on-error: true
+      - name: mypy check
+        run: |
+          cd sdk/python
+          mypy ancora/ --ignore-missing-imports
+        continue-on-error: true

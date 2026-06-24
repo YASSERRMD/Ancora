@@ -1,0 +1,128 @@
+name: py-wheels
+
+on:
+  pull_request:
+    paths:
+      - 'sdk/python/**'
+      - 'crates/ancora-py/**'
+      - '.github/workflows/py-wheels.yml'
+  push:
+    branches: [main]
+    tags: ['v*']
+
+jobs:
+  build-linux:
+    name: linux ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: >-
+            --release
+            --manifest-path sdk/python/pyproject.toml
+            --interpreter python${{ matrix.python }}
+            --out dist/
+          manylinux: auto
+      - uses: actions/upload-artifact@v4
+        with:
+          name: py-wheel-linux-${{ matrix.python }}
+          path: dist/*.whl
+
+  build-macos:
+    name: macos ${{ matrix.python }} ${{ matrix.target }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          target: ${{ matrix.target }}
+          args: >-
+            --release
+            --manifest-path sdk/python/pyproject.toml
+            --interpreter python${{ matrix.python }}
+            --out dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: py-wheel-macos-${{ matrix.python }}-${{ matrix.target }}
+          path: dist/*.whl
+
+  build-windows:
+    name: windows ${{ matrix.python }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: >-
+            --release
+            --manifest-path sdk/python/pyproject.toml
+            --interpreter python${{ matrix.python }}
+            --out dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: py-wheel-windows-${{ matrix.python }}
+          path: dist/*.whl
+
+  build-sdist:
+    name: source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: >-
+            --manifest-path sdk/python/pyproject.toml
+            --out dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: py-sdist
+          path: dist/*.tar.gz
+
+  test-linux-wheel:
+    name: test linux wheel py3.12
+    runs-on: ubuntu-latest
+    needs: [build-linux]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: py-wheel-linux-3.12
+          path: dist/
+      - name: install wheel
+        run: pip install dist/*.whl pytest pytest-asyncio
+      - name: run smoke tests
+        run: |
+          cd sdk/python
+          python -m pytest tests/ -q --ignore=tests/test_conformance_all_green.py

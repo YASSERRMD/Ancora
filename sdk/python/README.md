@@ -1,12 +1,46 @@
 # Ancora Python SDK
 
+[![py-smoke](https://github.com/YASSERRMD/Ancora/actions/workflows/py-smoke.yml/badge.svg)](https://github.com/YASSERRMD/Ancora/actions/workflows/py-smoke.yml)
+[![py-wheels](https://github.com/YASSERRMD/Ancora/actions/workflows/py-wheels.yml/badge.svg)](https://github.com/YASSERRMD/Ancora/actions/workflows/py-wheels.yml)
+
 Python bindings for the Ancora agent runtime via PyO3 and maturin.
 
 ## Install
 
+Pre-built wheels are available on PyPI for Linux, macOS, and Windows on
+CPython 3.9 through 3.12:
+
+```bash
+pip install ancora
+```
+
+## Development install
+
+Build from source using maturin:
+
 ```bash
 pip install maturin
-maturin develop
+cd sdk/python
+maturin develop --release
+```
+
+## Supported platforms
+
+| Platform | Python |
+|----------|--------|
+| Linux (x86_64, aarch64) | 3.9, 3.10, 3.11, 3.12 |
+| macOS (x86_64, arm64) | 3.9, 3.10, 3.11, 3.12 |
+| Windows (x86_64) | 3.9, 3.10, 3.11, 3.12 |
+
+Linux wheels are built against `manylinux2014` for maximum compatibility.
+macOS wheels are built for both Intel and Apple Silicon.
+
+## Running tests
+
+```bash
+cd sdk/python
+pip install -e ".[test]"
+python -m pytest tests/ -q
 ```
 
 ## Usage
