@@ -72,3 +72,32 @@ impl CostTracker {
         CostSummary { nodes, total_tokens_in, total_tokens_out, total_cost_usd }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cost_aggregation_matches_recorded_usage() {
+        let mut tracker = CostTracker::new(0.001, 0.002);
+        tracker.record("node-a", TokenUsage { tokens_in: 100, tokens_out: 50 });
+        tracker.record("node-b", TokenUsage { tokens_in: 200, tokens_out: 80 });
+        tracker.record("node-a", TokenUsage { tokens_in: 10, tokens_out: 5 });
+
+        let summary = tracker.summary();
+
+        assert_eq!(summary.total_tokens_in, 310);
+        assert_eq!(summary.total_tokens_out, 135);
+
+        let node_a = summary.nodes.iter().find(|n| n.node_id == "node-a").unwrap();
+        assert_eq!(node_a.tokens_in, 110);
+        assert_eq!(node_a.tokens_out, 55);
+
+        let expected_a = 110.0 * 0.001 + 55.0 * 0.002;
+        assert!((node_a.cost_usd - expected_a).abs() < 1e-9);
+
+        let expected_total = summary.total_tokens_in as f64 * 0.001
+            + summary.total_tokens_out as f64 * 0.002;
+        assert!((summary.total_cost_usd - expected_total).abs() < 1e-9);
+    }
+}
