@@ -31,3 +31,21 @@ func TestAgentSpecBuilderSetsModelID(t *testing.T) {
 		t.Fatalf("expected model id 'gpt-4o', got: %q", spec.GetModelId())
 	}
 }
+
+func TestAgentSpecRoundTrip(t *testing.T) {
+	original := ancora.NewAgentSpec("test-agent", "gpt-4o", "You are helpful.")
+	bytes, err := proto.Marshal(original)
+	if err != nil {
+		t.Fatalf("proto.Marshal: %v", err)
+	}
+	var restored ancora.AgentSpec
+	if err := proto.Unmarshal(bytes, &restored); err != nil {
+		t.Fatalf("proto.Unmarshal: %v", err)
+	}
+	if restored.GetName() != "test-agent" {
+		t.Fatalf("round-trip: name mismatch: %q", restored.GetName())
+	}
+	if restored.GetModelId() != "gpt-4o" {
+		t.Fatalf("round-trip: model_id mismatch: %q", restored.GetModelId())
+	}
+}
