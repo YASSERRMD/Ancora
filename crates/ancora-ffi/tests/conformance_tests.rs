@@ -136,3 +136,17 @@ fn journal_single_agent_event_order_is_started_then_completed() {
         "journal must begin with started and end with completed");
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn journal_human_in_loop_event_order_matches_core_expectation() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    drain_events(rt, &id);
+    let c_id = std::ffi::CString::new(id.as_str()).unwrap();
+    ancora_run_resume(rt, c_id.as_ptr(), b"ok".as_ptr(), 2);
+    let events = drain_events(rt, &id);
+    let kinds: Vec<_> = events.iter().map(|e| event_kind(e)).collect();
+    assert_eq!(kinds.first().map(|s| *s), Some("resumed"),
+        "human-in-loop journal: first post-resume event must be resumed, got: {kinds:?}");
+    ancora_free_runtime(rt);
+}
