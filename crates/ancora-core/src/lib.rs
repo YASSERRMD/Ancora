@@ -1,5 +1,6 @@
 pub mod activity;
 pub mod eval;
+pub mod fixture;
 pub mod eval_metrics;
 pub mod eval_report;
 pub mod eval_runner;
