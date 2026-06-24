@@ -83,3 +83,77 @@ impl Run {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn run_transitions_follow_legal_state_machine() {
+        let mut run = Run::new("test-run-1");
+        assert_eq!(run.status, RunStatus::Pending);
+
+        run.transition(RunStatus::Running).unwrap();
+        assert_eq!(run.status, RunStatus::Running);
+
+        run.transition(RunStatus::Completed).unwrap();
+        assert_eq!(run.status, RunStatus::Completed);
+        assert!(run.status.is_terminal());
+    }
+
+    #[test]
+    fn run_can_be_cancelled_from_running() {
+        let mut run = Run::new("test-run-2");
+        run.transition(RunStatus::Running).unwrap();
+        run.transition(RunStatus::Cancelled).unwrap();
+        assert!(run.status.is_terminal());
+    }
+
+    #[test]
+    fn run_can_fail_from_running() {
+        let mut run = Run::new("test-run-3");
+        run.transition(RunStatus::Running).unwrap();
+        run.transition(RunStatus::Failed).unwrap();
+        assert!(run.status.is_terminal());
+    }
+
+    #[test]
+    fn illegal_transitions_are_rejected() {
+        let cases: Vec<(RunStatus, RunStatus)> = vec![
+            (RunStatus::Pending, RunStatus::Completed),
+            (RunStatus::Pending, RunStatus::Cancelled),
+            (RunStatus::Pending, RunStatus::Failed),
+            (RunStatus::Pending, RunStatus::Pending),
+            (RunStatus::Running, RunStatus::Pending),
+            (RunStatus::Running, RunStatus::Running),
+            (RunStatus::Completed, RunStatus::Running),
+            (RunStatus::Completed, RunStatus::Completed),
+            (RunStatus::Cancelled, RunStatus::Running),
+            (RunStatus::Failed, RunStatus::Running),
+        ];
+        for (from, to) in cases {
+            let err = from.transition(to).unwrap_err();
+            assert!(
+                matches!(err, AncoraError::InvalidState(_)),
+                "expected InvalidState for {from:?} -> {to:?}, got {err:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn generate_produces_unique_ids() {
+        let a = Run::generate();
+        let b = Run::generate();
+        assert_ne!(a.id, b.id, "IDs must be unique");
+        assert!(!a.id.is_empty());
+    }
+
+    #[test]
+    fn terminal_states_are_correct() {
+        assert!(!RunStatus::Pending.is_terminal());
+        assert!(!RunStatus::Running.is_terminal());
+        assert!(RunStatus::Completed.is_terminal());
+        assert!(RunStatus::Cancelled.is_terminal());
+        assert!(RunStatus::Failed.is_terminal());
+    }
+}
