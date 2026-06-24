@@ -13,6 +13,17 @@ pub trait NodeExecutor: Send + Sync {
     fn execute(&self, node: &Node, input: &str) -> Result<String, AncoraError>;
 }
 
+/// The decision returned by a verifier node.
+pub enum VerifierResult {
+    Approved { output: String },
+    Rejected { reason: String },
+}
+
+/// Inspects a candidate output and decides whether to approve or reject it.
+pub trait VerifierNode: Send + Sync {
+    fn verify(&self, node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError>;
+}
+
 /// Runs a validated `Graph` sequentially, passing each node's output as the next node's input.
 pub struct GraphExecutor {
     pub graph: Graph,
@@ -57,6 +68,36 @@ impl GraphExecutor {
             match self.next_node(&current_id, &current_output)? {
                 Some(next_id) => current_id = next_id,
                 None => return Ok(current_output),
+            }
+        }
+    }
+
+    /// Run `worker_id` and pass the result to `verifier_id` for approval.
+    ///
+    /// Returns `Ok(output)` on approval or `Err(OutputValidation)` on rejection.
+    pub fn run_with_verifier(
+        &mut self,
+        worker_id: &str,
+        verifier_id: &str,
+        input: &str,
+        executor: &dyn NodeExecutor,
+        verifier: &dyn VerifierNode,
+    ) -> Result<String, AncoraError> {
+        let candidate = {
+            let node = self.graph.nodes.iter()
+                .find(|n| n.id == worker_id)
+                .ok_or_else(|| AncoraError::NodeNotFound(worker_id.to_string()))?;
+            executor.execute(node, input)?
+        };
+
+        let v_node = self.graph.nodes.iter()
+            .find(|n| n.id == verifier_id)
+            .ok_or_else(|| AncoraError::NodeNotFound(verifier_id.to_string()))?;
+
+        match verifier.verify(v_node, &candidate)? {
+            VerifierResult::Approved { output } => Ok(output),
+            VerifierResult::Rejected { reason } => {
+                Err(AncoraError::OutputValidation { attempts: 1, reason })
             }
         }
     }
