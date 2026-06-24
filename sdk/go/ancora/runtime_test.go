@@ -97,10 +97,10 @@ func TestResumeRunProducesResumedEvent(t *testing.T) {
 	}
 }
 
-func TestErrorCodeImplementsError(t *testing.T) {
+func TestAncorErrorImplementsError(t *testing.T) {
 	var err error = ancora.ErrNullPtr
 	if err.Error() == "" {
-		t.Fatal("ErrorCode.Error() must return non-empty string")
+		t.Fatal("AncorError.Error() must return non-empty string")
 	}
 }
 
