@@ -7,11 +7,12 @@ edition = "2021"
 ancora-core = { path = "../ancora-core" }
 prost = "0.13"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time"] }
-tonic = "0.12"
+tonic = { version = "0.12", features = ["tls"] }
 tokio-stream = { version = "0.1", features = ["net"] }
 uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies]
+rcgen = "0.13"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
 
 [build-dependencies]
