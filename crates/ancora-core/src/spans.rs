@@ -1,5 +1,15 @@
 use tracing::Span;
 
+/// Canonical tracing field names used across all engine spans.
+pub mod field {
+    pub const RUN_ID: &str = "run.id";
+    pub const RUN_AGENT: &str = "run.agent";
+    pub const NODE_NAME: &str = "node.name";
+    pub const NODE_SEQ: &str = "node.seq";
+    pub const ACTIVITY_KIND: &str = "activity.kind";
+    pub const ACTIVITY_SEQ: &str = "activity.seq";
+}
+
 /// Opens a span for the lifetime of a run.
 ///
 /// Fields: `run.id`, `run.agent`.
