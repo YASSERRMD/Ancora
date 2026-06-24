@@ -187,6 +187,32 @@ mod tests {
     }
 
     #[test]
+    fn fixture_recorder_captures_entries() {
+        let recorder = FixtureRecorder::new();
+        recorder.record("k1", "model_call", "{}", r#""r1""#);
+        recorder.record("k2", "tool_call", "{}", r#""r2""#);
+        let f = recorder.into_fixture();
+        assert_eq!(f.len(), 2);
+        assert_eq!(f.get_result("k1"), Some(r#""r1""#));
+    }
+
+    #[test]
+    fn fixture_recorder_snapshot_does_not_consume() {
+        let recorder = FixtureRecorder::new();
+        recorder.record("k1", "model_call", "{}", r#""r1""#);
+        let snap = recorder.snapshot();
+        assert_eq!(snap.len(), 1);
+        recorder.record("k2", "model_call", "{}", r#""r2""#);
+        assert_eq!(recorder.snapshot().len(), 2);
+    }
+
+    #[test]
+    fn build_fixture_constructs_from_tuples() {
+        let f = build_fixture(&[("a", "model_call", "{}", r#""x""#)]);
+        assert_eq!(f.get_result("a"), Some(r#""x""#));
+    }
+
+    #[test]
     fn fixture_file_roundtrip() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("fixture.jsonl");
