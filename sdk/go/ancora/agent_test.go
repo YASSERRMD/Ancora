@@ -70,6 +70,26 @@ func TestDrainEventsReturnsStartedAndCompleted(t *testing.T) {
 	}
 }
 
+func TestSingleAgentRunCompletesEndToEnd(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, err := ag.Start()
+	if err != nil {
+		t.Fatalf("Start: %v", err)
+	}
+	var events []string
+	for ev := range run.EventChan() {
+		events = append(events, string(ev))
+	}
+	if len(events) == 0 {
+		t.Fatal("run produced no events")
+	}
+	last := events[len(events)-1]
+	if !contains(last, "completed") {
+		t.Fatalf("last event must be completed, got: %s", last)
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
