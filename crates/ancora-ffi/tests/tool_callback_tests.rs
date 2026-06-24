@@ -45,3 +45,11 @@ fn tool_exists_returns_one_after_register() {
     assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 1);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn tool_exists_returns_zero_for_unknown() {
+    let rt = make_rt();
+    let name = cstr("unknown");
+    assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 0);
+    ancora_free_runtime(rt);
+}
