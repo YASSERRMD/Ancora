@@ -36,3 +36,17 @@ impl StudioServer {
         self.listener.local_addr().unwrap().port()
     }
 }
+
+fn write_response(stream: &mut TcpStream, status: u16, body: &str) {
+    let status_text = match status {
+        200 => "OK",
+        400 => "Bad Request",
+        404 => "Not Found",
+        _ => "Internal Server Error",
+    };
+    let response = format!(
+        "HTTP/1.1 {} {}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
+        status, status_text, body.len(), body
+    );
+    stream.write_all(response.as_bytes()).ok();
+}
