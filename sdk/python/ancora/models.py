@@ -1,0 +1,71 @@
+"""Pydantic models mirroring the Ancora agent spec protobuf contracts.
+
+The field names and semantics match the protobuf definitions in
+``crates/ancora-proto/proto/contracts.proto``. All models use snake_case
+fields matching the JSON wire format expected by the Ancora runtime.
+
+Typical usage::
+
+    from ancora.models import AgentSpec, ToolSpec, EffectClass
+
+    spec = AgentSpec(
+        name="my-agent",
+        model_id="llama3",
+        tools=[ToolSpec(name="search", effect_class=EffectClass.READ)],
+    )
+"""
+
+from __future__ import annotations
+
+import enum
+from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class EffectClass(enum.IntEnum):
+    """Classifies the observable side effect a tool may produce."""
+
+    UNSPECIFIED = 0
+    PURE = 1
+    READ = 2
+    WRITE = 3
+
+
+class ToolSpec(BaseModel):
+    """Describes a single tool that an agent may invoke."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = ""
+    description: str = ""
+    input_schema_json: str = ""
+    output_schema_json: str = ""
+    effect_class: EffectClass = EffectClass.UNSPECIFIED
+    idempotency_key_template: str = ""
+
+
+class RetryPolicy(BaseModel):
+    """Retry policy attached to a model call or tool call."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_attempts: int = Field(default=0, ge=0)
+    initial_backoff_ms: int = Field(default=0, ge=0)
+    max_backoff_ms: int = Field(default=0, ge=0)
+    jitter: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class AgentSpec(BaseModel):
+    """Specifies a single agent in the graph."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = ""
+    model_id: str = ""
+    instructions: str = ""
+    output_schema_json: str = ""
+    tools: List[ToolSpec] = Field(default_factory=list)
+    max_steps: int = Field(default=0, ge=0)
+    model_retry: Optional[RetryPolicy] = None
+    model_params_json: str = ""
