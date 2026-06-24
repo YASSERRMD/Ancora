@@ -275,6 +275,41 @@ func TestAgentSpecNameSetViaNewAgentSpec(t *testing.T) {
 	}
 }
 
+func TestStartWithEventsReturnsRunAndChannel(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, ch, err := ag.StartWithEvents()
+	if err != nil {
+		t.Fatalf("StartWithEvents: %v", err)
+	}
+	if run == nil || ch == nil {
+		t.Fatal("StartWithEvents returned nil run or nil channel")
+	}
+	var events []string
+	for ev := range ch {
+		events = append(events, string(ev))
+	}
+	if len(events) == 0 {
+		t.Fatal("StartWithEvents channel produced no events")
+	}
+}
+
+func TestStartWithEventsRunIDMatchesChannelSource(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, ch, _ := ag.StartWithEvents()
+	count := 0
+	for range ch {
+		count++
+	}
+	if run.ID() == "" {
+		t.Fatal("run from StartWithEvents has empty ID")
+	}
+	if count == 0 {
+		t.Fatal("no events received from StartWithEvents channel")
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
