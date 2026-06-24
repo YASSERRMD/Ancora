@@ -44,3 +44,28 @@ pub extern "C" fn ancora_tool_unregister(
     inner.tools.lock().unwrap().unregister(name_str);
     AncorErrorCode::Ok
 }
+
+/// Invoke a named tool with `input_bytes` and write the output into `out`.
+/// Returns `NullPtr` if any required pointer is null, `Internal` if the tool is not found.
+#[no_mangle]
+pub extern "C" fn ancora_tool_invoke(
+    rt: *mut AncorRuntime,
+    name: *const c_char,
+    input_bytes: *const u8,
+    input_len: usize,
+    out: *mut AncorBuffer,
+) -> AncorErrorCode {
+    if rt.is_null() || name.is_null() || out.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let inner = unsafe { &*(rt.cast::<InnerRuntime>()) };
+    let name_str = match unsafe { CStr::from_ptr(name) }.to_str() {
+        Ok(s) => s,
+        Err(_) => return AncorErrorCode::InvalidUtf8,
+    };
+    let cb = match inner.tools.lock().unwrap().get(name_str) {
+        Some(f) => f,
+        None => return AncorErrorCode::Internal,
+    };
+    unsafe { cb(input_bytes, input_len, out) }
+}
