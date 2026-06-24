@@ -22,3 +22,8 @@ fn create_and_free_runtime_does_not_panic() {
     assert!(!rt.is_null());
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn free_null_runtime_is_noop() {
+    ancora_free_runtime(std::ptr::null_mut());
+}
