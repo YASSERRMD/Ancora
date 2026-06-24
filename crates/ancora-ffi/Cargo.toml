@@ -1,0 +1,14 @@
+[package]
+name = "ancora-ffi"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "C FFI surface for the Ancora agent runtime"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+ancora-core = { path = "../ancora-core" }
