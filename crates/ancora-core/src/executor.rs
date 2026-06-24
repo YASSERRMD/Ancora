@@ -36,11 +36,38 @@ pub struct GraphExecutor {
     journal_seq: u64,
     stream: Option<StreamSender>,
     cancel: Option<CancellationToken>,
+    compensations: Vec<(String, Box<dyn Fn() + Send + Sync>)>,
 }
 
 impl GraphExecutor {
     pub fn new(graph: Graph, run_id: impl Into<String>, store: Arc<dyn JournalStore>) -> Self {
-        Self { graph, run_id: run_id.into(), store, journal_seq: 0, stream: None, cancel: None }
+        Self {
+            graph,
+            run_id: run_id.into(),
+            store,
+            journal_seq: 0,
+            stream: None,
+            cancel: None,
+            compensations: Vec::new(),
+        }
+    }
+
+    /// Register a compensation function for `node_id`.
+    ///
+    /// When the run is cancelled, all activated compensations are called in
+    /// reverse registration order.
+    pub fn register_compensation(
+        &mut self,
+        node_id: impl Into<String>,
+        f: impl Fn() + Send + Sync + 'static,
+    ) {
+        self.compensations.push((node_id.into(), Box::new(f)));
+    }
+
+    fn run_compensations(&self) {
+        for (_, f) in self.compensations.iter().rev() {
+            f();
+        }
     }
 
     /// Attach a stream sender so node lifecycle events are forwarded to the caller.
@@ -57,6 +84,7 @@ impl GraphExecutor {
 
     fn check_cancel(&self) -> Result<(), AncoraError> {
         if self.cancel.as_ref().is_some_and(|t| t.is_cancelled()) {
+            self.run_compensations();
             return Err(AncoraError::Cancelled("run was cancelled".to_string()));
         }
         Ok(())
