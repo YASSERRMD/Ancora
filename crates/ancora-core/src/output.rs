@@ -1,5 +1,14 @@
 use crate::error::AncoraError;
 
+/// Generate a repair request to send to the model after an invalid output.
+pub fn repair_prompt(output: &str, reason: &str) -> String {
+    format!(
+        "Your previous output was invalid. Reason: {reason}. \
+         Previous output: {output}. \
+         Please provide a corrected output."
+    )
+}
+
 /// Validate `output` against an optional JSON Schema string.
 ///
 /// When `schema_json` is empty the output is accepted unconditionally.
