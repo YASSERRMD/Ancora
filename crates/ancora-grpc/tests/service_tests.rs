@@ -242,3 +242,29 @@ async fn poll_unknown_run_returns_empty_event() {
         .event;
     assert!(e.is_empty(), "expected empty for unknown run, got: {e}");
 }
+
+#[tokio::test]
+async fn stream_events_yields_started_then_completed() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner();
+    let e1 = stream.next().await.unwrap().unwrap().event;
+    let e2 = stream.next().await.unwrap().unwrap().event;
+    assert!(e1.contains("started"), "e1={e1}");
+    assert!(e2.contains("completed"), "e2={e2}");
+    assert!(stream.next().await.is_none(), "expected stream end");
+}
