@@ -7,3 +7,10 @@ use ancora_ffi::runtime::{ancora_free_runtime, ancora_runtime_new};
 fn error_code_ok_is_zero() {
     assert_eq!(AncorErrorCode::Ok as i32, 0);
 }
+
+#[test]
+fn error_codes_are_distinct() {
+    assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::NullPtr as i32);
+    assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::InvalidUtf8 as i32);
+    assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::Internal as i32);
+}
