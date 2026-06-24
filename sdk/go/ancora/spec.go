@@ -35,3 +35,9 @@ func (b *AgentSpecBuilder) WithMaxSteps(n uint32) *AgentSpecBuilder {
 	b.spec.MaxSteps = n
 	return b
 }
+
+// WithTool appends a ToolSpec to the agent's tool list.
+func (b *AgentSpecBuilder) WithTool(t *ToolSpec) *AgentSpecBuilder {
+	b.spec.Tools = append(b.spec.Tools, t)
+	return b
+}
