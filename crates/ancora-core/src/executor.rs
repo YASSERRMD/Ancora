@@ -97,6 +97,33 @@ impl GraphExecutor {
         ).map(|_| ())
     }
 
+    /// Run `node_id` repeatedly, feeding each output as the next input, until the
+    /// output contains `exit_condition`.
+    pub fn run_loop_node(
+        &mut self,
+        node_id: &str,
+        input: &str,
+        exit_condition: &str,
+        executor: &dyn NodeExecutor,
+    ) -> Result<String, AncoraError> {
+        let mut current_input = input.to_string();
+
+        loop {
+            let output = {
+                let node = self.graph.nodes.iter()
+                    .find(|n| n.id == node_id)
+                    .ok_or_else(|| AncoraError::NodeNotFound(node_id.to_string()))?;
+                executor.execute(node, &current_input)?
+            };
+
+            if output.contains(exit_condition) {
+                return Ok(output);
+            }
+
+            current_input = output;
+        }
+    }
+
     /// Return node ids of all unconditional outgoing edges from `from`, sorted by node id.
     ///
     /// Sorting by node id ensures the join order is stable regardless of the order
