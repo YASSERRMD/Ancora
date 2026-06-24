@@ -14,3 +14,10 @@ fn snapshot_header_is_not_empty() {
     let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
     assert!(!content.is_empty(), "ancora.h should not be empty");
 }
+
+#[test]
+fn snapshot_header_contains_include_guard() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("#ifndef ANCORA_H"), "missing include guard");
+    assert!(content.contains("#define ANCORA_H"), "missing include guard define");
+}
