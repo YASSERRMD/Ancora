@@ -23,3 +23,19 @@ python -m examples.single_agent
 | `multi_agent` | Run two agents concurrently |
 | `conformance_runner` | Run the full conformance suite and print results |
 | `tool_composition` | Tools that call other tools |
+| `async_tools` | Tools with async callbacks via adispatch |
+
+## Helpers
+
+`examples/helpers.py` provides `print_event(raw)` and `pretty_results(results)`
+utilities shared across examples.
+
+## Testing examples
+
+All examples have companion tests in `tests/test_example_*.py` that import
+and invoke `main()` directly to verify they run without error:
+
+```bash
+cd sdk/python
+python -m pytest tests/test_example_*.py -v
+```
