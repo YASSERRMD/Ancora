@@ -5,3 +5,18 @@ pub struct AncorBuffer {
     pub ptr: *mut u8,
     pub len: usize,
 }
+
+/// Allocate a buffer containing a copy of `bytes`.
+/// Returns a zero-length buffer with null ptr if `bytes` is empty.
+#[no_mangle]
+pub extern "C" fn ancora_buffer_new(bytes: *const u8, len: usize) -> AncorBuffer {
+    if len == 0 || bytes.is_null() {
+        return AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    }
+    let slice = unsafe { std::slice::from_raw_parts(bytes, len) };
+    let mut vec = slice.to_vec();
+    let ptr = vec.as_mut_ptr();
+    let out_len = vec.len();
+    std::mem::forget(vec);
+    AncorBuffer { ptr, len: out_len }
+}
