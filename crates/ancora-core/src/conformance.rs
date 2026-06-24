@@ -49,3 +49,13 @@ pub fn all_scenarios() -> Vec<&'static ConformanceScenario> {
         &CRASH_AND_RECOVER,
     ]
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn scenario_count_is_at_least_four() {
+        assert!(all_scenarios().len() >= 4);
+    }
+}
