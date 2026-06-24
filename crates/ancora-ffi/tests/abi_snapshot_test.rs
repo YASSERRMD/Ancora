@@ -53,3 +53,11 @@ fn snapshot_header_declares_ancorbuffer_struct() {
     let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
     assert!(content.contains("AncorBuffer"), "AncorBuffer missing from header");
 }
+
+#[test]
+fn snapshot_header_declares_run_ops() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("ancora_run_start"), "ancora_run_start missing");
+    assert!(content.contains("ancora_run_poll"), "ancora_run_poll missing");
+    assert!(content.contains("ancora_run_resume"), "ancora_run_resume missing");
+}
