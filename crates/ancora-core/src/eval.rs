@@ -44,3 +44,47 @@ impl EvalScorer for ContainsScorer {
         if candidate.contains(expected) { 1.0 } else { 0.0 }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn eval_case_stores_fields() {
+        let c = EvalCase::new("id1", "inp", "exp", "exact_match");
+        assert_eq!(c.id, "id1");
+        assert_eq!(c.input, "inp");
+        assert_eq!(c.expected, "exp");
+        assert_eq!(c.scorer, "exact_match");
+    }
+
+    #[test]
+    fn exact_match_scorer_matches_equal_strings() {
+        let s = ExactMatchScorer;
+        assert_eq!(s.score("hello", "hello"), 1.0);
+    }
+
+    #[test]
+    fn exact_match_scorer_fails_different_strings() {
+        let s = ExactMatchScorer;
+        assert_eq!(s.score("hello", "world"), 0.0);
+    }
+
+    #[test]
+    fn exact_match_scorer_trims_whitespace() {
+        let s = ExactMatchScorer;
+        assert_eq!(s.score("  hello  ", "hello"), 1.0);
+    }
+
+    #[test]
+    fn contains_scorer_matches_substring() {
+        let s = ContainsScorer;
+        assert_eq!(s.score("the answer is 42", "42"), 1.0);
+    }
+
+    #[test]
+    fn contains_scorer_fails_absent_substring() {
+        let s = ContainsScorer;
+        assert_eq!(s.score("no match here", "42"), 0.0);
+    }
+}
