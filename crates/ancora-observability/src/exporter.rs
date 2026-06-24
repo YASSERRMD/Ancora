@@ -22,6 +22,18 @@ impl InMemoryExporter {
     pub fn spans(&self) -> Vec<Span> {
         self.spans.lock().unwrap().clone()
     }
+
+    pub fn clear(&self) {
+        self.spans.lock().unwrap().clear();
+    }
+
+    pub fn len(&self) -> usize {
+        self.spans.lock().unwrap().len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.spans.lock().unwrap().is_empty()
+    }
 }
 
 impl SpanEmitter for InMemoryExporter {
