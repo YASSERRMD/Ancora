@@ -103,6 +103,11 @@ impl Agent {
         self.messages.push(text_message(Role::User, input));
 
         loop {
+            let max_steps = self.spec.max_steps;
+            if max_steps > 0 && self.step >= max_steps {
+                return Err(AncoraError::MaxSteps { max_steps });
+            }
+
             match self.step(model)? {
                 StepOutcome::FinalOutput { text } => return Ok(text),
                 StepOutcome::ToolCalls { calls } => {
