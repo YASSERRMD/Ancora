@@ -124,6 +124,28 @@ mod tests {
         assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 3, .. }));
     }
 
+    #[test]
+    fn terminal_errors_are_not_retried() {
+        let policy = RetryPolicy {
+            max_attempts: 5,
+            initial_backoff_ms: 0,
+            max_backoff_ms: 0,
+            jitter: 0.0,
+        };
+        let mut call_count = 0u32;
+
+        let outcome = run_with_retry(
+            &policy,
+            |_attempt| {
+                call_count += 1;
+                Err::<(), _>(terminal())
+            },
+            |_ms| {},
+        );
+
+        assert_eq!(call_count, 1, "terminal error must stop after first attempt");
+        assert!(matches!(outcome, RetryOutcome::Terminal { attempt: 1, .. }));
+    }
 }
 
 /// Policy that controls how many times an operation is retried and how
