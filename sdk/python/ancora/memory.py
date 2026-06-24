@@ -42,6 +42,14 @@ class MemoryStore:
         """Remove all keys from the store."""
         self._store.clear()
 
+    def update(self, mapping: "dict[str, Any]") -> None:
+        """Write multiple key-value pairs at once from *mapping*."""
+        self._store.update(mapping)
+
+    def pop(self, key: str, default: Any = None) -> Any:
+        """Remove *key* and return its value, or *default* if absent."""
+        return self._store.pop(key, default)
+
     @property
     def keys(self) -> list[str]:
         """Return a snapshot of all keys in insertion order."""
