@@ -36,3 +36,20 @@ Compile with:
 ```sh
 cc myapp.c -L/path/to/artifact -lancora_ffi -o myapp
 ```
+
+## Linking in Swift (on Apple platforms)
+
+Place `libancora_ffi.dylib` and `ancora.h` in a directory, then create a bridging header:
+
+```swift
+import Foundation
+
+// module.modulemap
+module AncorFFI {
+    header "ancora.h"
+    link "ancora_ffi"
+    export *
+}
+```
+
+Pass `-I/path/to/header -L/path/to/lib` to the Swift compiler.
