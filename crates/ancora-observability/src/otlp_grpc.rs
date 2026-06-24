@@ -73,3 +73,37 @@ impl SpanEmitter for OtlpGrpcExporter {
         let _ = self.export();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::exporter::SpanEmitter;
+    use crate::span::Span;
+
+    #[test]
+    fn grpc_exporter_stores_endpoint() {
+        let exp = OtlpGrpcExporter::new("http://localhost:4317");
+        assert_eq!(exp.endpoint(), "http://localhost:4317");
+    }
+
+    #[test]
+    fn grpc_exporter_buffers_spans() {
+        let exp = OtlpGrpcExporter::new("http://localhost:4317");
+        exp.emit(Span::new("grpc-span"));
+        assert_eq!(exp.buffered(), 1);
+    }
+
+    #[test]
+    fn grpc_exporter_export_empty_is_noop() {
+        let exp = OtlpGrpcExporter::new("http://localhost:4317");
+        assert!(exp.export().is_ok());
+    }
+
+    #[test]
+    fn grpc_exporter_clears_buffer_after_export() {
+        let exp = OtlpGrpcExporter::new("http://localhost:1");
+        exp.emit(Span::new("x"));
+        let _ = exp.export();
+        assert_eq!(exp.buffered(), 0);
+    }
+}
