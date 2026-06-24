@@ -97,12 +97,17 @@ impl GraphExecutor {
         ).map(|_| ())
     }
 
-    /// Return node ids of all unconditional outgoing edges from `from`.
+    /// Return node ids of all unconditional outgoing edges from `from`, sorted by node id.
+    ///
+    /// Sorting by node id ensures the join order is stable regardless of the order
+    /// in which edges were defined or branches complete.
     pub fn fan_out_ids(&self, from: &str) -> Vec<String> {
-        self.graph.edges.iter()
+        let mut ids: Vec<String> = self.graph.edges.iter()
             .filter(|e| e.from == from && e.condition.is_none())
             .map(|e| e.to.clone())
-            .collect()
+            .collect();
+        ids.sort();
+        ids
     }
 
     fn next_node(&self, from: &str, output: &str) -> Result<Option<String>, AncoraError> {
