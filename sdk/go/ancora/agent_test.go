@@ -245,6 +245,36 @@ func TestEventChanFromAgentStartReceivesAllEvents(t *testing.T) {
 	}
 }
 
+func TestEventChanAfterResumeContainsResumed(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	run.DrainEvents()
+	ag.Resume(run, []byte("approved"))
+	var events []string
+	for ev := range run.EventChan() {
+		events = append(events, string(ev))
+	}
+	found := false
+	for _, e := range events {
+		if contains(e, "resumed") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("EventChan after resume must contain resumed event, got: %v", events)
+	}
+}
+
+func TestAgentSpecNameSetViaNewAgentSpec(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	ag := ancora.NewAgent(rt, ancora.NewAgentSpec("named-agent", "m", "i"))
+	if ag.Spec().GetName() != "named-agent" {
+		t.Fatalf("expected 'named-agent', got: %q", ag.Spec().GetName())
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
