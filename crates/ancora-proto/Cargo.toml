@@ -7,10 +7,20 @@ license.workspace = true
 repository.workspace = true
 description = "Protobuf wire spec and generated types for Ancora"
 
+[[bin]]
+name = "gen-schema"
+path = "src/bin/gen-schema.rs"
+
 [dependencies]
 prost = "0.13"
+pbjson = "0.7"
+pbjson-types = "0.7"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
 [build-dependencies]
+prost = "0.13"
+prost-build = "0.13"
+prost-types = "0.13"
+pbjson-build = "0.7"
 tonic-build = { version = "0.12", features = ["prost"] }
