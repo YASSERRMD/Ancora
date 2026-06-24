@@ -68,4 +68,12 @@ mod tests {
         let err = interceptor.call(req_with_token("wrong")).unwrap_err();
         assert_eq!(err.code(), tonic::Code::Unauthenticated);
     }
+
+    #[test]
+    fn missing_header_returns_unauthenticated() {
+        let mut interceptor = AuthInterceptor::new("secret");
+        let req = Request::new(());
+        let err = interceptor.call(req).unwrap_err();
+        assert_eq!(err.code(), tonic::Code::Unauthenticated);
+    }
 }
