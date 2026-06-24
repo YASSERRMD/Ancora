@@ -96,8 +96,25 @@ impl JournalStore for PostgresStore {
         Ok(seq)
     }
 
-    fn read(&self, _run_id: &str) -> Result<Vec<JournalEvent>, AncoraError> {
-        Ok(vec![])
+    fn read(&self, run_id: &str) -> Result<Vec<JournalEvent>, AncoraError> {
+        let mut client = self.client.lock().map_err(|_| storage("mutex poisoned"))?;
+
+        let rows = client
+            .query(
+                "SELECT proto_bytes FROM journal_events
+                  WHERE run_id = $1
+                  ORDER BY seq ASC",
+                &[&run_id],
+            )
+            .map_err(storage)?;
+
+        rows.iter()
+            .map(|row| {
+                let bytes: Vec<u8> = row.get(0);
+                JournalEvent::decode(bytes.as_slice())
+                    .map_err(|e| storage(format!("decode: {e}")))
+            })
+            .collect()
     }
 
     fn load(&self, _run_id: &str, _seq: u64) -> Result<Option<JournalEvent>, AncoraError> {
