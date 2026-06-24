@@ -1,5 +1,8 @@
+pub mod embed;
 pub mod entry;
 pub mod scope;
+pub mod semantic;
 pub mod store;
 pub mod tier;
 pub mod traits;
+pub mod vector;
