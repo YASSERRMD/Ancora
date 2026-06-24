@@ -111,3 +111,17 @@ fn crash_and_recover_scenario_events_are_deterministic() {
     let kinds2: Vec<_> = events2.iter().map(|e| event_kind(e)).collect();
     assert_eq!(kinds1, kinds2, "crash-and-recover: event kinds must be deterministic across runs");
 }
+
+#[test]
+fn all_conformance_scenarios_have_nonempty_ids() {
+    for scenario in conformance::all_scenarios() {
+        assert!(!scenario.id.is_empty(), "scenario id must be non-empty");
+    }
+}
+
+#[test]
+fn all_conformance_scenarios_have_nonempty_descriptions() {
+    for scenario in conformance::all_scenarios() {
+        assert!(!scenario.description.is_empty(), "scenario description must be non-empty");
+    }
+}
