@@ -79,3 +79,20 @@ pub extern "C" fn ancora_tool_count(rt: *mut AncorRuntime) -> usize {
     let inner = unsafe { &*(rt.cast::<InnerRuntime>()) };
     inner.tools.lock().unwrap().count()
 }
+
+/// Return 1 if a tool with `name` is registered, 0 otherwise. Returns 0 if any pointer is null.
+#[no_mangle]
+pub extern "C" fn ancora_tool_exists(
+    rt: *mut AncorRuntime,
+    name: *const c_char,
+) -> u8 {
+    if rt.is_null() || name.is_null() {
+        return 0;
+    }
+    let inner = unsafe { &*(rt.cast::<InnerRuntime>()) };
+    let name_str = match unsafe { CStr::from_ptr(name) }.to_str() {
+        Ok(s) => s,
+        Err(_) => return 0,
+    };
+    if inner.tools.lock().unwrap().contains(name_str) { 1 } else { 0 }
+}
