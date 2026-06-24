@@ -51,6 +51,13 @@ fn extract_activity_key(event: &JournalEvent) -> Option<String> {
 }
 
 impl PostgresStore {
+    fn lock_run(client: &mut Client, run_id: &str) -> Result<(), AncoraError> {
+        client
+            .execute("SELECT pg_advisory_xact_lock(hashtext($1))", &[&run_id])
+            .map(|_| ())
+            .map_err(storage)
+    }
+
     /// Connect using a Postgres connection string and run schema migrations.
     pub fn connect(connection_str: &str) -> Result<Self, AncoraError> {
         let client = Client::connect(connection_str, NoTls).map_err(storage)?;
