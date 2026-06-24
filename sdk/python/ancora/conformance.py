@@ -82,3 +82,21 @@ class ConformanceSuite:
         for name in self._scenarios:
             results[name] = await self.run_scenario(name, rt)
         return results
+
+    def passed(self, results: Dict[str, bool]) -> list[str]:
+        """Return scenario names that passed from a run_all result dict."""
+        return [n for n, ok in results.items() if ok]
+
+    def failed(self, results: Dict[str, bool]) -> list[str]:
+        """Return scenario names that failed from a run_all result dict."""
+        return [n for n, ok in results.items() if not ok]
+
+    def summary(self, results: Dict[str, bool]) -> str:
+        """Return a human-readable pass/fail summary string."""
+        lines = []
+        for name, ok in results.items():
+            lines.append(f"  {'PASS' if ok else 'FAIL'}  {name}")
+        total = len(results)
+        passing = sum(1 for ok in results.values() if ok)
+        lines.append(f"{passing}/{total} scenarios passed")
+        return "\n".join(lines)
