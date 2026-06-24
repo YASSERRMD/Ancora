@@ -41,6 +41,25 @@ func TestStartRunReturnsNonEmptyID(t *testing.T) {
 	}
 }
 
+func TestPollEventReturnsStartedEvent(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	run, err := rt.StartRun([]byte("{}"))
+	if err != nil {
+		t.Fatalf("StartRun: %v", err)
+	}
+	ev, err := run.PollEvent()
+	if err != nil {
+		t.Fatalf("PollEvent: %v", err)
+	}
+	if ev == nil {
+		t.Fatal("expected first event to be non-nil")
+	}
+	if !contains(string(ev), "started") {
+		t.Fatalf("expected started event, got: %s", ev)
+	}
+}
+
 func drainEvents(t *testing.T, run *ancora.Run) []string {
 	t.Helper()
 	var events []string
