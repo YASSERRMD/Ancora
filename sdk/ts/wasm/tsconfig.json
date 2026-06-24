@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM"],
+    "outDir": "../dist/wasm",
+    "rootDir": ".."
+  },
+  "include": ["./**/*.ts", "../schemas.ts", "../wire.ts"]
+}

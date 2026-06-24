@@ -1,0 +1,28 @@
+name: ts-wasm
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sdk/ts/wasm/**'
+  pull_request:
+    paths:
+      - 'sdk/ts/wasm/**'
+
+jobs:
+  build:
+    name: WASM TypeScript type check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/ts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: sdk/ts/package-lock.json
+      - run: npm ci
+      - name: Type check wasm target
+        run: npx tsc --project wasm/tsconfig.json --noEmit

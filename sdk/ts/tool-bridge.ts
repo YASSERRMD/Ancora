@@ -1,6 +1,10 @@
-import { RunHandle } from './agent'
 import { RunEvent } from './schemas'
 import { ToolRegistry } from './tools'
+
+export interface RunHandleLike extends AsyncIterable<RunEvent> {
+  readonly runId: string
+  resume(decision: string | Uint8Array): void | Promise<void>
+}
 
 export type ToolBridgeEvent =
   | RunEvent
@@ -17,7 +21,7 @@ export class ToolBridge {
     return this._registry
   }
 
-  async *run(handle: RunHandle): AsyncGenerator<ToolBridgeEvent> {
+  async *run(handle: RunHandleLike): AsyncGenerator<ToolBridgeEvent> {
     for await (const ev of handle) {
       if (ev.kind === 'tool_call') {
         const input = JSON.parse(ev.input) as unknown
@@ -28,7 +32,7 @@ export class ToolBridge {
           result = { error: String(err) }
         }
         const resultJson = JSON.stringify(result)
-        handle.resume(resultJson)
+        await handle.resume(resultJson)
         yield { kind: 'tool_result', run_id: ev.run_id, name: ev.name, result }
       } else {
         yield ev

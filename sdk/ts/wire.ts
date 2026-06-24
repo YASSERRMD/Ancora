@@ -9,9 +9,16 @@ export function decodeSpec(bytes: Buffer | Uint8Array): AgentSpec {
   return AgentSpecSchema.parse(raw)
 }
 
-export function parseEvent(bytes: Buffer | string): RunEvent {
-  const raw = typeof bytes === 'string' ? JSON.parse(bytes) : JSON.parse(bytes.toString('utf8'))
-  return RunEventSchema.parse(raw)
+export function parseEvent(bytes: Uint8Array | Buffer | string): RunEvent {
+  let jsonStr: string
+  if (typeof bytes === 'string') {
+    jsonStr = bytes
+  } else if (Buffer.isBuffer(bytes)) {
+    jsonStr = bytes.toString('utf8')
+  } else {
+    jsonStr = new TextDecoder().decode(bytes)
+  }
+  return RunEventSchema.parse(JSON.parse(jsonStr))
 }
 
 export function validateSpec(raw: unknown): { ok: true; spec: AgentSpec } | { ok: false; errors: string[] } {
