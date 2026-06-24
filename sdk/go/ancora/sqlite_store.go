@@ -99,3 +99,21 @@ func (s *SqliteStore) DeleteRun(runID string) error {
 	_, err = s.db.Exec(`DELETE FROM runs WHERE id = ?`, runID)
 	return err
 }
+
+// ListRuns returns all recorded run IDs in insertion order.
+func (s *SqliteStore) ListRuns() ([]string, error) {
+	rows, err := s.db.Query(`SELECT id FROM runs ORDER BY created_at`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
