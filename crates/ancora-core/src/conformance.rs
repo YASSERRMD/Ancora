@@ -81,4 +81,36 @@ mod tests {
             assert!(!s.tags.is_empty(), "scenario '{}' has no tags", s.id);
         }
     }
+
+    fn make_agent_node(id: &str) -> crate::graph::Node {
+        use ancora_proto::ancora::AgentSpec;
+        use crate::graph::{Node, NodeKind, NodeSpec};
+        Node {
+            id: id.to_string(),
+            kind: NodeKind::Agent,
+            model_id: None,
+            spec: NodeSpec::Agent(AgentSpec {
+                name: id.to_string(),
+                model_id: "mock".to_string(),
+                instructions: String::new(),
+                output_schema_json: String::new(),
+                tools: vec![],
+                max_steps: 1,
+                model_retry: None,
+                model_params_json: String::new(),
+            }),
+        }
+    }
+
+    #[test]
+    fn single_agent_scenario_graph_is_valid() {
+        use crate::graph::Graph;
+        let graph = Graph {
+            id: "g-single".to_string(),
+            nodes: vec![make_agent_node("agent1")],
+            edges: vec![],
+            entry_node: "agent1".to_string(),
+        };
+        assert!(graph.validate().is_ok());
+    }
 }
