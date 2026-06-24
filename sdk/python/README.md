@@ -28,6 +28,30 @@ with ancora.Runtime() as rt:
     print(rt)
 ```
 
+## Tool decorator
+
+Register Python functions as tools with automatic JSON Schema generation:
+
+```python
+from ancora.tools import tool, ToolRegistry
+from ancora.models import EffectClass
+
+@tool(effect_class=EffectClass.READ)
+def search(query: str, limit: int = 10) -> str:
+    """Search the web for a query."""
+    return f"results for {query}"
+
+registry = ToolRegistry()
+registry.register(search)
+
+# Add the tool spec to an agent
+import ancora
+spec = ancora.AgentSpec(name="agent", model_id="llama3", tools=[search.spec])
+
+# Dispatch a tool call from a "tool_call" event
+result = registry.dispatch("search", '{"query": "hello", "limit": 5}')
+```
+
 ## Async agent runs
 
 Start runs and iterate over events asynchronously:

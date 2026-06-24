@@ -15,6 +15,7 @@ from ancora.agent import Agent
 from ancora.builder import AgentSpecBuilder, ToolSpecBuilder
 from ancora.models import AgentSpec, EffectClass, RetryPolicy, ToolSpec
 from ancora.run import Run
+from ancora.tools import Tool, ToolRegistry, tool
 from ancora.wire import from_wire_bytes, to_wire_bytes
 
 __all__ = [
@@ -26,9 +27,12 @@ __all__ = [
     "RetryPolicy",
     "Run",
     "Runtime",
+    "Tool",
+    "ToolRegistry",
     "ToolSpec",
     "ToolSpecBuilder",
     "from_wire_bytes",
     "to_wire_bytes",
+    "tool",
     "version",
 ]
