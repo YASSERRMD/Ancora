@@ -21,3 +21,15 @@ fn snapshot_header_contains_include_guard() {
     assert!(content.contains("#ifndef ANCORA_H"), "missing include guard");
     assert!(content.contains("#define ANCORA_H"), "missing include guard define");
 }
+
+#[test]
+fn snapshot_header_declares_ancora_create_runtime() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("ancora_create_runtime"), "ancora_create_runtime missing from header");
+}
+
+#[test]
+fn snapshot_header_declares_ancora_free_runtime() {
+    let content = std::fs::read_to_string(snapshot_path()).expect("failed to read ancora.h");
+    assert!(content.contains("ancora_free_runtime"), "ancora_free_runtime missing from header");
+}
