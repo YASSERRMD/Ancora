@@ -213,4 +213,13 @@ mod tests {
         let events = store2.read("run-x").unwrap();
         assert_eq!(events.len(), 1, "cloned store must share the same backing state");
     }
+
+    #[test]
+    fn scenario_ids_match_expected_constants() {
+        let ids: Vec<&str> = all_scenarios().iter().map(|s| s.id).collect();
+        assert!(ids.contains(&"single-agent"));
+        assert!(ids.contains(&"multi-agent-verifier"));
+        assert!(ids.contains(&"human-in-loop"));
+        assert!(ids.contains(&"crash-and-recover"));
+    }
 }
