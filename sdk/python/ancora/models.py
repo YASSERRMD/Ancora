@@ -80,6 +80,21 @@ class StreamEvent(BaseModel):
         """Parse a raw event bytes value into a StreamEvent."""
         return cls.model_validate_json(data)
 
+    @property
+    def is_token(self) -> bool:
+        """Return True if this is a token event."""
+        return self.kind == "token"
+
+    @property
+    def is_started(self) -> bool:
+        """Return True if this is a started event."""
+        return self.kind == "started"
+
+    @property
+    def is_completed(self) -> bool:
+        """Return True if this is a completed event."""
+        return self.kind == "completed"
+
 
 class AgentSpec(BaseModel):
     """Specifies a single agent in the graph."""
