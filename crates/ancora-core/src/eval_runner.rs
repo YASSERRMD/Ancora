@@ -69,3 +69,51 @@ impl EvalRunner {
         CaseResult { case_id: case.id.clone(), rollouts, pass_count, n: self.n }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::eval::{EvalCase, ExactMatchScorer};
+
+    fn fixture_cases() -> Vec<EvalCase> {
+        vec![
+            EvalCase::new("c1", "What is 1+1?", "2", "exact_match"),
+            EvalCase::new("c2", "Sky color?", "blue", "exact_match"),
+        ]
+    }
+
+    #[test]
+    fn runner_produces_one_result_per_case() {
+        let mut runner = EvalRunner::new(3);
+        runner.register_scorer(Arc::new(ExactMatchScorer));
+        let generate: GenerateFn = Arc::new(|input| {
+            if input.contains("1+1") { "2".into() } else { "blue".into() }
+        });
+        let results = runner.run(&fixture_cases(), &generate);
+        assert_eq!(results.len(), 2);
+    }
+
+    #[test]
+    fn runner_correct_generator_passes_all_rollouts() {
+        let mut runner = EvalRunner::new(4);
+        runner.register_scorer(Arc::new(ExactMatchScorer));
+        let generate: GenerateFn = Arc::new(|input| {
+            if input.contains("1+1") { "2".into() } else { "blue".into() }
+        });
+        let results = runner.run(&fixture_cases(), &generate);
+        for r in &results {
+            assert_eq!(r.pass_count, 4);
+        }
+    }
+
+    #[test]
+    fn runner_wrong_generator_fails_all_rollouts() {
+        let mut runner = EvalRunner::new(3);
+        runner.register_scorer(Arc::new(ExactMatchScorer));
+        let generate: GenerateFn = Arc::new(|_| "wrong".into());
+        let results = runner.run(&fixture_cases(), &generate);
+        for r in &results {
+            assert_eq!(r.pass_count, 0);
+        }
+    }
+}
