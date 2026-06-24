@@ -41,6 +41,14 @@ pub struct PostgresStore {
 }
 
 impl PostgresStore {
+    /// Connect using a Postgres connection string and run schema migrations.
+    pub fn connect(connection_str: &str) -> Result<Self, AncoraError> {
+        let client = Client::connect(connection_str, NoTls).map_err(storage)?;
+        let store = Self { client: Mutex::new(client) };
+        store.migrate()?;
+        Ok(store)
+    }
+
     fn migrate(&self) -> Result<(), AncoraError> {
         let mut client = self.client.lock().map_err(|_| storage("mutex poisoned"))?;
         client.batch_execute(MIGRATION_V1).map_err(storage)
