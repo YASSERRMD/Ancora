@@ -22,3 +22,22 @@ impl AuthInterceptor {
         Self { expected: token.into() }
     }
 }
+
+impl tonic::service::Interceptor for AuthInterceptor {
+    fn call(&mut self, req: Request<()>) -> Result<Request<()>, Status> {
+        let auth = req
+            .metadata()
+            .get("authorization")
+            .and_then(|v| v.to_str().ok());
+        let provided = match auth {
+            Some(v) => v,
+            None => return Err(Status::unauthenticated("missing authorization header")),
+        };
+        let token = provided.strip_prefix("Bearer ").unwrap_or("");
+        if token == self.expected {
+            Ok(req)
+        } else {
+            Err(Status::unauthenticated("invalid token"))
+        }
+    }
+}
