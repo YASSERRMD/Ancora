@@ -78,4 +78,15 @@ mod tests {
         store.poll("r2");
         assert_eq!(store.event_count("r2"), 1);
     }
+
+    #[test]
+    fn resume_adds_two_events() {
+        let store = RunStore::new();
+        store.insert("r3".into());
+        store.poll("r3");
+        store.poll("r3");
+        assert_eq!(store.event_count("r3"), 0);
+        store.resume("r3", "ok");
+        assert_eq!(store.event_count("r3"), 2);
+    }
 }
