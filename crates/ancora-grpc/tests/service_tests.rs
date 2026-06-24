@@ -1,5 +1,7 @@
 use ancora_grpc::proto::run_service_server::RunServiceServer;
-use ancora_grpc::proto::{PollRunRequest, ResumeRunRequest, StartRunRequest};
+use ancora_grpc::proto::{
+    DecisionRequest, PollRunRequest, ResumeRunRequest, StartRunRequest, StreamEventsRequest,
+};
 use ancora_grpc::service::RunServiceImpl;
 
 use tonic::transport::Server;
@@ -239,4 +241,214 @@ async fn poll_unknown_run_returns_empty_event() {
         .into_inner()
         .event;
     assert!(e.is_empty(), "expected empty for unknown run, got: {e}");
+}
+
+#[tokio::test]
+async fn stream_events_yields_started_then_completed() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner();
+    let e1 = stream.next().await.unwrap().unwrap().event;
+    let e2 = stream.next().await.unwrap().unwrap().event;
+    assert!(e1.contains("started"), "e1={e1}");
+    assert!(e2.contains("completed"), "e2={e2}");
+    assert!(stream.next().await.is_none(), "expected stream end");
+}
+
+#[tokio::test]
+async fn stream_events_arrive_in_order() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner();
+    let mut events = Vec::new();
+    while let Some(Ok(ev)) = stream.next().await {
+        events.push(ev.event);
+    }
+    assert_eq!(events, vec!["started", "completed"]);
+}
+
+#[tokio::test]
+async fn decision_stream_emits_resumed_event() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::{wrappers::ReceiverStream, StreamExt};
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    let (tx, rx) = tokio::sync::mpsc::channel(4);
+    tx.send(DecisionRequest { run_id: run_id.clone(), decision: b"yes".to_vec() })
+        .await
+        .unwrap();
+    drop(tx);
+    let mut out_stream = client
+        .decision_stream(Request::new(ReceiverStream::new(rx)))
+        .await
+        .unwrap()
+        .into_inner();
+    let ev = out_stream.next().await.unwrap().unwrap().event;
+    assert!(ev.contains("resumed"), "expected resumed, got: {ev}");
+}
+
+#[tokio::test]
+async fn stream_events_empty_run_returns_no_events() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id: "ghost".into() }))
+        .await
+        .unwrap()
+        .into_inner();
+    assert!(stream.next().await.is_none(), "ghost run should yield no events");
+}
+
+#[tokio::test]
+async fn decision_stream_multiple_decisions_all_emit_events() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::{wrappers::ReceiverStream, StreamExt};
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    let (tx, rx) = tokio::sync::mpsc::channel(4);
+    tx.send(DecisionRequest { run_id: run_id.clone(), decision: b"a".to_vec() }).await.unwrap();
+    tx.send(DecisionRequest { run_id: run_id.clone(), decision: b"b".to_vec() }).await.unwrap();
+    drop(tx);
+    let mut out_stream = client
+        .decision_stream(Request::new(ReceiverStream::new(rx)))
+        .await
+        .unwrap()
+        .into_inner();
+    let mut events = Vec::new();
+    while let Some(Ok(ev)) = out_stream.next().await {
+        events.push(ev.event);
+    }
+    assert!(!events.is_empty(), "expected at least one event from two decisions");
+}
+
+#[tokio::test]
+async fn stream_events_count_equals_two_for_fresh_run() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner();
+    let mut count = 0usize;
+    while let Some(Ok(_)) = stream.next().await {
+        count += 1;
+    }
+    assert_eq!(count, 2, "fresh run should yield exactly 2 events");
+}
+
+#[tokio::test]
+async fn stream_after_partial_poll_yields_remaining_events() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner();
+    let mut count = 0usize;
+    while let Some(Ok(_)) = stream.next().await {
+        count += 1;
+    }
+    assert_eq!(count, 1, "one event consumed by poll, one should remain");
+}
+
+#[tokio::test]
+async fn stream_first_event_contains_started_text() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let first = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner()
+        .next()
+        .await
+        .unwrap()
+        .unwrap()
+        .event;
+    assert!(first.contains("started"), "got: {first}");
 }

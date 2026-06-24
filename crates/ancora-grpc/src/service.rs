@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
-use tonic::{Request, Response, Status};
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
+use tonic::{Request, Response, Status, Streaming};
 
 use crate::proto::{
-    run_service_server::RunService, PollRunRequest, PollRunResponse, ResumeRunRequest,
-    ResumeRunResponse, StartRunRequest, StartRunResponse,
+    run_service_server::RunService, DecisionRequest, EventResponse, PollRunRequest, PollRunResponse,
+    ResumeRunRequest, ResumeRunResponse, StartRunRequest, StartRunResponse, StreamEventsRequest,
 };
 use crate::store::RunStore;
 
@@ -24,6 +26,9 @@ impl RunServiceImpl {
 
 #[tonic::async_trait]
 impl RunService for RunServiceImpl {
+    type StreamEventsStream = ReceiverStream<Result<EventResponse, Status>>;
+    type DecisionStreamStream = ReceiverStream<Result<EventResponse, Status>>;
+
     async fn start_run(
         &self,
         _request: Request<StartRunRequest>,
@@ -51,5 +56,53 @@ impl RunService for RunServiceImpl {
         let found = self.store.resume(&req.run_id, &decision);
         let status = if found { "ok".into() } else { "not_found".into() };
         Ok(Response::new(ResumeRunResponse { status }))
+    }
+
+    async fn stream_events(
+        &self,
+        request: Request<StreamEventsRequest>,
+    ) -> Result<Response<Self::StreamEventsStream>, Status> {
+        let run_id = request.into_inner().run_id;
+        let (tx, rx) = mpsc::channel(16);
+        let store = Arc::clone(&self.store);
+        tokio::spawn(async move {
+            loop {
+                match store.poll(&run_id) {
+                    Some(ev) => {
+                        if tx.send(Ok(EventResponse { event: ev })).await.is_err() {
+                            break;
+                        }
+                    }
+                    None => break,
+                }
+            }
+        });
+        Ok(Response::new(ReceiverStream::new(rx)))
+    }
+
+    async fn decision_stream(
+        &self,
+        request: Request<Streaming<DecisionRequest>>,
+    ) -> Result<Response<Self::DecisionStreamStream>, Status> {
+        let (tx, rx) = mpsc::channel(16);
+        let store = Arc::clone(&self.store);
+        let mut stream = request.into_inner();
+        tokio::spawn(async move {
+            while let Ok(Some(req)) = stream.message().await {
+                let decision = String::from_utf8_lossy(&req.decision).into_owned();
+                store.resume(&req.run_id, &decision);
+                loop {
+                    match store.poll(&req.run_id) {
+                        Some(ev) => {
+                            if tx.send(Ok(EventResponse { event: ev })).await.is_err() {
+                                return;
+                            }
+                        }
+                        None => break,
+                    }
+                }
+            }
+        });
+        Ok(Response::new(ReceiverStream::new(rx)))
     }
 }

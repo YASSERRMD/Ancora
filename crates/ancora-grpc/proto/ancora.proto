@@ -6,6 +6,8 @@ service RunService {
   rpc StartRun(StartRunRequest) returns (StartRunResponse);
   rpc PollRun(PollRunRequest) returns (PollRunResponse);
   rpc ResumeRun(ResumeRunRequest) returns (ResumeRunResponse);
+  rpc StreamEvents(StreamEventsRequest) returns (stream EventResponse);
+  rpc DecisionStream(stream DecisionRequest) returns (stream EventResponse);
 }
 
 message StartRunRequest {
@@ -31,4 +33,17 @@ message ResumeRunRequest {
 
 message ResumeRunResponse {
   string status = 1;
+}
+
+message StreamEventsRequest {
+  string run_id = 1;
+}
+
+message EventResponse {
+  string event = 1;
+}
+
+message DecisionRequest {
+  string run_id = 1;
+  bytes decision = 2;
 }
