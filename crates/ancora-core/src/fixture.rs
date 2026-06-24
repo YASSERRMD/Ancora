@@ -336,6 +336,25 @@ mod tests {
     }
 
     #[test]
+    fn fixture_journal_store_replayed_flag_is_true() {
+        use ancora_proto::ancora::journal_event::Event;
+        let f = build_fixture(&[("k", "m", "{}", r#""v""#)]);
+        let store = FixtureJournalStore::new(f);
+        let events = store.read("r").unwrap();
+        match &events[0].event {
+            Some(Event::ActivityRecorded(a)) => assert!(a.replayed),
+            _ => panic!("expected ActivityRecorded"),
+        }
+    }
+
+    #[test]
+    fn fixture_journal_store_empty_fixture_returns_empty_events() {
+        let store = FixtureJournalStore::new(Fixture::new());
+        let events = store.read("r").unwrap();
+        assert!(events.is_empty());
+    }
+
+    #[test]
     fn fixture_journal_store_append_is_error() {
         use ancora_proto::ancora::{journal_event::Event, JournalEvent, RunStartedEvent};
         let store = FixtureJournalStore::new(Fixture::new());
