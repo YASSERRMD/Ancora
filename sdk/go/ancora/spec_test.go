@@ -32,6 +32,27 @@ func TestAgentSpecBuilderSetsModelID(t *testing.T) {
 	}
 }
 
+func TestRoundTripSpecThroughFFI(t *testing.T) {
+	rt := mustRuntime(t)
+	defer rt.Free()
+	spec := ancora.NewAgentSpecBuilder().
+		WithName("ffi-agent").
+		WithModelID("gpt-4o").
+		WithInstructions("You are a test agent.").
+		WithMaxSteps(5)
+	bytes, err := spec.BuildBytes()
+	if err != nil {
+		t.Fatalf("BuildBytes: %v", err)
+	}
+	run, err := rt.StartRun(bytes)
+	if err != nil {
+		t.Fatalf("StartRun with spec bytes: %v", err)
+	}
+	if run.ID() == "" {
+		t.Fatal("StartRun returned empty run ID")
+	}
+}
+
 func TestAgentSpecRoundTrip(t *testing.T) {
 	original := ancora.NewAgentSpec("test-agent", "gpt-4o", "You are helpful.")
 	bytes, err := proto.Marshal(original)
