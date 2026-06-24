@@ -1,4 +1,5 @@
 pub mod activity;
+pub mod eval;
 pub mod cancel;
 pub mod cost;
 #[cfg(feature = "postgres")]
