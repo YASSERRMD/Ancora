@@ -670,4 +670,36 @@ mod tests {
         assert_eq!(call_count.load(Ordering::SeqCst), 3, "worker must be called 1 + max_rework times");
     }
 
+    #[test]
+    fn consensus_selects_majority_result() {
+        let graph = Graph {
+            id: "g-consensus".to_string(),
+            nodes: vec![
+                function_node("v1"),
+                function_node("v2"),
+                function_node("v3"),
+                function_node("v4"),
+                function_node("v5"),
+            ],
+            edges: vec![],
+            entry_node: "v1".to_string(),
+        };
+
+        // v1, v2, v4 return "A"; v3, v5 return "B" -> majority is "A"
+        struct MajorityVoter;
+        impl NodeExecutor for MajorityVoter {
+            fn execute(&self, node: &Node, _input: &str) -> Result<String, AncoraError> {
+                match node.id.as_str() {
+                    "v3" | "v5" => Ok("B".to_string()),
+                    _ => Ok("A".to_string()),
+                }
+            }
+        }
+
+        let voters: Vec<String> = vec!["v1", "v2", "v3", "v4", "v5"]
+            .into_iter().map(|s| s.to_string()).collect();
+        let mut exec = GraphExecutor::new(graph, "run-consensus-1", Arc::new(MemoryStore::new()));
+        let result = exec.run_consensus(&voters, "in", &MajorityVoter).unwrap();
+        assert_eq!(result, "A", "majority vote must select A (3 votes vs 2)");
+    }
 }
