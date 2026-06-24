@@ -57,7 +57,7 @@ jobs:
       - name: Upload cdylib artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ancora-ffi-${{ matrix.artifact_suffix }}
+          name: ancora-ffi-${{ matrix.artifact_suffix }}-${{ steps.version.outputs.version }}
           path: |
             target/${{ matrix.target }}/release/libancora_ffi.so
             target/${{ matrix.target }}/release/libancora_ffi.dylib
@@ -67,6 +67,6 @@ jobs:
         if: matrix.use_cross != true
         uses: actions/upload-artifact@v4
         with:
-          name: ancora-header-${{ matrix.artifact_suffix }}
+          name: ancora-header-${{ matrix.artifact_suffix }}-${{ steps.version.outputs.version }}
           path: target/${{ matrix.target }}/release/build/ancora-ffi-*/out/ancora.h
           if-no-files-found: ignore
