@@ -102,3 +102,14 @@ fn run_cost_returns_json_with_total_usd() {
     ancora_buffer_free(cost);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn run_resume_returns_ok() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let c_id = cstr(&id);
+    let decision = b"approved";
+    let code = ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len());
+    assert_eq!(code, AncorErrorCode::Ok);
+    ancora_free_runtime(rt);
+}
