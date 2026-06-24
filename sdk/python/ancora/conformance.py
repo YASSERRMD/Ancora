@@ -70,7 +70,10 @@ class ConformanceSuite:
         if fn is None:
             raise KeyError(f"No scenario registered: {name!r}")
         try:
-            return bool(await fn(rt))
+            result = fn(rt)
+            if asyncio.iscoroutine(result):
+                result = await result
+            return bool(result)
         except Exception:
             return False
 
