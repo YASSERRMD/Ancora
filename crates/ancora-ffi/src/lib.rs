@@ -1,3 +1,4 @@
+pub mod buffer;
 pub mod error_code;
 pub mod handles;
 pub mod run_id;
