@@ -1049,4 +1049,53 @@ mod tests {
             crate::stream::StreamEvent::RunCompleted { output: "[b][a]in".to_string() },
         ]);
     }
+
+    #[test]
+    fn cancel_stops_execution_and_compensates() {
+        use std::sync::{Arc, Mutex};
+        use crate::cancel::cancellation_pair;
+
+        let graph = Graph {
+            id: "g-cancel".to_string(),
+            nodes: vec![function_node("a"), function_node("b"), function_node("c")],
+            edges: vec![edge("a", "b", None), edge("b", "c", None)],
+            entry_node: "a".to_string(),
+        };
+
+        let log: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+        let log2 = Arc::clone(&log);
+
+        let (token, handle) = cancellation_pair();
+
+        // Cancel before "b" runs (i.e., after "a" completes and we loop again).
+        // PrefixExecutor appends to log via our wrapper.
+        struct CancelAfterFirst {
+            handle: crate::cancel::CancellationHandle,
+            count: std::sync::atomic::AtomicU32,
+        }
+        impl NodeExecutor for CancelAfterFirst {
+            fn execute(&self, node: &Node, input: &str) -> Result<String, AncoraError> {
+                let n = self.count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                if n == 0 {
+                    self.handle.cancel();
+                }
+                Ok(format!("[{}]{}", node.id, input))
+            }
+        }
+
+        let mut exec = GraphExecutor::new(graph, "run-cancel-1", Arc::new(MemoryStore::new()))
+            .with_cancel(token);
+        exec.register_compensation("a", move || {
+            log2.lock().unwrap().push("compensate-a".to_string());
+        });
+
+        let exec_impl = CancelAfterFirst {
+            handle,
+            count: std::sync::atomic::AtomicU32::new(0),
+        };
+
+        let err = exec.run("in", &exec_impl).unwrap_err();
+        assert!(matches!(err, AncoraError::Cancelled(_)), "expected Cancelled");
+        assert_eq!(*log.lock().unwrap(), vec!["compensate-a"], "compensation must fire");
+    }
 }
