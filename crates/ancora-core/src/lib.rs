@@ -1,5 +1,6 @@
 pub mod activity;
 pub mod agent;
+pub mod executor;
 pub mod graph;
 pub mod output;
 pub mod error;
