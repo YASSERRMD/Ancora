@@ -188,3 +188,15 @@ fn ffi_run_cost_returns_ok_for_valid_run() {
     ancora_buffer_free(cost);
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn ffi_journal_equals_native_event_sequence_single_agent() {
+    let rt = make_rt();
+    let id = start_run(rt);
+    let events = drain_events(rt, &id);
+    let kinds: Vec<&str> = events.iter().map(|e| event_kind(e)).collect();
+    let expected: &[&str] = &["started", "completed"];
+    assert_eq!(kinds, expected,
+        "FFI journal must equal native single-agent journal sequence");
+    ancora_free_runtime(rt);
+}
