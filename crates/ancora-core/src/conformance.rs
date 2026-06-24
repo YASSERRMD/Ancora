@@ -150,4 +150,19 @@ mod tests {
         assert_eq!(graph.edges[0].from, "agent");
         assert_eq!(graph.edges[0].to, "verifier");
     }
+
+    #[test]
+    fn human_in_loop_scenario_suspended_run_round_trips_json() {
+        use crate::suspend::SuspendedRun;
+        let run = SuspendedRun {
+            run_id: "run-1".into(),
+            node_id: "approve-node".into(),
+            pending_input: "approve?".into(),
+            deadline_ms: None,
+        };
+        let json = run.to_json().unwrap();
+        let recovered = SuspendedRun::from_json(&json).unwrap();
+        assert_eq!(recovered.run_id, "run-1");
+        assert_eq!(recovered.node_id, "approve-node");
+    }
 }
