@@ -37,3 +37,30 @@ func (r *GoToolRegistry) Has(name string) bool {
 	_, ok := r.tools[name]
 	return ok
 }
+
+// RuntimeToolkit pairs a Runtime with a GoToolRegistry for tool-aware runs.
+type RuntimeToolkit struct {
+	rt      *Runtime
+	tools   *GoToolRegistry
+}
+
+// NewRuntimeToolkit wraps a runtime with a new tool registry.
+func NewRuntimeToolkit(rt *Runtime) *RuntimeToolkit {
+	return &RuntimeToolkit{rt: rt, tools: NewGoToolRegistry()}
+}
+
+// RegisterTool adds a Go function as a named tool.
+func (tk *RuntimeToolkit) RegisterTool(name string, fn ToolFunc) {
+	tk.tools.Register(name, fn)
+}
+
+// InvokeTool calls a registered tool by name.
+func (tk *RuntimeToolkit) InvokeTool(name string, input []byte) ([]byte, error) {
+	return tk.tools.Invoke(name, input)
+}
+
+// Runtime returns the underlying Runtime.
+func (tk *RuntimeToolkit) Runtime() *Runtime { return tk.rt }
+
+// Tools returns the underlying GoToolRegistry.
+func (tk *RuntimeToolkit) Tools() *GoToolRegistry { return tk.tools }
