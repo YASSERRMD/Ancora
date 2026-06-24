@@ -6,7 +6,8 @@
   "cpu": ["x64"],
   "main": "ancora.darwin-x64.node",
   "files": [
-    "ancora.darwin-x64.node"
+    "ancora.darwin-x64.node",
+    "README.md"
   ],
   "license": "Apache-2.0",
   "repository": {
