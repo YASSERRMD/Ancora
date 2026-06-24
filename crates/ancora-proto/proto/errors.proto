@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package ancora;
+
+option java_package = "dev.ancora";
+option java_outer_classname = "ErrorsPb";
+option go_package = "github.com/YASSERRMD/Ancora/bindings/go/ancora";
+
+// Canonical error codes for the Ancora wire protocol.
+// Values are stable across releases; new codes are only ever added.
+enum ErrorCode {
+  // Default, should never appear in a real error.
+  ERROR_UNSPECIFIED = 0;
+
+  // ---- Replay and determinism ----
+  // The code path produced a different event type than the journal records.
+  ERROR_NONDETERMINISM = 1;
+  // The journal is missing an expected event.
+  ERROR_JOURNAL_GAP = 2;
+  // The journal store refused a write (e.g. duplicate idempotency key).
+  ERROR_JOURNAL_WRITE = 3;
+
+  // ---- Agent loop ----
+  // The agent reached its max_steps limit without producing a final output.
+  ERROR_MAX_STEPS = 10;
+  // The structured output failed schema validation and repair was exhausted.
+  ERROR_OUTPUT_VALIDATION = 11;
+  // An activity timed out.
+  ERROR_TIMEOUT = 12;
+
+  // ---- Inference ----
+  // The model refused to produce a response (content policy, etc).
+  ERROR_MODEL_REFUSED = 20;
+  // The model endpoint returned an HTTP error.
+  ERROR_MODEL_HTTP = 21;
+  // The model response could not be parsed.
+  ERROR_MODEL_PARSE = 22;
+  // The model endpoint is not reachable (network error).
+  ERROR_MODEL_UNREACHABLE = 23;
+
+  // ---- Tools ----
+  // The tool returned an error result.
+  ERROR_TOOL_FAILED = 30;
+  // The tool is not registered.
+  ERROR_TOOL_NOT_FOUND = 31;
+  // The tool input failed schema validation.
+  ERROR_TOOL_INPUT_INVALID = 32;
+  // The tool call was denied by the permission broker.
+  ERROR_TOOL_DENIED = 33;
+
+  // ---- Policy ----
+  // A call to a disallowed endpoint was blocked by the residency policy.
+  ERROR_POLICY_RESIDENCY = 40;
+  // A required permission was not granted.
+  ERROR_POLICY_PERMISSION = 41;
+
+  // ---- Graph ----
+  // The graph definition is malformed.
+  ERROR_GRAPH_INVALID = 50;
+  // A required node was not found.
+  ERROR_NODE_NOT_FOUND = 51;
+
+  // ---- Run lifecycle ----
+  // The run was cancelled.
+  ERROR_CANCELLED = 60;
+  // The run was already in a terminal state.
+  ERROR_INVALID_STATE = 61;
+
+  // ---- Storage ----
+  // A storage operation failed.
+  ERROR_STORAGE = 70;
+
+  // ---- Internal ----
+  // An unexpected internal error.
+  ERROR_INTERNAL = 99;
+}
