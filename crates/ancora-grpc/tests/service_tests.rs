@@ -268,3 +268,29 @@ async fn stream_events_yields_started_then_completed() {
     assert!(e2.contains("completed"), "e2={e2}");
     assert!(stream.next().await.is_none(), "expected stream end");
 }
+
+#[tokio::test]
+async fn stream_events_arrive_in_order() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    use tokio_stream::StreamExt;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let mut stream = client
+        .stream_events(Request::new(StreamEventsRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner();
+    let mut events = Vec::new();
+    while let Some(Ok(ev)) = stream.next().await {
+        events.push(ev.event);
+    }
+    assert_eq!(events, vec!["started", "completed"]);
+}
