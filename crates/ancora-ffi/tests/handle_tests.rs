@@ -30,3 +30,12 @@ fn buffer_free_null_is_noop() {
     let empty = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
     ancora_buffer_free(empty);
 }
+
+#[test]
+fn buffer_from_str_roundtrips() {
+    let buf = ancora_buffer_from_str("ancora-test");
+    assert_eq!(buf.len, "ancora-test".len());
+    let slice = unsafe { std::slice::from_raw_parts(buf.ptr, buf.len) };
+    assert_eq!(slice, b"ancora-test");
+    ancora_buffer_free(buf);
+}
