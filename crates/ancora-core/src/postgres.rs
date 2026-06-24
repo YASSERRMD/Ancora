@@ -198,8 +198,23 @@ impl PostgresStore {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ancora_proto::ancora::{journal_event::Event, RunStartedEvent};
 
     fn postgres_url() -> Option<String> {
         std::env::var("POSTGRES_URL").ok()
+    }
+
+    fn run_started(label: &str) -> JournalEvent {
+        JournalEvent {
+            event_id: label.to_string(),
+            run_id: String::new(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::RunStarted(RunStartedEvent {
+                run_id: label.to_string(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".to_string(),
+            })),
+        }
     }
 }
