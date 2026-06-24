@@ -20,7 +20,7 @@ from __future__ import annotations
 import enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EffectClass(enum.IntEnum):
@@ -35,6 +35,8 @@ class EffectClass(enum.IntEnum):
 class ToolSpec(BaseModel):
     """Describes a single tool that an agent may invoke."""
 
+    model_config = ConfigDict(extra="forbid")
+
     name: str = ""
     description: str = ""
     input_schema_json: str = ""
@@ -46,6 +48,8 @@ class ToolSpec(BaseModel):
 class RetryPolicy(BaseModel):
     """Retry policy attached to a model call or tool call."""
 
+    model_config = ConfigDict(extra="forbid")
+
     max_attempts: int = Field(default=0, ge=0)
     initial_backoff_ms: int = Field(default=0, ge=0)
     max_backoff_ms: int = Field(default=0, ge=0)
@@ -54,6 +58,8 @@ class RetryPolicy(BaseModel):
 
 class AgentSpec(BaseModel):
     """Specifies a single agent in the graph."""
+
+    model_config = ConfigDict(extra="forbid")
 
     name: str = ""
     model_id: str = ""
