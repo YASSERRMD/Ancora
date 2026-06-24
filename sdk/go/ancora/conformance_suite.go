@@ -19,6 +19,9 @@ func NewConformanceSuite(tr Transport) *ConformanceSuite {
 
 // RunAll executes every scenario and returns one result per scenario.
 func (s *ConformanceSuite) RunAll(ctx context.Context) []ConformanceResult {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	scenarios := AllConformanceScenarios()
 	results := make([]ConformanceResult, 0, len(scenarios))
 	for _, sc := range scenarios {
