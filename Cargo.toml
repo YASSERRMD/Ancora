@@ -12,6 +12,7 @@ members = [
     "crates/ancora-ffi",
     "crates/ancora-grpc",
     "crates/ancora-py",
+    "crates/ancora-napi",
 ]
 
 [workspace.package]
