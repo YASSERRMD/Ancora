@@ -14,6 +14,62 @@ type jsonSchema struct {
 	Required    []string              `json:"required,omitempty"`
 }
 
+// SchemaFromStruct generates a JSON Schema string from a Go struct value.
+// It reads `json` tags for property names and `schema` tags for descriptions.
+// Returns an error if v is not a struct or pointer to struct.
+func SchemaFromStruct(v any) (string, error) {
+	t := reflect.TypeOf(v)
+	if t == nil {
+		return "", fmt.Errorf("SchemaFromStruct: nil value")
+	}
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		return "", fmt.Errorf("SchemaFromStruct: expected struct, got %s", t.Kind())
+	}
+
+	schema := jsonSchema{
+		Type:       "object",
+		Properties: make(map[string]jsonSchema),
+	}
+
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if !f.IsExported() {
+			continue
+		}
+
+		name := f.Tag.Get("json")
+		if name == "" || name == "-" {
+			name = f.Name
+		}
+		if idx := len(name); idx > 0 {
+			if comma := name; len(comma) > 0 {
+				for j, c := range comma {
+					if c == ',' {
+						name = comma[:j]
+						break
+					}
+				}
+			}
+		}
+
+		prop := jsonSchema{
+			Type:        kindToJSONType(f.Type.Kind()),
+			Description: f.Tag.Get("schema"),
+		}
+		schema.Properties[name] = prop
+		schema.Required = append(schema.Required, name)
+	}
+
+	b, err := json.Marshal(schema)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
 // kindToJSONType maps a Go reflect.Kind to a JSON Schema type string.
 func kindToJSONType(k reflect.Kind) string {
 	switch k {
