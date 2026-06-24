@@ -69,3 +69,17 @@ Declare the FFI interface with JNA or a JNI wrapper generated from the C header.
 Artifacts are named `ancora-ffi-<platform>-<version>` where `<version>` corresponds to the crate version from `Cargo.toml`. The header artifact is always named `ancora-header-<platform>-<version>`.
 
 Platform values match the `artifact_suffix` column in the target matrix table above.
+
+## Downloading from GitHub Actions
+
+From the GitHub CLI:
+
+```sh
+gh run download <run-id> --name ancora-ffi-linux-x86_64-0.1.0
+```
+
+Or via the GitHub API:
+
+```sh
+gh api repos/YASSERRMD/Ancora/actions/artifacts --jq '.artifacts[] | select(.name | startswith("ancora-ffi")) | .archive_download_url'
+```
