@@ -18,6 +18,18 @@ pub struct ReplayResponse {
     pub status: String,
 }
 
+/// Start the studio server and block, serving requests until the process exits.
+pub fn serve(port: u16) -> std::io::Result<()> {
+    use ancora_core::journal::MemoryStore;
+    use std::sync::Arc;
+    let store = Arc::new(MemoryStore::new());
+    let server = StudioServer::bind(port, store)?;
+    println!("ancora studio: listening on http://127.0.0.1:{}", server.port());
+    loop {
+        server.handle_one()?;
+    }
+}
+
 /// Local HTTP server exposing run timelines and replay.
 pub struct StudioServer {
     listener: std::net::TcpListener,
