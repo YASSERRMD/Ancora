@@ -1,0 +1,14 @@
+# Global owner: all files require review from YASSERRMD
+* @YASSERRMD
+
+# Rust core crates
+/crates/ @YASSERRMD
+
+# Language bindings
+/bindings/ @YASSERRMD
+
+# Specification and ADRs
+/spec/ @YASSERRMD
+
+# CI configuration
+/.github/ @YASSERRMD
