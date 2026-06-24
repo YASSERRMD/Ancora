@@ -41,3 +41,14 @@ func (b *AgentSpecBuilder) WithTool(t *ToolSpec) *AgentSpecBuilder {
 	b.spec.Tools = append(b.spec.Tools, t)
 	return b
 }
+
+// Build returns the AgentSpec proto message.
+func (b *AgentSpecBuilder) Build() *AgentSpec {
+	spec := b.spec
+	return &spec
+}
+
+// BuildBytes marshals the AgentSpec to proto-encoded bytes.
+func (b *AgentSpecBuilder) BuildBytes() ([]byte, error) {
+	return proto.Marshal(b.Build())
+}
