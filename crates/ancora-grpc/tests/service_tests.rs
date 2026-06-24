@@ -202,3 +202,25 @@ async fn two_independent_runs_have_different_ids() {
         .run_id;
     assert_ne!(id1, id2);
 }
+
+#[tokio::test]
+async fn drive_full_run_start_poll_poll_resume_poll() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let e1 = client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap().into_inner().event;
+    let e2 = client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap().into_inner().event;
+    client.resume_run(Request::new(ResumeRunRequest { run_id: run_id.clone(), decision: b"yes".to_vec() })).await.unwrap();
+    let e3 = client.poll_run(Request::new(PollRunRequest { run_id })).await.unwrap().into_inner().event;
+    assert!(e1.contains("started"), "e1={e1}");
+    assert!(e2.contains("completed"), "e2={e2}");
+    assert!(e3.contains("resumed"), "e3={e3}");
+}
