@@ -39,6 +39,15 @@ impl StudioServer {
     fn list_runs(&self) -> (u16, String) {
         (200, r#"{"runs":[]}"#.into())
     }
+
+    fn run_timeline(&self, run_id: &str) -> (u16, String) {
+        if run_id.is_empty() {
+            return (400, r#"{"error":"missing run id"}"#.into());
+        }
+        let timeline = RunTimeline { run_id: run_id.into(), events: vec![] };
+        let body = serde_json::to_string(&timeline).unwrap_or_default();
+        (200, body)
+    }
 }
 
 fn write_response(stream: &mut TcpStream, status: u16, body: &str) {
