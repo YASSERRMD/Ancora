@@ -1,0 +1,38 @@
+name: ts-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sdk/ts/**'
+      - 'crates/ancora-napi/**'
+  pull_request:
+    paths:
+      - 'sdk/ts/**'
+      - 'crates/ancora-napi/**'
+
+jobs:
+  test:
+    name: Jest unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/ts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: sdk/ts/package-lock.json
+      - run: npm ci
+      - run: npm test -- --ci
+
+  rust-check:
+    name: cargo check ancora-napi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check -p ancora-napi
