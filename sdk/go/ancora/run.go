@@ -33,6 +33,21 @@ func (r *Run) PollEvent() ([]byte, error) {
 	return b, nil
 }
 
+// Resume provides a decision to a suspended run.
+func (r *Run) Resume(decision []byte) error {
+	if len(decision) == 0 {
+		decision = []byte{}
+	}
+	cid := C.CString(r.id)
+	defer C.free(unsafe.Pointer(cid))
+	var ptr *C.uint8_t
+	if len(decision) > 0 {
+		ptr = (*C.uint8_t)(&decision[0])
+	}
+	code := C.ancora_run_resume(r.rt.ptr, cid, ptr, C.uintptr_t(len(decision)))
+	return asError(code)
+}
+
 // bufferToBytes copies an AncorBuffer into a Go byte slice.
 // The caller must still free the original C buffer.
 func bufferToBytes(buf C.AncorBuffer) []byte {
