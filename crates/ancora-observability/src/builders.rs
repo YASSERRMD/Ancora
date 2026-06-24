@@ -45,6 +45,15 @@ pub fn node_span_with_finish_reason(
         .set(GEN_AI_RESPONSE_FINISH_REASON, finish_reason)
 }
 
+/// Build a span for a completed graph run with total cost.
+pub fn graph_span(run_id: &str, graph_id: &str, total_cost_usd: f64) -> Span {
+    Span::new("ancora.graph")
+        .set(GEN_AI_OPERATION_NAME, "graph")
+        .set(ANCORA_RUN_ID, run_id)
+        .set(ANCORA_GRAPH_ID, graph_id)
+        .set(ANCORA_TOTAL_COST_USD, total_cost_usd)
+}
+
 /// Build a span from a journal event name.
 pub fn journal_event_span(run_id: &str, event_name: &str) -> Span {
     Span::new(event_name)
