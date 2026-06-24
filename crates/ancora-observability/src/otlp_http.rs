@@ -47,6 +47,11 @@ impl OtlpHttpExporter {
         Ok(())
     }
 
+    /// Returns the configured endpoint URL.
+    pub fn endpoint(&self) -> &str {
+        &self.endpoint
+    }
+
     /// Buffered span count (for testing).
     pub fn buffered(&self) -> usize {
         self.buffer.lock().unwrap().len()
