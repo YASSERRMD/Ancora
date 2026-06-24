@@ -11,6 +11,8 @@ type searchInput struct {
 	Limit int    `json:"limit" schema:"max number of results"`
 }
 
+type emptyStruct struct{}
+
 func TestSchemaFromStructHasObjectType(t *testing.T) {
 	schema, err := ancora.SchemaFromStruct(searchInput{})
 	if err != nil {
@@ -78,5 +80,38 @@ func TestSchemaFromStructPointerToStruct(t *testing.T) {
 	}
 	if !contains(schema, `"type":"object"`) {
 		t.Fatalf("pointer-to-struct schema must have object type, got: %s", schema)
+	}
+}
+
+func TestSchemaFromStructEmptyStructHasNoProperties(t *testing.T) {
+	schema, err := ancora.SchemaFromStruct(emptyStruct{})
+	if err != nil {
+		t.Fatalf("SchemaFromStruct(emptyStruct): %v", err)
+	}
+	if !contains(schema, `"type":"object"`) {
+		t.Fatalf("empty struct must still be object type, got: %s", schema)
+	}
+}
+
+func TestSchemaFromStructBoolFieldHasBooleanType(t *testing.T) {
+	type boolStruct struct {
+		Active bool `json:"active"`
+	}
+	schema, err := ancora.SchemaFromStruct(boolStruct{})
+	if err != nil {
+		t.Fatalf("SchemaFromStruct: %v", err)
+	}
+	if !contains(schema, `"boolean"`) {
+		t.Fatalf("bool field must map to boolean type, got: %s", schema)
+	}
+}
+
+func TestSchemaFromStructRequiredListContainsFields(t *testing.T) {
+	schema, err := ancora.SchemaFromStruct(searchInput{})
+	if err != nil {
+		t.Fatalf("SchemaFromStruct: %v", err)
+	}
+	if !contains(schema, `"required"`) {
+		t.Fatalf("schema must include required list, got: %s", schema)
 	}
 }
