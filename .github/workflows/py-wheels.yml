@@ -65,3 +65,28 @@ jobs:
         with:
           name: py-wheel-macos-${{ matrix.python }}-${{ matrix.target }}
           path: dist/*.whl
+
+  build-windows:
+    name: windows ${{ matrix.python }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: >-
+            --release
+            --manifest-path sdk/python/pyproject.toml
+            --interpreter python${{ matrix.python }}
+            --out dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: py-wheel-windows-${{ matrix.python }}
+          path: dist/*.whl
