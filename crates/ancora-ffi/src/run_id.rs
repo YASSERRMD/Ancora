@@ -1,5 +1,6 @@
 use std::os::raw::c_char;
 
+use crate::buffer::{ancora_buffer_from_str, AncorBuffer};
 use crate::handles::AncorRunId;
 
 struct InnerRunId {
