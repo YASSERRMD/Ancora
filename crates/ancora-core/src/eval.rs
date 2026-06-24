@@ -38,6 +38,37 @@ impl EvalScorer for ExactMatchScorer {
 /// Contains-match scorer: 1.0 if expected is a substring of candidate.
 pub struct ContainsScorer;
 
+/// Normalized edit-distance scorer: 1 - edit_distance / max_len.
+pub struct NormalizedEditScorer;
+
+fn edit_distance(a: &str, b: &str) -> usize {
+    let a: Vec<char> = a.chars().collect();
+    let b: Vec<char> = b.chars().collect();
+    let (m, n) = (a.len(), b.len());
+    let mut dp = vec![vec![0usize; n + 1]; m + 1];
+    for i in 0..=m { dp[i][0] = i; }
+    for j in 0..=n { dp[0][j] = j; }
+    for i in 1..=m {
+        for j in 1..=n {
+            dp[i][j] = if a[i - 1] == b[j - 1] {
+                dp[i - 1][j - 1]
+            } else {
+                1 + dp[i - 1][j - 1].min(dp[i - 1][j]).min(dp[i][j - 1])
+            };
+        }
+    }
+    dp[m][n]
+}
+
+impl EvalScorer for NormalizedEditScorer {
+    fn name(&self) -> &str { "normalized_edit" }
+    fn score(&self, candidate: &str, expected: &str) -> f64 {
+        let max_len = candidate.len().max(expected.len());
+        if max_len == 0 { return 1.0; }
+        1.0 - edit_distance(candidate, expected) as f64 / max_len as f64
+    }
+}
+
 impl EvalScorer for ContainsScorer {
     fn name(&self) -> &str { "contains" }
     fn score(&self, candidate: &str, expected: &str) -> f64 {
