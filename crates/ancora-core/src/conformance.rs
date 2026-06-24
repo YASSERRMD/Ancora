@@ -165,4 +165,17 @@ mod tests {
         assert_eq!(recovered.run_id, "run-1");
         assert_eq!(recovered.node_id, "approve-node");
     }
+
+    #[test]
+    fn human_in_loop_scenario_suspended_run_preserves_deadline() {
+        use crate::suspend::SuspendedRun;
+        let run = SuspendedRun {
+            run_id: "r".into(),
+            node_id: "n".into(),
+            pending_input: "p".into(),
+            deadline_ms: Some(9999),
+        };
+        let recovered = SuspendedRun::from_json(&run.to_json().unwrap()).unwrap();
+        assert_eq!(recovered.deadline_ms, Some(9999));
+    }
 }
