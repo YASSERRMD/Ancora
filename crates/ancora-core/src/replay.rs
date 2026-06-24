@@ -65,3 +65,28 @@ fn apply_event(state: &mut ReplayState, event: &JournalEvent) -> Result<(), Anco
     }
     Ok(())
 }
+
+/// Check whether the sequence of activity keys produced by the current code
+/// path (`observed`) matches the sequence recorded in the journal (`expected`).
+///
+/// Returns `AncoraError::Nondeterminism` with position details if any key
+/// diverges. An extra observed key beyond the journal end is also a divergence.
+pub fn detect_divergence(expected: &[String], observed: &[String]) -> Result<(), AncoraError> {
+    for (seq, (exp, obs)) in expected.iter().zip(observed.iter()).enumerate() {
+        if exp != obs {
+            return Err(AncoraError::Nondeterminism {
+                seq: seq as u64,
+                expected: exp.clone(),
+                got: obs.clone(),
+            });
+        }
+    }
+    if observed.len() > expected.len() {
+        return Err(AncoraError::Nondeterminism {
+            seq: expected.len() as u64,
+            expected: "<end-of-journal>".to_string(),
+            got: observed[expected.len()].clone(),
+        });
+    }
+    Ok(())
+}
