@@ -42,3 +42,6 @@ impl From<u64> for SpanValue {
 impl From<f64> for SpanValue {
     fn from(f: f64) -> Self { SpanValue::Float(f) }
 }
+impl From<bool> for SpanValue {
+    fn from(b: bool) -> Self { SpanValue::Bool(b) }
+}
