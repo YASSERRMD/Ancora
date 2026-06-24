@@ -76,4 +76,27 @@ mod tests {
         assert_eq!(result, r#"{"fixed": true}"#);
         assert_eq!(repair_calls, 1, "repair must be called exactly once");
     }
+
+    #[test]
+    fn repair_attempts_are_bounded() {
+        let mut repair_calls = 0u32;
+        let max_attempts = 3u32;
+
+        let err = validate_with_repair(
+            "not json".to_string(),
+            SCHEMA,
+            max_attempts,
+            |_output, _reason| {
+                repair_calls += 1;
+                Ok("still not json".to_string())
+            },
+        )
+        .unwrap_err();
+
+        assert!(
+            matches!(err, AncoraError::OutputValidation { attempts, .. } if attempts == max_attempts),
+            "expected OutputValidation with attempts = {max_attempts}, got {err:?}",
+        );
+        assert_eq!(repair_calls, max_attempts - 1, "repair is called max_attempts - 1 times before the budget is exhausted");
+    }
 }
