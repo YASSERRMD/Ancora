@@ -1,0 +1,11 @@
+[package]
+name = "ancora-policy"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Declarative governance policy for Ancora agents and tools"
+
+[dependencies]
+thiserror = "2"
