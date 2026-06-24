@@ -912,4 +912,32 @@ mod tests {
             RunOutcome::Suspended(_) => panic!("expected Completed after resume"),
         }
     }
+
+    #[test]
+    fn timeout_fires_when_no_decision_arrives() {
+        let graph = Graph {
+            id: "g-timeout".to_string(),
+            nodes: vec![
+                Node {
+                    id: "await".to_string(),
+                    kind: NodeKind::AwaitHuman,
+                    spec: NodeSpec::Function { name: "await".to_string() },
+                },
+            ],
+            edges: vec![],
+            entry_node: "await".to_string(),
+        };
+
+        let mut exec = GraphExecutor::new(graph, "run-timeout-1", Arc::new(MemoryStore::new()));
+        let outcome = exec.run_until_suspend("in", &PrefixExecutor).unwrap();
+        let mut suspended = match outcome {
+            RunOutcome::Suspended(s) => s,
+            RunOutcome::Completed(_) => panic!("expected Suspended"),
+        };
+
+        // Set a deadline that has already passed.
+        suspended.deadline_ms = Some(1000);
+        let err = exec.resume(&suspended, "too-late", 2000, &PrefixExecutor).unwrap_err();
+        assert!(matches!(err, AncoraError::Timeout { timeout_ms: 1000 }));
+    }
 }
