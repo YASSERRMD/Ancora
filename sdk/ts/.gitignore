@@ -3,3 +3,4 @@ dist/
 *.node
 *.tgz
 npm/
+!npm/*/package.json
