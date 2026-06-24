@@ -1,10 +1,13 @@
 package ancora_test
 
 import (
+	"strings"
 	"testing"
 
 	"ancora.io/sdk/ancora"
 )
+
+func contains(s, sub string) bool { return strings.Contains(s, sub) }
 
 func mustRuntime(t *testing.T) *ancora.Runtime {
 	t.Helper()
