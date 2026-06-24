@@ -40,3 +40,20 @@ func AllConformanceScenarios() []ConformanceScenario {
 		ScenarioCrashAndRecover,
 	}
 }
+
+// ConformanceResult describes the outcome of running one conformance scenario.
+type ConformanceResult struct {
+	ScenarioID string
+	Passed     bool
+	Reason     string
+}
+
+// ConformancePassed returns a passing result for the given scenario.
+func ConformancePassed(scenarioID string) ConformanceResult {
+	return ConformanceResult{ScenarioID: scenarioID, Passed: true}
+}
+
+// ConformanceFailed returns a failing result with a reason.
+func ConformanceFailed(scenarioID, reason string) ConformanceResult {
+	return ConformanceResult{ScenarioID: scenarioID, Passed: false, Reason: reason}
+}
