@@ -40,6 +40,16 @@ pub struct PostgresStore {
     client: Mutex<Client>,
 }
 
+fn extract_activity_key(event: &JournalEvent) -> Option<String> {
+    use ancora_proto::ancora::journal_event::Event;
+    match event.event.as_ref()? {
+        Event::ActivityRecorded(a) if !a.activity_key.is_empty() => {
+            Some(a.activity_key.clone())
+        }
+        _ => None,
+    }
+}
+
 impl PostgresStore {
     /// Connect using a Postgres connection string and run schema migrations.
     pub fn connect(connection_str: &str) -> Result<Self, AncoraError> {
