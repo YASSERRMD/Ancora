@@ -14,6 +14,17 @@ func TestAgentSpecBuilderSetsName(t *testing.T) {
 	}
 }
 
+func TestAgentSpecBuildBytesNonEmpty(t *testing.T) {
+	b := ancora.NewAgentSpecBuilder().WithName("agent").WithModelID("llama3")
+	bytes, err := b.BuildBytes()
+	if err != nil {
+		t.Fatalf("BuildBytes: %v", err)
+	}
+	if len(bytes) == 0 {
+		t.Fatal("BuildBytes returned empty bytes")
+	}
+}
+
 func TestAgentSpecBuilderSetsModelID(t *testing.T) {
 	spec := ancora.NewAgentSpecBuilder().WithModelID("gpt-4o").Build()
 	if spec.GetModelId() != "gpt-4o" {
