@@ -21,3 +21,8 @@ func (a *Agent) Start() (*Run, error) {
 	}
 	return a.rt.StartRun(bytes)
 }
+
+// Resume provides a human-in-loop decision to a suspended run.
+func (a *Agent) Resume(run *Run, decision []byte) error {
+	return run.Resume(decision)
+}
