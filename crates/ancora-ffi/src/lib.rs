@@ -6,5 +6,6 @@ pub mod run_ops;
 pub mod runs;
 pub mod runtime;
 pub mod tool_callback;
+pub mod tool_ops;
 pub mod tool_registry;
 pub mod version;
