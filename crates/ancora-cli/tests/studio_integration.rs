@@ -44,3 +44,13 @@ fn get_runs_returns_200() {
     let resp = http_get(port, "/runs");
     assert!(resp.starts_with("HTTP/1.1 200"), "got: {resp}");
 }
+
+#[test]
+fn get_run_timeline_returns_200_with_run_id() {
+    let server = make_server();
+    let port = server.port();
+    std::thread::spawn(move || { server.handle_one().ok(); });
+    let resp = http_get(port, "/runs/run-abc/timeline");
+    assert!(resp.starts_with("HTTP/1.1 200"), "got: {resp}");
+    assert!(resp.contains("run-abc"), "body missing run_id: {resp}");
+}
