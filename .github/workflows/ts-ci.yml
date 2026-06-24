@@ -26,7 +26,7 @@ jobs:
           cache: npm
           cache-dependency-path: sdk/ts/package-lock.json
       - run: npm ci
-      - run: npm test -- --ci
+      - run: npm test -- --ci --verbose
       - name: Type check
         run: npx tsc --noEmit
 
