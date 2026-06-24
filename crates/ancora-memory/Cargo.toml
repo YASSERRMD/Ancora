@@ -1,0 +1,8 @@
+[package]
+name = "ancora-memory"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Composable memory tiers for Ancora agents"
