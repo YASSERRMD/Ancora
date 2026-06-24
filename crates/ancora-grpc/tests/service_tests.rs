@@ -1,5 +1,7 @@
 use ancora_grpc::proto::run_service_server::RunServiceServer;
-use ancora_grpc::proto::{PollRunRequest, ResumeRunRequest, StartRunRequest};
+use ancora_grpc::proto::{
+    DecisionRequest, PollRunRequest, ResumeRunRequest, StartRunRequest, StreamEventsRequest,
+};
 use ancora_grpc::service::RunServiceImpl;
 
 use tonic::transport::Server;
