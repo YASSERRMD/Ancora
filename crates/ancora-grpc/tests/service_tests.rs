@@ -57,3 +57,26 @@ async fn poll_run_first_event_is_started() {
         .event;
     assert!(event.contains("started"), "expected started, got: {event}");
 }
+
+#[tokio::test]
+async fn poll_run_second_event_is_completed() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    client.poll_run(Request::new(PollRunRequest { run_id: run_id.clone() })).await.unwrap();
+    let e2 = client
+        .poll_run(Request::new(PollRunRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner()
+        .event;
+    assert!(e2.contains("completed"), "expected completed, got: {e2}");
+}
