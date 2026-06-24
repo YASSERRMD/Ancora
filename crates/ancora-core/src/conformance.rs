@@ -25,3 +25,10 @@ pub const MULTI_AGENT_VERIFIER: ConformanceScenario = ConformanceScenario {
     description: "An agent node and a verifier node with an explicit dependency",
     tags: &["agent", "verifier", "graph"],
 };
+
+/// Run suspends for human input and resumes after approval.
+pub const HUMAN_IN_LOOP: ConformanceScenario = ConformanceScenario {
+    id: "human-in-loop",
+    description: "A run suspends awaiting human approval and then resumes correctly",
+    tags: &["suspend", "resume", "human"],
+};
