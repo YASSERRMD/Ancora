@@ -13,3 +13,11 @@ pub struct CompletionRequest {
     pub max_tokens: Option<u32>,
     pub temperature: Option<f32>,
 }
+
+/// The response returned by a model after completion.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CompletionResponse {
+    pub content: String,
+    pub tokens_in: u64,
+    pub tokens_out: u64,
+}
