@@ -35,3 +35,25 @@ async fn start_run_returns_non_empty_run_id() {
         .into_inner();
     assert!(!resp.run_id.is_empty());
 }
+
+#[tokio::test]
+async fn poll_run_first_event_is_started() {
+    use ancora_grpc::proto::run_service_client::RunServiceClient;
+    let port = bind_server().await;
+    let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
+        .await
+        .unwrap();
+    let run_id = client
+        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .await
+        .unwrap()
+        .into_inner()
+        .run_id;
+    let event = client
+        .poll_run(Request::new(PollRunRequest { run_id }))
+        .await
+        .unwrap()
+        .into_inner()
+        .event;
+    assert!(event.contains("started"), "expected started, got: {event}");
+}
