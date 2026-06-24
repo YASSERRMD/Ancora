@@ -174,6 +174,36 @@ func TestDrainEventsAfterResumeIncludesCompleted(t *testing.T) {
 	}
 }
 
+func TestEventChanOnEmptyQueueReturnsClosed(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	run.DrainEvents() // empty the queue
+	count := 0
+	for range run.EventChan() {
+		count++
+	}
+	if count != 0 {
+		t.Fatalf("expected 0 events on empty queue, got: %d", count)
+	}
+}
+
+func TestAgentSpecAccessor(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	if ag.Spec() == nil {
+		t.Fatal("Agent.Spec() returned nil")
+	}
+}
+
+func TestAgentRuntimeAccessor(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	if ag.Runtime() != rt {
+		t.Fatal("Agent.Runtime() did not return the original runtime")
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
