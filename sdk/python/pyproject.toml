@@ -10,7 +10,12 @@ readme = "README.md"
 license = { text = "Apache-2.0" }
 authors = [{ name = "YASSERRMD", email = "arafath.yasser@gmail.com" }]
 requires-python = ">=3.9"
+keywords = ["agent", "runtime", "ai", "llm", "tools"]
 dependencies = ["pydantic>=2.0"]
+
+[project.urls]
+"Homepage" = "https://github.com/YASSERRMD/Ancora"
+"Bug Tracker" = "https://github.com/YASSERRMD/Ancora/issues"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
