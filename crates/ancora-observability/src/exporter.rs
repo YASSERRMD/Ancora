@@ -5,6 +5,7 @@ use crate::span::Span;
 /// Receives and records spans.
 pub trait SpanEmitter: Send + Sync {
     fn emit(&self, span: Span);
+    fn flush(&self) {}
 }
 
 /// In-memory exporter for testing; captures all emitted spans.
