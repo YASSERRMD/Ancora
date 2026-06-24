@@ -402,6 +402,13 @@ mod tests {
     }
 
     #[test]
+    fn fixture_is_empty_by_default() {
+        let f = Fixture::new();
+        assert!(f.is_empty());
+        assert_eq!(f.len(), 0);
+    }
+
+    #[test]
     fn fixture_entry_serializes_to_json_with_all_fields() {
         let entry = make_entry("k1", r#""val""#);
         let json = serde_json::to_string(&entry).unwrap();
