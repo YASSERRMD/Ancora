@@ -238,3 +238,14 @@ fn all_four_scenarios_can_be_started_via_ffi() {
     }
     ancora_free_runtime(rt);
 }
+
+#[test]
+fn all_four_scenarios_produce_at_least_one_event_each() {
+    let rt = make_rt();
+    for scenario in conformance::all_scenarios() {
+        let id = start_run(rt);
+        let events = drain_events(rt, &id);
+        assert!(!events.is_empty(), "scenario '{}' must produce at least one event", scenario.id);
+    }
+    ancora_free_runtime(rt);
+}
