@@ -35,3 +35,14 @@ fn create_and_free_run_id_does_not_panic() {
     assert!(!id.is_null());
     ancora_run_id_free(id);
 }
+
+#[test]
+fn run_id_new_with_null_returns_null() {
+    let id = ancora_run_id_new(std::ptr::null());
+    assert!(id.is_null());
+}
+
+#[test]
+fn free_null_run_id_is_noop() {
+    ancora_run_id_free(std::ptr::null_mut());
+}
