@@ -90,6 +90,40 @@ func TestSingleAgentRunCompletesEndToEnd(t *testing.T) {
 	}
 }
 
+func TestEventChanClosesAfterEventsExhausted(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	// range over the channel; it must close eventually
+	count := 0
+	for range run.EventChan() {
+		count++
+	}
+	if count == 0 {
+		t.Fatal("expected at least one event before channel close")
+	}
+}
+
+func TestResumePropagatesDecisionViaAgent(t *testing.T) {
+	rt, ag := makeAgent(t)
+	defer rt.Free()
+	run, _ := ag.Start()
+	run.DrainEvents()
+	if err := ag.Resume(run, []byte("approved")); err != nil {
+		t.Fatalf("Agent.Resume: %v", err)
+	}
+	events, _ := run.DrainEvents()
+	found := false
+	for _, e := range events {
+		if contains(e, "resumed") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected resumed event after Resume, got: %v", events)
+	}
+}
+
 func TestNewAgentReturnsNonNil(t *testing.T) {
 	rt, ag := makeAgent(t)
 	defer rt.Free()
