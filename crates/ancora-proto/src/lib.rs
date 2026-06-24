@@ -6,11 +6,16 @@ pub mod messages {
     include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
 }
 
+pub mod contracts {
+    include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
+}
+
 #[cfg(test)]
 mod tests {
     use prost::Message;
 
     use super::ancora::{Ping, Pong};
+    use super::contracts::{AgentSpec, EffectClass, RetryPolicy, ToolSpec};
     use super::messages::{
         content_block::Block, image_content::Source as ImageSource, AudioContent, ContentBlock,
         DocumentContent, ImageContent, Message as AncMsg, Role, TextContent, TokenUsage,
@@ -140,5 +145,52 @@ mod tests {
         let encoded = usage.encode_to_vec();
         let decoded = TokenUsage::decode(encoded.as_slice()).expect("decode TokenUsage");
         assert_eq!(usage, decoded);
+    }
+
+    #[test]
+    fn agent_spec_round_trip() {
+        let spec = AgentSpec {
+            name: "researcher".to_string(),
+            model_id: "llama3".to_string(),
+            instructions: "You are a research assistant.".to_string(),
+            output_schema_json: r#"{"type":"object"}"#.to_string(),
+            tools: vec![ToolSpec {
+                name: "web_search".to_string(),
+                description: "Search the web".to_string(),
+                input_schema_json: r#"{"type":"object","properties":{"q":{"type":"string"}}}"#
+                    .to_string(),
+                output_schema_json: r#"{"type":"string"}"#.to_string(),
+                effect_class: EffectClass::EffectRead as i32,
+                idempotency_key_template: "".to_string(),
+            }],
+            max_steps: 10,
+            model_retry: Some(RetryPolicy {
+                max_attempts: 3,
+                initial_backoff_ms: 100,
+                max_backoff_ms: 5000,
+                jitter: 0.1,
+            }),
+            model_params_json: r#"{"temperature":0.7}"#.to_string(),
+        };
+        let encoded = spec.encode_to_vec();
+        let decoded = AgentSpec::decode(encoded.as_slice()).expect("decode AgentSpec");
+        assert_eq!(spec, decoded);
+    }
+
+    #[test]
+    fn tool_spec_write_effect_round_trip() {
+        let tool = ToolSpec {
+            name: "send_email".to_string(),
+            description: "Sends an email".to_string(),
+            input_schema_json: r#"{"type":"object"}"#.to_string(),
+            output_schema_json: r#"{"type":"null"}"#.to_string(),
+            effect_class: EffectClass::EffectWrite as i32,
+            idempotency_key_template: "{run_id}-{node_id}-{seq}".to_string(),
+        };
+        let encoded = tool.encode_to_vec();
+        let decoded = ToolSpec::decode(encoded.as_slice()).expect("decode ToolSpec");
+        assert_eq!(tool, decoded);
+        assert_eq!(decoded.effect_class, EffectClass::EffectWrite as i32);
+        assert!(!decoded.idempotency_key_template.is_empty());
     }
 }
