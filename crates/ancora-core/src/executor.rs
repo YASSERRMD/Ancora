@@ -630,4 +630,44 @@ mod tests {
         let one_round = exec2.run_group_chat(&agents, "hello", 1, &PrefixExecutor).unwrap();
         assert_eq!(one_round.len(), 2, "one round with 2 agents must produce exactly 2 turns");
     }
+
+    #[test]
+    fn verifier_rejection_triggers_bounded_rework() {
+        use std::sync::atomic::{AtomicU32, Ordering};
+
+        let graph = Graph {
+            id: "g-verify".to_string(),
+            nodes: vec![function_node("worker"), function_node("verifier")],
+            edges: vec![],
+            entry_node: "worker".to_string(),
+        };
+
+        // Worker appends its call count to the output.
+        let call_count = Arc::new(AtomicU32::new(0));
+        let cc = Arc::clone(&call_count);
+        struct CountingWorker(Arc<AtomicU32>);
+        impl NodeExecutor for CountingWorker {
+            fn execute(&self, _node: &Node, _input: &str) -> Result<String, AncoraError> {
+                let n = self.0.fetch_add(1, Ordering::SeqCst) + 1;
+                Ok(format!("output-{n}"))
+            }
+        }
+
+        // Verifier rejects everything.
+        struct AlwaysReject;
+        impl VerifierNode for AlwaysReject {
+            fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
+                Ok(VerifierResult::Rejected { reason: format!("rejected {candidate}") })
+            }
+        }
+
+        let mut exec = GraphExecutor::new(graph, "run-verify-1", Arc::new(MemoryStore::new()));
+        let err = exec.run_with_verifier(
+            "worker", "verifier", "in", 2, &CountingWorker(cc), &AlwaysReject,
+        ).unwrap_err();
+
+        assert!(matches!(err, AncoraError::OutputValidation { attempts: 3, .. }));
+        assert_eq!(call_count.load(Ordering::SeqCst), 3, "worker must be called 1 + max_rework times");
+    }
+
 }
