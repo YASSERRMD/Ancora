@@ -18,3 +18,10 @@ pub const SINGLE_AGENT: ConformanceScenario = ConformanceScenario {
     description: "A single agent node runs to completion without error",
     tags: &["agent", "basic"],
 };
+
+/// Agent and verifier nodes where verifier depends on agent output.
+pub const MULTI_AGENT_VERIFIER: ConformanceScenario = ConformanceScenario {
+    id: "multi-agent-verifier",
+    description: "An agent node and a verifier node with an explicit dependency",
+    tags: &["agent", "verifier", "graph"],
+};
