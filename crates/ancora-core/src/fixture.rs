@@ -219,6 +219,24 @@ mod tests {
     }
 
     #[test]
+    fn fixture_merge_adds_new_entries() {
+        let mut a = build_fixture(&[("k1", "m", "{}", r#""r1""#)]);
+        let b = build_fixture(&[("k2", "m", "{}", r#""r2""#)]);
+        a.merge(b);
+        assert_eq!(a.len(), 2);
+        assert_eq!(a.get_result("k2"), Some(r#""r2""#));
+    }
+
+    #[test]
+    fn fixture_merge_overwrites_existing_key() {
+        let mut a = build_fixture(&[("k1", "m", "{}", r#""old""#)]);
+        let b = build_fixture(&[("k1", "m", "{}", r#""new""#)]);
+        a.merge(b);
+        assert_eq!(a.len(), 1);
+        assert_eq!(a.get_result("k1"), Some(r#""new""#));
+    }
+
+    #[test]
     fn fixture_stores_and_retrieves_entries() {
         let mut f = Fixture::new();
         f.add(make_entry("step-1", r#""output1""#));
