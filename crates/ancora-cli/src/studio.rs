@@ -21,3 +21,11 @@ pub struct StudioServer {
     listener: std::net::TcpListener,
     store: Arc<MemoryStore>,
 }
+
+impl StudioServer {
+    /// Bind to the given port on localhost. Pass 0 for an OS-assigned port.
+    pub fn bind(port: u16, store: Arc<MemoryStore>) -> std::io::Result<Self> {
+        let listener = std::net::TcpListener::bind(format!("127.0.0.1:{}", port))?;
+        Ok(Self { listener, store })
+    }
+}
