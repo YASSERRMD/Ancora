@@ -78,3 +78,4 @@ export {
 export type { ToolSpec, AgentSpec, RunEvent, ToolCall } from './schemas'
 export { encodeSpec, decodeSpec, parseEvent, validateSpec, buildSpec } from './wire'
 export { Agent, RunHandle } from './agent'
+export { collectEvents, tokenText } from './helpers'
