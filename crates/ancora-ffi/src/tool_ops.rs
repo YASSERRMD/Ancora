@@ -26,3 +26,21 @@ pub extern "C" fn ancora_tool_register(
     inner.tools.lock().unwrap().register(name_str, cb);
     AncorErrorCode::Ok
 }
+
+/// Unregister a named tool callback. Returns `NullPtr` if either pointer is null.
+#[no_mangle]
+pub extern "C" fn ancora_tool_unregister(
+    rt: *mut AncorRuntime,
+    name: *const c_char,
+) -> AncorErrorCode {
+    if rt.is_null() || name.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let inner = unsafe { &*(rt.cast::<InnerRuntime>()) };
+    let name_str = match unsafe { CStr::from_ptr(name) }.to_str() {
+        Ok(s) => s,
+        Err(_) => return AncorErrorCode::InvalidUtf8,
+    };
+    inner.tools.lock().unwrap().unregister(name_str);
+    AncorErrorCode::Ok
+}
