@@ -7,6 +7,7 @@ fn main() {
                 "proto/ancora.proto",
                 "proto/messages.proto",
                 "proto/contracts.proto",
+                "proto/journal.proto",
             ],
             &["proto"],
         )

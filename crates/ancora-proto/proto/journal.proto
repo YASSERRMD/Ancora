@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package ancora;
+
+option java_package = "dev.ancora";
+option java_outer_classname = "JournalPb";
+option go_package = "github.com/YASSERRMD/Ancora/bindings/go/ancora";
+
+// ---- Event variant payloads ----
+
+// A run was started.
+message RunStartedEvent {
+  string run_id = 1;
+  // Serialized AgentSpec or GraphSpec bytes (proto-encoded).
+  bytes spec_bytes = 2;
+  string spec_type = 3;
+}
+
+// Execution entered a graph node.
+message NodeEnteredEvent {
+  string node_id = 1;
+  string node_kind = 2;
+}
+
+// Execution exited a graph node.
+message NodeExitedEvent {
+  string node_id = 1;
+  // true if the node completed without error
+  bool success = 2;
+}
+
+// A non-deterministic activity was executed and its result recorded.
+message ActivityRecordedEvent {
+  string activity_key = 1;
+  string activity_kind = 2;
+  // JSON-encoded input sent to the activity.
+  string input_json = 3;
+  // JSON-encoded result returned by the activity.
+  string result_json = 4;
+  // True on replay: this field being true means the payload was read
+  // from a prior journal entry rather than re-executed.
+  bool replayed = 5;
+}
+
+// The run is suspended, awaiting a human decision.
+message HumanDecisionRequestedEvent {
+  string prompt = 1;
+  // Options the human may select. Empty means free-form input.
+  repeated string options = 2;
+  // Deadline in Unix epoch nanoseconds. 0 means no deadline.
+  int64 timeout_at_ns = 3;
+}
+
+// A human provided a decision that resumes the run.
+message HumanDecisionReceivedEvent {
+  string decision = 1;
+}
+
+// The run completed successfully.
+message RunCompletedEvent {
+  // JSON-encoded final output.
+  string output_json = 1;
+}
+
+// An error occurred.
+message ErrorEvent {
+  string code = 1;
+  string message = 2;
+  // Serialized stack/context for debugging; not part of replay logic.
+  string detail = 3;
+}
+
+// An activity or node will be retried.
+message RetryScheduledEvent {
+  string target_id = 1;
+  uint32 attempt = 2;
+  // Delay before the next attempt, in milliseconds.
+  uint64 delay_ms = 3;
+}
+
+// The run was cancelled.
+message RunCancelledEvent {
+  string reason = 1;
+}
+
+// ---- Envelope ----
+
+// A single entry in the durable event journal.
+message JournalEvent {
+  // Globally unique event id (UUIDv7 or ULID).
+  string event_id = 1;
+  // Stable run id this event belongs to.
+  string run_id = 2;
+  // Monotonically increasing sequence number within the run.
+  uint64 seq = 3;
+  // Wall-clock timestamp of recording (Unix epoch, nanoseconds).
+  int64 recorded_at_ns = 4;
+
+  // Exactly one event variant.
+  oneof event {
+    RunStartedEvent run_started = 10;
+    NodeEnteredEvent node_entered = 11;
+    NodeExitedEvent node_exited = 12;
+    ActivityRecordedEvent activity_recorded = 13;
+    HumanDecisionRequestedEvent human_decision_requested = 14;
+    HumanDecisionReceivedEvent human_decision_received = 15;
+    RunCompletedEvent run_completed = 16;
+    ErrorEvent error = 17;
+    RetryScheduledEvent retry_scheduled = 18;
+    RunCancelledEvent run_cancelled = 19;
+  }
+}
