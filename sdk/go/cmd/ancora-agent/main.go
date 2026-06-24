@@ -1,6 +1,5 @@
 // ancora-agent is a single-binary offline Ancora agent runner.
-// It reads an AgentSpec from stdin (protobuf bytes) or --spec flag,
-// runs the agent via the in-process FFI runtime, and prints events to stdout.
+// It runs an agent via the in-process FFI runtime with optional SQLite persistence.
 package main
 
 import (
@@ -16,6 +15,7 @@ func main() {
 	name := flag.String("name", "agent", "agent name")
 	model := flag.String("model", "llama3", "model ID")
 	instructions := flag.String("instructions", "you are a helpful assistant", "agent instructions")
+	dbPath := flag.String("db", "", "SQLite database path (empty = no persistence)")
 	flag.Parse()
 
 	rt, err := ancora.NewRuntime()
@@ -25,8 +25,20 @@ func main() {
 	}
 	defer rt.Free()
 
+	var tr ancora.Transport = ancora.NewCgoTransport(rt)
+
+	if *dbPath != "" {
+		store, err := ancora.OpenSqliteStore(*dbPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ancora-agent: open store: %v\n", err)
+			os.Exit(1)
+		}
+		defer store.Close()
+		tr = ancora.NewStoringTransport(tr, store)
+	}
+
 	spec := ancora.NewAgentSpec(*name, *model, *instructions)
-	ag := ancora.NewTransportAgent(ancora.NewCgoTransport(rt), spec)
+	ag := ancora.NewTransportAgent(tr, spec)
 
 	run, err := ag.Start(context.Background())
 	if err != nil {
