@@ -97,6 +97,14 @@ impl GraphExecutor {
         ).map(|_| ())
     }
 
+    /// Return node ids of all unconditional outgoing edges from `from`.
+    pub fn fan_out_ids(&self, from: &str) -> Vec<String> {
+        self.graph.edges.iter()
+            .filter(|e| e.from == from && e.condition.is_none())
+            .map(|e| e.to.clone())
+            .collect()
+    }
+
     fn next_node(&self, from: &str, output: &str) -> Result<Option<String>, AncoraError> {
         let outgoing: Vec<_> = self.graph.edges.iter()
             .filter(|e| e.from == from)
