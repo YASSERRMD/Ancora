@@ -1,5 +1,3 @@
-import * as path from 'path'
-
 const MOCK_RUNS: Record<string, string[]> = {}
 let runCounter = 0
 
@@ -36,9 +34,7 @@ const mockNativeModule = {
   version: () => '0.1.0',
 }
 
-jest.mock(path.join(__dirname, '..', 'ancora.node'), () => mockNativeModule, {
-  virtual: true,
-})
+jest.mock('../ancora.node', () => mockNativeModule, { virtual: true })
 
 import { Runtime, version } from '../index'
 
@@ -79,7 +75,7 @@ describe('Runtime.startRun', () => {
 
   it('accepts Uint8Array spec', () => {
     const rt = new Runtime()
-    const bytes = new TextEncoder().encode('{"model":"test"}')
+    const bytes = Buffer.from('{"model":"test"}', 'utf8')
     const runId = rt.startRun(bytes)
     expect(typeof runId).toBe('string')
     expect(runId.length).toBeGreaterThan(0)
@@ -107,7 +103,7 @@ describe('Runtime.pollRun', () => {
   it('returns token events after started', () => {
     const rt = new Runtime()
     const runId = rt.startRun('{}')
-    rt.pollRun(runId) // started
+    rt.pollRun(runId)
     const ev = JSON.parse(rt.pollRun(runId)!)
     expect(ev.kind).toBe('token')
     expect(ev.text).toBe('Hello')

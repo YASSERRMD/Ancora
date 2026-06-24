@@ -1,5 +1,3 @@
-import * as path from 'path'
-
 let nativeBinding: NativeModule | null = null
 
 interface NativeModule {
@@ -17,10 +15,9 @@ interface NativeRuntimeInstance {
 
 function loadNativeModule(): NativeModule {
   if (nativeBinding) return nativeBinding
-  const addonPath = path.join(__dirname, 'ancora.node')
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    nativeBinding = require(addonPath) as NativeModule
+    nativeBinding = require('./ancora.node') as NativeModule
     return nativeBinding
   } catch {
     throw new Error(
