@@ -1,14 +1,12 @@
 """Type stubs for the ancora package."""
 
-from typing import Optional, Type
+from enum import IntEnum
+from typing import List, Optional, Type
 
 class AncorError(Exception):
-    """Raised by the Ancora Python SDK."""
     def __init__(self, message: str) -> None: ...
 
 class Runtime:
-    """Handle to the Ancora agent runtime."""
-
     def __init__(self) -> None: ...
     def free(self) -> None: ...
     @property
@@ -22,4 +20,54 @@ class Runtime:
         exc_tb: Optional[object],
     ) -> bool: ...
 
+class EffectClass(IntEnum):
+    UNSPECIFIED: int
+    PURE: int
+    READ: int
+    WRITE: int
+
+class ToolSpec:
+    name: str
+    description: str
+    input_schema_json: str
+    output_schema_json: str
+    effect_class: EffectClass
+    idempotency_key_template: str
+    def __init__(self, *, name: str = ..., description: str = ..., **kwargs: object) -> None: ...
+
+class RetryPolicy:
+    max_attempts: int
+    initial_backoff_ms: int
+    max_backoff_ms: int
+    jitter: float
+    def __init__(self, *, max_attempts: int = ..., **kwargs: object) -> None: ...
+
+class AgentSpec:
+    name: str
+    model_id: str
+    instructions: str
+    output_schema_json: str
+    tools: List[ToolSpec]
+    max_steps: int
+    model_retry: Optional[RetryPolicy]
+    model_params_json: str
+    def __init__(self, *, name: str = ..., model_id: str = ..., **kwargs: object) -> None: ...
+
+class ToolSpecBuilder:
+    def with_name(self, name: str) -> "ToolSpecBuilder": ...
+    def with_description(self, description: str) -> "ToolSpecBuilder": ...
+    def with_effect_class(self, effect_class: EffectClass) -> "ToolSpecBuilder": ...
+    def build(self) -> ToolSpec: ...
+
+class AgentSpecBuilder:
+    def with_name(self, name: str) -> "AgentSpecBuilder": ...
+    def with_model_id(self, model_id: str) -> "AgentSpecBuilder": ...
+    def with_instructions(self, instructions: str) -> "AgentSpecBuilder": ...
+    def with_tool(self, tool: ToolSpec) -> "AgentSpecBuilder": ...
+    def with_max_steps(self, max_steps: int) -> "AgentSpecBuilder": ...
+    def with_model_retry(self, retry: RetryPolicy) -> "AgentSpecBuilder": ...
+    def build(self) -> AgentSpec: ...
+
+def to_wire_bytes(spec: AgentSpec) -> bytes: ...
+def from_wire_bytes(data: bytes) -> AgentSpec: ...
 def version() -> str: ...
