@@ -8,6 +8,7 @@ use ancora_proto::ancora::{
 use crate::error::AncoraError;
 use crate::graph::{Graph, Node, NodeKind};
 use crate::journal::JournalStore;
+use crate::stream::{StreamEvent, StreamSender};
 use crate::suspend::{RunOutcome, SuspendedRun};
 
 /// Executes a single graph node given its input and returns its output.
@@ -32,11 +33,24 @@ pub struct GraphExecutor {
     pub run_id: String,
     store: Arc<dyn JournalStore>,
     journal_seq: u64,
+    stream: Option<StreamSender>,
 }
 
 impl GraphExecutor {
     pub fn new(graph: Graph, run_id: impl Into<String>, store: Arc<dyn JournalStore>) -> Self {
-        Self { graph, run_id: run_id.into(), store, journal_seq: 0 }
+        Self { graph, run_id: run_id.into(), store, journal_seq: 0, stream: None }
+    }
+
+    /// Attach a stream sender so node lifecycle events are forwarded to the caller.
+    pub fn with_stream(mut self, sender: StreamSender) -> Self {
+        self.stream = Some(sender);
+        self
+    }
+
+    fn stream_event(&self, event: StreamEvent) {
+        if let Some(ref tx) = self.stream {
+            let _ = tx.send(event);
+        }
     }
 
     /// Execute the graph from `entry_node` to completion, returning the final node output.
@@ -55,6 +69,10 @@ impl GraphExecutor {
             };
 
             self.journal_node_entered(&current_id, node_kind)?;
+            self.stream_event(StreamEvent::NodeEntered {
+                node_id: current_id.clone(),
+                node_kind: node_kind.to_string(),
+            });
 
             let output = {
                 let node = self.graph.nodes.iter()
@@ -64,12 +82,16 @@ impl GraphExecutor {
             };
 
             self.journal_node_exited(&current_id, true)?;
+            self.stream_event(StreamEvent::NodeExited { node_id: current_id.clone() });
 
             current_output = output;
 
             match self.next_node(&current_id, &current_output)? {
                 Some(next_id) => current_id = next_id,
-                None => return Ok(current_output),
+                None => {
+                    self.stream_event(StreamEvent::RunCompleted { output: current_output.clone() });
+                    return Ok(current_output);
+                }
             }
         }
     }
