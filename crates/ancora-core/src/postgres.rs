@@ -39,3 +39,10 @@ CREATE TABLE IF NOT EXISTS checkpoints (
 pub struct PostgresStore {
     client: Mutex<Client>,
 }
+
+impl PostgresStore {
+    fn migrate(&self) -> Result<(), AncoraError> {
+        let mut client = self.client.lock().map_err(|_| storage("mutex poisoned"))?;
+        client.batch_execute(MIGRATION_V1).map_err(storage)
+    }
+}
