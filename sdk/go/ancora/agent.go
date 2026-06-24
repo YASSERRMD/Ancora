@@ -26,3 +26,9 @@ func (a *Agent) Start() (*Run, error) {
 func (a *Agent) Resume(run *Run, decision []byte) error {
 	return run.Resume(decision)
 }
+
+// Spec returns the AgentSpec this agent was created with.
+func (a *Agent) Spec() *AgentSpec { return a.spec }
+
+// Runtime returns the Runtime backing this agent.
+func (a *Agent) Runtime() *Runtime { return a.rt }
