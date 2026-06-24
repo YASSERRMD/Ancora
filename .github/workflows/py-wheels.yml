@@ -1,0 +1,38 @@
+name: py-wheels
+
+on:
+  pull_request:
+    paths:
+      - 'sdk/python/**'
+      - 'crates/ancora-py/**'
+      - '.github/workflows/py-wheels.yml'
+  push:
+    branches: [main]
+    tags: ['v*']
+
+jobs:
+  build-linux:
+    name: linux ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: >-
+            --release
+            --manifest-path sdk/python/pyproject.toml
+            --interpreter python${{ matrix.python }}
+            --out dist/
+          manylinux: auto
+      - uses: actions/upload-artifact@v4
+        with:
+          name: py-wheel-linux-${{ matrix.python }}
+          path: dist/*.whl
