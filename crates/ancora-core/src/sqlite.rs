@@ -67,6 +67,10 @@ CREATE TABLE IF NOT EXISTS journal_events (
 CREATE INDEX IF NOT EXISTS idx_journal_events_run_seq
     ON journal_events (run_id, seq);
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_journal_events_activity_key
+    ON journal_events (activity_key)
+    WHERE activity_key IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS checkpoints (
     run_id  TEXT    PRIMARY KEY,
     at_seq  INTEGER NOT NULL,
@@ -123,7 +127,13 @@ impl JournalStore for SqliteStore {
                 proto_bytes,
             ],
         )
-        .map_err(|e| AncoraError::Storage(format!("insert: {e}")))?;
+        .map_err(|e| {
+            if e.to_string().contains("UNIQUE constraint failed") {
+                AncoraError::JournalWrite(format!("duplicate activity_key: {e}"))
+            } else {
+                AncoraError::Storage(format!("insert: {e}"))
+            }
+        })?;
 
         Ok(seq)
     }
