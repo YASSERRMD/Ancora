@@ -1,0 +1,83 @@
+name: dotnet-ci
+
+on:
+  push:
+    paths:
+      - "sdk/dotnet/**"
+      - "crates/ancora-ffi/**"
+      - ".github/workflows/dotnet-ci.yml"
+  pull_request:
+    paths:
+      - "sdk/dotnet/**"
+      - "crates/ancora-ffi/**"
+      - ".github/workflows/dotnet-ci.yml"
+
+jobs:
+  test:
+    name: .NET build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build ancora-ffi cdylib
+        run: cargo build -p ancora-ffi --release
+        env:
+          CARGO_TERM_COLOR: always
+
+      - name: Copy native library for tests
+        run: |
+          cp target/release/libancora_ffi.so sdk/dotnet/Ancora.Tests/libancora_ffi.so
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore packages
+        working-directory: sdk/dotnet
+        run: dotnet restore
+
+      - name: Build
+        working-directory: sdk/dotnet
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        working-directory: sdk/dotnet
+        run: dotnet test --no-build --configuration Release --verbosity normal
+        env:
+          LD_LIBRARY_PATH: "${{ github.workspace }}/sdk/dotnet/Ancora.Tests"
+
+  pack:
+    name: NuGet pack (dry run)
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build native libraries for all Linux targets
+        run: |
+          cargo build -p ancora-ffi --release --target x86_64-unknown-linux-gnu
+          mkdir -p sdk/dotnet/Ancora/build/native/linux-x64
+          cp target/x86_64-unknown-linux-gnu/release/libancora_ffi.so \
+             sdk/dotnet/Ancora/build/native/linux-x64/libancora_ffi.so
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Pack NuGet
+        working-directory: sdk/dotnet/Ancora
+        run: dotnet pack --configuration Release --output ./nupkgs
+
+      - name: Upload NuGet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: sdk/dotnet/Ancora/nupkgs/*.nupkg

@@ -6,3 +6,7 @@ bin/
 *.suo
 *.swp
 TestResults/
+Ancora/build/native/linux-*/
+Ancora/build/native/osx-*/
+Ancora/build/native/win-*/
+Ancora/nupkgs/
