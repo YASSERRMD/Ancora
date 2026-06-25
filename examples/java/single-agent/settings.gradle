@@ -1,0 +1,7 @@
+rootProject.name = 'single-agent'
+
+includeBuild('../../../sdk/java') {
+    dependencySubstitution {
+        substitute module('io.ancora:ancora-java-sdk') using project(':')
+    }
+}
