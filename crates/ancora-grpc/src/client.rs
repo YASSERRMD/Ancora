@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::agent_card::AgentCard;
+use crate::identity::verify_card;
 use crate::task::{Task, TaskStatus};
 
 /// Thin A2A client that contacts a remote agent's HTTP card endpoint.
@@ -63,6 +64,23 @@ impl A2aClient {
         serde_json::from_str(body).map_err(|e| {
             tokio::io::Error::new(tokio::io::ErrorKind::InvalidData, e.to_string())
         })
+    }
+
+    /// Fetch the agent card and verify its Ed25519 signature.
+    ///
+    /// Returns `Ok(card)` only when the signature is present and valid.
+    /// Returns an `InvalidData` error when the card is unsigned or the
+    /// signature does not match the card contents.
+    pub async fn fetch_and_verify_card(&self) -> tokio::io::Result<AgentCard> {
+        let card = self.fetch_card().await?;
+        if verify_card(&card) {
+            Ok(card)
+        } else {
+            Err(tokio::io::Error::new(
+                tokio::io::ErrorKind::InvalidData,
+                "agent card signature is missing or invalid",
+            ))
+        }
     }
 
     /// Submit a task to the remote agent via a simple HTTP POST.
