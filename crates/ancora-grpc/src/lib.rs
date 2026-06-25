@@ -5,6 +5,7 @@ pub mod proto {
 pub mod agent_card;
 pub mod auth;
 pub mod client;
+pub mod handoff;
 pub mod identity;
 pub mod task;
 pub mod service;
