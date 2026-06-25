@@ -1,0 +1,40 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'io.ancora'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    // Required for FFM API access in unnamed module context.
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    // Pass library path from environment if set.
+    systemProperty 'java.library.path',
+        System.getenv('ANCORA_NATIVE_LIB_PATH') ?: System.getProperty('java.library.path') ?: ''
+}
+
+jar {
+    manifest {
+        attributes(
+            'Implementation-Title': 'Ancora Java SDK',
+            'Implementation-Version': version,
+        )
+    }
+}
