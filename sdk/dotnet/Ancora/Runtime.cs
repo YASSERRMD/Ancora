@@ -144,6 +144,27 @@ public sealed class Runtime : IDisposable
         _disposed = true;
     }
 
+    /// <summary>
+    /// Register a native callback under the given name.
+    /// The delegate must stay alive as long as it is registered.
+    /// </summary>
+    internal void RegisterCallback(string name, AncorToolCallback cb)
+    {
+        ThrowIfDisposed();
+        var rc = AncoraNative.ancora_tool_register(_handle.DangerousGetHandle(), name, cb);
+        if (rc != AncorErrorCode.Ok)
+            throw new AncorException((int)rc, $"ancora_tool_register failed for '{name}'");
+    }
+
+    /// <summary>
+    /// Unregister a previously registered callback by name.
+    /// </summary>
+    internal void UnregisterCallback(string name)
+    {
+        if (_disposed) return;
+        AncoraNative.ancora_tool_unregister(_handle.DangerousGetHandle(), name);
+    }
+
     private void ThrowIfDisposed()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
