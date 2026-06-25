@@ -8,13 +8,49 @@
     <AssemblyName>Ancora</AssemblyName>
     <RootNamespace>Ancora</RootNamespace>
     <Version>0.1.0</Version>
+    <PackageId>Ancora</PackageId>
     <Description>Ancora .NET SDK: local-first agentic framework P/Invoke bindings.</Description>
     <PackageTags>ancora;agents;ai;llm;local-first</PackageTags>
     <Authors>YASSERRMD</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/YASSERRMD/Ancora</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <!-- Place native runtimes into runtimes/<rid>/native/ inside the package. -->
+    <EnablePackageValidation>false</EnablePackageValidation>
   </PropertyGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>Ancora.Tests</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+  <!-- Bundle pre-built native libraries when they exist in build/native/. -->
+  <ItemGroup>
+    <None Include="build/native/linux-x64/libancora_ffi.so"
+          Condition="Exists('build/native/linux-x64/libancora_ffi.so')"
+          Pack="true"
+          PackagePath="runtimes/linux-x64/native/libancora_ffi.so" />
+    <None Include="build/native/linux-arm64/libancora_ffi.so"
+          Condition="Exists('build/native/linux-arm64/libancora_ffi.so')"
+          Pack="true"
+          PackagePath="runtimes/linux-arm64/native/libancora_ffi.so" />
+    <None Include="build/native/osx-x64/libancora_ffi.dylib"
+          Condition="Exists('build/native/osx-x64/libancora_ffi.dylib')"
+          Pack="true"
+          PackagePath="runtimes/osx-x64/native/libancora_ffi.dylib" />
+    <None Include="build/native/osx-arm64/libancora_ffi.dylib"
+          Condition="Exists('build/native/osx-arm64/libancora_ffi.dylib')"
+          Pack="true"
+          PackagePath="runtimes/osx-arm64/native/libancora_ffi.dylib" />
+    <None Include="build/native/win-x64/ancora_ffi.dll"
+          Condition="Exists('build/native/win-x64/ancora_ffi.dll')"
+          Pack="true"
+          PackagePath="runtimes/win-x64/native/ancora_ffi.dll" />
+    <None Include="build/native/win-arm64/ancora_ffi.dll"
+          Condition="Exists('build/native/win-arm64/ancora_ffi.dll')"
+          Pack="true"
+          PackagePath="runtimes/win-arm64/native/ancora_ffi.dll" />
+    <None Include="README.md" Pack="true" PackagePath="README.md"
+          Condition="Exists('README.md')" />
   </ItemGroup>
 </Project>
