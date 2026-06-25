@@ -121,6 +121,11 @@ public final class Runtime implements AutoCloseable {
         }
     }
 
+    MemorySegment rawPtr() {
+        checkOpen();
+        return handle.rawPtr();
+    }
+
     @Override
     public void close() throws Throwable {
         if (!closed) {
