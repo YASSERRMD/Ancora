@@ -1,0 +1,78 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  CARGO_TERM_COLOR: always
+  RELEASE_VERSION: ${{ github.ref_name }}
+
+jobs:
+  verify-versions:
+    name: verify all packages at release version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install toml-cli
+        run: cargo install toml-cli --locked 2>/dev/null || true
+
+      - name: check Rust workspace version
+        run: |
+          WS=$(grep '^version' Cargo.toml | head -1 | awk -F'"' '{print $2}')
+          TAG="${RELEASE_VERSION#v}"
+          echo "Workspace: $WS  Tag: $TAG"
+          [ "$WS" = "$TAG" ] || (echo "Workspace version mismatch"; exit 1)
+
+      - name: check Python SDK version
+        run: |
+          PY=$(grep '^version' sdk/python/pyproject.toml | head -1 | awk -F'"' '{print $2}')
+          TAG="${RELEASE_VERSION#v}"
+          [ "$PY" = "$TAG" ] || (echo "Python SDK version mismatch: $PY != $TAG"; exit 1)
+
+      - name: check TypeScript SDK version
+        run: |
+          TS=$(node -e "console.log(require('./sdk/ts/package.json').version)")
+          TAG="${RELEASE_VERSION#v}"
+          [ "$TS" = "$TAG" ] || (echo "TS SDK version mismatch: $TS != $TAG"; exit 1)
+
+      - name: check Go SDK module
+        run: |
+          head -1 sdk/go/go.mod | grep "ancora.io/sdk" || (echo "Go module name unexpected"; exit 1)
+
+      - name: check .NET SDK version
+        run: |
+          VER=$(grep '<Version>' sdk/dotnet/Ancora/Ancora.csproj 2>/dev/null | sed 's/.*<Version>\(.*\)<\/Version>.*/\1/')
+          TAG="${RELEASE_VERSION#v}"
+          [ -z "$VER" ] || [ "$VER" = "$TAG" ] || (echo ".NET version mismatch: $VER != $TAG"; exit 1)
+
+      - name: check Java SDK version
+        run: |
+          VER=$(grep 'version' sdk/java/build.gradle 2>/dev/null | head -1 | awk -F"'" '{print $2}')
+          TAG="${RELEASE_VERSION#v}"
+          [ -z "$VER" ] || [ "$VER" = "$TAG" ] || (echo "Java version mismatch: $VER != $TAG"; exit 1)
+
+  create-github-release:
+    name: create GitHub release
+    runs-on: ubuntu-latest
+    needs: [verify-versions]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: extract changelog section
+        run: |
+          TAG="${RELEASE_VERSION#v}"
+          awk "/^## \[$TAG\]/,/^## \[/" CHANGELOG.md | head -n -1 > release-notes.md || echo "See CHANGELOG.md" > release-notes.md
+
+      - name: create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE_VERSION" \
+            --title "Ancora $RELEASE_VERSION" \
+            --notes-file release-notes.md \
+            --verify-tag
