@@ -1,0 +1,25 @@
+plugins {
+    id 'application'
+}
+
+group = 'io.ancora.examples'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.ancora:ancora-java-sdk'
+}
+
+application {
+    mainClass = 'io.ancora.examples.SingleAgent'
+    applicationDefaultJvmArgs = ['--enable-native-access=ALL-UNNAMED']
+}
