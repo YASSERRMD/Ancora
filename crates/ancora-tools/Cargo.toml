@@ -11,3 +11,7 @@ description = "Typed local function tools for Ancora agents"
 serde_json = "1"
 thiserror = "2"
 ureq = "2"
+tokio = { version = "1", features = ["net", "io-util", "rt-multi-thread", "macros", "sync"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
