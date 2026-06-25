@@ -1,5 +1,6 @@
 pub mod error;
 pub mod mcp;
+pub mod mcp_server;
 pub mod permission;
 pub mod registry;
 pub mod sandbox;

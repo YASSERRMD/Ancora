@@ -28,6 +28,11 @@ impl ToolRegistry {
         self.tools.insert(tool.name().to_owned(), tool);
     }
 
+    /// Return all registered tools in arbitrary order.
+    pub fn list(&self) -> Vec<Arc<dyn Tool>> {
+        self.tools.values().cloned().collect()
+    }
+
     /// Call a tool by name, validating input before execution.
     pub fn call(
         &self,
