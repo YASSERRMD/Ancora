@@ -1,0 +1,129 @@
+name: publish-dry-run
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "crates/**"
+      - "sdk/**"
+      - ".github/workflows/publish-dry-run.yml"
+  workflow_dispatch:
+
+jobs:
+  crates-io:
+    name: cargo publish --dry-run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: dry-run ancora-proto
+        run: cargo publish -p ancora-proto --dry-run --allow-dirty
+
+      - name: dry-run ancora-core
+        run: cargo publish -p ancora-core --dry-run --allow-dirty
+
+      - name: dry-run ancora-ffi
+        run: cargo publish -p ancora-ffi --dry-run --allow-dirty
+
+      - name: dry-run ancora-tools
+        run: cargo publish -p ancora-tools --dry-run --allow-dirty
+
+      - name: dry-run ancora-policy
+        run: cargo publish -p ancora-policy --dry-run --allow-dirty
+
+      - name: dry-run ancora-grpc
+        run: cargo publish -p ancora-grpc --dry-run --allow-dirty
+
+  pypi:
+    name: python build (PyPI dry-run)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: install maturin
+        run: pip install maturin
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: maturin build (dry-run)
+        working-directory: sdk/python
+        run: maturin build --release
+
+  npm:
+    name: npm pack (npm dry-run)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: install and build
+        working-directory: sdk/ts
+        run: npm ci && npm run build
+
+      - name: npm pack
+        working-directory: sdk/ts
+        run: npm pack --dry-run
+
+  nuget:
+    name: dotnet pack (NuGet dry-run)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0"
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: dotnet build
+        working-directory: sdk/dotnet
+        run: dotnet build --configuration Release
+
+      - name: dotnet pack (dry-run)
+        working-directory: sdk/dotnet
+        run: dotnet pack --configuration Release --no-build --output /tmp/nuget-dry-run
+
+  maven:
+    name: gradle build (Maven dry-run)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: gradle build
+        working-directory: sdk/java
+        run: ./gradlew build --no-daemon
+
+      - name: gradle publishToMavenLocal (dry-run)
+        working-directory: sdk/java
+        run: ./gradlew publishToMavenLocal --no-daemon
