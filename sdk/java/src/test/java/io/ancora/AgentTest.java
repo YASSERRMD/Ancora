@@ -77,12 +77,12 @@ class AgentTest {
 
     @Test
     void runEvent_token_deserializes() throws Exception {
-        String json = "{\"kind\":\"token\",\"run_id\":\"r1\",\"token\":\"hello\",\"model\":\"claude-3\"}";
+        String json = "{\"kind\":\"token\",\"run_id\":\"r1\",\"text\":\"hello\",\"model\":\"claude-3\"}";
         RunEvent event = Wire.parseEvent(json);
         assertInstanceOf(RunEvent.Token.class, event);
         RunEvent.Token tok = (RunEvent.Token) event;
         assertEquals("r1", tok.runId());
-        assertEquals("hello", tok.token());
+        assertEquals("hello", tok.text());
         assertEquals("claude-3", tok.model());
     }
 
