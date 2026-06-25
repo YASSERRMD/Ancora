@@ -22,7 +22,7 @@ public static class ToolRegistry
         Runtime runtime,
         string name,
         string description,
-        Func<JsonElement, string> handler)
+        ToolHandler handler)
     {
         ArgumentNullException.ThrowIfNull(runtime);
         ArgumentNullException.ThrowIfNull(name);
@@ -95,7 +95,7 @@ public static class ToolRegistry
         return "object";
     }
 
-    private static Func<JsonElement, string> WrapMethod(object target, MethodInfo method)
+    private static ToolHandler WrapMethod(object target, MethodInfo method)
     {
         var parameters = method.GetParameters();
         return (JsonElement input) =>
@@ -133,14 +133,14 @@ internal sealed class ToolBridge : IDisposable
     private readonly AncorToolCallback _nativeCallback;
     private bool _disposed;
 
-    internal ToolBridge(Func<JsonElement, string> handler)
+    internal ToolBridge(ToolHandler handler)
     {
         _nativeCallback = CreateNativeCallback(handler);
     }
 
     internal AncorToolCallback NativeCallback => _nativeCallback;
 
-    private static unsafe AncorToolCallback CreateNativeCallback(Func<JsonElement, string> handler)
+    private static unsafe AncorToolCallback CreateNativeCallback(ToolHandler handler)
     {
         return (byte* input, nuint inputLen, AncorBuffer* outBuf) =>
         {
