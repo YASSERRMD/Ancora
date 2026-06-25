@@ -23,7 +23,7 @@ public sealed interface RunEvent
     record Started(String runId, String spec) implements RunEvent {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record Token(String runId, String token, String model) implements RunEvent {}
+    record Token(String runId, String text, String model) implements RunEvent {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record Completed(String runId) implements RunEvent {}
