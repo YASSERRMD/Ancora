@@ -1,0 +1,110 @@
+name: Cross-language conformance
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    paths:
+      - "crates/**"
+      - "sdk/**"
+      - "test/xlang/**"
+      - ".github/workflows/xlang-conformance.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-conformance:
+    name: Rust journal mask and conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Restore Cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build and run Rust conformance tests
+        run: |
+          cargo test -p ancora-core --lib -- conformance
+          cargo test -p ancora-core --lib -- journal_mask
+          cargo test -p ancora-core --test xlang_journal_equality
+
+  go-conformance:
+    name: Go SDK conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Restore Cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build CGO native library
+        run: cargo build -p ancora-ffi --release
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Run Go conformance tests
+        env:
+          CGO_LDFLAGS: "-L${{ github.workspace }}/target/release"
+          LD_LIBRARY_PATH: "${{ github.workspace }}/target/release"
+        run: |
+          cd sdk/go
+          go test ./... -run TestConformance -timeout 60s
+
+  python-conformance:
+    name: Python SDK conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Restore Cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build native library
+        run: cargo build -p ancora-ffi --release
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python SDK
+        run: |
+          cd sdk/python
+          pip install -e ".[dev]"
+
+      - name: Run Python conformance tests
+        env:
+          LD_LIBRARY_PATH: "${{ github.workspace }}/target/release"
+        run: |
+          cd sdk/python
+          python -m pytest tests/ -k conformance -q
+
+  compare-conformance:
+    name: Compare journal structures
+    runs-on: ubuntu-latest
+    needs: [rust-conformance]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Restore Cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run cross-language journal equality tests
+        run: cargo test -p ancora-core --test xlang_journal_equality
