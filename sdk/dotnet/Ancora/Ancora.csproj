@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Ancora</AssemblyName>
+    <RootNamespace>Ancora</RootNamespace>
+    <Version>0.1.0</Version>
+    <Description>Ancora .NET SDK: local-first agentic framework P/Invoke bindings.</Description>
+    <PackageTags>ancora;agents;ai;llm;local-first</PackageTags>
+    <Authors>YASSERRMD</Authors>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Ancora.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>
