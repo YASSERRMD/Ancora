@@ -24,6 +24,7 @@ postgres = ["dep:postgres"]
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
 tempfile = "3.27.0"
+proptest = "1"
 
 [dependencies.rusqlite]
 version = "0.32"
