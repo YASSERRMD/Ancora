@@ -72,11 +72,7 @@ async fn handle_connection(
 
     // Auth check.
     if let Some(required) = &server.token {
-        let auth_ok = headers.lines().any(|l| {
-            l.to_ascii_lowercase().starts_with("authorization:")
-                && l.contains(required.as_str())
-        });
-        if !auth_ok {
+        if !bearer_matches(headers.as_ref(), required) {
             let resp = "HTTP/1.1 401 Unauthorized\r\nContent-Length: 0\r\n\r\n";
             stream.write_all(resp.as_bytes()).await.ok();
             return;
@@ -142,6 +138,18 @@ fn handle_call(registry: &ToolRegistry, params: &serde_json::Value) -> Result<se
     registry
         .call(name, args)
         .map_err(|e| e.to_string())
+}
+
+/// Return `true` when the HTTP headers contain `Authorization: Bearer <token>`.
+pub(crate) fn bearer_matches(headers: &str, token: &str) -> bool {
+    let expected = format!("bearer {}", token.to_ascii_lowercase());
+    headers.lines().any(|l| {
+        l.to_ascii_lowercase()
+            .trim_start_matches("authorization:")
+            .trim()
+            .to_ascii_lowercase()
+            == expected
+    })
 }
 
 fn find_header_end(buf: &[u8]) -> Option<usize> {
@@ -229,5 +237,35 @@ mod tests {
         let req = b"POST / HTTP/1.1\r\nHost: x\r\n\r\nbody";
         let pos = find_header_end(req).unwrap();
         assert_eq!(&req[pos..], b"body");
+    }
+
+    #[test]
+    fn bearer_matches_correct_token() {
+        let headers = "POST / HTTP/1.1\r\nAuthorization: Bearer secret123\r\nHost: x";
+        assert!(bearer_matches(headers, "secret123"));
+    }
+
+    #[test]
+    fn bearer_matches_rejects_wrong_token() {
+        let headers = "POST / HTTP/1.1\r\nAuthorization: Bearer wrong\r\nHost: x";
+        assert!(!bearer_matches(headers, "secret123"));
+    }
+
+    #[test]
+    fn bearer_matches_rejects_missing_header() {
+        let headers = "POST / HTTP/1.1\r\nHost: x";
+        assert!(!bearer_matches(headers, "secret123"));
+    }
+
+    #[test]
+    fn bearer_matches_is_case_insensitive() {
+        let headers = "POST / HTTP/1.1\r\nauthorization: bearer SECRET123\r\nHost: x";
+        assert!(bearer_matches(headers, "secret123"));
+    }
+
+    #[test]
+    fn bearer_matches_rejects_non_bearer_scheme() {
+        let headers = "POST / HTTP/1.1\r\nAuthorization: Basic secret123\r\nHost: x";
+        assert!(!bearer_matches(headers, "secret123"));
     }
 }
