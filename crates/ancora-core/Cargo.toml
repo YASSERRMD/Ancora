@@ -25,6 +25,15 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
 tempfile = "3.27.0"
 proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "engine_bench"
+harness = false
+
+[[bench]]
+name = "journal_bench"
+harness = false
 
 [dependencies.rusqlite]
 version = "0.32"
