@@ -1,0 +1,49 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs.yml"
+
+jobs:
+  check-links:
+    name: check markdown links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install lychee
+        run: |
+          curl -sL https://github.com/lycheeverse/lychee/releases/download/v0.15.1/lychee-v0.15.1-x86_64-unknown-linux-gnu.tar.gz \
+            | tar -xz -C /usr/local/bin lychee
+          lychee --version
+
+      - name: check internal links in docs/
+        run: |
+          lychee \
+            --no-progress \
+            --exclude-external \
+            --include-fragments \
+            --format detailed \
+            "docs/**/*.md"
+
+  lint-markdown:
+    name: lint markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: lint docs/
+        run: |
+          markdownlint \
+            --config .markdownlint.json \
+            'docs/**/*.md' || true
