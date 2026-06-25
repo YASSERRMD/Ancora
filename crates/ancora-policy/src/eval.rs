@@ -1,8 +1,14 @@
 use crate::error::PolicyError;
 use crate::policy::Policy;
 
-/// Check that `endpoint` is in the policy's allowed list.
+/// Check that `endpoint` is permitted by the policy.
+///
+/// When `air_gapped` is set, every egress call is blocked regardless of
+/// the `allowed_endpoints` list.
 pub fn check_endpoint(policy: &Policy, endpoint: &str) -> Result<(), PolicyError> {
+    if policy.air_gapped {
+        return Err(PolicyError::EgressBlocked(endpoint.to_owned()));
+    }
     if policy.allowed_endpoints.is_empty() {
         return Ok(());
     }

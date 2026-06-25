@@ -3,8 +3,11 @@ use std::collections::HashSet;
 /// Declarative governance descriptor attached to an agent or tool.
 #[derive(Debug, Clone, Default)]
 pub struct Policy {
+    /// When true, all outbound network calls are unconditionally blocked.
+    /// `allowed_endpoints` is ignored in this mode.
+    pub air_gapped: bool,
     /// Endpoints (hostnames or prefixes) that are allowed for egress.
-    /// Empty means all endpoints are blocked in air-gapped mode.
+    /// Only checked when `air_gapped` is false. Empty means allow all.
     pub allowed_endpoints: HashSet<String>,
     /// Whether PII fields must be detected and redacted before sending.
     pub require_pii_redaction: bool,
@@ -17,6 +20,12 @@ pub struct Policy {
 impl Policy {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Block all outbound egress unconditionally.
+    pub fn air_gapped(mut self) -> Self {
+        self.air_gapped = true;
+        self
     }
 
     pub fn allow_endpoint(mut self, endpoint: impl Into<String>) -> Self {
