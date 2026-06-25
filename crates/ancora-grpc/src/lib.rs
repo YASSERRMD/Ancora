@@ -4,6 +4,7 @@ pub mod proto {
 
 pub mod agent_card;
 pub mod auth;
+pub mod task;
 pub mod service;
 pub mod store;
 pub mod tls;
