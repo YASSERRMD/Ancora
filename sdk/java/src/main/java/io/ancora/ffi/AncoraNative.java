@@ -28,9 +28,19 @@ public final class AncoraNative {
     public static final VarHandle BUFFER_LEN =
         BUFFER_LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("len"));
 
+    // --- Callback descriptor (for upcall stubs) ---
+
+    /** FunctionDescriptor matching AncorToolCallback in the C ABI. */
+    public static final FunctionDescriptor TOOL_CALLBACK_DESC = FunctionDescriptor.of(
+        ValueLayout.JAVA_INT,
+        ValueLayout.ADDRESS,
+        ValueLayout.JAVA_LONG,
+        ValueLayout.ADDRESS
+    );
+
     // --- Library load ---
 
-    private static final Linker LINKER = Linker.nativeLinker();
+    public static final Linker LINKER = Linker.nativeLinker();
 
     /** True when ancora_ffi was loaded successfully. */
     public static final boolean AVAILABLE;
