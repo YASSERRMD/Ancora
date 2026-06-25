@@ -1,4 +1,5 @@
 pub mod error;
+pub mod langchain_adapter;
 pub mod mcp;
 pub mod mcp_server;
 pub mod permission;
