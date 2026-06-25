@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
 
 group = 'io.ancora'
@@ -41,5 +42,37 @@ jar {
             'Implementation-Title': 'Ancora Java SDK',
             'Implementation-Version': version,
         )
+    }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = group
+            artifactId = 'ancora-java-sdk'
+            version = project.version
+
+            pom {
+                name = 'Ancora Java SDK'
+                description = 'Java bindings for the Ancora agentic runtime'
+                licenses {
+                    license {
+                        name = 'MIT'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'local'
+            url = layout.buildDirectory.dir('repo')
+        }
     }
 }
