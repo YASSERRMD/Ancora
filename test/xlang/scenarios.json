@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "single-agent",
+      "description": "A single agent node runs to completion without error",
+      "required_event_kinds": ["started", "completed"],
+      "forbidden_event_kinds": []
+    },
+    {
+      "id": "multi-agent-verifier",
+      "description": "An agent node and a verifier node with an explicit dependency",
+      "required_event_kinds": ["started", "completed"],
+      "forbidden_event_kinds": []
+    },
+    {
+      "id": "human-in-loop",
+      "description": "A run suspends awaiting human approval and then resumes correctly",
+      "required_event_kinds": ["started"],
+      "forbidden_event_kinds": []
+    },
+    {
+      "id": "crash-and-recover",
+      "description": "A run journal persists across restart and replays deterministically",
+      "required_event_kinds": ["started", "completed"],
+      "forbidden_event_kinds": []
+    }
+  ]
+}

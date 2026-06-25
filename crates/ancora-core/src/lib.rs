@@ -1,5 +1,6 @@
 pub mod activity;
 pub mod conformance;
+pub mod journal_mask;
 pub mod eval;
 pub mod fixture;
 pub mod eval_metrics;
