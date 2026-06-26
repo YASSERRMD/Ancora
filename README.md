@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="Ancora banner" width="100%"/>
+<img src="docs/assets/logo.png" alt="Ancora logo" width="180"/>
 
 <br/>
 
