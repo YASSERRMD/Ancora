@@ -77,5 +77,13 @@ func main() {
 	rootSpan.set("tokens.estimated", estimatedTokens)
 
 	fmt.Printf("events: %d  estimated_tokens: %d\n", len(evs), estimatedTokens)
+
+	// Emit a summary span that aggregates the per-run metrics.
+	summarySpan := startSpan("agent.summary")
+	summarySpan.set("total.events", len(evs))
+	summarySpan.set("total.bytes", totalBytes)
+	summarySpan.set("tokens.estimated", estimatedTokens)
+	summarySpan.end()
+
 	fmt.Println("cost-otel done")
 }
