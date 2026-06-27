@@ -150,4 +150,43 @@ mod tests {
     fn unknown_provider_has_no_rate_limit_meta() {
         assert!(rate_limit_meta("unknown-host").is_none());
     }
+
+    #[test]
+    fn groq_backoff_recommended_from_retry_after_header() {
+        let meta = rate_limit_meta("groq").unwrap();
+        // Groq provides Retry-After; backoff logic should honor it
+        assert!(
+            meta.retry_after_header,
+            "groq 429 responses carry Retry-After"
+        );
+    }
+
+    #[test]
+    fn together_backoff_uses_exponential_without_header() {
+        let meta = rate_limit_meta("together").unwrap();
+        // Together does not provide Retry-After; caller should use exponential backoff
+        assert!(
+            !meta.retry_after_header,
+            "together 429 lacks Retry-After; use exponential backoff"
+        );
+    }
+
+    #[test]
+    fn fireworks_backoff_uses_exponential_without_header() {
+        let meta = rate_limit_meta("fireworks").unwrap();
+        assert!(
+            !meta.retry_after_header,
+            "fireworks 429 lacks Retry-After; use exponential backoff"
+        );
+    }
+
+    #[test]
+    fn groq_rpm_lower_than_fireworks() {
+        let groq = rate_limit_meta("groq").unwrap();
+        let fw = rate_limit_meta("fireworks").unwrap();
+        assert!(
+            groq.requests_per_minute < fw.requests_per_minute,
+            "groq free tier is more restrictive than fireworks"
+        );
+    }
 }
