@@ -364,6 +364,25 @@ pub fn graphql_hybrid_query(
     json!({ "query": q })
 }
 
+// ---- replication config --------------------------------------------------
+
+/// Build the replication config block for a class creation body.
+pub fn replication_config(factor: u8) -> Value {
+    json!({ "replicationConfig": { "factor": factor } })
+}
+
+/// Build the sharding config block for a class creation body.
+pub fn sharding_config(virtual_per_physical: u16) -> Value {
+    json!({ "shardingConfig": { "virtualPerPhysical": virtual_per_physical } })
+}
+
+/// Merge replication and sharding config into a class body.
+pub fn apply_cluster_config(mut class_body: Value, replication_factor: u8, virtual_shards: u16) -> Value {
+    class_body["replicationConfig"] = json!({ "factor": replication_factor });
+    class_body["shardingConfig"] = json!({ "virtualPerPhysical": virtual_shards });
+    class_body
+}
+
 // ---- inverted index and property tokenization ----------------------------
 
 /// Tokenization modes for text properties.
@@ -817,6 +836,27 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn replication_config_has_factor() {
+        let cfg = replication_config(3);
+        assert_eq!(cfg["replicationConfig"]["factor"], 3);
+    }
+
+    #[test]
+    fn sharding_config_has_virtual_per_physical() {
+        let cfg = sharding_config(128);
+        assert_eq!(cfg["shardingConfig"]["virtualPerPhysical"], 128);
+    }
+
+    #[test]
+    fn apply_cluster_config_merges_into_body() {
+        let body = create_class_body("Document", "test", "none");
+        let merged = apply_cluster_config(body, 3, 128);
+        assert_eq!(merged["replicationConfig"]["factor"], 3);
+        assert_eq!(merged["shardingConfig"]["virtualPerPhysical"], 128);
+        assert_eq!(merged["class"], "Document");
     }
 
     #[test]
