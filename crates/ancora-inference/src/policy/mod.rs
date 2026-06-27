@@ -69,4 +69,36 @@ mod tests {
         let tags = residency_tags("mistral");
         assert!(tags.contains(&ResidencyTag::Eu));
     }
+
+    #[test]
+    fn deepseek_direct_blocked_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("deepseek", &excluded));
+    }
+
+    #[test]
+    fn deepseek_self_host_allowed_when_cn_excluded() {
+        // Self-host residency is unknown (user controls it), so not blocked
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("deepseek-self-host", &excluded));
+    }
+
+    #[test]
+    fn openai_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("openai", &excluded));
+    }
+
+    #[test]
+    fn mistral_blocked_when_eu_excluded() {
+        let excluded = vec![ResidencyTag::Eu];
+        assert!(!is_allowed("mistral", &excluded));
+    }
+
+    #[test]
+    fn deepseek_allowed_when_us_excluded() {
+        // deepseek is CN, not US, so US-exclusion does not block it
+        let excluded = vec![ResidencyTag::Us];
+        assert!(is_allowed("deepseek", &excluded));
+    }
 }
