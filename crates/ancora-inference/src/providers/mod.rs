@@ -3,6 +3,7 @@ pub mod azure;
 pub mod bedrock;
 pub mod cohere;
 pub mod gemini;
+pub mod groq;
 pub mod mistral;
 pub mod openai;
 pub mod openrouter;
