@@ -39,3 +39,4 @@ pub mod lancedb_delete_tests;
 pub mod chroma;
 pub mod pinecone;
 pub mod vespa;
+pub mod redis_vector;
