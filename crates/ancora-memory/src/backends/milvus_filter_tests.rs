@@ -75,4 +75,28 @@ mod milvus_filter_tests {
         let body = delete_by_expr_body("col", &expr);
         assert!(body["filter"].as_str().unwrap().contains("or"), "body: {body}");
     }
+
+    #[test]
+    fn expr_range_builds_ge_le_expr() {
+        let e = expr_range("year", 2020, 2024);
+        assert_eq!(e, "year >= 2020 and year <= 2024");
+    }
+
+    #[test]
+    fn expr_ne_int_builds_not_equal() {
+        let e = expr_ne_int("status", 0);
+        assert_eq!(e, "status != 0");
+    }
+
+    #[test]
+    fn expr_ne_str_builds_not_equal_string() {
+        let e = expr_ne_str("label", "deleted");
+        assert_eq!(e, r#"label != "deleted""#);
+    }
+
+    #[test]
+    fn expr_not_wraps_in_parentheses() {
+        let e = expr_not("active == false");
+        assert_eq!(e, "not (active == false)");
+    }
 }
