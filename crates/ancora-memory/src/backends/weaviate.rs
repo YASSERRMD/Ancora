@@ -364,6 +364,26 @@ pub fn graphql_hybrid_query(
     json!({ "query": q })
 }
 
+// ---- aggregate queries ---------------------------------------------------
+
+/// Build a GraphQL Aggregate query for total object count.
+pub fn graphql_aggregate_count_query(class: &str) -> Value {
+    let q = format!(r#"{{ Aggregate {{ {class} {{ meta {{ count }} }} }} }}"#);
+    json!({ "query": q })
+}
+
+/// Build a GraphQL Aggregate query with a where filter.
+pub fn graphql_aggregate_with_filter_query(class: &str, where_filter: &Value) -> Value {
+    let filter_str = serde_json::to_string(where_filter).unwrap_or_default();
+    let q = format!(r#"{{ Aggregate {{ {class}(where: {filter_str}) {{ meta {{ count }} }} }} }}"#);
+    json!({ "query": q })
+}
+
+/// Parse the total count from an Aggregate response.
+pub fn parse_aggregate_count(body: &Value, class: &str) -> Option<u64> {
+    body["data"]["Aggregate"][class][0]["meta"]["count"].as_u64()
+}
+
 // ---- nearText and nearObject search queries ------------------------------
 
 /// Build a GraphQL nearText search (text2vec vectorizer must be configured).
@@ -726,6 +746,22 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn graphql_aggregate_count_query_has_meta_count() {
+        let body = graphql_aggregate_count_query("Document");
+        let q = body["query"].as_str().unwrap();
+        assert!(q.contains("Aggregate"), "query: {q}");
+        assert!(q.contains("meta { count }") || q.contains("meta{count}") || q.contains("count"), "query: {q}");
+    }
+
+    #[test]
+    fn parse_aggregate_count_extracts_value() {
+        let body = json!({
+            "data": { "Aggregate": { "Document": [{ "meta": { "count": 42 } }] } }
+        });
+        assert_eq!(parse_aggregate_count(&body, "Document"), Some(42));
     }
 
     #[test]
