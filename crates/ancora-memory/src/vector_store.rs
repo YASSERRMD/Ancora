@@ -1,0 +1,271 @@
+use std::collections::HashMap;
+
+// ---- error ---------------------------------------------------------------
+
+/// Errors that can be returned by a VectorStore operation.
+#[derive(Debug, Clone, PartialEq)]
+pub enum VectorStoreError {
+    /// Collection does not exist.
+    NotFound(String),
+    /// Collection already exists.
+    AlreadyExists(String),
+    /// Vector dimension mismatch.
+    DimensionMismatch { expected: usize, got: usize },
+    /// Filter expression is invalid or unsupported.
+    InvalidFilter(String),
+    /// Backend-specific I/O error.
+    Io(String),
+}
+
+impl std::fmt::Display for VectorStoreError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotFound(n) => write!(f, "collection not found: {n}"),
+            Self::AlreadyExists(n) => write!(f, "collection already exists: {n}"),
+            Self::DimensionMismatch { expected, got } =>
+                write!(f, "dimension mismatch: expected {expected}, got {got}"),
+            Self::InvalidFilter(msg) => write!(f, "invalid filter: {msg}"),
+            Self::Io(msg) => write!(f, "I/O error: {msg}"),
+        }
+    }
+}
+
+impl std::error::Error for VectorStoreError {}
+
+// ---- distance metric ------------------------------------------------------
+
+/// Vector distance metric used for similarity search.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Distance {
+    Cosine,
+    Dot,
+    L2,
+}
+
+// ---- payload value --------------------------------------------------------
+
+/// A value stored in a point's payload (metadata).
+#[derive(Debug, Clone, PartialEq)]
+pub enum PayloadValue {
+    String(String),
+    Integer(i64),
+    Float(f64),
+    Bool(bool),
+    Null,
+}
+
+impl From<&str> for PayloadValue {
+    fn from(s: &str) -> Self { Self::String(s.to_owned()) }
+}
+impl From<String> for PayloadValue {
+    fn from(s: String) -> Self { Self::String(s) }
+}
+impl From<i64> for PayloadValue {
+    fn from(n: i64) -> Self { Self::Integer(n) }
+}
+impl From<f64> for PayloadValue {
+    fn from(f: f64) -> Self { Self::Float(f) }
+}
+impl From<bool> for PayloadValue {
+    fn from(b: bool) -> Self { Self::Bool(b) }
+}
+
+/// Metadata map attached to every point.
+pub type Payload = HashMap<String, PayloadValue>;
+
+// ---- payload schema -------------------------------------------------------
+
+/// Field type annotation for a payload key.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FieldType { Keyword, Integer, Float, Bool }
+
+/// Schema hint for a collection's payload fields.
+/// Backends may use this to build indexes for filter acceleration.
+#[derive(Debug, Clone, Default)]
+pub struct PayloadSchema {
+    pub fields: HashMap<String, FieldType>,
+}
+
+impl PayloadSchema {
+    pub fn new() -> Self { Self::default() }
+    pub fn field(mut self, name: impl Into<String>, kind: FieldType) -> Self {
+        self.fields.insert(name.into(), kind);
+        self
+    }
+}
+
+// ---- point id / point / scored point --------------------------------------
+
+/// Identifier for a vector point. Backends may use u64 or UUID strings.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum PointId {
+    Num(u64),
+    Uuid(String),
+}
+
+impl From<u64> for PointId {
+    fn from(n: u64) -> Self { Self::Num(n) }
+}
+impl From<&str> for PointId {
+    fn from(s: &str) -> Self { Self::Uuid(s.to_owned()) }
+}
+
+/// A vector point to be stored or retrieved.
+#[derive(Debug, Clone)]
+pub struct Point {
+    pub id: PointId,
+    pub vector: Vec<f32>,
+    pub payload: Payload,
+    /// Optional named vectors for multi-vector collections.
+    pub named_vectors: HashMap<String, Vec<f32>>,
+}
+
+impl Point {
+    pub fn new(id: impl Into<PointId>, vector: Vec<f32>) -> Self {
+        Self { id: id.into(), vector, payload: Payload::new(), named_vectors: HashMap::new() }
+    }
+
+    pub fn with_payload(mut self, key: impl Into<String>, val: impl Into<PayloadValue>) -> Self {
+        self.payload.insert(key.into(), val.into()); self
+    }
+
+    pub fn with_named_vector(mut self, name: impl Into<String>, vec: Vec<f32>) -> Self {
+        self.named_vectors.insert(name.into(), vec); self
+    }
+}
+
+/// A point returned by a search, annotated with its similarity score.
+#[derive(Debug, Clone)]
+pub struct ScoredPoint {
+    pub id: PointId,
+    pub score: f32,
+    pub payload: Payload,
+}
+
+// ---- filter expression ----------------------------------------------------
+
+/// A metadata filter that narrows the points visible to a query.
+#[derive(Debug, Clone)]
+pub enum Filter {
+    /// Match points where a payload key equals a value.
+    Eq(String, PayloadValue),
+    /// Match points where a payload key does NOT equal a value.
+    Ne(String, PayloadValue),
+    /// Match points where a numeric payload key is greater than a threshold.
+    Gt(String, PayloadValue),
+    /// Match points where a numeric payload key is less than a threshold.
+    Lt(String, PayloadValue),
+    /// Logical AND of two filters.
+    And(Box<Filter>, Box<Filter>),
+    /// Logical OR of two filters.
+    Or(Box<Filter>, Box<Filter>),
+}
+
+impl Filter {
+    pub fn and(self, other: Filter) -> Filter {
+        Filter::And(Box::new(self), Box::new(other))
+    }
+    pub fn or(self, other: Filter) -> Filter {
+        Filter::Or(Box::new(self), Box::new(other))
+    }
+}
+
+// ---- collection lifecycle -------------------------------------------------
+
+/// Specification for creating a new vector collection.
+#[derive(Debug, Clone)]
+pub struct CollectionSpec {
+    pub name: String,
+    pub dimensions: usize,
+    pub distance: Distance,
+    pub payload_schema: PayloadSchema,
+}
+
+impl CollectionSpec {
+    pub fn new(name: impl Into<String>, dimensions: usize, distance: Distance) -> Self {
+        Self { name: name.into(), dimensions, distance, payload_schema: PayloadSchema::new() }
+    }
+    pub fn with_schema(mut self, schema: PayloadSchema) -> Self {
+        self.payload_schema = schema; self
+    }
+}
+
+/// Description of an existing collection returned by `describe_collection`.
+#[derive(Debug, Clone)]
+pub struct CollectionInfo {
+    pub name: String,
+    pub dimensions: usize,
+    pub point_count: u64,
+    pub distance: Distance,
+}
+
+// ---- query request --------------------------------------------------------
+
+/// A dense-vector similarity search request.
+#[derive(Debug, Clone)]
+pub struct QueryRequest {
+    pub vector: Vec<f32>,
+    pub top_k: usize,
+    pub filter: Option<Filter>,
+    pub score_threshold: Option<f32>,
+    pub with_payload: bool,
+    pub offset: usize,
+    /// Optional name for multi-vector collections; `None` uses the primary vector.
+    pub vector_name: Option<String>,
+}
+
+impl QueryRequest {
+    pub fn new(vector: Vec<f32>, top_k: usize) -> Self {
+        Self { vector, top_k, filter: None, score_threshold: None, with_payload: true, offset: 0, vector_name: None }
+    }
+    pub fn with_filter(mut self, f: Filter) -> Self { self.filter = Some(f); self }
+    pub fn with_score_threshold(mut self, t: f32) -> Self { self.score_threshold = Some(t); self }
+    pub fn with_offset(mut self, o: usize) -> Self { self.offset = o; self }
+    pub fn with_vector_name(mut self, name: impl Into<String>) -> Self {
+        self.vector_name = Some(name.into()); self
+    }
+}
+
+/// A hybrid search request combining dense vector similarity and keyword matching.
+#[derive(Debug, Clone)]
+pub struct HybridQueryRequest {
+    pub dense_vector: Vec<f32>,
+    /// Keyword query string for BM25 / full-text scoring.
+    pub keyword: String,
+    pub top_k: usize,
+    /// Blend factor: 0.0 = pure keyword, 1.0 = pure vector.
+    pub alpha: f32,
+    pub filter: Option<Filter>,
+    pub score_threshold: Option<f32>,
+}
+
+impl HybridQueryRequest {
+    pub fn new(dense_vector: Vec<f32>, keyword: impl Into<String>, top_k: usize) -> Self {
+        Self { dense_vector, keyword: keyword.into(), top_k, alpha: 0.5, filter: None, score_threshold: None }
+    }
+    pub fn with_alpha(mut self, alpha: f32) -> Self { self.alpha = alpha; self }
+    pub fn with_filter(mut self, f: Filter) -> Self { self.filter = Some(f); self }
+}
+
+// ---- the trait ------------------------------------------------------------
+
+/// The unified interface that every vector-store backend must implement.
+pub trait VectorStore: Send + Sync {
+    fn create_collection(&self, spec: CollectionSpec) -> Result<(), VectorStoreError>;
+    fn drop_collection(&self, name: &str) -> Result<(), VectorStoreError>;
+    fn describe_collection(&self, name: &str) -> Result<CollectionInfo, VectorStoreError>;
+
+    fn upsert(&self, collection: &str, points: Vec<Point>) -> Result<(), VectorStoreError>;
+    fn batch_upsert(&self, collection: &str, batches: Vec<Vec<Point>>) -> Result<(), VectorStoreError> {
+        for batch in batches {
+            self.upsert(collection, batch)?;
+        }
+        Ok(())
+    }
+
+    fn query(&self, collection: &str, req: QueryRequest) -> Result<Vec<ScoredPoint>, VectorStoreError>;
+    fn hybrid_query(&self, collection: &str, req: HybridQueryRequest) -> Result<Vec<ScoredPoint>, VectorStoreError>;
+
+    fn delete(&self, collection: &str, ids: Vec<PointId>) -> Result<(), VectorStoreError>;
+    fn delete_by_filter(&self, collection: &str, filter: Filter) -> Result<u64, VectorStoreError>;
+}
