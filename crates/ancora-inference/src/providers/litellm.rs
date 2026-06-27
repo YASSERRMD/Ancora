@@ -108,4 +108,35 @@ mod tests {
         assert!(is_routed_model_id("openai/gpt-4o"));
         assert!(!is_routed_model_id("gpt-4o"));
     }
+
+    #[test]
+    fn litellm_tagged_profile_has_header() {
+        let p = build_litellm_tagged_profile("http://localhost:4000", &["prod", "billing"]);
+        assert_eq!(
+            p.extra_headers.get("X-Litellm-Tags").map(|s| s.as_str()),
+            Some("prod,billing")
+        );
+    }
+
+    #[test]
+    fn litellm_groq_alias_resolves() {
+        let p = build_litellm_profile("http://localhost:4000");
+        assert_eq!(
+            p.resolve_model_id("llama3-groq"),
+            Some("groq/llama3-8b-8192".to_owned())
+        );
+    }
+
+    #[test]
+    fn litellm_error_429_is_rate_limit() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "quota exceeded");
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
+
+    #[test]
+    fn litellm_gemini_alias_has_vision() {
+        let p = build_litellm_profile("http://localhost:4000");
+        assert!(p.model_meta("gemini-flash").unwrap().capabilities.vision);
+    }
 }
