@@ -644,6 +644,30 @@ pub fn sizing_guidance(dims: usize, expected_rows: u64) -> String {
     )
 }
 
+// ---- collection schema extra helpers ------------------------------------
+
+/// Build a schema body that enables a specific consistency level at creation.
+pub fn create_collection_with_consistency_body(
+    collection: &str,
+    dims: usize,
+    metric: &str,
+    consistency_level: &str,
+) -> Value {
+    let mut body = create_collection_body(collection, dims, metric);
+    body["consistencyLevel"] = json!(consistency_level);
+    body
+}
+
+/// Build a describe-collection request body.
+pub fn describe_collection_body(collection: &str) -> Value {
+    json!({ "collectionName": collection })
+}
+
+/// Build a get-stats request body.
+pub fn get_stats_body(collection: &str) -> Value {
+    json!({ "collectionName": collection })
+}
+
 // ---- unit tests ----------------------------------------------------------
 
 #[cfg(test)]
