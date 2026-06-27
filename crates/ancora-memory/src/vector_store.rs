@@ -461,6 +461,37 @@ pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<S
 
 // ---- the trait ------------------------------------------------------------
 
+// ---- pagination tests ----------------------------------------------------
+
+#[cfg(test)]
+mod pagination_tests {
+    use super::*;
+
+    #[test]
+    fn page_has_next_when_items_lt_total() {
+        let page: Page<i32> = Page::new(vec![1, 2], 0).with_total(5);
+        assert!(page.has_next());
+    }
+
+    #[test]
+    fn page_no_next_when_at_end() {
+        let page: Page<i32> = Page::new(vec![4, 5], 3).with_total(5);
+        assert!(!page.has_next());
+    }
+
+    #[test]
+    fn page_has_next_without_total_when_nonempty() {
+        let page: Page<i32> = Page::new(vec![1], 0);
+        assert!(page.has_next());
+    }
+
+    #[test]
+    fn page_no_next_without_total_when_empty() {
+        let page: Page<i32> = Page::new(vec![], 0);
+        assert!(!page.has_next());
+    }
+}
+
 // ---- distance metric tests -----------------------------------------------
 
 #[cfg(test)]
