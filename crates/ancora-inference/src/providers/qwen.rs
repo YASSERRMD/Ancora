@@ -86,6 +86,12 @@ pub fn build_qwen_profile() -> ProviderProfile {
             .with_tools()
             .with_streaming(),
     )
+    // Qwen Long -- 1M context window for massive documents
+    .add_model(
+        ModelMeta::new("qwen-long", 1_000_000)
+            .with_pricing(0.05, 0.20)
+            .with_streaming(),
+    )
     // Vision-language models
     .add_model(
         ModelMeta::new("qwen-vl-max", 32_768)
@@ -108,6 +114,7 @@ pub fn build_qwen_profile() -> ProviderProfile {
     .add_alias("turbo", "qwen-turbo")
     .add_alias("vl-max", "qwen-vl-max")
     .add_alias("vl-plus", "qwen-vl-plus")
+    .add_alias("long", "qwen-long")
 }
 
 /// Parse a single SSE line from a DashScope streaming response.
