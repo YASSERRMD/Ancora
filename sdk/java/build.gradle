@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'jacoco'
 }
 
 group = 'io.ancora'
@@ -34,6 +35,19 @@ test {
     // Pass library path from environment if set.
     systemProperty 'java.library.path',
         System.getenv('ANCORA_NATIVE_LIB_PATH') ?: System.getProperty('java.library.path') ?: ''
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = false
+    }
 }
 
 jar {

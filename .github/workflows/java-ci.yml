@@ -38,11 +38,34 @@ jobs:
         with:
           gradle-version: '8.10'
 
-      - name: Run tests
+      - name: Run tests with coverage
         working-directory: sdk/java
-        run: gradle test
+        run: gradle test jacocoTestReport
         env:
           ANCORA_NATIVE_LIB_PATH: "${{ github.workspace }}/target/release"
+
+      - name: Enforce 60% line coverage gate
+        run: |
+          python3 - <<'EOF'
+          import xml.etree.ElementTree as ET, sys
+          tree = ET.parse("sdk/java/build/reports/jacoco/test/jacocoTestReport.xml")
+          root = tree.getroot()
+          line_counter = next(
+              (c for c in root.iter("counter") if c.attrib.get("type") == "LINE"), None
+          )
+          if line_counter is None:
+              print("WARNING: no LINE counter found in JaCoCo report -- skipping gate")
+              sys.exit(0)
+          missed  = int(line_counter.attrib["missed"])
+          covered = int(line_counter.attrib["covered"])
+          total   = missed + covered
+          rate    = covered / total if total > 0 else 0.0
+          print(f"Line coverage: {rate*100:.1f}% ({covered}/{total})")
+          if rate < 0.60:
+              print(f"FAIL: coverage {rate*100:.1f}% is below required 60%")
+              sys.exit(1)
+          print("PASS: coverage gate met")
+          EOF
 
   publish-dry-run:
     name: Maven publish (dry run)
