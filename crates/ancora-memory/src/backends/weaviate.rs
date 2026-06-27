@@ -639,6 +639,36 @@ pub fn parse_vectorizer(body: &Value) -> Option<String> {
     body["vectorizer"].as_str().map(|s| s.to_owned())
 }
 
+// ---- additional-field helpers (GraphQL _additional) ----------------------
+
+/// Extract the UUID from an object's `_additional.id` field.
+pub fn parse_additional_id(obj: &Value) -> Option<String> {
+    obj["_additional"]["id"].as_str().map(|s| s.to_owned())
+}
+
+/// Extract the certainty score (0.0 - 1.0) from `_additional.certainty`.
+pub fn parse_additional_certainty(obj: &Value) -> Option<f32> {
+    obj["_additional"]["certainty"].as_f64().map(|v| v as f32)
+}
+
+/// Extract the vector distance from `_additional.distance`.
+pub fn parse_additional_distance(obj: &Value) -> Option<f32> {
+    obj["_additional"]["distance"].as_f64().map(|v| v as f32)
+}
+
+/// Extract `(id, certainty)` tuples from a GraphQL Get response for `class`.
+pub fn parse_get_with_certainty(body: &Value, class: &str) -> Vec<(String, f32, Value)> {
+    parse_graphql_get(body, class)
+        .into_iter()
+        .filter_map(|mut obj| {
+            let id = parse_additional_id(&obj)?;
+            let certainty = parse_additional_certainty(&obj).unwrap_or(0.0);
+            obj.as_object_mut()?.remove("_additional");
+            Some((id, certainty, obj))
+        })
+        .collect()
+}
+
 // ---- error classification ------------------------------------------------
 
 #[derive(Debug, PartialEq)]
@@ -860,6 +890,40 @@ mod tests {
     fn parse_vectorizer_extracts_value() {
         let body = json!({ "class": "Document", "vectorizer": "text2vec-openai" });
         assert_eq!(parse_vectorizer(&body), Some("text2vec-openai".to_owned()));
+    }
+
+    #[test]
+    fn parse_additional_id_extracts_uuid() {
+        let obj = json!({ "_additional": { "id": "abc-123" }, "title": "doc" });
+        assert_eq!(parse_additional_id(&obj), Some("abc-123".to_owned()));
+    }
+
+    #[test]
+    fn parse_additional_certainty_extracts_score() {
+        let obj = json!({ "_additional": { "certainty": 0.95 } });
+        let c = parse_additional_certainty(&obj).unwrap();
+        assert!((c - 0.95f32).abs() < 1e-4);
+    }
+
+    #[test]
+    fn parse_additional_distance_extracts_value() {
+        let obj = json!({ "_additional": { "distance": 0.12 } });
+        let d = parse_additional_distance(&obj).unwrap();
+        assert!((d - 0.12f32).abs() < 1e-4);
+    }
+
+    #[test]
+    fn parse_get_with_certainty_extracts_triples() {
+        let body = json!({
+            "data": { "Get": { "Document": [
+                { "_additional": { "id": "id-1", "certainty": 0.9 }, "title": "a" },
+                { "_additional": { "id": "id-2", "certainty": 0.7 }, "title": "b" },
+            ]}}
+        });
+        let results = parse_get_with_certainty(&body, "Document");
+        assert_eq!(results.len(), 2);
+        assert_eq!(results[0].0, "id-1");
+        assert!((results[0].1 - 0.9f32).abs() < 1e-4);
     }
 
     #[test]
