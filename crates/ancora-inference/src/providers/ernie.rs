@@ -51,6 +51,43 @@ pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError 
     crate::error::InferenceError::from_http(status, body, None)
 }
 
+#[cfg(test)]
+const ERNIE_FIXTURE: &str = r#"{"id":"chatcmpl-ernie-01","choices":[{"message":{"role":"assistant","content":"Hello from ERNIE 4.0","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":7}}"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ernie_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_ernie_profile()))
+    }
+
+    #[test]
+    fn ernie_recorded_fixture_completes() {
+        let resp = ernie_client().parse_response(ERNIE_FIXTURE, "ernie-4.0-8k").unwrap();
+        assert_eq!(resp.content, "Hello from ERNIE 4.0");
+        assert_eq!(resp.tokens_in, 9);
+        assert_eq!(resp.tokens_out, 7);
+    }
+
+    #[test]
+    fn ernie_provider_name() {
+        assert_eq!(build_ernie_profile().name, "ernie");
+    }
+
+    #[test]
+    fn ernie_oauth_note_nonempty() {
+        assert!(!ernie_oauth_note().is_empty());
+    }
+
+    #[test]
+    fn ernie4_has_tools() {
+        let p = build_ernie_profile();
+        assert!(p.model_meta("ernie-4.0-8k").unwrap().capabilities.tools);
+    }
+}
+
 /// Return a note about the legacy Baidu OAuth auth flow.
 ///
 /// The new Qianfan endpoint (`qianfan.baidubce.com/v2`) accepts API keys
