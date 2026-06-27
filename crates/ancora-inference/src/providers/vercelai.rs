@@ -116,4 +116,26 @@ mod tests {
         let err = normalize_error(429, "rate limited");
         assert!(matches!(err, InferenceError::RateLimit { .. }));
     }
+
+    #[test]
+    fn vercelai_extract_provider_openai() {
+        assert_eq!(extract_provider("openai/gpt-4o"), Some("openai"));
+    }
+
+    #[test]
+    fn vercelai_extract_provider_bare_id_returns_none() {
+        assert_eq!(extract_provider("gpt-4o"), None);
+    }
+
+    #[test]
+    fn vercelai_parse_sse_token_returns_event() {
+        let line = r#"data: {"choices":[{"delta":{"content":"hi"},"finish_reason":null}]}"#;
+        assert!(parse_stream_line(line).is_some());
+    }
+
+    #[test]
+    fn vercelai_custom_profile_name_unchanged() {
+        let p = build_vercelai_custom_profile("http://localhost:9000");
+        assert_eq!(p.name, "vercelai");
+    }
 }
