@@ -1,0 +1,8 @@
+[build]
+# Enable source-based coverage when RUSTFLAGS=-Cinstrument-coverage is set.
+# Run with: RUSTFLAGS="-C instrument-coverage" cargo test -p ancora-core
+# Then generate a report with: grcov . --binary-path ./target/debug -s . -t html -o coverage/
+
+[alias]
+# Convenience alias: `cargo cover` runs instrumented tests and prints a summary.
+cover = "test -p ancora-core -- --test-threads=1"

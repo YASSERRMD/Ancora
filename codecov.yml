@@ -1,0 +1,17 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+    patch:
+      default:
+        target: 70%
+        threshold: 2%
+
+ignore:
+  - "crates/ancora-proto/**"
+  - "crates/ancora-grpc/build.rs"
+  - "crates/ancora-ffi/build.rs"
+  - "crates/ancora-napi/build.rs"
+  - "**/benches/**"
