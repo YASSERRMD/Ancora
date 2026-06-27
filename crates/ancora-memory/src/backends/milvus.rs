@@ -678,6 +678,22 @@ pub fn sizing_guidance(dims: usize, expected_rows: u64) -> String {
     )
 }
 
+// ---- upsert request body ------------------------------------------------
+
+/// Build an upsert request body (insert-or-replace semantics).
+pub fn upsert_entities_body(
+    collection: &str,
+    entities: &[(i64, Vec<f32>, Value)],
+) -> Value {
+    let data: Vec<Value> = entities
+        .iter()
+        .map(|(id, embedding, payload)| {
+            json!({ "id": id, "embedding": embedding, "payload": payload.to_string() })
+        })
+        .collect();
+    json!({ "collectionName": collection, "data": data })
+}
+
 // ---- collection schema extra helpers ------------------------------------
 
 /// Build a schema body that enables a specific consistency level at creation.
