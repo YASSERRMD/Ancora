@@ -50,6 +50,7 @@ pub(crate) struct GeminiFunctionDeclaration {
 }
 
 #[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct GeminiTool {
     pub function_declarations: Vec<GeminiFunctionDeclaration>,
 }
@@ -57,6 +58,7 @@ pub(crate) struct GeminiTool {
 // ---- Wire types: response --------------------------------------------------
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct GeminiResponsePart {
     #[serde(default)]
     pub text: Option<String>,

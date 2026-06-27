@@ -44,6 +44,9 @@ pub fn build_gemini_profile() -> ProviderProfile {
 const FIXTURE_CHAT: &str = r#"{"candidates":[{"content":{"role":"model","parts":[{"text":"Hello from Gemini"}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":8,"candidatesTokenCount":4}}"#;
 
 #[cfg(test)]
+const FIXTURE_FUNCTION_CALL: &str = r#"{"candidates":[{"content":{"role":"model","parts":[{"functionCall":{"name":"get_weather","args":{"city":"Tokyo"}}}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":20,"candidatesTokenCount":10}}"#;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::adapters::gemini::GeminiClient;
@@ -87,6 +90,45 @@ mod tests {
     fn gemini_alias_gemini_flash_resolves() {
         let p = build_gemini_profile();
         assert_eq!(p.resolve_model_id("gemini-flash"), "gemini-2.0-flash");
+    }
+
+    #[test]
+    fn gemini_function_call_round_trip_works() {
+        let resp = client().parse_response(FIXTURE_FUNCTION_CALL, "gemini-2.0-flash").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        let tc = &resp.tool_calls[0];
+        assert_eq!(tc.function.name, "get_weather");
+        assert!(tc.function.arguments.contains("Tokyo"));
+    }
+
+    #[test]
+    fn gemini_function_call_content_is_empty() {
+        let resp = client().parse_response(FIXTURE_FUNCTION_CALL, "gemini-2.0-flash").unwrap();
+        assert!(resp.content.is_empty());
+    }
+
+    #[test]
+    fn gemini_request_body_wraps_tools_in_function_declarations() {
+        use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
+        let req = CompletionRequest {
+            model_id: "gemini-2.0-flash".to_owned(),
+            messages: vec![Message::text("user", "What is the weather?")],
+            max_tokens: None,
+            temperature: None,
+            tools: vec![ToolDefinition {
+                kind: "function".to_owned(),
+                function: FunctionDefinition {
+                    name: "get_weather".to_owned(),
+                    description: "Get current weather".to_owned(),
+                    parameters: serde_json::json!({"type": "object"}),
+                },
+            }],
+            tool_choice: None,
+        };
+        let body = client().build_request_body(&req).unwrap();
+        let fds = body["tools"][0]["functionDeclarations"].as_array().unwrap();
+        assert_eq!(fds.len(), 1);
+        assert_eq!(fds[0]["name"], "get_weather");
     }
 
     #[test]
