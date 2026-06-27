@@ -47,6 +47,12 @@ const FIXTURE_CHAT: &str = r#"{"candidates":[{"content":{"role":"model","parts":
 const FIXTURE_FUNCTION_CALL: &str = r#"{"candidates":[{"content":{"role":"model","parts":[{"functionCall":{"name":"get_weather","args":{"city":"Tokyo"}}}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":20,"candidatesTokenCount":10}}"#;
 
 #[cfg(test)]
+const FIXTURE_STREAM_LINES: &[&str] = &[
+    r#"data: {"candidates":[{"content":{"role":"model","parts":[{"text":"Hello"}]},"finishReason":null}],"usageMetadata":{"promptTokenCount":5,"candidatesTokenCount":0}}"#,
+    r#"data: {"candidates":[{"content":{"role":"model","parts":[{"text":" world"}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":5,"candidatesTokenCount":2}}"#,
+];
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::adapters::gemini::GeminiClient;
@@ -137,5 +143,42 @@ mod tests {
         let meta = p.model_meta("gemini-2.0-flash").unwrap();
         assert_eq!(meta.context_window, 1_000_000);
         assert!(meta.capabilities.vision);
+    }
+
+    #[test]
+    fn gemini_streaming_fixture_yields_ordered_tokens() {
+        use crate::adapters::gemini::parse_sse_line;
+        let mut tokens = Vec::new();
+        for line in FIXTURE_STREAM_LINES {
+            if let Some(ev) = parse_sse_line(line) {
+                tokens.push(ev);
+            }
+        }
+        assert_eq!(tokens.len(), 2);
+        assert_eq!(tokens[0].text, "Hello");
+        assert!(!tokens[0].finished);
+        assert_eq!(tokens[1].text, " world");
+        assert!(tokens[1].finished);
+    }
+
+    #[test]
+    fn gemini_streaming_tokens_accumulate_in_order() {
+        use crate::adapters::gemini::parse_sse_line;
+        let combined: String = FIXTURE_STREAM_LINES.iter()
+            .filter_map(|l| parse_sse_line(l))
+            .filter(|ev| !ev.finished)
+            .map(|ev| ev.text)
+            .collect();
+        assert_eq!(combined, "Hello");
+    }
+
+    #[test]
+    fn gemini_streaming_last_chunk_is_finished() {
+        use crate::adapters::gemini::parse_sse_line;
+        let last = FIXTURE_STREAM_LINES.iter()
+            .filter_map(|l| parse_sse_line(l))
+            .last()
+            .unwrap();
+        assert!(last.finished);
     }
 }
