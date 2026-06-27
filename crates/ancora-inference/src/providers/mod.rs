@@ -7,6 +7,8 @@ pub mod fireworks;
 pub mod gemini;
 pub mod glm;
 pub mod groq;
+pub mod kimi;
+pub mod minimax;
 pub mod mistral;
 pub mod openai;
 pub mod openrouter;
