@@ -2,6 +2,7 @@ pub mod anthropic;
 pub mod azure;
 pub mod bedrock;
 pub mod cohere;
+pub mod fireworks;
 pub mod gemini;
 pub mod groq;
 pub mod mistral;
