@@ -225,4 +225,33 @@ mod tests {
         assert_eq!(resp.tokens_in, 25);
         assert_eq!(resp.tokens_out, 12);
     }
+
+    #[test]
+    fn qwen_streaming_fixture_ordered() {
+        use crate::openai::OpenAiClient;
+        let tokens: Vec<String> = QWEN_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(tokens, vec!["Ni", "hao"]);
+    }
+
+    #[test]
+    fn qwen_streaming_combined_text() {
+        use crate::openai::OpenAiClient;
+        let combined: String = QWEN_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text)
+            .collect();
+        assert_eq!(combined, "Nihao");
+    }
+
+    #[test]
+    fn qwen_stream_done_emits_finished() {
+        use crate::openai::OpenAiClient;
+        let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
+        assert!(ev.finished);
+    }
 }
