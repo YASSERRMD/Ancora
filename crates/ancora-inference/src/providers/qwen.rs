@@ -324,4 +324,41 @@ mod tests {
         // Unknown region should fall back to the default (Singapore)
         assert_eq!(p.base_url_for_region(Some("au")), p.base_url_for_region(None));
     }
+
+    #[test]
+    fn qwen_self_host_fixture_completes_offline() {
+        use std::sync::Arc;
+        let client = crate::openai::OpenAiClient::new(Arc::new(
+            build_qwen_self_host_profile("http://localhost:8000"),
+        ));
+        let resp = client.parse_response(QWEN_SELF_HOST_FIXTURE, "qwen3-32b").unwrap();
+        assert_eq!(resp.content, "Hello from self-hosted Qwen");
+        assert_eq!(resp.tokens_in, 8);
+        assert_eq!(resp.tokens_out, 7);
+    }
+
+    #[test]
+    fn qwen_self_host_has_zero_cost() {
+        use std::sync::Arc;
+        let client = crate::openai::OpenAiClient::new(Arc::new(
+            build_qwen_self_host_profile("http://localhost:8000"),
+        ));
+        let resp = client.parse_response(QWEN_SELF_HOST_FIXTURE, "qwen3-32b").unwrap();
+        let cost = resp.cost_usd.unwrap_or(0.0);
+        assert_eq!(cost, 0.0);
+    }
+
+    #[test]
+    fn qwen_self_host_base_url_is_custom() {
+        let p = build_qwen_self_host_profile("http://gpu-box:8000");
+        assert_eq!(p.base_url, "http://gpu-box:8000");
+        assert_eq!(p.name, "qwen-self-host");
+    }
+
+    #[test]
+    fn qwen_self_host_alias_resolves() {
+        let p = build_qwen_self_host_profile("http://localhost:8000");
+        assert_eq!(p.resolve_model_id("qwq"), "qwq-32b");
+        assert_eq!(p.resolve_model_id("qwen3"), "qwen3-32b");
+    }
 }
