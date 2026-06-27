@@ -106,4 +106,73 @@ mod tests {
         let merged = s1.merge(&s2);
         assert_eq!(merged.cost_usd, Some(0.002));
     }
+
+    #[test]
+    fn cost_summary_correct_for_stepfun_fixture() {
+        use crate::providers::stepfun::build_stepfun_profile;
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"step","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":5}}"#;
+        let client = OpenAiClient::new(Arc::new(build_stepfun_profile()));
+        let response = client.parse_response(FIXTURE, "step-1-32k").unwrap();
+        let summary = UsageSummary::from_response("stepfun", "step-1-32k", &response);
+        // step-1-32k: $0.07/M in + $0.07/M out
+        let expected = 10.0 * 0.07 / 1_000_000.0 + 5.0 * 0.07 / 1_000_000.0;
+        assert!((summary.cost_usd.unwrap() - expected).abs() < 1e-12);
+    }
+
+    #[test]
+    fn cost_summary_correct_for_ernie_fixture() {
+        use crate::providers::ernie::build_ernie_profile;
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"ernie","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":3}}"#;
+        let client = OpenAiClient::new(Arc::new(build_ernie_profile()));
+        let response = client.parse_response(FIXTURE, "ernie-speed-8k").unwrap();
+        let summary = UsageSummary::from_response("ernie", "ernie-speed-8k", &response);
+        // ernie-speed-8k: $0.004/M in + $0.008/M out
+        let expected = 9.0 * 0.004 / 1_000_000.0 + 3.0 * 0.008 / 1_000_000.0;
+        assert!((summary.cost_usd.unwrap() - expected).abs() < 1e-15);
+    }
+
+    #[test]
+    fn cost_summary_correct_for_hunyuan_fixture() {
+        use crate::providers::hunyuan::build_hunyuan_profile;
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"hunyuan","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":11,"completion_tokens":5}}"#;
+        let client = OpenAiClient::new(Arc::new(build_hunyuan_profile()));
+        let response = client.parse_response(FIXTURE, "hunyuan-standard").unwrap();
+        let summary = UsageSummary::from_response("hunyuan", "hunyuan-standard", &response);
+        // hunyuan-standard: $0.05/M in + $0.05/M out
+        let expected = 11.0 * 0.05 / 1_000_000.0 + 5.0 * 0.05 / 1_000_000.0;
+        assert!((summary.cost_usd.unwrap() - expected).abs() < 1e-12);
+    }
+
+    #[test]
+    fn cost_summary_correct_for_doubao_fixture() {
+        use crate::providers::doubao::build_doubao_profile;
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"doubao","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":4}}"#;
+        let client = OpenAiClient::new(Arc::new(build_doubao_profile()));
+        let response = client.parse_response(FIXTURE, "doubao-1.5-lite-32k").unwrap();
+        let summary = UsageSummary::from_response("doubao", "doubao-1.5-lite-32k", &response);
+        // doubao-lite: $0.01/M in + $0.03/M out
+        let expected = 12.0 * 0.01 / 1_000_000.0 + 4.0 * 0.03 / 1_000_000.0;
+        assert!((summary.cost_usd.unwrap() - expected).abs() < 1e-15);
+    }
+
+    #[test]
+    fn cost_summary_correct_for_hunyuan_lite_free() {
+        use crate::providers::hunyuan::build_hunyuan_profile;
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"free","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":20,"completion_tokens":10}}"#;
+        let client = OpenAiClient::new(Arc::new(build_hunyuan_profile()));
+        let response = client.parse_response(FIXTURE, "hunyuan-lite").unwrap();
+        let summary = UsageSummary::from_response("hunyuan", "hunyuan-lite", &response);
+        // hunyuan-lite: $0.0/M both -- should be exactly zero
+        assert_eq!(summary.cost_usd, Some(0.0));
+    }
 }

@@ -42,6 +42,17 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "qwen-cn" => vec![ResidencyTag::Cn],
         // Self-hosted Qwen: residency depends on deployment
         "qwen-self-host" => vec![ResidencyTag::Unknown],
+        // StepFun (Step AI) -- CN infrastructure
+        "stepfun" => vec![ResidencyTag::Cn],
+        // Baidu ERNIE (Qianfan) -- CN infrastructure
+        "ernie" => vec![ResidencyTag::Cn],
+        // Tencent Hunyuan -- CN infrastructure
+        "hunyuan" => vec![ResidencyTag::Cn],
+        // ByteDance Doubao (Volcano Engine ARK) -- CN infrastructure
+        "doubao" => vec![ResidencyTag::Cn],
+        "doubao-self-host" => vec![ResidencyTag::Unknown],
+        // Xiaomi MiMo -- open-source, self-hosted; residency depends on deployment
+        "mimo" | "mimo-local" => vec![ResidencyTag::Unknown],
         // US-based providers
         "openai" | "groq" | "together" | "fireworks" | "anthropic" => vec![ResidencyTag::Us],
         // Azure: depends on deployment region, default US
@@ -209,5 +220,66 @@ mod tests {
     fn minimax_tagged_cn() {
         let tags = residency_tags("minimax");
         assert!(tags.contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn stepfun_tagged_cn() {
+        assert!(residency_tags("stepfun").contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn ernie_tagged_cn() {
+        assert!(residency_tags("ernie").contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn hunyuan_tagged_cn() {
+        assert!(residency_tags("hunyuan").contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn doubao_tagged_cn() {
+        assert!(residency_tags("doubao").contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn mimo_tagged_unknown() {
+        assert!(residency_tags("mimo").contains(&ResidencyTag::Unknown));
+    }
+
+    #[test]
+    fn stepfun_blocked_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("stepfun", &excluded));
+    }
+
+    #[test]
+    fn ernie_blocked_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("ernie", &excluded));
+    }
+
+    #[test]
+    fn hunyuan_blocked_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("hunyuan", &excluded));
+    }
+
+    #[test]
+    fn doubao_blocked_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("doubao", &excluded));
+    }
+
+    #[test]
+    fn mimo_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("mimo", &excluded));
+    }
+
+    #[test]
+    fn doubao_self_host_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("doubao-self-host", &excluded));
     }
 }
