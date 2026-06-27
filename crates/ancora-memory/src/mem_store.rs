@@ -291,4 +291,30 @@ mod tests {
         let s = fresh(3);
         suite::conformance_score_threshold_filters(&s);
     }
+
+    #[test]
+    fn mem_store_empty_collection_query_returns_empty() {
+        let store = fresh(3);
+        let results = store.query("col", QueryRequest::new(vec![1.0, 0.0, 0.0], 10)).unwrap();
+        assert!(results.is_empty());
+    }
+
+    #[test]
+    fn mem_store_upsert_replaces_existing_point() {
+        let store = fresh(2);
+        store.upsert("col", vec![Point::new(1u64, vec![1.0, 0.0]).with_payload("v", "first")]).unwrap();
+        store.upsert("col", vec![Point::new(1u64, vec![1.0, 0.0]).with_payload("v", "second")]).unwrap();
+        let info = store.describe_collection("col").unwrap();
+        assert_eq!(info.point_count, 1, "upsert must replace, not append");
+    }
+
+    #[test]
+    fn mem_store_query_respects_top_k() {
+        let store = fresh(2);
+        for i in 0u64..10 {
+            store.upsert("col", vec![Point::new(i, vec![i as f32 / 10.0, 0.5])]).unwrap();
+        }
+        let results = store.query("col", QueryRequest::new(vec![1.0, 0.0], 3)).unwrap();
+        assert_eq!(results.len(), 3);
+    }
 }
