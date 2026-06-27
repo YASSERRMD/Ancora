@@ -1,0 +1,48 @@
+name: Python E2E CI
+
+on:
+  push:
+    paths:
+      - 'sdk/python/**'
+      - '.github/workflows/python-e2e-ci.yml'
+  pull_request:
+    paths:
+      - 'sdk/python/**'
+      - '.github/workflows/python-e2e-ci.yml'
+
+jobs:
+  python-e2e:
+    name: Python SDK tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install maturin and pytest
+        run: pip install maturin pytest pytest-asyncio
+
+      - name: Build and develop
+        working-directory: sdk/python
+        run: maturin develop
+
+      - name: Run unit tests
+        working-directory: sdk/python
+        run: pytest tests/ -v --asyncio-mode=auto -x
+
+      - name: Run e2e tests
+        working-directory: sdk/python
+        env:
+          ANCORA_OFFLINE: "1"
+        run: pytest tests/test_phase143_*.py -v --asyncio-mode=auto -x
+
+      - name: Smoke benchmark
+        working-directory: sdk/python
+        run: pytest tests/test_phase143_perf_call_overhead.py -v --asyncio-mode=auto
