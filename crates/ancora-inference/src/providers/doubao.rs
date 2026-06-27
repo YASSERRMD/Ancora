@@ -145,4 +145,24 @@ mod tests {
         let err = normalize_error(429, "rate limited");
         assert!(matches!(err, InferenceError::RateLimit { .. }));
     }
+
+    #[test]
+    fn doubao_supports_vision_helper() {
+        assert!(supports_vision("doubao-1.5-vision-32k"));
+        assert!(supports_vision("vision"));
+        assert!(!supports_vision("doubao-1.5-pro-32k"));
+    }
+
+    #[test]
+    fn doubao_parse_sse_done_returns_none() {
+        let result = parse_stream_line("data: [DONE]");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn doubao_parse_sse_token_returns_event() {
+        let line = r#"data: {"choices":[{"delta":{"content":"hi"},"finish_reason":null}]}"#;
+        let event = parse_stream_line(line);
+        assert!(event.is_some());
+    }
 }
