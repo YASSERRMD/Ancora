@@ -38,3 +38,48 @@ pub fn build_mistral_profile() -> ProviderProfile {
     .add_alias("mistral-small", "mistral-small-latest")
     .add_alias("codestral", "codestral-latest")
 }
+
+#[cfg(test)]
+const FIXTURE: &str = r#"{"id":"chatcmpl-mistral-01","choices":[{"message":{"role":"assistant","content":"Hello from Mistral","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":8,"completion_tokens":4}}"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::openai::OpenAiClient;
+    use crate::types::{CompletionRequest, Message};
+    use std::sync::Arc;
+
+    fn client() -> OpenAiClient {
+        OpenAiClient::new(Arc::new(build_mistral_profile()))
+    }
+
+    #[test]
+    fn mistral_request_body_has_model_and_messages() {
+        let req = CompletionRequest::simple(
+            "mistral-large-latest",
+            vec![Message::text("user", "Hello")],
+        );
+        let body = client().build_request_body(&req, false).unwrap();
+        assert_eq!(body["model"], "mistral-large-latest");
+        assert!(body["messages"].is_array());
+    }
+
+    #[test]
+    fn mistral_alias_resolved_in_request_body() {
+        let req = CompletionRequest::simple("mistral-large", vec![Message::text("user", "Hi")]);
+        let body = client().build_request_body(&req, false).unwrap();
+        assert_eq!(body["model"], "mistral-large-latest");
+    }
+
+    #[test]
+    fn mistral_base_url_correct() {
+        let p = build_mistral_profile();
+        assert_eq!(p.base_url, "https://api.mistral.ai");
+    }
+
+    #[test]
+    fn mistral_completions_path_is_openai_compatible() {
+        let p = build_mistral_profile();
+        assert!(p.completions_url(None).ends_with("/v1/chat/completions"));
+    }
+}
