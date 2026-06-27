@@ -381,6 +381,29 @@ pub fn keyword_score_naive(text: &str, query: &str) -> f32 {
     if all_match { 1.0 } else { 0.0 }
 }
 
+// ---- batch config ---------------------------------------------------------
+
+/// Configuration for batch upsert operations.
+#[derive(Debug, Clone)]
+pub struct BatchConfig {
+    /// Maximum number of points per internal batch.
+    pub batch_size: usize,
+    /// Number of times to retry a failed batch before propagating the error.
+    pub retries: u8,
+}
+
+impl Default for BatchConfig {
+    fn default() -> Self { Self { batch_size: 100, retries: 3 } }
+}
+
+/// Split `points` into chunks of `batch_size` for batch upsert.
+pub fn make_batches(points: Vec<Point>, batch_size: usize) -> Vec<Vec<Point>> {
+    if batch_size == 0 {
+        return vec![points];
+    }
+    points.chunks(batch_size).map(|c| c.to_vec()).collect()
+}
+
 // ---- the trait ------------------------------------------------------------
 
 /// The unified interface that every vector-store backend must implement.
