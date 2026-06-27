@@ -273,6 +273,28 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_streaming_fixture_ordered() {
+        use crate::openai::OpenAiClient;
+        let texts: Vec<String> = DS_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(texts, vec!["Hello", " DeepSeek"]);
+    }
+
+    #[test]
+    fn deepseek_streaming_combined_text() {
+        use crate::openai::OpenAiClient;
+        let combined: String = DS_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text)
+            .collect();
+        assert_eq!(combined, "Hello DeepSeek");
+    }
+
+    #[test]
     fn deepseek_tool_fixture_token_counts() {
         let resp = ds_client().parse_response(DS_TOOL_FIXTURE, "deepseek-chat").unwrap();
         assert_eq!(resp.tokens_in, 20);
