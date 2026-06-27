@@ -328,6 +328,25 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_cache_hit_cost_vs_full_precise() {
+        let p = build_deepseek_profile();
+        let meta = p.model_meta("deepseek-chat").unwrap();
+        let pricing = meta.pricing.as_ref().unwrap();
+        let cached = pricing.cached_per_million.unwrap();
+        // Cache-hit tier should be at least 50% cheaper
+        assert!(cached <= pricing.input_per_million * 0.5);
+    }
+
+    #[test]
+    fn deepseek_r1_cache_discount_at_least_50_pct() {
+        let p = build_deepseek_profile();
+        let meta = p.model_meta("deepseek-reasoner").unwrap();
+        let pricing = meta.pricing.as_ref().unwrap();
+        let cached = pricing.cached_per_million.unwrap();
+        assert!(cached <= pricing.input_per_million * 0.5);
+    }
+
+    #[test]
     fn deepseek_cache_hit_tokens_present_in_fixture() {
         // The fixture has prompt_cache_hit_tokens=4 and prompt_cache_miss_tokens=6.
         // Standard OpenAI parse uses prompt_tokens (10) for tokens_in.
