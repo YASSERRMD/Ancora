@@ -129,7 +129,29 @@ nav:
           - Troubleshooting: sdk/dotnet/troubleshooting.md
           - API Reference: sdk/dotnet/api-reference.md
           - Migration: sdk/dotnet/migration.md
-      - Java: sdk/java/index.md
+      - Java:
+          - Overview: sdk/java/index.md
+          - Install: sdk/java/install.md
+          - Quickstart: sdk/java/quickstart.md
+          - Tools: sdk/java/tools.md
+          - Structured Output: sdk/java/structured-output.md
+          - Multi-Agent: sdk/java/multi-agent.md
+          - Verifier: sdk/java/verifier.md
+          - Human-in-the-Loop: sdk/java/human-in-the-loop.md
+          - Streaming: sdk/java/streaming.md
+          - Memory and RAG: sdk/java/memory-and-rag.md
+          - Providers: sdk/java/providers.md
+          - Qwen Regional Endpoints: sdk/java/qwen-regional.md
+          - Vector Stores: sdk/java/vector-stores.md
+          - Durability: sdk/java/durability.md
+          - Observability: sdk/java/observability.md
+          - Policy: sdk/java/policy.md
+          - MCP and A2A: sdk/java/mcp-and-a2a.md
+          - Deployment: sdk/java/deployment.md
+          - Testing: sdk/java/testing.md
+          - Troubleshooting: sdk/java/troubleshooting.md
+          - API Reference: sdk/java/api-reference.md
+          - Migration: sdk/java/migration.md
       - Rust: sdk/rust/index.md
   - Quickstarts: quickstarts/index.md
   - Guides: guides/index.md
