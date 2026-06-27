@@ -111,4 +111,20 @@ mod tests {
         assert!(url.contains("myres.openai.azure.com"));
         assert!(url.contains("my-dep"));
     }
+
+    #[test]
+    fn azure_deployment_name_routing() {
+        // The deployment name is the model identifier for Azure.
+        let profile = build_azure_profile("res", "my-deployment", "2024-02-01");
+        let meta = profile.model_meta("my-deployment");
+        assert!(meta.is_some(), "deployment should be registered as model");
+    }
+
+    #[test]
+    fn azure_api_version_different_versions() {
+        let p1 = build_azure_profile("r", "d", "2024-02-01");
+        let p2 = build_azure_profile("r", "d", "2024-05-01-preview");
+        assert!(p1.completions_url(None).contains("2024-02-01"));
+        assert!(p2.completions_url(None).contains("2024-05-01-preview"));
+    }
 }
