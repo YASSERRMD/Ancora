@@ -1,9 +1,12 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
+use crate::client::ModelClient;
 use crate::error::InferenceError;
-use crate::types::{CompletionResponse, FunctionCall, FunctionDefinition, Message, ToolCall, ToolDefinition};
+use crate::provider::ProviderProfile;
+use crate::types::{CompletionRequest, CompletionResponse, FunctionCall, FunctionDefinition, Message, ToolCall, ToolDefinition};
 
 // ---- Wire types: chat history ----------------------------------------------
 
@@ -221,6 +224,164 @@ pub(crate) fn extract_preamble(messages: &[Message]) -> Option<String> {
         None
     } else {
         Some(parts.join("\n\n"))
+    }
+}
+
+// ---- CohereClient ----------------------------------------------------------
+
+/// Cohere request body wire type.
+#[derive(Debug, Serialize)]
+struct WireChatRequest {
+    model: String,
+    message: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    chat_history: Vec<CohereChatTurn>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    preamble: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    tools: Vec<CohereToolDef>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stream: Option<bool>,
+}
+
+/// HTTP adapter for the Cohere Chat API.
+///
+/// Cohere's wire format differs from OpenAI: conversations are split into
+/// `message` (current turn) + `chat_history` (prior turns), and system
+/// instructions go into `preamble`.
+pub struct CohereClient {
+    profile: Arc<ProviderProfile>,
+}
+
+impl CohereClient {
+    pub fn new(profile: Arc<ProviderProfile>) -> Self {
+        Self { profile }
+    }
+
+    pub(crate) fn build_request_body(
+        &self,
+        request: &CompletionRequest,
+        stream: bool,
+    ) -> Result<serde_json::Value, InferenceError> {
+        let model_id = self.profile.resolve_model_id(&request.model_id).to_owned();
+        let preamble = extract_preamble(&request.messages);
+        let (message, chat_history) = split_messages(&request.messages);
+        let tools: Vec<CohereToolDef> = request.tools.iter().map(encode_tool).collect();
+        let wire = WireChatRequest {
+            model: model_id,
+            message,
+            chat_history,
+            preamble,
+            tools,
+            stream: if stream { Some(true) } else { None },
+        };
+        let mut body = serde_json::to_value(&wire)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        self.profile.request_transforms.apply(&mut body);
+        Ok(body)
+    }
+
+    pub fn parse_response(
+        &self,
+        body: &str,
+        model_id: &str,
+    ) -> Result<CompletionResponse, InferenceError> {
+        let resp: CohereResponse = serde_json::from_str(body)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let tokens_in = resp.meta.tokens.input_tokens;
+        let tokens_out = resp.meta.tokens.output_tokens;
+        let cost_usd = self.profile
+            .model_meta(model_id)
+            .and_then(|m| m.compute_cost(tokens_in, tokens_out, 0));
+        let tool_calls: Vec<ToolCall> = resp.tool_calls.into_iter().map(|tc| ToolCall {
+            id: String::new(),
+            kind: "function".to_owned(),
+            function: FunctionCall { name: tc.name, arguments: tc.parameters.to_string() },
+        }).collect();
+        Ok(CompletionResponse {
+            content: resp.text,
+            tokens_in,
+            tokens_out,
+            cost_usd,
+            tool_calls,
+        })
+    }
+
+    fn apply_auth(&self, mut req: ureq::Request) -> Result<ureq::Request, InferenceError> {
+        match self.profile.auth.as_header() {
+            Ok(Some((name, val))) => req = req.set(&name, &val),
+            Ok(None) => {}
+            Err(e) => return Err(InferenceError::MissingCredential(e)),
+        }
+        for (k, v) in &self.profile.extra_headers {
+            req = req.set(k, v);
+        }
+        Ok(req)
+    }
+
+    fn post(&self, body: &serde_json::Value) -> Result<String, InferenceError> {
+        let url = self.profile.completions_url(None);
+        let json = serde_json::to_string(body)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let req = self.apply_auth(ureq::post(&url))?;
+        req.set("Content-Type", "application/json")
+            .send_string(&json)
+            .map_err(|e| InferenceError::Unreachable(e.to_string()))?
+            .into_string()
+            .map_err(|e| InferenceError::Parse(e.to_string()))
+    }
+
+    fn post_stream(
+        &self,
+        body: &serde_json::Value,
+        on_token: &mut dyn FnMut(crate::types::TokenEvent),
+    ) -> Result<(), InferenceError> {
+        let url = self.profile.completions_url(None);
+        let json = serde_json::to_string(body)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let req = self.apply_auth(ureq::post(&url))?;
+        let resp = req
+            .set("Content-Type", "application/json")
+            .send_string(&json)
+            .map_err(|e| InferenceError::Unreachable(e.to_string()))?;
+        use std::io::BufRead;
+        let reader = std::io::BufReader::new(resp.into_reader());
+        for line in reader.lines() {
+            let line = line.map_err(|e| InferenceError::Parse(e.to_string()))?;
+            if let Some(event) = parse_sse_line(&line) {
+                on_token(event);
+            }
+        }
+        Ok(())
+    }
+}
+
+impl ModelClient for CohereClient {
+    fn complete(&self, request: &CompletionRequest) -> Result<CompletionResponse, InferenceError> {
+        let body = self.build_request_body(request, false)?;
+        let resp_str = self.post(&body)?;
+        self.parse_response(&resp_str, &request.model_id)
+    }
+
+    fn stream_complete(
+        &self,
+        request: &CompletionRequest,
+        on_token: &mut dyn FnMut(crate::types::TokenEvent),
+    ) -> Result<CompletionResponse, InferenceError> {
+        let body = self.build_request_body(request, true)?;
+        let mut content = String::new();
+        self.post_stream(&body, &mut |event: crate::types::TokenEvent| {
+            if !event.text.is_empty() {
+                content.push_str(&event.text);
+            }
+            on_token(event);
+        })?;
+        let model_id = self.profile.resolve_model_id(&request.model_id).to_owned();
+        let (tokens_in, tokens_out) = (0u64, 0u64);
+        let cost_usd = self.profile
+            .model_meta(&model_id)
+            .and_then(|m| m.compute_cost(tokens_in, tokens_out, 0));
+        Ok(CompletionResponse { content, tokens_in, tokens_out, cost_usd, tool_calls: vec![] })
     }
 }
 
