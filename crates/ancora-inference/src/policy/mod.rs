@@ -24,6 +24,10 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "deepseek" => vec![ResidencyTag::Cn],
         // Self-hosted DeepSeek: residency depends on where the host runs
         "deepseek-self-host" => vec![ResidencyTag::Unknown],
+        // GLM (Zhipu AI) -- direct endpoint is CN-region
+        "glm" => vec![ResidencyTag::Cn],
+        "glm-self-host" => vec![ResidencyTag::Unknown],
+        "glm-llamacpp" => vec![ResidencyTag::Unknown],
         // Qwen (DashScope) -- regional awareness
         // Default / Singapore international endpoint: non-CN, neutral
         "qwen" => vec![ResidencyTag::Us],
