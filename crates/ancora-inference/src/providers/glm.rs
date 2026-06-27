@@ -173,4 +173,44 @@ mod tests {
         let p = build_glm_profile();
         assert!(p.base_url.contains("bigmodel.cn"));
     }
+
+    #[test]
+    fn glm_tool_round_trip_works() {
+        let resp = glm_client().parse_response(GLM_TOOL_FIXTURE, "glm-5").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        assert_eq!(resp.tool_calls[0].function.name, "extract_entities");
+        let args: serde_json::Value =
+            serde_json::from_str(&resp.tool_calls[0].function.arguments).unwrap();
+        assert_eq!(args["text"], "Apple Inc was founded by Steve Jobs");
+    }
+
+    #[test]
+    fn glm_tool_call_request_body_has_tools() {
+        use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
+        let mut req = CompletionRequest::simple(
+            "glm-5",
+            vec![Message::text("user", "Extract companies from: Apple Inc was founded by Steve Jobs")],
+        );
+        req.tools = vec![ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: "extract_entities".to_owned(),
+                description: "Extract named entities".to_owned(),
+                parameters: serde_json::json!({"type":"object","properties":{"text":{"type":"string"}},"required":["text"]}),
+            },
+        }];
+        let body = glm_client().build_request_body(&req, false).unwrap();
+        assert!(body["tools"].is_array());
+        assert_eq!(body["tools"][0]["function"]["name"], "extract_entities");
+    }
+
+    #[test]
+    fn glm_supports_tools_glm5_true() {
+        assert!(supports_tools("glm-5"));
+    }
+
+    #[test]
+    fn glm_supports_tools_flash_false() {
+        assert!(!supports_tools("flash"));
+    }
 }
