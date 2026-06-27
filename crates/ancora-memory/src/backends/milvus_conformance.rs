@@ -145,4 +145,50 @@ mod milvus_conformance {
         assert_eq!(metric_type::IP, "IP");
         assert_eq!(metric_type::L2, "L2");
     }
+
+    // ---- extended response parser conformance ---------------------------
+
+    #[test]
+    fn parse_error_message_extracts_message() {
+        let body = serde_json::json!({ "message": "collection not loaded" });
+        assert_eq!(
+            parse_error_message(&body),
+            Some("collection not loaded".to_owned())
+        );
+    }
+
+    #[test]
+    fn parse_error_message_returns_none_on_missing() {
+        let body = serde_json::json!({ "data": {} });
+        assert!(parse_error_message(&body).is_none());
+    }
+
+    #[test]
+    fn parse_delete_count_reads_field() {
+        let body = serde_json::json!({ "data": { "deleteCount": 7 } });
+        assert_eq!(parse_delete_count(&body), 7);
+    }
+
+    #[test]
+    fn parse_delete_count_zero_on_missing() {
+        let body = serde_json::json!({});
+        assert_eq!(parse_delete_count(&body), 0);
+    }
+
+    #[test]
+    fn parse_alias_names_extracts_list() {
+        let body = serde_json::json!({
+            "data": [{ "aliasName": "latest" }, { "aliasName": "staging" }]
+        });
+        let names = parse_alias_names(&body);
+        assert_eq!(names, vec!["latest", "staging"]);
+    }
+
+    #[test]
+    fn upsert_entities_body_sets_explicit_ids() {
+        let entities = vec![(42i64, vec![0.1f32; 4], serde_json::json!({"tag": "x"}))];
+        let body = upsert_entities_body("col", &entities);
+        let id = body["data"][0]["id"].as_i64().unwrap();
+        assert_eq!(id, 42);
+    }
 }
