@@ -364,6 +364,45 @@ pub fn graphql_hybrid_query(
     json!({ "query": q })
 }
 
+// ---- inverted index and property tokenization ----------------------------
+
+/// Tokenization modes for text properties.
+pub mod tokenization {
+    pub const WORD: &str = "word";
+    pub const LOWERCASE: &str = "lowercase";
+    pub const WHITESPACE: &str = "whitespace";
+    pub const FIELD: &str = "field";
+    pub const TRIGRAM: &str = "trigram";
+    pub const GSE: &str = "gse";
+}
+
+/// Build a property definition with a specific tokenization mode.
+pub fn property_with_tokenization(
+    name: &str,
+    data_type: &str,
+    tokenization: &str,
+) -> Value {
+    json!({
+        "name": name,
+        "dataType": [data_type],
+        "tokenization": tokenization
+    })
+}
+
+/// Build an inverted index config for a class.
+pub fn inverted_index_config(
+    bm25_b: f32,
+    bm25_k1: f32,
+    index_null_state: bool,
+    index_property_length: bool,
+) -> Value {
+    json!({
+        "bm25": { "b": bm25_b, "k1": bm25_k1 },
+        "indexNullState": index_null_state,
+        "indexPropertyLength": index_property_length
+    })
+}
+
 // ---- backup and node management ------------------------------------------
 
 /// URL for creating a backup.
@@ -778,6 +817,21 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn property_with_tokenization_has_tokenization_field() {
+        let p = property_with_tokenization("body", data_type::TEXT, tokenization::WORD);
+        assert_eq!(p["tokenization"], "word");
+        assert_eq!(p["dataType"][0], data_type::TEXT);
+    }
+
+    #[test]
+    fn inverted_index_config_has_bm25_params() {
+        let cfg = inverted_index_config(0.75, 1.2, true, false);
+        assert!((cfg["bm25"]["b"].as_f64().unwrap() - 0.75).abs() < 0.001);
+        assert!((cfg["bm25"]["k1"].as_f64().unwrap() - 1.2).abs() < 0.001);
+        assert_eq!(cfg["indexNullState"], true);
     }
 
     #[test]
