@@ -48,3 +48,7 @@ pub mod backend_selector;
 pub mod chroma_filter_tests;
 pub mod pinecone_index_tests;
 pub mod vespa_hybrid_tests;
+pub mod chroma_integration;
+pub mod pinecone_integration;
+pub mod vespa_integration;
+pub mod redis_vector_integration;
