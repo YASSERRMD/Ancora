@@ -105,4 +105,29 @@ mod tests {
         let p = build_mimo_noauth_profile("http://localhost:8000/v1");
         assert_eq!(p.name, "mimo-local");
     }
+
+    #[test]
+    fn mimo_fc_variant_has_tools() {
+        let p = build_mimo_profile("http://localhost:8000/v1");
+        assert!(p.model_meta("fc").unwrap().capabilities.tools);
+    }
+
+    #[test]
+    fn mimo_rl_base_has_no_tools() {
+        let p = build_mimo_profile("http://localhost:8000/v1");
+        assert!(!p.model_meta("rl").unwrap().capabilities.tools);
+    }
+
+    #[test]
+    fn mimo_supports_tools_helper() {
+        assert!(supports_tools("mimo-7b-rl-fc"));
+        assert!(!supports_tools("mimo-7b-rl"));
+    }
+
+    #[test]
+    fn mimo_error_429_is_rate_limit() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "rate limited");
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
 }
