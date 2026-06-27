@@ -36,6 +36,10 @@ impl ProviderRegistry {
     pub fn is_empty(&self) -> bool {
         self.profiles.is_empty()
     }
+
+    pub fn contains(&self, name: &str) -> bool {
+        self.profiles.contains_key(name)
+    }
 }
 
 #[cfg(test)]
