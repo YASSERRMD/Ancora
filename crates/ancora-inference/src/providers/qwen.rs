@@ -128,6 +128,41 @@ pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
     crate::openai::OpenAiClient::parse_sse_line(line)
 }
 
+/// Build a self-hosted Qwen profile for vLLM or other OpenAI-compatible servers.
+///
+/// Qwen open-weight models (qwen3-32b, qwq-32b) can be served locally via vLLM.
+/// This gives full data residency control. Auth is optional; set `QWEN_SELF_HOST_KEY`
+/// if the server requires a bearer token.
+pub fn build_qwen_self_host_profile(base_url: impl Into<String>) -> ProviderProfile {
+    ProviderProfile::new(
+        "qwen-self-host",
+        base_url,
+        AuthStrategy::BearerToken { env_var: "QWEN_SELF_HOST_KEY".to_owned() },
+    )
+    // Qwen3 32B is the largest open-weight dense model
+    .add_model(
+        ModelMeta::new("qwen3-32b", 131_072)
+            .with_pricing(0.0, 0.0)
+            .with_tools()
+            .with_streaming(),
+    )
+    // QwQ 32B reasoning model (MIT license)
+    .add_model(
+        ModelMeta::new("qwq-32b", 131_072)
+            .with_pricing(0.0, 0.0)
+            .with_streaming(),
+    )
+    // Qwen3 14B for lower-VRAM deployments
+    .add_model(
+        ModelMeta::new("qwen3-14b", 131_072)
+            .with_pricing(0.0, 0.0)
+            .with_tools()
+            .with_streaming(),
+    )
+    .add_alias("qwq", "qwq-32b")
+    .add_alias("qwen3", "qwen3-32b")
+}
+
 /// Return `true` if the model supports tool/function calls.
 ///
 /// Qwen uses the standard OpenAI `tools` array in the request body.
