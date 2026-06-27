@@ -138,3 +138,54 @@ pub fn supports_tools(model_id: &str) -> bool {
     let canonical = p.resolve_model_id(model_id);
     p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
 }
+
+#[cfg(test)]
+const QWEN_FIXTURE: &str = r#"{"id":"chatcmpl-qwen-01","choices":[{"message":{"role":"assistant","content":"Hello from Qwen","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":6}}"#;
+
+#[cfg(test)]
+const QWEN_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-qwen-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-qw-01","type":"function","function":{"name":"translate","arguments":"{\"text\":\"Hello\",\"target_lang\":\"zh\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":25,"completion_tokens":12}}"#;
+
+#[cfg(test)]
+const QWEN_STREAM_LINES: &[&str] = &[
+    r#"data: {"choices":[{"delta":{"content":"Ni"},"finish_reason":null}]}"#,
+    r#"data: {"choices":[{"delta":{"content":"hao"},"finish_reason":"stop"}]}"#,
+    "data: [DONE]",
+];
+
+#[cfg(test)]
+const QWEN_SELF_HOST_FIXTURE: &str = r#"{"id":"chatcmpl-sh-qwen-01","choices":[{"message":{"role":"assistant","content":"Hello from self-hosted Qwen","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":8,"completion_tokens":7}}"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn qwen_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_qwen_profile()))
+    }
+
+    #[test]
+    fn qwen_recorded_fixture_completes() {
+        let resp = qwen_client().parse_response(QWEN_FIXTURE, "qwen-plus").unwrap();
+        assert_eq!(resp.content, "Hello from Qwen");
+        assert_eq!(resp.tokens_in, 12);
+        assert_eq!(resp.tokens_out, 6);
+    }
+
+    #[test]
+    fn qwen_fixture_no_tool_calls() {
+        let resp = qwen_client().parse_response(QWEN_FIXTURE, "qwen-plus").unwrap();
+        assert!(resp.tool_calls.is_empty());
+    }
+
+    #[test]
+    fn qwen_provider_name_is_qwen() {
+        assert_eq!(build_qwen_profile().name, "qwen");
+    }
+
+    #[test]
+    fn qwen_default_base_url_is_singapore() {
+        let p = build_qwen_profile();
+        assert!(p.base_url.contains("dashscope-intl.aliyuncs.com"));
+    }
+}
