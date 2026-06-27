@@ -491,6 +491,25 @@ fn merge_must(a: Value, b: Value) -> Value {
     json!({ "must": must_conditions })
 }
 
+// ---- retry and backoff policy --------------------------------------------
+
+/// Maximum number of retries for transient Qdrant errors.
+pub const MAX_RETRIES: u32 = 4;
+
+/// Exponential backoff delay for retry attempt `n` (0-indexed).
+///
+/// Caps at 16 seconds. Offline tests assert the schedule without sleeping.
+pub fn qdrant_retry_delay_ms(attempt: u32) -> u64 {
+    let base: u64 = 200;
+    let cap: u64 = 16_000;
+    base.saturating_mul(2u64.saturating_pow(attempt)).min(cap)
+}
+
+/// Determine if a Qdrant HTTP status code warrants an automatic retry.
+pub fn should_retry_status(status: u16) -> bool {
+    matches!(status, 429 | 500 | 502 | 503 | 504)
+}
+
 // ---- error handling ------------------------------------------------------
 
 /// Qdrant error codes returned in the `status` field of error responses.
@@ -913,6 +932,27 @@ mod tests {
     fn qdrant_error_400_is_not_transient() {
         let err = QdrantError::from_response(400, "bad request");
         assert!(!err.is_transient());
+    }
+
+    #[test]
+    fn retry_delay_ms_is_exponential() {
+        assert_eq!(qdrant_retry_delay_ms(0), 200);
+        assert_eq!(qdrant_retry_delay_ms(1), 400);
+        assert_eq!(qdrant_retry_delay_ms(2), 800);
+    }
+
+    #[test]
+    fn retry_delay_ms_caps_at_16s() {
+        assert_eq!(qdrant_retry_delay_ms(100), 16_000);
+    }
+
+    #[test]
+    fn should_retry_status_429_and_5xx() {
+        assert!(should_retry_status(429));
+        assert!(should_retry_status(500));
+        assert!(should_retry_status(503));
+        assert!(!should_retry_status(404));
+        assert!(!should_retry_status(400));
     }
 
     #[test]
