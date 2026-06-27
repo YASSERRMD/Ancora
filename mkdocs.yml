@@ -152,7 +152,32 @@ nav:
           - Troubleshooting: sdk/java/troubleshooting.md
           - API Reference: sdk/java/api-reference.md
           - Migration: sdk/java/migration.md
-      - Rust: sdk/rust/index.md
+      - Rust:
+          - Overview: sdk/rust/index.md
+          - Install: sdk/rust/install.md
+          - Quickstart: sdk/rust/quickstart.md
+          - Tools: sdk/rust/tools.md
+          - Structured Output: sdk/rust/structured-output.md
+          - Multi-Agent: sdk/rust/multi-agent.md
+          - Verifier: sdk/rust/verifier.md
+          - Human-in-the-Loop: sdk/rust/human-in-the-loop.md
+          - Streaming: sdk/rust/streaming.md
+          - Memory and RAG: sdk/rust/memory-and-rag.md
+          - Providers: sdk/rust/providers.md
+          - Chinese Providers: sdk/rust/chinese-providers.md
+          - Vector Stores: sdk/rust/vector-stores.md
+          - Durability: sdk/rust/durability.md
+          - Observability: sdk/rust/observability.md
+          - Policy: sdk/rust/policy.md
+          - MCP and A2A: sdk/rust/mcp-and-a2a.md
+          - Edge Deployment: sdk/rust/edge-deployment.md
+          - Testing: sdk/rust/testing.md
+          - Troubleshooting: sdk/rust/troubleshooting.md
+          - API Reference: sdk/rust/api-reference.md
+          - Migration: sdk/rust/migration.md
+          - Error Handling: sdk/rust/error-handling.md
+          - Concurrency: sdk/rust/concurrency.md
+          - Configuration: sdk/rust/configuration.md
   - Quickstarts: quickstarts/index.md
   - Guides: guides/index.md
   - Contributing: CONTRIBUTING.md
