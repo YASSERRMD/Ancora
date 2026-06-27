@@ -559,6 +559,49 @@ pub fn parse_collection_info(body: &Value) -> Option<(usize, u64)> {
     Some((dims, count))
 }
 
+/// Convert a Qdrant JSON payload object to a `Payload` map.
+pub fn json_to_payload(obj: &Value) -> crate::vector_store::Payload {
+    use crate::vector_store::PayloadValue;
+    let mut payload = crate::vector_store::Payload::new();
+    if let Some(map) = obj.as_object() {
+        for (k, v) in map {
+            let pv = match v {
+                Value::String(s) => PayloadValue::String(s.clone()),
+                Value::Number(n) => {
+                    if let Some(i) = n.as_i64() { PayloadValue::Integer(i) }
+                    else { PayloadValue::Float(n.as_f64().unwrap_or(0.0)) }
+                }
+                Value::Bool(b) => PayloadValue::Bool(*b),
+                Value::Null => PayloadValue::Null,
+                _ => PayloadValue::Null,
+            };
+            payload.insert(k.clone(), pv);
+        }
+    }
+    payload
+}
+
+/// Convert a `Payload` map to a Qdrant JSON payload object.
+pub fn payload_to_json(payload: &crate::vector_store::Payload) -> Value {
+    use crate::vector_store::PayloadValue;
+    let mut obj = serde_json::Map::new();
+    for (k, v) in payload {
+        let jv = match v {
+            PayloadValue::String(s) => Value::String(s.clone()),
+            PayloadValue::Integer(n) => json!(n),
+            PayloadValue::Float(f) => {
+                serde_json::Number::from_f64(*f)
+                    .map(Value::Number)
+                    .unwrap_or(Value::Null)
+            }
+            PayloadValue::Bool(b) => Value::Bool(*b),
+            PayloadValue::Null => Value::Null,
+        };
+        obj.insert(k.clone(), jv);
+    }
+    Value::Object(obj)
+}
+
 // ---- tests (all offline) ------------------------------------------------
 
 #[cfg(test)]
@@ -918,6 +961,30 @@ mod tests {
         let body = create_payload_index_body("source", "keyword");
         assert_eq!(body["field_name"], "source");
         assert_eq!(body["field_schema"], "keyword");
+    }
+
+    #[test]
+    fn json_to_payload_converts_all_types() {
+        use crate::vector_store::PayloadValue;
+        let obj = serde_json::json!({
+            "name": "test", "count": 42, "score": 0.5, "active": true, "empty": null
+        });
+        let p = json_to_payload(&obj);
+        assert!(matches!(p.get("name"), Some(PayloadValue::String(_))));
+        assert!(matches!(p.get("count"), Some(PayloadValue::Integer(42))));
+        assert!(matches!(p.get("active"), Some(PayloadValue::Bool(true))));
+        assert!(matches!(p.get("empty"), Some(PayloadValue::Null)));
+    }
+
+    #[test]
+    fn payload_to_json_round_trips() {
+        use crate::vector_store::PayloadValue;
+        let mut p = crate::vector_store::Payload::new();
+        p.insert("k".to_owned(), PayloadValue::String("v".to_owned()));
+        p.insert("n".to_owned(), PayloadValue::Integer(7));
+        let json = payload_to_json(&p);
+        assert_eq!(json["k"], "v");
+        assert_eq!(json["n"], 7);
     }
 
     #[test]
