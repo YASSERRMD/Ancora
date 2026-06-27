@@ -57,6 +57,9 @@ pub fn build_groq_profile() -> ProviderProfile {
     .add_alias("gemma2", "gemma2-9b-it")
 }
 
+#[cfg(test)]
+const GROQ_FIXTURE: &str = r#"{"id":"chatcmpl-groq-01","choices":[{"message":{"role":"assistant","content":"Hello from Groq","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":5}}"#;
+
 /// Groq uses the standard OpenAI SSE format.
 /// `OpenAiClient::parse_sse_line` handles the stream without modification.
 /// This constant documents the expected line format for offline tests.
@@ -160,5 +163,30 @@ mod tests {
         use crate::openai::OpenAiClient;
         let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
         assert!(ev.finished);
+    }
+
+    fn groq_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_groq_profile()))
+    }
+
+    #[test]
+    fn groq_recorded_fixture_completes() {
+        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        assert_eq!(resp.content, "Hello from Groq");
+        assert_eq!(resp.tokens_in, 10);
+        assert_eq!(resp.tokens_out, 5);
+    }
+
+    #[test]
+    fn groq_fixture_no_tool_calls() {
+        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        assert!(resp.tool_calls.is_empty());
+    }
+
+    #[test]
+    fn groq_fixture_content_non_empty() {
+        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        assert!(!resp.content.is_empty());
     }
 }
