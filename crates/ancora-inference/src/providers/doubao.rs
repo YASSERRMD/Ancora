@@ -154,9 +154,9 @@ mod tests {
     }
 
     #[test]
-    fn doubao_parse_sse_done_returns_none() {
+    fn doubao_parse_sse_done_signals_stream_end() {
         let result = parse_stream_line("data: [DONE]");
-        assert!(result.is_none());
+        assert!(result.map(|e| e.finished).unwrap_or(false));
     }
 
     #[test]
