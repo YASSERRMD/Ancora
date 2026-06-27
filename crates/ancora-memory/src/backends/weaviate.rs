@@ -612,6 +612,33 @@ pub fn parse_graphql_get(body: &Value, class: &str) -> Vec<Value> {
         .to_vec()
 }
 
+// ---- schema inspection helpers -------------------------------------------
+
+/// Extract class names from a `GET /v1/schema` response.
+pub fn parse_class_names(body: &Value) -> Vec<String> {
+    body["classes"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|c| c["class"].as_str().map(|s| s.to_owned()))
+        .collect()
+}
+
+/// Extract property names from a class schema response.
+pub fn parse_property_names(body: &Value) -> Vec<String> {
+    body["properties"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|p| p["name"].as_str().map(|s| s.to_owned()))
+        .collect()
+}
+
+/// Extract the vectorizer from a class schema response.
+pub fn parse_vectorizer(body: &Value) -> Option<String> {
+    body["vectorizer"].as_str().map(|s| s.to_owned())
+}
+
 // ---- error classification ------------------------------------------------
 
 #[derive(Debug, PartialEq)]
@@ -813,6 +840,26 @@ mod tests {
         let objs = parse_objects_list(&body);
         assert_eq!(objs.len(), 1);
         assert_eq!(objs[0].0, "uuid-1");
+    }
+
+    #[test]
+    fn parse_class_names_extracts_all() {
+        let body = json!({ "classes": [{ "class": "Document" }, { "class": "Author" }] });
+        let names = parse_class_names(&body);
+        assert_eq!(names, vec!["Document", "Author"]);
+    }
+
+    #[test]
+    fn parse_property_names_extracts_names() {
+        let body = json!({ "properties": [{ "name": "title" }, { "name": "body" }] });
+        let names = parse_property_names(&body);
+        assert_eq!(names, vec!["title", "body"]);
+    }
+
+    #[test]
+    fn parse_vectorizer_extracts_value() {
+        let body = json!({ "class": "Document", "vectorizer": "text2vec-openai" });
+        assert_eq!(parse_vectorizer(&body), Some("text2vec-openai".to_owned()));
     }
 
     #[test]
