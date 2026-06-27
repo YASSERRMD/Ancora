@@ -461,6 +461,63 @@ pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<S
 
 // ---- the trait ------------------------------------------------------------
 
+// ---- unit tests for trait utilities --------------------------------------
+
+#[cfg(test)]
+mod filter_tests {
+    use super::*;
+
+    fn make_payload(key: &str, val: impl Into<PayloadValue>) -> Payload {
+        let mut p = Payload::new();
+        p.insert(key.to_owned(), val.into());
+        p
+    }
+
+    #[test]
+    fn filter_eq_matches_string() {
+        let p = make_payload("tag", "hello");
+        assert!(filter_matches(&p, &Filter::Eq("tag".to_owned(), PayloadValue::String("hello".to_owned()))));
+    }
+
+    #[test]
+    fn filter_eq_rejects_wrong_value() {
+        let p = make_payload("tag", "hello");
+        assert!(!filter_matches(&p, &Filter::Eq("tag".to_owned(), PayloadValue::String("world".to_owned()))));
+    }
+
+    #[test]
+    fn filter_gt_integer() {
+        let p = make_payload("n", 5i64);
+        assert!(filter_matches(&p, &Filter::Gt("n".to_owned(), PayloadValue::Integer(3))));
+        assert!(!filter_matches(&p, &Filter::Gt("n".to_owned(), PayloadValue::Integer(5))));
+    }
+
+    #[test]
+    fn filter_lt_integer() {
+        let p = make_payload("n", 3i64);
+        assert!(filter_matches(&p, &Filter::Lt("n".to_owned(), PayloadValue::Integer(5))));
+        assert!(!filter_matches(&p, &Filter::Lt("n".to_owned(), PayloadValue::Integer(3))));
+    }
+
+    #[test]
+    fn filter_and_requires_both() {
+        let mut p = Payload::new();
+        p.insert("a".to_owned(), PayloadValue::String("x".to_owned()));
+        p.insert("b".to_owned(), PayloadValue::Integer(1));
+        let f = Filter::Eq("a".to_owned(), PayloadValue::String("x".to_owned()))
+            .and(Filter::Eq("b".to_owned(), PayloadValue::Integer(1)));
+        assert!(filter_matches(&p, &f));
+    }
+
+    #[test]
+    fn filter_or_requires_one() {
+        let p = make_payload("a", "yes");
+        let f = Filter::Eq("a".to_owned(), PayloadValue::String("yes".to_owned()))
+            .or(Filter::Eq("b".to_owned(), PayloadValue::Integer(99)));
+        assert!(filter_matches(&p, &f));
+    }
+}
+
 /// The unified interface that every vector-store backend must implement.
 pub trait VectorStore: Send + Sync {
     fn create_collection(&self, spec: CollectionSpec) -> Result<(), VectorStoreError>;
