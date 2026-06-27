@@ -461,6 +461,48 @@ pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<S
 
 // ---- the trait ------------------------------------------------------------
 
+// ---- payload schema tests ------------------------------------------------
+
+#[cfg(test)]
+mod schema_tests {
+    use super::*;
+
+    fn schema() -> PayloadSchema {
+        PayloadSchema::new()
+            .field("name", FieldType::Keyword)
+            .field("age", FieldType::Integer)
+            .field("score", FieldType::Float)
+    }
+
+    #[test]
+    fn schema_validates_correct_payload() {
+        let mut p = Payload::new();
+        p.insert("name".to_owned(), PayloadValue::String("alice".to_owned()));
+        p.insert("age".to_owned(), PayloadValue::Integer(30));
+        assert!(schema().validate(&p).is_ok());
+    }
+
+    #[test]
+    fn schema_rejects_wrong_type() {
+        let mut p = Payload::new();
+        p.insert("age".to_owned(), PayloadValue::String("not-a-number".to_owned()));
+        assert!(schema().validate(&p).is_err());
+    }
+
+    #[test]
+    fn schema_allows_missing_optional_fields() {
+        let p = Payload::new(); // empty payload -- all fields are optional
+        assert!(schema().validate(&p).is_ok());
+    }
+
+    #[test]
+    fn hnsw_config_defaults() {
+        let h = HnswConfig::default();
+        assert_eq!(h.m, 16);
+        assert_eq!(h.ef_construct, 100);
+    }
+}
+
 // ---- hybrid score tests --------------------------------------------------
 
 #[cfg(test)]
