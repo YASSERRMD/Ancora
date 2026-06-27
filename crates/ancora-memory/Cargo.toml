@@ -6,3 +6,6 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Composable memory tiers for Ancora agents"
+
+[dependencies]
+serde_json = "1"
