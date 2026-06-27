@@ -338,6 +338,45 @@ pub fn metric_query_sql(metric: &str, table: &str, limit: usize, offset: usize) 
     }
 }
 
+// ---- batch upsert via COPY -----------------------------------------------
+
+/// Generate a `COPY ... FROM STDIN` SQL for bulk inserts.
+///
+/// The COPY format expects tab-separated: `id\tembedding_literal\tpayload_json`.
+/// After the COPY completes, a MERGE or INSERT ON CONFLICT must reconcile
+/// the staging table with the main table.
+pub fn copy_into_staging_sql(staging: &str) -> String {
+    format!("COPY {staging} (id, embedding, payload) FROM STDIN WITH (FORMAT text, DELIMITER E'\\t');")
+}
+
+/// Generate the staging table DDL that mirrors a collection's schema.
+pub fn create_staging_table_sql(staging: &str, main: &str) -> String {
+    format!("CREATE TEMP TABLE IF NOT EXISTS {staging} (LIKE {main} INCLUDING ALL);")
+}
+
+/// Generate the MERGE from staging -> main to perform the upsert.
+pub fn merge_from_staging_sql(main: &str, staging: &str) -> String {
+    format!(
+        "INSERT INTO {main} (id, embedding, payload) \
+         SELECT id, embedding, payload FROM {staging} \
+         ON CONFLICT (id) DO UPDATE SET \
+         embedding = EXCLUDED.embedding, payload = EXCLUDED.payload;"
+    )
+}
+
+/// Encode a single row for tab-separated COPY input.
+///
+/// Returns `"id\t[x,y,...]\t{json}"`.
+pub fn encode_copy_row(id: i64, embedding: &[f32], payload_json: &str) -> String {
+    format!("{id}\t{}\t{payload_json}", encode_vector(embedding))
+}
+
+/// Split a large upsert payload into batches of at most `batch_size` points.
+pub fn split_into_batches<T: Clone>(items: Vec<T>, batch_size: usize) -> Vec<Vec<T>> {
+    if batch_size == 0 { return vec![items]; }
+    items.chunks(batch_size).map(|c| c.to_vec()).collect()
+}
+
 /// Generate a DELETE statement for explicit IDs.
 pub fn delete_by_ids_sql(table: &str, count: usize) -> String {
     let params: Vec<String> = (1..=count).map(|i| format!("${i}")).collect();
@@ -664,6 +703,36 @@ mod tests {
     fn delete_by_ids_sql_placeholders() {
         let sql = delete_by_ids_sql("docs", 3);
         assert!(sql.contains("$1") && sql.contains("$2") && sql.contains("$3"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn copy_into_staging_sql_has_from_stdin() {
+        let sql = copy_into_staging_sql("docs_staging");
+        assert!(sql.contains("FROM STDIN"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn merge_from_staging_sql_has_on_conflict() {
+        let sql = merge_from_staging_sql("docs", "docs_staging");
+        assert!(sql.contains("ON CONFLICT"), "SQL: {sql}");
+        assert!(sql.contains("EXCLUDED.embedding"));
+    }
+
+    #[test]
+    fn encode_copy_row_tab_separated() {
+        let row = encode_copy_row(42, &[0.1, 0.2], r#"{"k":"v"}"#);
+        let parts: Vec<&str> = row.splitn(3, '\t').collect();
+        assert_eq!(parts.len(), 3);
+        assert_eq!(parts[0], "42");
+        assert!(parts[1].starts_with('['));
+    }
+
+    #[test]
+    fn split_into_batches_groups_correctly() {
+        let batches = split_into_batches(vec![1, 2, 3, 4, 5], 2);
+        assert_eq!(batches.len(), 3);
+        assert_eq!(batches[0], vec![1, 2]);
+        assert_eq!(batches[2], vec![5]);
     }
 
     #[test]
