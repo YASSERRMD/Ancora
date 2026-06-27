@@ -90,4 +90,19 @@ mod tests {
         let p = build_hunyuan_profile();
         assert!(p.model_meta("vision").unwrap().capabilities.vision);
     }
+
+    #[test]
+    fn hunyuan_lite_is_free() {
+        let p = build_hunyuan_profile();
+        let m = p.model_meta("lite").unwrap();
+        let pricing = m.pricing.as_ref().unwrap();
+        assert_eq!(pricing.input_per_million, 0.0);
+    }
+
+    #[test]
+    fn hunyuan_error_429_is_rate_limit() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "rate limited");
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
 }
