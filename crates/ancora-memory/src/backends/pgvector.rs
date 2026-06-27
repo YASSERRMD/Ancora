@@ -292,6 +292,20 @@ pub fn dot_query_sql(table: &str, limit: usize) -> String {
     )
 }
 
+/// Generate a dot-product query with score threshold.
+///
+/// Note: pgvector's `<#>` returns the negative dot product, so
+/// `(embedding <#> $1) * -1 >= threshold` is the WHERE condition.
+pub fn dot_query_with_threshold_sql(table: &str, limit: usize, threshold: f32) -> String {
+    format!(
+        "SELECT id, payload, (embedding <#> $1) * -1 AS score \
+         FROM {table} \
+         WHERE (embedding <#> $1) * -1 >= {threshold} \
+         ORDER BY embedding <#> $1 \
+         LIMIT {limit};"
+    )
+}
+
 /// Generate an L2 distance query.
 pub fn l2_query_sql(table: &str, limit: usize) -> String {
     format!(
@@ -300,6 +314,28 @@ pub fn l2_query_sql(table: &str, limit: usize) -> String {
          ORDER BY embedding <-> $1 \
          LIMIT {limit};"
     )
+}
+
+/// Generate an L2 distance query with score threshold.
+///
+/// Score is `1 / (1 + distance)`, so threshold applies to that derived value.
+pub fn l2_query_with_threshold_sql(table: &str, limit: usize, threshold: f32) -> String {
+    format!(
+        "SELECT id, payload, 1 / (1 + (embedding <-> $1)) AS score \
+         FROM {table} \
+         WHERE 1 / (1 + (embedding <-> $1)) >= {threshold} \
+         ORDER BY embedding <-> $1 \
+         LIMIT {limit};"
+    )
+}
+
+/// Generate a query dispatched on distance metric name.
+pub fn metric_query_sql(metric: &str, table: &str, limit: usize, offset: usize) -> String {
+    match metric {
+        "dot" => dot_query_sql(table, limit),
+        "l2" => l2_query_sql(table, limit),
+        _ => cosine_query_sql(table, limit, offset),
+    }
 }
 
 /// Generate a DELETE statement for explicit IDs.
@@ -548,6 +584,35 @@ mod tests {
     fn delete_by_ids_sql_placeholders() {
         let sql = delete_by_ids_sql("docs", 3);
         assert!(sql.contains("$1") && sql.contains("$2") && sql.contains("$3"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn dot_query_sql_uses_inner_product_op() {
+        let sql = dot_query_sql("docs", 5);
+        assert!(sql.contains("<#>"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn l2_query_sql_uses_euclidean_op() {
+        let sql = l2_query_sql("docs", 5);
+        assert!(sql.contains("<->"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn metric_query_sql_dispatches_correctly() {
+        let cosine = metric_query_sql("cosine", "docs", 5, 0);
+        let dot = metric_query_sql("dot", "docs", 5, 0);
+        let l2 = metric_query_sql("l2", "docs", 5, 0);
+        assert!(cosine.contains("<=>"));
+        assert!(dot.contains("<#>"));
+        assert!(l2.contains("<->"));
+    }
+
+    #[test]
+    fn dot_query_with_threshold_has_where_clause() {
+        let sql = dot_query_with_threshold_sql("docs", 5, 0.5);
+        assert!(sql.contains("WHERE"), "SQL: {sql}");
+        assert!(sql.contains("<#>"), "SQL: {sql}");
     }
 
     #[test]
