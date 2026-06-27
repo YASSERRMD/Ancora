@@ -3,6 +3,7 @@ pub mod azure;
 pub mod bedrock;
 pub mod cohere;
 pub mod deepseek;
+pub mod doubao;
 pub mod fireworks;
 pub mod ernie;
 pub mod gemini;
