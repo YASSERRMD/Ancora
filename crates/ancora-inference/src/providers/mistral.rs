@@ -62,6 +62,26 @@ mod tests {
     }
 
     #[test]
+    fn mistral_recorded_fixture_completes() {
+        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        assert_eq!(resp.content, "Hello from Mistral");
+        assert_eq!(resp.tokens_in, 8);
+        assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
+    fn mistral_fixture_content_non_empty() {
+        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        assert!(!resp.content.is_empty());
+    }
+
+    #[test]
+    fn mistral_fixture_no_tool_calls() {
+        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        assert!(resp.tool_calls.is_empty());
+    }
+
+    #[test]
     fn mistral_request_body_has_model_and_messages() {
         let req = CompletionRequest::simple(
             "mistral-large-latest",
