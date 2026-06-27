@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::types::{FunctionDefinition, Message, ToolDefinition};
+use crate::error::InferenceError;
+use crate::types::{CompletionResponse, FunctionCall, FunctionDefinition, Message, ToolCall, ToolDefinition};
 
 // ---- Wire types: chat history ----------------------------------------------
 
@@ -105,6 +106,69 @@ pub(crate) fn encode_function_as_cohere_tool(f: &FunctionDefinition) -> CohereTo
         description: f.description.clone(),
         parameter_definitions: param_defs,
     }
+}
+
+// ---- Wire types: response --------------------------------------------------
+
+/// Cohere response tool call entry.
+#[derive(Debug, Deserialize)]
+pub(crate) struct CohereToolCall {
+    pub name: String,
+    pub parameters: serde_json::Value,
+}
+
+/// Cohere token usage sub-object.
+#[derive(Debug, Default, Deserialize)]
+pub(crate) struct CohereTokens {
+    pub input_tokens: u64,
+    pub output_tokens: u64,
+}
+
+/// Cohere response meta object.
+#[derive(Debug, Default, Deserialize)]
+pub(crate) struct CohereMeta {
+    #[serde(default)]
+    pub tokens: CohereTokens,
+}
+
+/// Cohere non-streaming response body.
+#[derive(Debug, Deserialize)]
+pub(crate) struct CohereResponse {
+    #[serde(default)]
+    pub text: String,
+    #[serde(default)]
+    pub tool_calls: Vec<CohereToolCall>,
+    #[serde(default)]
+    pub meta: CohereMeta,
+}
+
+/// Parse a Cohere JSON response body into a `CompletionResponse`.
+pub(crate) fn parse_response(
+    body: &str,
+    _model_id: &str,
+    cost_usd: Option<f64>,
+) -> Result<CompletionResponse, InferenceError> {
+    let resp: CohereResponse = serde_json::from_str(body)
+        .map_err(|e| InferenceError::Parse(e.to_string()))?;
+
+    let tool_calls: Vec<ToolCall> = resp.tool_calls.into_iter().map(|tc| {
+        ToolCall {
+            id: String::new(),
+            kind: "function".to_owned(),
+            function: FunctionCall {
+                name: tc.name,
+                arguments: tc.parameters.to_string(),
+            },
+        }
+    }).collect();
+
+    Ok(CompletionResponse {
+        content: resp.text,
+        tokens_in: resp.meta.tokens.input_tokens,
+        tokens_out: resp.meta.tokens.output_tokens,
+        cost_usd,
+        tool_calls,
+    })
 }
 
 /// Collect system messages into a single preamble string.
