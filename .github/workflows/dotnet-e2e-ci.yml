@@ -1,0 +1,116 @@
+name: dotnet-e2e-ci
+
+on:
+  push:
+    paths:
+      - "sdk/dotnet/**"
+      - "crates/ancora-ffi/**"
+      - ".github/workflows/dotnet-e2e-ci.yml"
+  pull_request:
+    paths:
+      - "sdk/dotnet/**"
+      - "crates/ancora-ffi/**"
+      - ".github/workflows/dotnet-e2e-ci.yml"
+
+jobs:
+  unit:
+    name: .NET unit tests (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore packages
+        working-directory: sdk/dotnet
+        run: dotnet restore
+
+      - name: Build
+        working-directory: sdk/dotnet
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run unit tests (no native library)
+        working-directory: sdk/dotnet
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+  e2e:
+    name: .NET e2e tests (with native library)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build ancora-ffi cdylib
+        run: cargo build -p ancora-ffi --release
+        env:
+          CARGO_TERM_COLOR: always
+
+      - name: Copy native library for tests
+        run: |
+          cp target/release/libancora_ffi.so sdk/dotnet/Ancora.Tests/libancora_ffi.so
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore packages
+        working-directory: sdk/dotnet
+        run: dotnet restore
+
+      - name: Build
+        working-directory: sdk/dotnet
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run phase-146 unit tests
+        working-directory: sdk/dotnet
+        run: |
+          dotnet test --no-build --configuration Release --verbosity normal \
+            --filter "FullyQualifiedName~Phase146"
+        env:
+          LD_LIBRARY_PATH: "${{ github.workspace }}/sdk/dotnet/Ancora.Tests"
+
+      - name: Run phase-147 e2e tests
+        working-directory: sdk/dotnet
+        run: |
+          dotnet test --no-build --configuration Release --verbosity normal \
+            --filter "FullyQualifiedName~Phase147"
+        env:
+          LD_LIBRARY_PATH: "${{ github.workspace }}/sdk/dotnet/Ancora.Tests"
+
+      - name: Run full suite with coverage
+        working-directory: sdk/dotnet
+        run: |
+          dotnet test --no-build --configuration Release --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+        env:
+          LD_LIBRARY_PATH: "${{ github.workspace }}/sdk/dotnet/Ancora.Tests"
+
+      - name: Enforce coverage threshold
+        working-directory: sdk/dotnet
+        run: |
+          COVER_MIN=60
+          REPORT=$(find . -name "coverage.cobertura.xml" | head -1)
+          if [ -z "$REPORT" ]; then
+            echo "No coverage report found; skipping threshold check."
+            exit 0
+          fi
+          LINE_RATE=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('$REPORT')
+          root = tree.getroot()
+          rate = float(root.attrib.get('line-rate', '0'))
+          print(int(rate * 100))
+          ")
+          echo "Line coverage: ${LINE_RATE}%"
+          if [ "$LINE_RATE" -lt "$COVER_MIN" ]; then
+            echo "Coverage ${LINE_RATE}% is below threshold ${COVER_MIN}%"
+            exit 1
+          fi
+          echo "Coverage ${LINE_RATE}% meets threshold ${COVER_MIN}%"
