@@ -14,22 +14,28 @@ pub fn build_deepseek_profile() -> ProviderProfile {
         AuthStrategy::BearerToken { env_var: "DEEPSEEK_API_KEY".to_owned() },
     )
     // DeepSeek V3 (general-purpose chat)
+    // Cache-hit pricing: $0.07/M (74% discount vs full $0.27/M input)
     .add_model(
         ModelMeta::new("deepseek-chat", 64_000)
             .with_pricing(0.27, 1.10)
+            .with_cached_pricing(0.07)
             .with_tools()
             .with_streaming(),
     )
     // DeepSeek R1 (reasoning model)
+    // Cache-hit pricing: $0.14/M (75% discount vs full $0.55/M input)
     .add_model(
         ModelMeta::new("deepseek-reasoner", 64_000)
             .with_pricing(0.55, 2.19)
+            .with_cached_pricing(0.14)
             .with_streaming(),
     )
     // DeepSeek Coder (long-context, code-optimized)
+    // Cache-hit pricing: $0.035/M
     .add_model(
         ModelMeta::new("deepseek-coder", 128_000)
             .with_pricing(0.14, 0.28)
+            .with_cached_pricing(0.035)
             .with_tools()
             .with_streaming(),
     )
@@ -112,6 +118,31 @@ mod tests {
         let p = build_deepseek_profile();
         let m = p.model_meta("deepseek-reasoner").unwrap();
         assert!(!m.capabilities.tools);
+    }
+
+    #[test]
+    fn deepseek_chat_has_cached_pricing() {
+        let p = build_deepseek_profile();
+        let m = p.model_meta("deepseek-chat").unwrap();
+        let pricing = m.pricing.as_ref().unwrap();
+        assert!(pricing.cached_per_million.is_some());
+    }
+
+    #[test]
+    fn deepseek_r1_has_cached_pricing() {
+        let p = build_deepseek_profile();
+        let m = p.model_meta("deepseek-reasoner").unwrap();
+        let pricing = m.pricing.as_ref().unwrap();
+        assert!(pricing.cached_per_million.is_some());
+    }
+
+    #[test]
+    fn deepseek_cached_price_lower_than_full() {
+        let p = build_deepseek_profile();
+        let m = p.model_meta("deepseek-chat").unwrap();
+        let pricing = m.pricing.as_ref().unwrap();
+        let cached = pricing.cached_per_million.unwrap();
+        assert!(cached < pricing.input_per_million);
     }
 
     #[test]
