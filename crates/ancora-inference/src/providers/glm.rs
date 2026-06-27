@@ -59,6 +59,33 @@ pub fn build_glm_profile() -> ProviderProfile {
     .add_alias("vl", "glm-4v")
 }
 
+/// Build a self-hosted GLM profile for vLLM.
+///
+/// GLM-4-9B and GLM-4-9B-Chat are released under the MIT license and can be
+/// served via vLLM with full data residency control. Zero pricing applies.
+pub fn build_glm_self_host_profile(base_url: impl Into<String>) -> ProviderProfile {
+    ProviderProfile::new(
+        "glm-self-host",
+        base_url,
+        AuthStrategy::BearerToken { env_var: "GLM_SELF_HOST_KEY".to_owned() },
+    )
+    // GLM-4-9B: 9B parameter open-weight model (MIT license)
+    .add_model(
+        ModelMeta::new("glm-4-9b-chat", 131_072)
+            .with_pricing(0.0, 0.0)
+            .with_tools()
+            .with_streaming(),
+    )
+    // GLM-4-9B base
+    .add_model(
+        ModelMeta::new("glm-4-9b", 131_072)
+            .with_pricing(0.0, 0.0)
+            .with_streaming(),
+    )
+    .add_alias("glm4", "glm-4-9b-chat")
+    .add_alias("chat", "glm-4-9b-chat")
+}
+
 /// Normalize a GLM HTTP error to `InferenceError`.
 pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
     crate::error::InferenceError::from_http(status, body, None)
