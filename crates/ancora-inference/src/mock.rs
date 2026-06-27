@@ -13,6 +13,7 @@ impl ModelClient for MockClient {
             content: self.response.clone(),
             tokens_in: request.messages.iter().map(|m| m.content.len() as u64).sum(),
             tokens_out: self.response.len() as u64,
+            cost_usd: None,
         })
     }
 }
@@ -37,6 +38,7 @@ mod tests {
         let resp = client.complete(&req("world")).unwrap();
         assert_eq!(resp.content, "hello");
         assert_eq!(resp.tokens_out, 5);
+        assert!(resp.cost_usd.is_none());
     }
 
     #[test]
