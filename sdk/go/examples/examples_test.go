@@ -15,6 +15,13 @@ var exampleDirs = []string{
 	"event-chan",
 	"conformance-runner",
 	"grpc-transport",
+	"structured-output",
+	"streaming-chat",
+	"rag-lancedb",
+	"mcp-tool",
+	"glm-provider",
+	"durable-restart",
+	"cost-otel",
 }
 
 func buildExample(t *testing.T, dir string) string {
@@ -135,5 +142,103 @@ func TestAllExamplesOutputRunID(t *testing.T) {
 				t.Fatalf("%s: expected run info in output, got: %s", dir, out)
 			}
 		})
+	}
+}
+
+func TestStructuredOutputExampleRuns(t *testing.T) {
+	bin := buildExample(t, "structured-output")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "schema:") {
+		t.Fatalf("expected 'schema:' in output, got: %s", out)
+	}
+	if !strings.Contains(string(out), "done") {
+		t.Fatalf("expected 'done' in output, got: %s", out)
+	}
+}
+
+func TestStreamingChatExampleRuns(t *testing.T) {
+	bin := buildExample(t, "streaming-chat")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "stream started:") {
+		t.Fatalf("expected 'stream started:' in output, got: %s", out)
+	}
+	if !strings.Contains(string(out), "stream done:") {
+		t.Fatalf("expected 'stream done:' in output, got: %s", out)
+	}
+}
+
+func TestRagLancedbExampleRuns(t *testing.T) {
+	bin := buildExample(t, "rag-lancedb")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "retrieved") {
+		t.Fatalf("expected 'retrieved' in output, got: %s", out)
+	}
+	if !strings.Contains(string(out), "run started:") {
+		t.Fatalf("expected 'run started:' in output, got: %s", out)
+	}
+}
+
+func TestMcpToolExampleRuns(t *testing.T) {
+	bin := buildExample(t, "mcp-tool")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "registered tools:") {
+		t.Fatalf("expected 'registered tools:' in output, got: %s", out)
+	}
+	if !strings.Contains(string(out), "tool result:") {
+		t.Fatalf("expected 'tool result:' in output, got: %s", out)
+	}
+}
+
+func TestGlmProviderExampleRuns(t *testing.T) {
+	bin := buildExample(t, "glm-provider")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "model=glm-4") {
+		t.Fatalf("expected 'model=glm-4' in output, got: %s", out)
+	}
+	if !strings.Contains(string(out), "glm-provider done") {
+		t.Fatalf("expected 'glm-provider done' in output, got: %s", out)
+	}
+}
+
+func TestDurableRestartExampleRuns(t *testing.T) {
+	bin := buildExample(t, "durable-restart")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "first run:") {
+		t.Fatalf("expected 'first run:' in output, got: %s", out)
+	}
+	if !strings.Contains(string(out), "replayed") {
+		t.Fatalf("expected 'replayed' in output, got: %s", out)
+	}
+}
+
+func TestCostOtelExampleRuns(t *testing.T) {
+	bin := buildExample(t, "cost-otel")
+	out, err := exec.Command(bin).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run: %v\noutput: %s", err, out)
+	}
+	if !strings.Contains(string(out), "run started:") {
+		t.Fatalf("expected 'run started:' in output, got: %s", out)
+	}
+	if !strings.Contains(string(out), "span:") {
+		t.Fatalf("expected 'span:' in output, got: %s", out)
 	}
 }
