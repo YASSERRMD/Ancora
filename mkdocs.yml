@@ -184,6 +184,7 @@ nav:
       - Rust Test Plan: testing/rust-test-plan.md
       - Go Test Plan: testing/go-test-plan.md
       - Python Test Plan: testing/python-test-plan.md
+      - .NET Test Plan: testing/dotnet-test-plan.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
