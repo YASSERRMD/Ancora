@@ -66,6 +66,11 @@ pub fn is_routed_model_id(model_id: &str) -> bool {
     model_id.contains('/')
 }
 
+/// Delegate SSE line parsing to the shared OpenAI-compatible parser.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
 /// Normalize a LiteLLM HTTP error to `InferenceError`.
 pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
     crate::error::InferenceError::from_http(status, body, None)
@@ -135,5 +140,17 @@ mod tests {
     fn litellm_gemini_alias_has_vision() {
         let p = build_litellm_profile("http://localhost:4000");
         assert!(p.model_meta("gemini-flash").unwrap().capabilities.vision);
+    }
+
+    #[test]
+    fn litellm_parse_sse_token_returns_event() {
+        let line = r#"data: {"choices":[{"delta":{"content":"hi"},"finish_reason":null}]}"#;
+        assert!(parse_stream_line(line).is_some());
+    }
+
+    #[test]
+    fn litellm_parse_sse_done_signals_end() {
+        let result = parse_stream_line("data: [DONE]");
+        assert!(result.map(|e| e.finished).unwrap_or(false));
     }
 }
