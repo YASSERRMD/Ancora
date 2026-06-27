@@ -1,0 +1,47 @@
+name: go-e2e
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  go-e2e:
+    name: Go SDK e2e and conformance tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: sdk/go/go.sum
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build FFI library
+        run: cargo build -p ancora-ffi --manifest-path Cargo.toml
+
+      - name: go vet
+        working-directory: sdk/go
+        run: go vet ./ancora/... ./cmd/... ./examples/...
+        env:
+          CGO_ENABLED: "1"
+          CGO_LDFLAGS: "-L${{ github.workspace }}/target/debug -lancora_ffi"
+
+      - name: go test (unit and e2e)
+        working-directory: sdk/go
+        run: go test ./ancora/... ./cmd/... ./examples/... -v -timeout 5m
+        env:
+          CGO_ENABLED: "1"
+          CGO_LDFLAGS: "-L${{ github.workspace }}/target/debug -lancora_ffi"
+
+      - name: go test benchmarks (smoke only)
+        working-directory: sdk/go
+        run: go test ./ancora/... -bench=. -benchtime=1x -run='^$'
+        env:
+          CGO_ENABLED: "1"
+          CGO_LDFLAGS: "-L${{ github.workspace }}/target/debug -lancora_ffi"

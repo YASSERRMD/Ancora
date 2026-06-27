@@ -182,6 +182,7 @@ nav:
   - Guides: guides/index.md
   - Testing:
       - Rust Test Plan: testing/rust-test-plan.md
+      - Go Test Plan: testing/go-test-plan.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
