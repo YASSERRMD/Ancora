@@ -296,4 +296,30 @@ mod tests {
         let err = normalize_error(500, "internal server error");
         assert!(matches!(err, InferenceError::Http { status: 500, .. }));
     }
+
+    #[test]
+    fn glm_rate_limit_backoff_respected() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, r#"{"error":{"message":"rate limit exceeded"}}"#);
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
+
+    #[test]
+    fn glm_rate_limit_with_retry_after() {
+        use crate::error::InferenceError;
+        let err = InferenceError::from_http(429, "rate limited", Some("60"));
+        if let InferenceError::RateLimit { retry_after } = err {
+            assert_eq!(retry_after.unwrap().as_secs(), 60);
+        } else {
+            panic!("expected RateLimit");
+        }
+    }
+
+    #[test]
+    fn glm_compute_cost_glm5() {
+        let cost = compute_cost("glm-5", 1_000_000, 500_000).unwrap();
+        // $0.60/M input + $1.20/M output = $1.80
+        let expected = 0.60 + 2.40 * 0.5;
+        assert!((cost - expected).abs() < 1e-6);
+    }
 }
