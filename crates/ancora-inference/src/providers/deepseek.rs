@@ -84,6 +84,9 @@ pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError 
 }
 
 #[cfg(test)]
+const DS_SELF_HOST_FIXTURE: &str = r#"{"id":"chatcmpl-sh-01","choices":[{"message":{"role":"assistant","content":"Hello from vLLM","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":5,"completion_tokens":4}}"#;
+
+#[cfg(test)]
 const DS_FIXTURE: &str = r#"{"id":"chatcmpl-ds-01","choices":[{"message":{"role":"assistant","content":"Hello from DeepSeek","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":5,"prompt_cache_hit_tokens":4,"prompt_cache_miss_tokens":6}}"#;
 
 #[cfg(test)]
@@ -387,6 +390,32 @@ mod tests {
         let pricing = m.pricing.as_ref().unwrap();
         assert_eq!(pricing.input_per_million, 0.0);
         assert_eq!(pricing.output_per_million, 0.0);
+    }
+
+    #[test]
+    fn deepseek_self_host_fixture_completes_offline() {
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        let client = OpenAiClient::new(Arc::new(
+            build_deepseek_self_host_profile("http://localhost:8000"),
+        ));
+        let resp = client.parse_response(DS_SELF_HOST_FIXTURE, "deepseek-chat").unwrap();
+        assert_eq!(resp.content, "Hello from vLLM");
+        assert_eq!(resp.tokens_in, 5);
+        assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
+    fn deepseek_self_host_fixture_has_zero_cost() {
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        let client = OpenAiClient::new(Arc::new(
+            build_deepseek_self_host_profile("http://localhost:8000"),
+        ));
+        let resp = client.parse_response(DS_SELF_HOST_FIXTURE, "deepseek-chat").unwrap();
+        // Zero pricing configured -- cost should be 0 or None
+        let cost = resp.cost_usd.unwrap_or(0.0);
+        assert_eq!(cost, 0.0);
     }
 
     #[test]
