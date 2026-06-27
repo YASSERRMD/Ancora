@@ -18,6 +18,14 @@ type AnalysisResult struct {
 	ActionItem string   `json:"action_item" schema:"Recommended next action"`
 }
 
+// ClassificationResult is a second struct to show schema generation for
+// a different output shape using the same helper.
+type ClassificationResult struct {
+	Label      string `json:"label"      schema:"Primary classification label"`
+	Subcategory string `json:"subcategory" schema:"More specific subcategory"`
+	Score      int    `json:"score"      schema:"Integer confidence 0-100"`
+}
+
 func main() {
 	schema, err := ancora.SchemaFromStruct(AnalysisResult{})
 	if err != nil {
@@ -25,6 +33,13 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("schema: %s\n", schema)
+
+	classSchema, err := ancora.SchemaFromStruct(ClassificationResult{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "class schema: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("classification schema: %s\n", classSchema)
 
 	rt, err := ancora.NewRuntime()
 	if err != nil {
