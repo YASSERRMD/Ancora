@@ -180,6 +180,8 @@ nav:
           - Configuration: sdk/rust/configuration.md
   - Quickstarts: quickstarts/index.md
   - Guides: guides/index.md
+  - Testing:
+      - Rust Test Plan: testing/rust-test-plan.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
