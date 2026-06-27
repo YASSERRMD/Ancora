@@ -67,6 +67,16 @@ pub fn build_doubao_self_host_profile(base_url: impl Into<String>) -> ProviderPr
     )
 }
 
+/// Return true if the model supports vision input.
+pub fn supports_vision(model_id: &str) -> bool {
+    matches!(model_id, "doubao-1.5-vision-32k" | "vision")
+}
+
+/// Delegate SSE line parsing to the shared OpenAI-compatible parser.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
 /// Normalize a Doubao HTTP error to `InferenceError`.
 pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
     crate::error::InferenceError::from_http(status, body, None)
