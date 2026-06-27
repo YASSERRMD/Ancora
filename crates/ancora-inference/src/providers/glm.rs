@@ -59,6 +59,26 @@ pub fn build_glm_profile() -> ProviderProfile {
     .add_alias("vl", "glm-4v")
 }
 
+/// Build a GLM profile that forces JSON-object output via `response_format`.
+///
+/// Adds a request transform that injects `{"response_format":{"type":"json_object"}}`
+/// into every request body. Use this when you need structured extraction and the
+/// caller cannot set `response_format` on the `CompletionRequest` directly.
+pub fn build_glm_json_profile() -> ProviderProfile {
+    build_glm_profile()
+        .with_request_transform(|body| {
+            body["response_format"] = serde_json::json!({"type": "json_object"});
+        })
+}
+
+/// Validate that a string is a JSON object (not array, not scalar).
+///
+/// GLM JSON mode produces `{"key": ...}` objects. Returns `true` if the
+/// string parses as an object with at least one key.
+pub fn is_json_object(s: &str) -> bool {
+    serde_json::from_str::<serde_json::Map<String, serde_json::Value>>(s).is_ok()
+}
+
 /// Parse a single SSE line from a GLM streaming response.
 ///
 /// GLM uses the standard OpenAI SSE wire format. Delegates to
