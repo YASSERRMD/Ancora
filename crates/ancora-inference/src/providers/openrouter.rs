@@ -133,4 +133,26 @@ mod tests {
         let p = build_openrouter_profile(OpenRouterConfig::default());
         assert_eq!(p.base_url, "https://openrouter.ai/api");
     }
+
+    #[test]
+    fn openrouter_model_id_passthrough_different_providers() {
+        use crate::types::{CompletionRequest, Message};
+        let models = [
+            "openai/gpt-4o",
+            "anthropic/claude-3-5-haiku",
+            "mistralai/mistral-7b-instruct",
+        ];
+        for model_id in models {
+            let p = Arc::new(build_openrouter_profile(OpenRouterConfig {
+                model_id: model_id.to_owned(),
+                fallback_models: vec![],
+                app_name: "t".to_owned(),
+                site_url: "https://t.test".to_owned(),
+            }));
+            let c = OpenAiClient::new(p);
+            let req = CompletionRequest::simple(model_id, vec![Message::text("user", "hi")]);
+            let body = c.build_request_body(&req, false).unwrap();
+            assert_eq!(body["model"], serde_json::json!(model_id));
+        }
+    }
 }
