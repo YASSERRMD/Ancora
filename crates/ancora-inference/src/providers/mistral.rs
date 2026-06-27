@@ -112,6 +112,26 @@ mod tests {
     }
 
     #[test]
+    fn mistral_streaming_fixture_ordered() {
+        let texts: Vec<String> = FIXTURE_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(texts, vec!["Hello", " Mistral"]);
+    }
+
+    #[test]
+    fn mistral_streaming_combined_text() {
+        let combined: String = FIXTURE_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text)
+            .collect();
+        assert_eq!(combined, "Hello Mistral");
+    }
+
+    #[test]
     fn mistral_streaming_sse_uses_openai_format() {
         // Mistral uses the identical SSE format as OpenAI; parse_sse_line handles both.
         let mut tokens = Vec::new();
