@@ -138,4 +138,20 @@ mod tests {
         let m = p.model_meta("accounts/fireworks/models/llama-v3p1-405b-instruct").unwrap();
         assert_eq!(m.context_window, 131_072);
     }
+
+    #[test]
+    fn fireworks_qwen_has_tools() {
+        let p = build_fireworks_profile();
+        let m = p.model_meta("accounts/fireworks/models/qwen2p5-72b-instruct").unwrap();
+        assert!(m.capabilities.tools);
+    }
+
+    #[test]
+    fn fireworks_405b_alias_resolves() {
+        let p = build_fireworks_profile();
+        assert_eq!(
+            p.resolve_model_id("llama3.1-405b"),
+            "accounts/fireworks/models/llama-v3p1-405b-instruct"
+        );
+    }
 }
