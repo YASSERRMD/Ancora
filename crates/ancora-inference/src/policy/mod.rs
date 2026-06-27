@@ -24,6 +24,15 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "deepseek" => vec![ResidencyTag::Cn],
         // Self-hosted DeepSeek: residency depends on where the host runs
         "deepseek-self-host" => vec![ResidencyTag::Unknown],
+        // Qwen (DashScope) -- regional awareness
+        // Default / Singapore international endpoint: non-CN, neutral
+        "qwen" => vec![ResidencyTag::Us],
+        // Explicit region-pinned variants (used when caller passes region label)
+        "qwen-eu" => vec![ResidencyTag::Eu],
+        "qwen-us" => vec![ResidencyTag::Us],
+        "qwen-cn" => vec![ResidencyTag::Cn],
+        // Self-hosted Qwen: residency depends on deployment
+        "qwen-self-host" => vec![ResidencyTag::Unknown],
         // US-based providers
         "openai" | "groq" | "together" | "fireworks" | "anthropic" => vec![ResidencyTag::Us],
         // Azure: depends on deployment region, default US
@@ -100,5 +109,42 @@ mod tests {
         // deepseek is CN, not US, so US-exclusion does not block it
         let excluded = vec![ResidencyTag::Us];
         assert!(is_allowed("deepseek", &excluded));
+    }
+
+    #[test]
+    fn qwen_default_tagged_us() {
+        let tags = residency_tags("qwen");
+        assert!(tags.contains(&ResidencyTag::Us));
+    }
+
+    #[test]
+    fn qwen_eu_variant_tagged_eu() {
+        let tags = residency_tags("qwen-eu");
+        assert!(tags.contains(&ResidencyTag::Eu));
+    }
+
+    #[test]
+    fn qwen_cn_variant_tagged_cn() {
+        let tags = residency_tags("qwen-cn");
+        assert!(tags.contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn qwen_eu_allowed_under_eu_only() {
+        // EU-only exclusion blocks CN and US; Frankfurt (qwen-eu) is allowed
+        let excluded = vec![ResidencyTag::Cn, ResidencyTag::Us];
+        assert!(is_allowed("qwen-eu", &excluded));
+    }
+
+    #[test]
+    fn qwen_cn_blocked_under_eu_only_residency() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("qwen-cn", &excluded));
+    }
+
+    #[test]
+    fn qwen_self_host_not_blocked_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("qwen-self-host", &excluded));
     }
 }
