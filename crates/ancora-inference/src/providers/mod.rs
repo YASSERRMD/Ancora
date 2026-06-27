@@ -1,5 +1,6 @@
 pub mod anthropic;
 pub mod azure;
+pub mod bedrock;
 pub mod cohere;
 pub mod gemini;
 pub mod mistral;
