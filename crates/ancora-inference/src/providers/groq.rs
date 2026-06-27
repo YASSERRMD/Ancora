@@ -159,6 +159,15 @@ mod tests {
     }
 
     #[test]
+    fn groq_cost_summary_correct_for_llama3_70b() {
+        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        // 10 in * $0.59/M + 5 out * $0.79/M
+        let expected = 10.0 * 0.59 / 1_000_000.0 + 5.0 * 0.79 / 1_000_000.0;
+        let cost = resp.cost_usd.unwrap();
+        assert!((cost - expected).abs() < 1e-12);
+    }
+
+    #[test]
     fn groq_llama3_70b_has_pricing() {
         let p = build_groq_profile();
         let m = p.model_meta("llama3-70b-8192").unwrap();

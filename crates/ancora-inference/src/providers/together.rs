@@ -142,6 +142,17 @@ mod tests {
     }
 
     #[test]
+    fn together_cost_summary_correct_for_llama3_70b() {
+        let resp = together_client()
+            .parse_response(TOGETHER_FIXTURE, "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .unwrap();
+        // 8 in * $0.88/M + 4 out * $0.88/M
+        let expected = (8.0 + 4.0) * 0.88 / 1_000_000.0;
+        let cost = resp.cost_usd.unwrap();
+        assert!((cost - expected).abs() < 1e-12);
+    }
+
+    #[test]
     fn together_llama_has_pricing() {
         let p = build_together_profile();
         let m = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();

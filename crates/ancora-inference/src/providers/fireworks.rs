@@ -156,6 +156,20 @@ mod tests {
     }
 
     #[test]
+    fn fireworks_cost_summary_correct_for_llama_70b() {
+        let resp = fw_client()
+            .parse_response(
+                FIREWORKS_FIXTURE,
+                "accounts/fireworks/models/llama-v3p1-70b-instruct",
+            )
+            .unwrap();
+        // 9 in * $0.90/M + 4 out * $0.90/M
+        let expected = (9.0 + 4.0) * 0.90 / 1_000_000.0;
+        let cost = resp.cost_usd.unwrap();
+        assert!((cost - expected).abs() < 1e-12);
+    }
+
+    #[test]
     fn fireworks_llama_70b_has_pricing() {
         let p = build_fireworks_profile();
         let m = p.model_meta("accounts/fireworks/models/llama-v3p1-70b-instruct").unwrap();
