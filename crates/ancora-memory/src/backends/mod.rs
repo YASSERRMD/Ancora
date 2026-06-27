@@ -4,3 +4,4 @@ pub mod pgvector_hybrid_tests;
 pub mod pgvector_filter_tests;
 pub mod pgvector_migration;
 pub mod qdrant;
+pub mod qdrant_conformance;
