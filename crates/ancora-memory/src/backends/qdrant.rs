@@ -291,6 +291,51 @@ pub fn scroll_body(limit: usize, offset: Option<u64>) -> Value {
     body
 }
 
+/// Build a scroll body with a filter for narrowed pagination.
+pub fn scroll_body_with_filter(limit: usize, offset: Option<u64>, filter: &Filter) -> Value {
+    let mut body = scroll_body(limit, offset);
+    body["filter"] = filter_to_qdrant(filter);
+    body
+}
+
+/// URL for fetching a single point by ID.
+pub fn get_point_url(base: &str, name: &str, id: u64) -> String {
+    format!("{base}/collections/{name}/points/{id}")
+}
+
+/// URL for fetching multiple points by IDs.
+pub fn get_points_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/points")
+}
+
+/// Build the body for fetching multiple points by IDs.
+pub fn get_points_body(ids: &[u64], with_vector: bool) -> Value {
+    json!({
+        "ids": ids,
+        "with_payload": true,
+        "with_vector": with_vector
+    })
+}
+
+/// Parse the `next_page_offset` from a Qdrant scroll response.
+pub fn parse_scroll_next_offset(body: &Value) -> Option<u64> {
+    body["result"]["next_page_offset"].as_u64()
+}
+
+/// Parse point records from a scroll response.
+pub fn parse_scroll_points(body: &Value) -> Vec<(u64, Value)> {
+    body["result"]["points"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|pt| {
+            let id = pt["id"].as_u64()?;
+            let payload = pt["payload"].clone();
+            Some((id, payload))
+        })
+        .collect()
+}
+
 // ---- filter translation --------------------------------------------------
 
 /// Translate a `Filter` to the Qdrant REST filter JSON schema.
@@ -596,6 +641,48 @@ mod tests {
         let json = filter_to_qdrant(&f);
         let must = json["must"].as_array().unwrap();
         assert_eq!(must.len(), 2);
+    }
+
+    #[test]
+    fn scroll_body_with_filter_has_filter_key() {
+        let f = Filter::Eq("tag".to_owned(), PayloadValue::String("news".to_owned()));
+        let body = scroll_body_with_filter(20, None, &f);
+        assert!(body["filter"].is_object(), "body: {body}");
+        assert_eq!(body["limit"], 20);
+    }
+
+    #[test]
+    fn scroll_body_with_offset_has_offset_field() {
+        let body = scroll_body(10, Some(42));
+        assert_eq!(body["offset"], 42);
+    }
+
+    #[test]
+    fn get_points_body_has_ids_array() {
+        let body = get_points_body(&[1, 2, 3], false);
+        assert!(body["ids"].is_array());
+        assert_eq!(body["with_vector"], false);
+    }
+
+    #[test]
+    fn parse_scroll_next_offset_extracts_value() {
+        let body = serde_json::json!({
+            "result": { "next_page_offset": 50, "points": [] }
+        });
+        assert_eq!(parse_scroll_next_offset(&body), Some(50));
+    }
+
+    #[test]
+    fn parse_scroll_points_extracts_id_and_payload() {
+        let body = serde_json::json!({
+            "result": {
+                "points": [{ "id": 7, "payload": { "text": "hello" } }],
+                "next_page_offset": null
+            }
+        });
+        let pts = parse_scroll_points(&body);
+        assert_eq!(pts.len(), 1);
+        assert_eq!(pts[0].0, 7);
     }
 
     #[test]
