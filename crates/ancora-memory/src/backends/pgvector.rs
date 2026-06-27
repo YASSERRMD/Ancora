@@ -413,6 +413,48 @@ pub fn count_by_filter_sql(table: &str, filter: &Filter) -> (String, Vec<FilterP
     (sql, params)
 }
 
+// ---- connection error classification and reconnect policy ----------------
+
+/// Classify a postgres error code string into a reconnect decision.
+#[derive(Debug, PartialEq)]
+pub enum ConnectAction {
+    /// The error is transient; retry after backing off.
+    Retry,
+    /// The operation should be retried in a new transaction.
+    RetryTx,
+    /// The error is permanent; do not retry.
+    Abort,
+}
+
+/// Classify a Postgres SQLSTATE error code for retry decisions.
+///
+/// SQLSTATE classes are standardized; pgvector does not add new ones.
+pub fn classify_pg_error(sqlstate: &str) -> ConnectAction {
+    match sqlstate {
+        // connection-level transients
+        "08000" | "08003" | "08006" | "08001" | "08004" => ConnectAction::Retry,
+        // serialization failures and deadlocks
+        "40001" | "40P01" => ConnectAction::RetryTx,
+        // permanent errors: syntax, constraint, no table, etc.
+        "42000" | "42P01" | "42601" | "23000" | "23503" | "23505" => ConnectAction::Abort,
+        // undefined -- treat as transient with caution
+        _ => ConnectAction::Retry,
+    }
+}
+
+/// Exponential-backoff delay in milliseconds for retry attempt `n` (0-indexed).
+///
+/// Caps at 30 seconds. Offline tests can assert the schedule without sleeping.
+pub fn retry_delay_ms(attempt: u32) -> u64 {
+    let base: u64 = 100;
+    let cap: u64 = 30_000;
+    let delay = base.saturating_mul(2u64.saturating_pow(attempt));
+    delay.min(cap)
+}
+
+/// Maximum number of connection retries before returning an error.
+pub const MAX_CONNECT_RETRIES: u32 = 5;
+
 // ---- transactional journal table ----------------------------------------
 
 /// Generate DDL for the upsert journal table.
@@ -958,6 +1000,36 @@ mod tests {
         let filtered = apply_threshold(results, 0.75);
         assert_eq!(filtered.len(), 2);
         assert!(filtered.iter().all(|(_, s)| *s >= 0.75));
+    }
+
+    #[test]
+    fn classify_pg_error_connection_lost_is_retry() {
+        assert_eq!(classify_pg_error("08000"), ConnectAction::Retry);
+        assert_eq!(classify_pg_error("08006"), ConnectAction::Retry);
+    }
+
+    #[test]
+    fn classify_pg_error_serialization_failure_is_retry_tx() {
+        assert_eq!(classify_pg_error("40001"), ConnectAction::RetryTx);
+        assert_eq!(classify_pg_error("40P01"), ConnectAction::RetryTx);
+    }
+
+    #[test]
+    fn classify_pg_error_syntax_error_is_abort() {
+        assert_eq!(classify_pg_error("42601"), ConnectAction::Abort);
+    }
+
+    #[test]
+    fn retry_delay_ms_caps_at_30s() {
+        let d = retry_delay_ms(100);
+        assert_eq!(d, 30_000);
+    }
+
+    #[test]
+    fn retry_delay_ms_is_exponential_for_small_n() {
+        assert_eq!(retry_delay_ms(0), 100);
+        assert_eq!(retry_delay_ms(1), 200);
+        assert_eq!(retry_delay_ms(2), 400);
     }
 
     #[test]
