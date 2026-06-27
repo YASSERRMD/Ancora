@@ -59,6 +59,14 @@ pub fn build_glm_profile() -> ProviderProfile {
     .add_alias("vl", "glm-4v")
 }
 
+/// Parse a single SSE line from a GLM streaming response.
+///
+/// GLM uses the standard OpenAI SSE wire format. Delegates to
+/// `OpenAiClient::parse_sse_line`.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
 /// Return `true` if the model supports tool/function calls.
 ///
 /// GLM uses the standard OpenAI `tools` array format.
