@@ -471,6 +471,23 @@ pub fn edge_config() -> LanceDbConfig {
     LanceDbConfig::local(edge_default_dir())
 }
 
+// ---- table management helpers -------------------------------------------
+
+/// Describes a table compaction operation (rewrites small files into larger ones).
+pub fn compact_descriptor(table: &str) -> Value {
+    json!({ "table": table, "operation": "compact_files" })
+}
+
+/// Describes a cleanup-old-versions operation.
+pub fn cleanup_old_versions_descriptor(table: &str, older_than_days: u32) -> Value {
+    json!({ "table": table, "operation": "cleanup_old_versions", "older_than_days": older_than_days })
+}
+
+/// Describes a table optimize operation (compaction + cleanup).
+pub fn optimize_descriptor(table: &str) -> Value {
+    json!({ "table": table, "operation": "optimize" })
+}
+
 // ---- unit tests ----------------------------------------------------------
 
 #[cfg(test)]
