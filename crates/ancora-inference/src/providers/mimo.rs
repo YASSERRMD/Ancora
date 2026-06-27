@@ -25,8 +25,26 @@ pub fn build_mimo_profile(base_url: impl Into<String>) -> ProviderProfile {
             .with_pricing(0.0, 0.0)
             .with_streaming(),
     )
+    // MiMo-7B-RL-FC -- function-calling capable variant (served with fc lora adapter)
+    .add_model(
+        ModelMeta::new("mimo-7b-rl-fc", 32_768)
+            .with_pricing(0.0, 0.0)
+            .with_tools()
+            .with_streaming(),
+    )
     .add_alias("rl", "mimo-7b-rl")
     .add_alias("base", "mimo-7b")
+    .add_alias("fc", "mimo-7b-rl-fc")
+}
+
+/// Return true if the model id supports function calling in this profile.
+pub fn supports_tools(model_id: &str) -> bool {
+    matches!(model_id, "mimo-7b-rl-fc" | "fc")
+}
+
+/// Delegate SSE line parsing to the shared OpenAI-compatible parser.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
 }
 
 /// Build a MiMo profile for a local no-auth endpoint (e.g., plain vLLM without token auth).
