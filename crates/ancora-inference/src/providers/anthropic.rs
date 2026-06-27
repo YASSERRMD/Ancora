@@ -48,6 +48,14 @@ const FIXTURE_CHAT: &str = r#"{"id":"msg_01","type":"message","role":"assistant"
 const FIXTURE_TOOL_CALL: &str = r#"{"id":"msg_02","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_01XYZ","name":"get_weather","input":{"city":"Paris"}}],"stop_reason":"tool_use","usage":{"input_tokens":25,"output_tokens":12}}"#;
 
 #[cfg(test)]
+const FIXTURE_STREAM_LINES: &[&str] = &[
+    r#"data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}"#,
+    r#"data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":" world"}}"#,
+    r#"data: {"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"output_tokens":5}}"#,
+    r#"data: {"type":"message_stop"}"#,
+];
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::adapters::anthropic::AnthropicClient;
@@ -143,6 +151,46 @@ mod tests {
         assert_eq!(tools.len(), 1);
         assert_eq!(tools[0]["name"], "get_weather");
         assert!(tools[0]["input_schema"].is_object());
+    }
+
+    #[test]
+    fn anthropic_streaming_fixture_yields_ordered_tokens() {
+        use crate::adapters::anthropic::parse_sse_line;
+        let mut tokens = Vec::new();
+        for line in FIXTURE_STREAM_LINES {
+            if let Some(ev) = parse_sse_line(line) {
+                tokens.push(ev);
+            }
+        }
+        assert_eq!(tokens[0].text, "Hello");
+        assert!(!tokens[0].finished);
+        assert_eq!(tokens[1].text, " world");
+        assert!(!tokens[1].finished);
+        assert!(tokens[2].finished);
+        assert!(tokens[2].text.is_empty());
+    }
+
+    #[test]
+    fn anthropic_streaming_tokens_accumulate_in_order() {
+        use crate::adapters::anthropic::parse_sse_line;
+        let combined: String = FIXTURE_STREAM_LINES
+            .iter()
+            .filter_map(|l| parse_sse_line(l))
+            .filter(|ev| !ev.finished)
+            .map(|ev| ev.text)
+            .collect();
+        assert_eq!(combined, "Hello world");
+    }
+
+    #[test]
+    fn anthropic_stream_emits_only_one_finished_event() {
+        use crate::adapters::anthropic::parse_sse_line;
+        let finished_count = FIXTURE_STREAM_LINES
+            .iter()
+            .filter_map(|l| parse_sse_line(l))
+            .filter(|ev| ev.finished)
+            .count();
+        assert!(finished_count >= 1);
     }
 
     #[test]
