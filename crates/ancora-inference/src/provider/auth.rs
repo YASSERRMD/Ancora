@@ -94,4 +94,22 @@ mod tests {
         assert!(auth.as_header().unwrap().is_none());
         unsafe { std::env::remove_var("ANCORA_TEST_QPARAM_106") };
     }
+
+    #[test]
+    fn bearer_token_attaches_correct_header_value() {
+        unsafe { std::env::set_var("ANCORA_TEST_BEARER_106", "tok-abc") };
+        let auth = AuthStrategy::BearerToken { env_var: "ANCORA_TEST_BEARER_106".to_owned() };
+        let (name, val) = auth.as_header().unwrap().unwrap();
+        assert_eq!(name, "Authorization");
+        assert_eq!(val, "Bearer tok-abc");
+        unsafe { std::env::remove_var("ANCORA_TEST_BEARER_106") };
+    }
+
+    #[test]
+    fn resolve_returns_token_value() {
+        unsafe { std::env::set_var("ANCORA_TEST_RESOLVE_106", "resolved-secret") };
+        let auth = AuthStrategy::BearerToken { env_var: "ANCORA_TEST_RESOLVE_106".to_owned() };
+        assert_eq!(auth.resolve().as_deref(), Some("resolved-secret"));
+        unsafe { std::env::remove_var("ANCORA_TEST_RESOLVE_106") };
+    }
 }
