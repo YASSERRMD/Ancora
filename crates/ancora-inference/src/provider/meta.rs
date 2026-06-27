@@ -24,6 +24,13 @@ pub struct CapabilityFlags {
     pub streaming: bool,
 }
 
+impl CapabilityFlags {
+    /// Return `true` if all requested capability flags are satisfied.
+    pub fn supports_all(&self, tools: bool, vision: bool, streaming: bool) -> bool {
+        (!tools || self.tools) && (!vision || self.vision) && (!streaming || self.streaming)
+    }
+}
+
 /// All metadata for a single canonical model identifier.
 #[derive(Debug, Clone)]
 pub struct ModelMeta {
