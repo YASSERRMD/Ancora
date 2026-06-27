@@ -36,10 +36,17 @@ pub fn build_hunyuan_profile() -> ProviderProfile {
             .with_vision()
             .with_streaming(),
     )
+    // Hunyuan Lite -- free tier
+    .add_model(
+        ModelMeta::new("hunyuan-lite", 256_000)
+            .with_pricing(0.0, 0.0)
+            .with_streaming(),
+    )
     .add_alias("turbo", "hunyuan-turbo")
     .add_alias("pro", "hunyuan-pro")
     .add_alias("standard", "hunyuan-standard")
     .add_alias("vision", "hunyuan-vision")
+    .add_alias("lite", "hunyuan-lite")
 }
 
 /// Normalize a Tencent Hunyuan HTTP error to `InferenceError`.
