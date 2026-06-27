@@ -18,3 +18,4 @@ pub mod milvus;
 pub mod milvus_conformance;
 pub mod milvus_filter_tests;
 pub mod milvus_partition_tests;
+pub mod milvus_consistency_tests;
