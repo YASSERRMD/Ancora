@@ -83,7 +83,29 @@ nav:
           - Troubleshooting: sdk/python/troubleshooting.md
           - API Reference: sdk/python/api-reference.md
           - Migration: sdk/python/migration.md
-      - TypeScript: sdk/ts/index.md
+      - TypeScript:
+          - Overview: sdk/ts/index.md
+          - Install: sdk/ts/install.md
+          - Quickstart: sdk/ts/quickstart.md
+          - Tools: sdk/ts/tools.md
+          - Structured Output: sdk/ts/structured-output.md
+          - Multi-Agent: sdk/ts/multi-agent.md
+          - Verifier: sdk/ts/verifier.md
+          - Human-in-the-Loop: sdk/ts/human-in-the-loop.md
+          - Streaming: sdk/ts/streaming.md
+          - Memory and RAG: sdk/ts/memory-and-rag.md
+          - Providers: sdk/ts/providers.md
+          - Chinese Providers: sdk/ts/chinese-providers.md
+          - Vector Stores: sdk/ts/vector-stores.md
+          - Durability: sdk/ts/durability.md
+          - Observability: sdk/ts/observability.md
+          - Policy: sdk/ts/policy.md
+          - MCP and A2A: sdk/ts/mcp-and-a2a.md
+          - Edge Deployment: sdk/ts/edge-deployment.md
+          - Testing: sdk/ts/testing.md
+          - Troubleshooting: sdk/ts/troubleshooting.md
+          - API Reference: sdk/ts/api-reference.md
+          - Migration: sdk/ts/migration.md
       - .NET: sdk/dotnet/index.md
       - Java: sdk/java/index.md
       - Rust: sdk/rust/index.md
