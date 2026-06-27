@@ -186,6 +186,7 @@ nav:
       - Python Test Plan: testing/python-test-plan.md
       - .NET Test Plan: testing/dotnet-test-plan.md
       - Java Test Plan: testing/java-test-plan.md
+      - Cross-Language Test Plan: testing/xlang-test-plan.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
