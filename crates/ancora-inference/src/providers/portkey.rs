@@ -50,6 +50,43 @@ pub fn build_portkey_virtual_key_profile(virtual_key_env: impl Into<String>) -> 
     .add_model(ModelMeta::new("default", 200_000).with_tools().with_vision().with_streaming())
 }
 
+/// Configuration builder for Portkey gateway routing options.
+#[derive(Debug, Default, Clone)]
+pub struct PortkeyConfig {
+    /// Optional config ID set in the Portkey dashboard (routing strategy, retries).
+    pub config_id: Option<String>,
+    /// Optional virtual key for provider routing.
+    pub virtual_key_env: Option<String>,
+    /// Optional trace ID for request correlation.
+    pub trace_id: Option<String>,
+}
+
+impl PortkeyConfig {
+    pub fn new() -> Self { Self::default() }
+
+    pub fn with_config(mut self, config_id: impl Into<String>) -> Self {
+        self.config_id = Some(config_id.into()); self
+    }
+    pub fn with_virtual_key_env(mut self, env_var: impl Into<String>) -> Self {
+        self.virtual_key_env = Some(env_var.into()); self
+    }
+    pub fn with_trace_id(mut self, trace_id: impl Into<String>) -> Self {
+        self.trace_id = Some(trace_id.into()); self
+    }
+}
+
+/// Build a Portkey gateway profile from a `PortkeyConfig`.
+pub fn build_portkey_from_config(config: PortkeyConfig) -> ProviderProfile {
+    let mut profile = build_portkey_profile();
+    if let Some(cid) = config.config_id {
+        profile = profile.with_extra_header("x-portkey-config", cid);
+    }
+    if let Some(trace) = config.trace_id {
+        profile = profile.with_extra_header("x-portkey-trace-id", trace);
+    }
+    profile
+}
+
 /// Normalize a Portkey HTTP error to `InferenceError`.
 pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
     crate::error::InferenceError::from_http(status, body, None)
