@@ -68,6 +68,26 @@ pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
     crate::openai::OpenAiClient::parse_sse_line(line)
 }
 
+/// Build a profile that proxies Kimi through a local gateway (e.g. LiteLLM).
+///
+/// Neither Kimi K2 nor Moonshot models are open-weight. Use this profile
+/// when an on-premises gateway forwards requests to Moonshot's API on behalf
+/// of a private network. Auth is read from `KIMI_GATEWAY_KEY`.
+pub fn build_kimi_gateway_profile(gateway_url: impl Into<String>) -> ProviderProfile {
+    ProviderProfile::new(
+        "kimi-gateway",
+        gateway_url,
+        AuthStrategy::BearerToken { env_var: "KIMI_GATEWAY_KEY".to_owned() },
+    )
+    .add_model(
+        ModelMeta::new("kimi-k2", 131_072)
+            .with_pricing(0.0, 0.0)
+            .with_tools()
+            .with_streaming(),
+    )
+    .add_alias("k2", "kimi-k2")
+}
+
 /// Return `true` if the model supports tool/function calls.
 pub fn supports_tools(model_id: &str) -> bool {
     let p = build_kimi_profile();
