@@ -471,6 +471,18 @@ pub fn edge_config() -> LanceDbConfig {
     LanceDbConfig::local(edge_default_dir())
 }
 
+// ---- merge insert helpers -----------------------------------------------
+
+/// Describes an upsert (merge-insert) operation -- update matching rows, insert new ones.
+pub fn merge_insert_descriptor(table: &str, on_column: &str, batch: Vec<Value>) -> Value {
+    json!({
+        "table": table,
+        "operation": "merge_insert",
+        "on": on_column,
+        "data": batch,
+    })
+}
+
 // ---- table management helpers -------------------------------------------
 
 /// Describes a table compaction operation (rewrites small files into larger ones).
