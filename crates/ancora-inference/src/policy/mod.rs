@@ -151,4 +151,28 @@ mod tests {
         let excluded = vec![ResidencyTag::Cn];
         assert!(is_allowed("qwen-self-host", &excluded));
     }
+
+    #[test]
+    fn glm_direct_tagged_cn() {
+        let tags = residency_tags("glm");
+        assert!(tags.contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn glm_direct_blocked_under_eu_only_residency() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("glm", &excluded));
+    }
+
+    #[test]
+    fn glm_self_host_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("glm-self-host", &excluded));
+    }
+
+    #[test]
+    fn glm_llamacpp_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("glm-llamacpp", &excluded));
+    }
 }
