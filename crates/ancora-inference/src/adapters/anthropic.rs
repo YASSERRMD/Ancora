@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{ContentPart, FunctionCall, Message, ToolCall, ToolDefinition};
+use crate::types::{ContentPart, FunctionCall, Message, TokenEvent, ToolCall, ToolDefinition};
 
 // ---- Wire types: request ---------------------------------------------------
 
@@ -8,6 +8,27 @@ use crate::types::{ContentPart, FunctionCall, Message, ToolCall, ToolDefinition}
 pub(crate) struct AnthropicRequestMessage {
     pub role: String,
     pub content: serde_json::Value,
+}
+
+// ---- Wire types: streaming -------------------------------------------------
+
+/// Subset of Anthropic SSE event types relevant to token streaming.
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+enum AnthropicStreamEvent {
+    ContentBlockDelta { delta: AnthropicDelta },
+    MessageDelta,
+    MessageStop,
+    #[serde(other)]
+    Other,
+}
+
+#[derive(Debug, Deserialize)]
+struct AnthropicDelta {
+    #[serde(rename = "type")]
+    kind: String,
+    #[serde(default)]
+    text: String,
 }
 
 // ---- Wire types: tool definitions -----------------------------------------
@@ -64,6 +85,27 @@ pub(crate) fn decode_tool_calls(blocks: Vec<AnthropicResponseBlock>) -> (String,
         }
     }
     (text, calls)
+}
+
+/// Parse a single `data: ...` SSE line from an Anthropic streaming response.
+///
+/// `content_block_delta` events with `text_delta` type emit token text.
+/// `message_delta` and `message_stop` events emit a finished sentinel.
+pub fn parse_sse_line(line: &str) -> Option<TokenEvent> {
+    let data = line.strip_prefix("data: ")?;
+    if data.trim().is_empty() {
+        return None;
+    }
+    let event: AnthropicStreamEvent = serde_json::from_str(data).ok()?;
+    match event {
+        AnthropicStreamEvent::ContentBlockDelta { delta } if delta.kind == "text_delta" => {
+            Some(TokenEvent { text: delta.text, finished: false })
+        }
+        AnthropicStreamEvent::MessageDelta | AnthropicStreamEvent::MessageStop => {
+            Some(TokenEvent { text: String::new(), finished: true })
+        }
+        _ => None,
+    }
 }
 
 /// Separate the optional system message from the rest of a message list.
@@ -140,6 +182,35 @@ mod tests {
         let m = encode_message(&Message::text("assistant", "Hi"));
         let j = serde_json::to_value(&m).unwrap();
         assert_eq!(j["role"], "assistant");
+    }
+
+    #[test]
+    fn parse_sse_text_delta_emits_token_text() {
+        let line = r#"data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}"#;
+        let ev = parse_sse_line(line).unwrap();
+        assert_eq!(ev.text, "Hello");
+        assert!(!ev.finished);
+    }
+
+    #[test]
+    fn parse_sse_message_stop_emits_finished_sentinel() {
+        let line = r#"data: {"type":"message_stop"}"#;
+        let ev = parse_sse_line(line).unwrap();
+        assert!(ev.finished);
+        assert!(ev.text.is_empty());
+    }
+
+    #[test]
+    fn parse_sse_message_delta_emits_finished_sentinel() {
+        let line = r#"data: {"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"output_tokens":5}}"#;
+        let ev = parse_sse_line(line).unwrap();
+        assert!(ev.finished);
+    }
+
+    #[test]
+    fn parse_sse_other_event_returns_none() {
+        let line = r#"data: {"type":"message_start","message":{"id":"msg_1"}}"#;
+        assert!(parse_sse_line(line).is_none());
     }
 
     #[test]
