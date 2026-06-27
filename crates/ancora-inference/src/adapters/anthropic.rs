@@ -1,6 +1,6 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-use crate::types::{ContentPart, Message};
+use crate::types::{ContentPart, FunctionCall, Message, ToolCall, ToolDefinition};
 
 // ---- Wire types: request ---------------------------------------------------
 
@@ -8,6 +8,62 @@ use crate::types::{ContentPart, Message};
 pub(crate) struct AnthropicRequestMessage {
     pub role: String,
     pub content: serde_json::Value,
+}
+
+// ---- Wire types: tool definitions -----------------------------------------
+
+#[derive(Debug, Serialize, Clone)]
+pub(crate) struct AnthropicToolDef {
+    pub name: String,
+    pub description: String,
+    pub input_schema: serde_json::Value,
+}
+
+// ---- Wire types: response tool_use block ----------------------------------
+
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub(crate) enum AnthropicResponseBlock {
+    Text { text: String },
+    ToolUse { id: String, name: String, input: serde_json::Value },
+    #[serde(other)]
+    Unknown,
+}
+
+// ---- Encoding helpers ------------------------------------------------------
+
+/// Encode a `ToolDefinition` into the Anthropic tools array format.
+///
+/// Anthropic uses `input_schema` (not `parameters`) for the JSON Schema.
+pub(crate) fn encode_tool(t: &ToolDefinition) -> AnthropicToolDef {
+    AnthropicToolDef {
+        name: t.function.name.clone(),
+        description: t.function.description.clone(),
+        input_schema: t.function.parameters.clone(),
+    }
+}
+
+/// Decode a list of Anthropic response content blocks into `ToolCall`s.
+pub(crate) fn decode_tool_calls(blocks: Vec<AnthropicResponseBlock>) -> (String, Vec<ToolCall>) {
+    let mut text = String::new();
+    let mut calls = Vec::new();
+    for block in blocks {
+        match block {
+            AnthropicResponseBlock::Text { text: t } => text.push_str(&t),
+            AnthropicResponseBlock::ToolUse { id, name, input } => {
+                calls.push(ToolCall {
+                    id,
+                    kind: "function".to_owned(),
+                    function: FunctionCall {
+                        name,
+                        arguments: serde_json::to_string(&input).unwrap_or_default(),
+                    },
+                });
+            }
+            AnthropicResponseBlock::Unknown => {}
+        }
+    }
+    (text, calls)
 }
 
 /// Separate the optional system message from the rest of a message list.
@@ -63,6 +119,50 @@ mod tests {
         let m = encode_message(&Message::text("assistant", "Hi"));
         let j = serde_json::to_value(&m).unwrap();
         assert_eq!(j["role"], "assistant");
+    }
+
+    #[test]
+    fn encode_tool_maps_name_description_and_schema() {
+        use crate::types::{FunctionDefinition, ToolDefinition};
+        let td = ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: "get_weather".to_owned(),
+                description: "Get weather".to_owned(),
+                parameters: serde_json::json!({"type": "object"}),
+            },
+        };
+        let at = encode_tool(&td);
+        assert_eq!(at.name, "get_weather");
+        assert_eq!(at.input_schema, serde_json::json!({"type": "object"}));
+    }
+
+    #[test]
+    fn decode_tool_calls_extracts_tool_use_block() {
+        let blocks = vec![
+            AnthropicResponseBlock::ToolUse {
+                id: "toolu_01".to_owned(),
+                name: "get_weather".to_owned(),
+                input: serde_json::json!({"city": "Paris"}),
+            },
+        ];
+        let (text, calls) = decode_tool_calls(blocks);
+        assert!(text.is_empty());
+        assert_eq!(calls.len(), 1);
+        assert_eq!(calls[0].id, "toolu_01");
+        assert_eq!(calls[0].function.name, "get_weather");
+        assert!(calls[0].function.arguments.contains("Paris"));
+    }
+
+    #[test]
+    fn decode_tool_calls_collects_text_blocks() {
+        let blocks = vec![
+            AnthropicResponseBlock::Text { text: "hello".to_owned() },
+            AnthropicResponseBlock::Text { text: " world".to_owned() },
+        ];
+        let (text, calls) = decode_tool_calls(blocks);
+        assert_eq!(text, "hello world");
+        assert!(calls.is_empty());
     }
 
     #[test]
