@@ -58,3 +58,13 @@ pub fn build_glm_profile() -> ProviderProfile {
     .add_alias("flash", "glm-4-flash")
     .add_alias("vl", "glm-4v")
 }
+
+/// Return `true` if the model supports tool/function calls.
+///
+/// GLM uses the standard OpenAI `tools` array format.
+/// Tool-capable: glm-5, glm-5.1, glm-turbo.
+pub fn supports_tools(model_id: &str) -> bool {
+    let p = build_glm_profile();
+    let canonical = p.resolve_model_id(model_id);
+    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+}
