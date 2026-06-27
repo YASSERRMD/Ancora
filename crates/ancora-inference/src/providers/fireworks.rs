@@ -60,6 +60,9 @@ pub fn build_fireworks_profile() -> ProviderProfile {
 const FIREWORKS_FIXTURE: &str = r#"{"id":"chatcmpl-fw-01","choices":[{"message":{"role":"assistant","content":"Hello from Fireworks","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":4}}"#;
 
 #[cfg(test)]
+const FIREWORKS_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-fw-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-fw-01","type":"function","function":{"name":"search","arguments":"{\"query\":\"AI news\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":12,"completion_tokens":7}}"#;
+
+#[cfg(test)]
 const FIREWORKS_STREAM_LINES: &[&str] = &[
     r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
     r#"data: {"choices":[{"delta":{"content":" Fireworks"},"finish_reason":"stop"}]}"#,
@@ -153,6 +156,21 @@ mod tests {
             p.resolve_model_id("llama3.1-405b"),
             "accounts/fireworks/models/llama-v3p1-405b-instruct"
         );
+    }
+
+    #[test]
+    fn fireworks_tool_round_trip_parsed() {
+        let resp = fw_client()
+            .parse_response(
+                FIREWORKS_TOOL_FIXTURE,
+                "accounts/fireworks/models/llama-v3p1-70b-instruct",
+            )
+            .unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        assert_eq!(resp.tool_calls[0].function.name, "search");
+        let args: serde_json::Value =
+            serde_json::from_str(&resp.tool_calls[0].function.arguments).unwrap();
+        assert_eq!(args["query"], "AI news");
     }
 
     #[test]

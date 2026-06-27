@@ -65,6 +65,9 @@ pub fn build_together_profile() -> ProviderProfile {
 const TOGETHER_FIXTURE: &str = r#"{"id":"chatcmpl-together-01","choices":[{"message":{"role":"assistant","content":"Hello from Together","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":8,"completion_tokens":4}}"#;
 
 #[cfg(test)]
+const TOGETHER_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-together-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-01","type":"function","function":{"name":"get_weather","arguments":"{\"location\":\"London\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":15,"completion_tokens":10}}"#;
+
+#[cfg(test)]
 const TOGETHER_STREAM_LINES: &[&str] = &[
     r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
     r#"data: {"choices":[{"delta":{"content":" Together"},"finish_reason":"stop"}]}"#,
@@ -212,6 +215,21 @@ mod tests {
         assert_eq!(resp.content, "Hello from Together");
         assert_eq!(resp.tokens_in, 8);
         assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
+    fn together_tool_round_trip_parsed() {
+        let resp = together_client()
+            .parse_response(
+                TOGETHER_TOOL_FIXTURE,
+                "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            )
+            .unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        assert_eq!(resp.tool_calls[0].function.name, "get_weather");
+        let args: serde_json::Value =
+            serde_json::from_str(&resp.tool_calls[0].function.arguments).unwrap();
+        assert_eq!(args["location"], "London");
     }
 
     #[test]
