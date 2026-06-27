@@ -243,6 +243,26 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_recorded_fixture_completes() {
+        let resp = ds_client().parse_response(DS_FIXTURE, "deepseek-chat").unwrap();
+        assert_eq!(resp.content, "Hello from DeepSeek");
+        assert_eq!(resp.tokens_in, 10);
+        assert_eq!(resp.tokens_out, 5);
+    }
+
+    #[test]
+    fn deepseek_fixture_no_tool_calls() {
+        let resp = ds_client().parse_response(DS_FIXTURE, "deepseek-chat").unwrap();
+        assert!(resp.tool_calls.is_empty());
+    }
+
+    #[test]
+    fn deepseek_fixture_content_non_empty() {
+        let resp = ds_client().parse_response(DS_FIXTURE, "deepseek-chat").unwrap();
+        assert!(!resp.content.is_empty());
+    }
+
+    #[test]
     fn deepseek_cache_hit_tokens_present_in_fixture() {
         // The fixture has prompt_cache_hit_tokens=4 and prompt_cache_miss_tokens=6.
         // Standard OpenAI parse uses prompt_tokens (10) for tokens_in.
