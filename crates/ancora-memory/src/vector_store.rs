@@ -195,6 +195,37 @@ pub fn filter_matches(payload: &Payload, filter: &Filter) -> bool {
 
 // ---- collection lifecycle -------------------------------------------------
 
+/// HNSW index configuration (used by backends that support it).
+#[derive(Debug, Clone)]
+pub struct HnswConfig {
+    /// Number of bidirectional links per node. Higher = more accuracy, more memory.
+    pub m: u16,
+    /// Size of the dynamic candidate list during construction.
+    pub ef_construct: u16,
+}
+
+impl Default for HnswConfig {
+    fn default() -> Self { Self { m: 16, ef_construct: 100 } }
+}
+
+/// IVF-Flat index configuration for backends that support it (e.g., pgvector).
+#[derive(Debug, Clone)]
+pub struct IvfFlatConfig {
+    pub lists: u32,
+}
+
+impl Default for IvfFlatConfig {
+    fn default() -> Self { Self { lists: 100 } }
+}
+
+/// Index algorithm options.
+#[derive(Debug, Clone)]
+pub enum IndexConfig {
+    Hnsw(HnswConfig),
+    IvfFlat(IvfFlatConfig),
+    Flat,
+}
+
 /// Specification for creating a new vector collection.
 #[derive(Debug, Clone)]
 pub struct CollectionSpec {
@@ -202,14 +233,24 @@ pub struct CollectionSpec {
     pub dimensions: usize,
     pub distance: Distance,
     pub payload_schema: PayloadSchema,
+    pub index: IndexConfig,
 }
 
 impl CollectionSpec {
     pub fn new(name: impl Into<String>, dimensions: usize, distance: Distance) -> Self {
-        Self { name: name.into(), dimensions, distance, payload_schema: PayloadSchema::new() }
+        Self {
+            name: name.into(),
+            dimensions,
+            distance,
+            payload_schema: PayloadSchema::new(),
+            index: IndexConfig::Hnsw(HnswConfig::default()),
+        }
     }
     pub fn with_schema(mut self, schema: PayloadSchema) -> Self {
         self.payload_schema = schema; self
+    }
+    pub fn with_index(mut self, index: IndexConfig) -> Self {
+        self.index = index; self
     }
 }
 
