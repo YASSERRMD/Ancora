@@ -70,6 +70,35 @@ pub fn count_sql(table: &str) -> String {
     format!("SELECT COUNT(*) FROM {table};")
 }
 
+/// Generate a `SELECT` to retrieve dimension information from the table.
+pub fn dimension_query_sql(table: &str) -> String {
+    format!(
+        "SELECT vector_dims(embedding) AS dimensions \
+         FROM {table} LIMIT 1;"
+    )
+}
+
+/// Sanitize an identifier to prevent SQL injection in table names.
+///
+/// Only allows alphanumeric characters and underscores.
+pub fn sanitize_identifier(name: &str) -> Result<&str, String> {
+    if name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        Ok(name)
+    } else {
+        Err(format!("invalid identifier `{name}`: only [a-zA-Z0-9_] allowed"))
+    }
+}
+
+/// Return the canonical pgvector operator for a given distance metric name.
+pub fn distance_operator(metric: &str) -> &'static str {
+    match metric {
+        "cosine" => "<=>",
+        "dot" => "<#>",
+        "l2" => "<->",
+        _ => "<=>",
+    }
+}
+
 // ---- DML generation ------------------------------------------------------
 
 /// Generate an upsert statement using `ON CONFLICT (id) DO UPDATE`.
