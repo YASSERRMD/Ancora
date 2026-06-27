@@ -15,4 +15,65 @@ pub fn build_qwen_profile() -> ProviderProfile {
         QWEN_URL_SINGAPORE,
         AuthStrategy::BearerToken { env_var: "DASHSCOPE_API_KEY".to_owned() },
     )
+    // Qwen3 235B MoE -- flagship; tools, 128k context
+    .add_model(
+        ModelMeta::new("qwen3-235b-a22b", 131_072)
+            .with_pricing(1.30, 5.20)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Qwen3 32B dense -- strong, tools
+    .add_model(
+        ModelMeta::new("qwen3-32b", 131_072)
+            .with_pricing(0.45, 1.80)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Qwen3 14B
+    .add_model(
+        ModelMeta::new("qwen3-14b", 131_072)
+            .with_pricing(0.17, 0.68)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Qwen3 8B -- lightweight
+    .add_model(
+        ModelMeta::new("qwen3-8b", 131_072)
+            .with_pricing(0.06, 0.24)
+            .with_tools()
+            .with_streaming(),
+    )
+    // QwQ 32B -- reasoning/thinking model (no tool calls)
+    .add_model(
+        ModelMeta::new("qwq-32b", 131_072)
+            .with_pricing(0.20, 0.60)
+            .with_streaming(),
+    )
+    // Qwen Max -- highest-quality non-open-weight tier
+    .add_model(
+        ModelMeta::new("qwen-max", 32_768)
+            .with_pricing(1.60, 6.40)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Qwen Plus -- balanced capability/cost
+    .add_model(
+        ModelMeta::new("qwen-plus", 131_072)
+            .with_pricing(0.40, 1.20)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Qwen Turbo -- fastest, lowest cost
+    .add_model(
+        ModelMeta::new("qwen-turbo", 131_072)
+            .with_pricing(0.05, 0.10)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Model-id aliases for convenience
+    .add_alias("qwen3-max", "qwen3-235b-a22b")
+    .add_alias("qwq", "qwq-32b")
+    .add_alias("max", "qwen-max")
+    .add_alias("plus", "qwen-plus")
+    .add_alias("turbo", "qwen-turbo")
 }
