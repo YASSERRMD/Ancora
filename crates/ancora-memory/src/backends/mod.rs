@@ -43,3 +43,4 @@ pub mod redis_vector;
 pub mod chroma_conformance;
 pub mod pinecone_conformance;
 pub mod vespa_conformance;
+pub mod redis_vector_conformance;
