@@ -516,6 +516,28 @@ pub fn expr_or(a: &str, b: &str) -> String {
     format!("({a}) or ({b})")
 }
 
+// ---- range and not-equal expression helpers -----------------------------
+
+/// `field >= lo and field <= hi` range expression.
+pub fn expr_range(field: &str, lo: i64, hi: i64) -> String {
+    format!("{field} >= {lo} and {field} <= {hi}")
+}
+
+/// `field != value` not-equal expression for integers.
+pub fn expr_ne_int(field: &str, value: i64) -> String {
+    format!("{field} != {value}")
+}
+
+/// `field != "value"` not-equal expression for strings.
+pub fn expr_ne_str(field: &str, value: &str) -> String {
+    format!(r#"{field} != "{}""#, escape_string(value))
+}
+
+/// `not (expr)` negation wrapper.
+pub fn expr_not(inner: &str) -> String {
+    format!("not ({inner})")
+}
+
 // ---- response parsing ----------------------------------------------------
 
 /// Extract result rows from a search or query response.
