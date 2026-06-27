@@ -47,6 +47,18 @@ pub fn is_gateway_model_id(model_id: &str) -> bool {
     model_id.contains('/')
 }
 
+/// Extract the upstream provider name from a `provider/model` ID.
+///
+/// Returns `None` for bare model IDs that do not include a provider prefix.
+pub fn extract_provider(model_id: &str) -> Option<&str> {
+    model_id.split_once('/').map(|(provider, _)| provider)
+}
+
+/// Delegate SSE line parsing to the shared OpenAI-compatible parser.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
 /// Normalize a Vercel AI Gateway HTTP error to `InferenceError`.
 pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
     crate::error::InferenceError::from_http(status, body, None)
