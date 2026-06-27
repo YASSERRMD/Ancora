@@ -59,6 +59,15 @@ pub fn build_glm_profile() -> ProviderProfile {
     .add_alias("vl", "glm-4v")
 }
 
+/// Compute the USD cost for a GLM request given token counts.
+///
+/// Returns `None` if the model has no pricing metadata or the model-id is unknown.
+pub fn compute_cost(model_id: &str, tokens_in: u64, tokens_out: u64) -> Option<f64> {
+    let p = build_glm_profile();
+    let canonical = p.resolve_model_id(model_id);
+    p.model_catalog.get(canonical)?.compute_cost(tokens_in, tokens_out, 0)
+}
+
 /// Return the context-window size in tokens for a given model-id (resolves aliases).
 pub fn context_window(model_id: &str) -> Option<u32> {
     let p = build_glm_profile();
