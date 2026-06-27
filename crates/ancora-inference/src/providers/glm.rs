@@ -86,6 +86,27 @@ pub fn build_glm_self_host_profile(base_url: impl Into<String>) -> ProviderProfi
     .add_alias("chat", "glm-4-9b-chat")
 }
 
+/// Build a GLM profile for llama.cpp server deployment (edge inference).
+///
+/// llama.cpp can serve quantized GLM-4-9B GGUF models with very low VRAM
+/// requirements (4-bit quant: ~5GB). The server exposes an OpenAI-compatible
+/// endpoint. Use this profile for edge or embedded deployments.
+pub fn build_glm_llamacpp_profile(base_url: impl Into<String>) -> ProviderProfile {
+    ProviderProfile::new(
+        "glm-llamacpp",
+        base_url,
+        AuthStrategy::None,
+    )
+    // llama.cpp serves one model at a time; model_id is the GGUF name
+    .add_model(
+        ModelMeta::new("glm-4-9b-chat-q4_k_m", 4_096)
+            .with_pricing(0.0, 0.0)
+            .with_streaming(),
+    )
+    .add_alias("glm4", "glm-4-9b-chat-q4_k_m")
+    .add_alias("glm", "glm-4-9b-chat-q4_k_m")
+}
+
 /// Normalize a GLM HTTP error to `InferenceError`.
 pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
     crate::error::InferenceError::from_http(status, body, None)
