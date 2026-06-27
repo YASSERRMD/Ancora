@@ -270,6 +270,24 @@ impl HybridQueryRequest {
     pub fn with_filter(mut self, f: Filter) -> Self { self.filter = Some(f); self }
 }
 
+/// Blend a dense vector score and a keyword (BM25) score using the given alpha.
+///
+/// `alpha = 1.0` returns pure vector score; `alpha = 0.0` returns pure keyword score.
+/// Both inputs are assumed to be in [0.0, 1.0]; the result is clamped.
+pub fn hybrid_score(vector_score: f32, keyword_score: f32, alpha: f32) -> f32 {
+    let blended = alpha * vector_score + (1.0 - alpha) * keyword_score;
+    blended.clamp(0.0, 1.0)
+}
+
+/// Simple BM25-inspired keyword score: 1.0 if all query words appear in text, else 0.0.
+///
+/// Production backends use proper BM25; this reference version is term-presence only.
+pub fn keyword_score_naive(text: &str, query: &str) -> f32 {
+    let text_lower = text.to_ascii_lowercase();
+    let all_match = query.split_whitespace().all(|w| text_lower.contains(&w.to_ascii_lowercase()));
+    if all_match { 1.0 } else { 0.0 }
+}
+
 // ---- the trait ------------------------------------------------------------
 
 /// The unified interface that every vector-store backend must implement.
