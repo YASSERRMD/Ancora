@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{ContentPart, FunctionCall, Message, ToolCall, ToolDefinition};
+use crate::types::{ContentPart, FunctionCall, Message, TokenEvent, ToolCall, ToolDefinition};
 
 // ---- Wire types: request ---------------------------------------------------
 
@@ -126,6 +126,26 @@ pub(crate) fn decode_response(resp: GeminiResponse) -> (String, Vec<ToolCall>, u
     (text, calls, tokens_in, tokens_out)
 }
 
+/// Parse a single `data: ...` SSE line from a Gemini streaming response.
+///
+/// Each chunk is a full `GeminiResponse` JSON object. Text parts in the
+/// first candidate are concatenated into the `TokenEvent.text`. The
+/// event is marked finished when the candidate carries a non-null
+/// `finishReason`.
+pub fn parse_sse_line(line: &str) -> Option<TokenEvent> {
+    let data = line.strip_prefix("data: ")?;
+    if data.trim().is_empty() {
+        return None;
+    }
+    let resp: GeminiResponse = serde_json::from_str(data).ok()?;
+    let candidate = resp.candidates.into_iter().next()?;
+    let finished = candidate.finish_reason.is_some();
+    let text: String = candidate.content.parts.into_iter()
+        .filter_map(|p| p.text)
+        .collect();
+    Some(TokenEvent { text, finished })
+}
+
 /// Map a generic conversation role to the Gemini-specific role label.
 ///
 /// Gemini accepts only `"user"` and `"model"`. OpenAI-style `"assistant"`
@@ -200,6 +220,27 @@ mod tests {
         let c = encode_message(&Message::text("user", "Hi"));
         let j = serde_json::to_value(&c).unwrap();
         assert!(j["role"].is_string());
+    }
+
+    #[test]
+    fn parse_sse_text_chunk_yields_token_text() {
+        let line = r#"data: {"candidates":[{"content":{"role":"model","parts":[{"text":"Hello"}]},"finishReason":null}],"usageMetadata":{"promptTokenCount":5,"candidatesTokenCount":0}}"#;
+        let ev = parse_sse_line(line).unwrap();
+        assert_eq!(ev.text, "Hello");
+        assert!(!ev.finished);
+    }
+
+    #[test]
+    fn parse_sse_stop_chunk_marks_finished() {
+        let line = r#"data: {"candidates":[{"content":{"role":"model","parts":[{"text":" world"}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":5,"candidatesTokenCount":2}}"#;
+        let ev = parse_sse_line(line).unwrap();
+        assert_eq!(ev.text, " world");
+        assert!(ev.finished);
+    }
+
+    #[test]
+    fn parse_sse_empty_data_returns_none() {
+        assert!(parse_sse_line("data: ").is_none());
     }
 
     #[test]
