@@ -70,6 +70,42 @@ pub fn scroll_url(base: &str, name: &str) -> String {
     format!("{base}/collections/{name}/points/scroll")
 }
 
+// ---- collection lifecycle helpers ----------------------------------------
+
+/// Build the JSON body for a collection with multiple named vectors.
+///
+/// `named_vectors` is a list of `(name, dimensions, distance)` tuples.
+pub fn create_multi_vector_collection_body(
+    named_vectors: &[(&str, usize, Distance)],
+) -> serde_json::Value {
+    let mut vectors = serde_json::Map::new();
+    for (name, dims, dist) in named_vectors {
+        vectors.insert(
+            name.to_string(),
+            json!({ "size": dims, "distance": distance_name(dist) }),
+        );
+    }
+    json!({ "vectors": serde_json::Value::Object(vectors) })
+}
+
+/// Build the body for updating a collection's optimizer config.
+pub fn update_optimizer_body(indexing_threshold: u64, memmap_threshold: u64) -> serde_json::Value {
+    json!({
+        "optimizers_config": {
+            "indexing_threshold": indexing_threshold,
+            "memmap_threshold": memmap_threshold
+        }
+    })
+}
+
+/// Build the body for creating an HNSW index on payload field.
+pub fn create_payload_index_body(field_name: &str, field_type: &str) -> serde_json::Value {
+    json!({
+        "field_name": field_name,
+        "field_schema": field_type
+    })
+}
+
 // ---- request body builders -----------------------------------------------
 
 use crate::vector_store::{Distance, Filter, PayloadValue};
@@ -337,6 +373,30 @@ mod tests {
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].0, 42);
         assert!((results[0].1 - 0.95).abs() < 0.001);
+    }
+
+    #[test]
+    fn create_multi_vector_collection_body_has_all_names() {
+        let body = create_multi_vector_collection_body(&[
+            ("text", 384, Distance::Cosine),
+            ("image", 512, Distance::L2),
+        ]);
+        assert!(body["vectors"]["text"].is_object());
+        assert!(body["vectors"]["image"].is_object());
+        assert_eq!(body["vectors"]["image"]["distance"], "Euclid");
+    }
+
+    #[test]
+    fn update_optimizer_body_has_config_keys() {
+        let body = update_optimizer_body(20_000, 50_000);
+        assert_eq!(body["optimizers_config"]["indexing_threshold"], 20_000);
+    }
+
+    #[test]
+    fn create_payload_index_body_has_field_name() {
+        let body = create_payload_index_body("source", "keyword");
+        assert_eq!(body["field_name"], "source");
+        assert_eq!(body["field_schema"], "keyword");
     }
 
     #[test]
