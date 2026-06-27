@@ -6,44 +6,95 @@ use serde::{Deserialize, Serialize};
 use crate::client::ModelClient;
 use crate::error::InferenceError;
 use crate::provider::ProviderProfile;
-use crate::types::{CompletionRequest, CompletionResponse, Message, TokenEvent};
+use crate::types::{
+    CompletionRequest, CompletionResponse, ContentPart, FunctionCall, Message,
+    TokenEvent, ToolCall, ToolDefinition,
+};
+
+// ---- Wire types -----------------------------------------------------------
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub(crate) struct WireMessage {
-    pub role: String,
-    pub content: String,
+struct WireContentPart {
+    #[serde(rename = "type")]
+    kind: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    text: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    image_url: Option<WireImageUrl>,
 }
 
-/// A tool definition sent in the request to tell the model which functions it may call.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ToolDefinition {
-    pub name: String,
-    pub description: String,
-    pub parameters: serde_json::Value,
+struct WireImageUrl {
+    url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    detail: Option<String>,
 }
 
-/// A tool call returned by the model in a response.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct ToolCall {
-    pub id: String,
-    pub name: String,
-    pub arguments: String,
+#[derive(Debug, Serialize, Clone)]
+struct WireMessage {
+    role: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    content: Option<serde_json::Value>, // String or Array
+}
+
+#[derive(Debug, Serialize, Clone)]
+struct WireToolDef {
+    #[serde(rename = "type")]
+    kind: String,
+    function: WireFunctionDef,
+}
+
+#[derive(Debug, Serialize, Clone)]
+struct WireFunctionDef {
+    name: String,
+    description: String,
+    parameters: serde_json::Value,
+}
+
+#[derive(Debug, Serialize, Clone)]
+struct WireChatRequest {
+    model: String,
+    messages: Vec<WireMessage>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    max_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    temperature: Option<f32>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    tools: Vec<WireToolDef>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    tool_choice: Option<String>,
+    stream: bool,
 }
 
 #[derive(Debug, Deserialize)]
-struct ChatCompletionResponse {
-    choices: Vec<Choice>,
+struct WireResponseMessage {
     #[serde(default)]
-    usage: Usage,
+    content: Option<String>,
+    #[serde(default)]
+    tool_calls: Vec<WireToolCall>,
 }
 
 #[derive(Debug, Deserialize)]
-struct Choice {
-    message: WireMessage,
+struct WireToolCall {
+    id: String,
+    #[serde(rename = "type", default)]
+    kind: String,
+    function: WireFunctionCall,
+}
+
+#[derive(Debug, Deserialize)]
+struct WireFunctionCall {
+    name: String,
+    arguments: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct WireChoice {
+    message: WireResponseMessage,
 }
 
 #[derive(Debug, Default, Deserialize)]
-struct Usage {
+struct WireUsage {
     #[serde(default)]
     prompt_tokens: u64,
     #[serde(default)]
@@ -51,14 +102,23 @@ struct Usage {
 }
 
 #[derive(Debug, Deserialize)]
-struct WireDelta {
+struct WireChatResponse {
+    choices: Vec<WireChoice>,
+    #[serde(default)]
+    usage: WireUsage,
+}
+
+// ---- SSE streaming types --------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+struct WireStreamDelta {
     #[serde(default)]
     content: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 struct WireStreamChoice {
-    delta: WireDelta,
+    delta: WireStreamDelta,
     #[serde(default)]
     finish_reason: Option<String>,
 }
@@ -68,22 +128,61 @@ struct WireStreamChunk {
     choices: Vec<WireStreamChoice>,
 }
 
+// ---- Helpers ---------------------------------------------------------------
+
+fn encode_message(msg: &Message) -> WireMessage {
+    if msg.content_parts.is_empty() {
+        WireMessage {
+            role: msg.role.clone(),
+            content: Some(serde_json::json!(msg.content)),
+        }
+    } else {
+        let parts: Vec<WireContentPart> = msg.content_parts.iter().map(|p| match p {
+            ContentPart::Text { text } => WireContentPart {
+                kind: "text".to_owned(),
+                text: Some(text.clone()),
+                image_url: None,
+            },
+            ContentPart::ImageUrl { image_url } => WireContentPart {
+                kind: "image_url".to_owned(),
+                text: None,
+                image_url: Some(WireImageUrl {
+                    url: image_url.url.clone(),
+                    detail: image_url.detail.clone(),
+                }),
+            },
+        }).collect();
+        WireMessage {
+            role: msg.role.clone(),
+            content: Some(serde_json::json!(parts)),
+        }
+    }
+}
+
+fn encode_tool(t: &ToolDefinition) -> WireToolDef {
+    WireToolDef {
+        kind: t.kind.clone(),
+        function: WireFunctionDef {
+            name: t.function.name.clone(),
+            description: t.function.description.clone(),
+            parameters: t.function.parameters.clone(),
+        },
+    }
+}
+
+// ---- Client ---------------------------------------------------------------
+
 /// HTTP client for any OpenAI-compatible endpoint, driven by a `ProviderProfile`.
-///
-/// The profile supplies the base URL, authentication, and optional request/response
-/// transforms. An optional region label selects a regional base-URL override.
 pub struct OpenAiClient {
     profile: Arc<ProviderProfile>,
     region: Option<String>,
 }
 
 impl OpenAiClient {
-    /// Create a client for the given provider profile.
     pub fn new(profile: Arc<ProviderProfile>) -> Self {
         Self { profile, region: None }
     }
 
-    /// Select a regional base-URL override defined in the profile.
     pub fn with_region(mut self, region: impl Into<String>) -> Self {
         self.region = Some(region.into());
         self
@@ -93,65 +192,57 @@ impl OpenAiClient {
         self.profile.base_url_for_region(self.region.as_deref())
     }
 
-    fn map_messages(messages: &[Message]) -> Vec<WireMessage> {
-        messages
-            .iter()
-            .map(|m| WireMessage { role: m.role.clone(), content: m.content.clone() })
-            .collect()
+    fn completions_url(&self) -> String {
+        self.profile.completions_url(self.region.as_deref())
     }
 
-    fn build_request_body(
+    pub(crate) fn build_wire_request(&self, request: &CompletionRequest, stream: bool) -> WireChatRequest {
+        let model_id = self.profile.resolve_model_id(&request.model_id).to_owned();
+        WireChatRequest {
+            model: model_id,
+            messages: request.messages.iter().map(encode_message).collect(),
+            max_tokens: request.max_tokens,
+            temperature: request.temperature,
+            tools: request.tools.iter().map(encode_tool).collect(),
+            tool_choice: request.tool_choice.clone(),
+            stream,
+        }
+    }
+
+    pub(crate) fn build_request_body(
         &self,
         request: &CompletionRequest,
         stream: bool,
     ) -> Result<serde_json::Value, InferenceError> {
-        let model_id = self.profile.resolve_model_id(&request.model_id);
-        let mut body = serde_json::json!({
-            "model": model_id,
-            "messages": Self::map_messages(&request.messages),
-            "stream": stream,
-        });
-        if let Some(mt) = request.max_tokens {
-            body["max_tokens"] = serde_json::json!(mt);
-        }
-        if let Some(t) = request.temperature {
-            body["temperature"] = serde_json::json!(t);
-        }
-        // Apply provider-specific request transforms.
+        let wire = self.build_wire_request(request, stream);
+        let mut body =
+            serde_json::to_value(&wire).map_err(|e| InferenceError::Parse(e.to_string()))?;
         self.profile.request_transforms.apply(&mut body);
         Ok(body)
     }
 
-    fn apply_auth(&self, req: ureq::Request) -> Result<ureq::Request, InferenceError> {
+    fn apply_auth(&self, mut req: ureq::Request) -> Result<ureq::Request, InferenceError> {
         match self.profile.auth.as_header() {
-            Ok(Some((name, val))) => Ok(req.set(&name, &val)),
-            Ok(None) => Ok(req),
-            Err(e) => Err(InferenceError::MissingCredential(e)),
+            Ok(Some((name, val))) => req = req.set(&name, &val),
+            Ok(None) => {}
+            Err(e) => return Err(InferenceError::MissingCredential(e)),
         }
+        for (k, v) in &self.profile.extra_headers {
+            req = req.set(k, v);
+        }
+        Ok(req)
     }
 
     fn post(&self, body: &serde_json::Value) -> Result<String, InferenceError> {
-        let url = format!(
-            "{}/v1/chat/completions",
-            self.effective_base_url().trim_end_matches('/')
-        );
+        let url = self.completions_url();
         let json =
             serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let req = self.apply_auth(ureq::post(&url))?;
-        let resp = req
-            .set("Content-Type", "application/json")
+        req.set("Content-Type", "application/json")
             .send_string(&json)
-            .map_err(|e| {
-                let msg = e.to_string();
-                if msg.contains("401") || msg.contains("403") {
-                    InferenceError::from_http(401, &msg, None)
-                } else if msg.contains("429") {
-                    InferenceError::from_http(429, &msg, None)
-                } else {
-                    InferenceError::Unreachable(msg)
-                }
-            })?;
-        resp.into_string().map_err(|e| InferenceError::Parse(e.to_string()))
+            .map_err(|e| InferenceError::Unreachable(e.to_string()))?
+            .into_string()
+            .map_err(|e| InferenceError::Parse(e.to_string()))
     }
 
     fn post_stream(
@@ -159,10 +250,7 @@ impl OpenAiClient {
         body: &serde_json::Value,
         on_token: &mut dyn FnMut(TokenEvent),
     ) -> Result<(), InferenceError> {
-        let url = format!(
-            "{}/v1/chat/completions",
-            self.effective_base_url().trim_end_matches('/')
-        );
+        let url = self.completions_url();
         let json =
             serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let req = self.apply_auth(ureq::post(&url))?;
@@ -174,14 +262,15 @@ impl OpenAiClient {
         let reader = std::io::BufReader::new(resp.into_reader());
         for line in reader.lines() {
             let line = line.map_err(|e| InferenceError::Parse(e.to_string()))?;
-            if let Some(event) = Self::parse_stream_chunk(&line) {
+            if let Some(event) = Self::parse_sse_line(&line) {
                 on_token(event);
             }
         }
         Ok(())
     }
 
-    pub(crate) fn parse_stream_chunk(line: &str) -> Option<TokenEvent> {
+    /// Parse a single SSE data line into a `TokenEvent`.
+    pub fn parse_sse_line(line: &str) -> Option<TokenEvent> {
         let data = line.strip_prefix("data: ")?;
         if data.trim() == "[DONE]" {
             return Some(TokenEvent { text: String::new(), finished: true });
@@ -200,18 +289,30 @@ impl OpenAiClient {
     ) -> Result<CompletionResponse, InferenceError> {
         let mut value: serde_json::Value = serde_json::from_str(body)
             .map_err(|e| InferenceError::Parse(e.to_string()))?;
-        // Apply response transforms before deserialising.
         self.profile.response_transforms.apply(&mut value);
-        let wire: ChatCompletionResponse = serde_json::from_value(value)
+        let wire: WireChatResponse = serde_json::from_value(value)
             .map_err(|e| InferenceError::Parse(e.to_string()))?;
-        let content = wire.choices.into_iter().next().map(|c| c.message.content).unwrap_or_default();
+        let msg = wire.choices.into_iter().next().map(|c| c.message).unwrap_or(WireResponseMessage {
+            content: None,
+            tool_calls: vec![],
+        });
+        let content = msg.content.unwrap_or_default();
+        let tool_calls = msg
+            .tool_calls
+            .into_iter()
+            .map(|tc| ToolCall {
+                id: tc.id,
+                kind: tc.kind,
+                function: FunctionCall { name: tc.function.name, arguments: tc.function.arguments },
+            })
+            .collect();
         let tokens_in = wire.usage.prompt_tokens;
         let tokens_out = wire.usage.completion_tokens;
         let cost_usd = self
             .profile
             .model_meta(model_id)
             .and_then(|m| m.compute_cost(tokens_in, tokens_out, 0));
-        Ok(CompletionResponse { content, tokens_in, tokens_out, cost_usd })
+        Ok(CompletionResponse { content, tokens_in, tokens_out, cost_usd, tool_calls })
     }
 }
 
@@ -235,12 +336,22 @@ impl ModelClient for OpenAiClient {
             }
             on_token(event);
         })?;
-        Ok(CompletionResponse { content, tokens_in: 0, tokens_out: 0, cost_usd: None })
+        Ok(CompletionResponse { content, tokens_in: 0, tokens_out: 0, cost_usd: None, tool_calls: vec![] })
     }
 }
 
+// ---- Tests ----------------------------------------------------------------
+
 #[cfg(test)]
-const FIXTURE_CHAT_RESPONSE: &str = r#"{"id":"chatcmpl-abc","object":"chat.completion","choices":[{"index":0,"message":{"role":"assistant","content":"Hello from Ollama"},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":4}}"#;
+const FIXTURE_CHAT: &str = r#"{"id":"chatcmpl-abc","choices":[{"message":{"role":"assistant","content":"Hello","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":4}}"#;
+
+#[cfg(test)]
+const FIXTURE_TOOL_CALL: &str = r#"{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"call_1","type":"function","function":{"name":"get_weather","arguments":"{\"city\":\"Paris\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":20,"completion_tokens":8}}"#;
+
+#[cfg(test)]
+const FIXTURE_STREAM_LINE1: &str = r#"data: {"choices":[{"delta":{"content":"He"},"finish_reason":null}]}"#;
+#[cfg(test)]
+const FIXTURE_STREAM_DONE: &str = "data: [DONE]";
 
 #[cfg(test)]
 mod tests {
@@ -253,6 +364,8 @@ mod tests {
                 .add_model(
                     ModelMeta::new("test-model", 4096)
                         .with_pricing(1.0, 2.0)
+                        .with_tools()
+                        .with_vision()
                         .with_streaming(),
                 )
                 .add_alias("tm", "test-model"),
@@ -266,23 +379,22 @@ mod tests {
     #[test]
     fn parse_response_parses_fixture() {
         let client = test_client();
-        let resp = client.parse_response(FIXTURE_CHAT_RESPONSE, "test-model").unwrap();
-        assert_eq!(resp.content, "Hello from Ollama");
+        let resp = client.parse_response(FIXTURE_CHAT, "test-model").unwrap();
+        assert_eq!(resp.content, "Hello");
         assert_eq!(resp.tokens_in, 10);
         assert_eq!(resp.tokens_out, 4);
     }
 
     #[test]
-    fn parse_stream_chunk_extracts_token_text() {
-        let line = r#"data: {"choices":[{"delta":{"content":"Hi"},"finish_reason":null}]}"#;
-        let event = OpenAiClient::parse_stream_chunk(line).unwrap();
-        assert_eq!(event.text, "Hi");
+    fn parse_stream_line_extracts_token_text() {
+        let event = OpenAiClient::parse_sse_line(FIXTURE_STREAM_LINE1).unwrap();
+        assert_eq!(event.text, "He");
         assert!(!event.finished);
     }
 
     #[test]
-    fn parse_stream_chunk_done_sentinel_marks_finished() {
-        let event = OpenAiClient::parse_stream_chunk("data: [DONE]").unwrap();
+    fn parse_stream_done_marks_finished() {
+        let event = OpenAiClient::parse_sse_line(FIXTURE_STREAM_DONE).unwrap();
         assert!(event.finished);
         assert!(event.text.is_empty());
     }
@@ -290,12 +402,7 @@ mod tests {
     #[test]
     fn alias_resolved_in_request_body() {
         let client = test_client();
-        let req = crate::types::CompletionRequest {
-            model_id: "tm".to_owned(),
-            messages: vec![],
-            max_tokens: None,
-            temperature: None,
-        };
+        let req = CompletionRequest::simple("tm", vec![]);
         let body = client.build_request_body(&req, false).unwrap();
         assert_eq!(body["model"], serde_json::json!("test-model"));
     }
@@ -303,11 +410,9 @@ mod tests {
     #[test]
     fn cost_usd_computed_from_pricing_metadata() {
         let client = test_client();
-        let resp = client.parse_response(FIXTURE_CHAT_RESPONSE, "test-model").unwrap();
-        // 10 tokens_in @ $1/M + 4 tokens_out @ $2/M = very small but non-None
+        let resp = client.parse_response(FIXTURE_CHAT, "test-model").unwrap();
         assert!(resp.cost_usd.is_some());
-        let cost = resp.cost_usd.unwrap();
-        assert!(cost > 0.0);
+        assert!(resp.cost_usd.unwrap() > 0.0);
     }
 
     #[test]
@@ -330,13 +435,10 @@ mod tests {
                 ),
         );
         let client = OpenAiClient::new(profile);
-        // 1000 input tokens @ $30/M + 500 output tokens @ $60/M
-        // = 0.030 + 0.030 = $0.060
-        let resp = client.parse_response(FIXTURE_CHAT_RESPONSE, "expensive-model").unwrap();
-        // FIXTURE has 10 prompt + 4 completion tokens
+        let resp = client.parse_response(FIXTURE_CHAT, "expensive-model").unwrap();
         let expected = 10.0 * 30.0 / 1_000_000.0 + 4.0 * 60.0 / 1_000_000.0;
         let cost = resp.cost_usd.expect("cost should be Some for priced model");
-        assert!((cost - expected).abs() < 1e-12, "cost {cost} != {expected}");
+        assert!((cost - expected).abs() < 1e-12);
     }
 
     #[test]
@@ -346,7 +448,18 @@ mod tests {
                 .add_model(ModelMeta::new("free-model", 4_096)),
         );
         let client = OpenAiClient::new(profile);
-        let resp = client.parse_response(FIXTURE_CHAT_RESPONSE, "free-model").unwrap();
+        let resp = client.parse_response(FIXTURE_CHAT, "free-model").unwrap();
         assert!(resp.cost_usd.is_none());
+    }
+
+    #[test]
+    fn tool_call_mapping_round_trip() {
+        let client = test_client();
+        let resp = client.parse_response(FIXTURE_TOOL_CALL, "test-model").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        let tc = &resp.tool_calls[0];
+        assert_eq!(tc.id, "call_1");
+        assert_eq!(tc.function.name, "get_weather");
+        assert!(tc.function.arguments.contains("Paris"));
     }
 }
