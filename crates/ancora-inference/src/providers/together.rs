@@ -147,4 +147,41 @@ mod tests {
         let m = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();
         assert_eq!(m.context_window, 128_000);
     }
+
+    #[test]
+    fn together_request_body_includes_tools_array() {
+        use crate::openai::OpenAiClient;
+        use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
+        use std::sync::Arc;
+        let client = OpenAiClient::new(Arc::new(build_together_profile()));
+        let mut req = CompletionRequest::simple(
+            "llama3.1-70b",
+            vec![Message::text("user", "What is 2+2?")],
+        );
+        req.tools = vec![ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: "calculator".to_owned(),
+                description: "Performs arithmetic".to_owned(),
+                parameters: serde_json::json!({"type":"object","properties":{}}),
+            },
+        }];
+        let body = client.build_request_body(&req, false).unwrap();
+        assert!(body["tools"].is_array());
+        assert_eq!(body["tools"][0]["function"]["name"], "calculator");
+    }
+
+    #[test]
+    fn together_request_body_model_resolved() {
+        use crate::openai::OpenAiClient;
+        use crate::types::{CompletionRequest, Message};
+        use std::sync::Arc;
+        let client = OpenAiClient::new(Arc::new(build_together_profile()));
+        let req = CompletionRequest::simple(
+            "llama3.1-70b",
+            vec![Message::text("user", "Hi")],
+        );
+        let body = client.build_request_body(&req, false).unwrap();
+        assert_eq!(body["model"], "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo");
+    }
 }
