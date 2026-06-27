@@ -66,6 +66,11 @@ impl ModelMeta {
         self
     }
 
+    /// Return `true` if the requested token count fits within the context window.
+    pub fn fits_context(&self, requested_tokens: u64) -> bool {
+        requested_tokens <= self.context_window as u64
+    }
+
     /// Compute the USD cost of a completion given token counts.
     ///
     /// Returns `None` if no pricing is registered for this model.
@@ -115,5 +120,18 @@ mod tests {
         assert!(meta.capabilities.tools);
         assert!(meta.capabilities.vision);
         assert!(meta.capabilities.streaming);
+    }
+
+    #[test]
+    fn fits_context_within_window() {
+        let meta = ModelMeta::new("ctx-test", 8_192);
+        assert!(meta.fits_context(8_192));
+        assert!(meta.fits_context(1_000));
+    }
+
+    #[test]
+    fn fits_context_exceeds_window() {
+        let meta = ModelMeta::new("ctx-test", 4_096);
+        assert!(!meta.fits_context(4_097));
     }
 }
