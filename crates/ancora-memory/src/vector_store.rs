@@ -381,6 +381,33 @@ pub fn keyword_score_naive(text: &str, query: &str) -> f32 {
     if all_match { 1.0 } else { 0.0 }
 }
 
+// ---- pagination -----------------------------------------------------------
+
+/// A paginated result page from a vector query.
+#[derive(Debug, Clone)]
+pub struct Page<T> {
+    pub items: Vec<T>,
+    /// Total number of items available (may be an estimate for large collections).
+    pub total: Option<u64>,
+    /// The offset passed to produce this page.
+    pub offset: usize,
+}
+
+impl<T> Page<T> {
+    pub fn new(items: Vec<T>, offset: usize) -> Self {
+        Self { total: None, offset, items }
+    }
+    pub fn with_total(mut self, total: u64) -> Self {
+        self.total = Some(total); self
+    }
+    pub fn has_next(&self) -> bool {
+        match self.total {
+            Some(t) => (self.offset + self.items.len()) < t as usize,
+            None => !self.items.is_empty(),
+        }
+    }
+}
+
 // ---- batch config ---------------------------------------------------------
 
 /// Configuration for batch upsert operations.
