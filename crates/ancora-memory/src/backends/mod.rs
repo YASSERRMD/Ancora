@@ -15,3 +15,4 @@ pub mod weaviate_filter_tests;
 pub mod weaviate_integration;
 pub mod weaviate_generative_tests;
 pub mod milvus;
+pub mod milvus_conformance;
