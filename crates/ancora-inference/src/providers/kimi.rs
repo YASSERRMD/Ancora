@@ -61,6 +61,13 @@ pub fn build_kimi_profile() -> ProviderProfile {
     .add_alias("long", "moonshot-v1-long")
 }
 
+/// Parse a single SSE line from a Kimi streaming response.
+///
+/// Kimi uses the standard OpenAI SSE format.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
 /// Return `true` if the model supports tool/function calls.
 pub fn supports_tools(model_id: &str) -> bool {
     let p = build_kimi_profile();
