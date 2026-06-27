@@ -364,6 +364,44 @@ pub fn graphql_hybrid_query(
     json!({ "query": q })
 }
 
+// ---- nearText and nearObject search queries ------------------------------
+
+/// Build a GraphQL nearText search (text2vec vectorizer must be configured).
+pub fn graphql_near_text_query(
+    class: &str,
+    concepts: &[&str],
+    limit: usize,
+    certainty: Option<f32>,
+    fields: &[&str],
+) -> Value {
+    let concepts_str = concepts.iter()
+        .map(|c| format!("\"{c}\""))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let certainty_str = certainty
+        .map(|c| format!(", certainty: {c}"))
+        .unwrap_or_default();
+    let field_str = fields.join(" ");
+    let q = format!(
+        r#"{{ Get {{ {class}(nearText: {{ concepts: [{concepts_str}]{certainty_str} }} limit: {limit}) {{ {field_str} _additional {{ id distance }} }} }} }}"#
+    );
+    json!({ "query": q })
+}
+
+/// Build a GraphQL nearObject search (find objects similar to an existing one).
+pub fn graphql_near_object_query(
+    class: &str,
+    object_id: &str,
+    limit: usize,
+    fields: &[&str],
+) -> Value {
+    let field_str = fields.join(" ");
+    let q = format!(
+        r#"{{ Get {{ {class}(nearObject: {{ id: "{object_id}" }} limit: {limit}) {{ {field_str} _additional {{ id distance }} }} }} }}"#
+    );
+    json!({ "query": q })
+}
+
 // ---- generative search (RAG) GraphQL -------------------------------------
 
 /// Build a GraphQL generative search query (Weaviate's built-in RAG).
@@ -688,6 +726,29 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn graphql_near_text_query_contains_concepts() {
+        let body = graphql_near_text_query("Document", &["machine learning", "AI"], 5, None, &["title"]);
+        let q = body["query"].as_str().unwrap();
+        assert!(q.contains("nearText"), "query: {q}");
+        assert!(q.contains("machine learning"), "query: {q}");
+    }
+
+    #[test]
+    fn graphql_near_text_with_certainty() {
+        let body = graphql_near_text_query("Document", &["rust"], 5, Some(0.7), &["title"]);
+        let q = body["query"].as_str().unwrap();
+        assert!(q.contains("certainty: 0.7"), "query: {q}");
+    }
+
+    #[test]
+    fn graphql_near_object_query_has_id() {
+        let body = graphql_near_object_query("Document", "my-uuid", 5, &["title"]);
+        let q = body["query"].as_str().unwrap();
+        assert!(q.contains("nearObject"), "query: {q}");
+        assert!(q.contains("my-uuid"), "query: {q}");
     }
 
     #[test]
