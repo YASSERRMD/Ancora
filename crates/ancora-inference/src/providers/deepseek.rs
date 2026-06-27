@@ -73,6 +73,16 @@ pub fn build_deepseek_self_host_profile(base_url: impl Into<String>) -> Provider
     .add_alias("deepseek-r1", "deepseek-reasoner")
 }
 
+/// Normalize DeepSeek HTTP error codes to `InferenceError`.
+///
+/// DeepSeek returns standard HTTP status codes. The OpenAI client's
+/// `from_http` handler is sufficient for most cases; this function
+/// documents the mapping and provides an entry point for additional
+/// DeepSeek-specific error handling (e.g. the CN-region rate-limit body).
+pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
+    crate::error::InferenceError::from_http(status, body, None)
+}
+
 #[cfg(test)]
 const DS_FIXTURE: &str = r#"{"id":"chatcmpl-ds-01","choices":[{"message":{"role":"assistant","content":"Hello from DeepSeek","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":5,"prompt_cache_hit_tokens":4,"prompt_cache_miss_tokens":6}}"#;
 
@@ -335,6 +345,27 @@ mod tests {
         let cached = pricing.cached_per_million.unwrap();
         // Cache-hit tier should be at least 50% cheaper
         assert!(cached <= pricing.input_per_million * 0.5);
+    }
+
+    #[test]
+    fn deepseek_error_429_is_rate_limited() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, r#"{"error":{"message":"Rate limit exceeded"}}"#);
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
+
+    #[test]
+    fn deepseek_error_401_is_auth_rejected() {
+        use crate::error::InferenceError;
+        let err = normalize_error(401, r#"{"error":{"message":"Invalid API key"}}"#);
+        assert!(matches!(err, InferenceError::AuthRejected(_)));
+    }
+
+    #[test]
+    fn deepseek_error_500_is_http_error() {
+        use crate::error::InferenceError;
+        let err = normalize_error(500, "internal server error");
+        assert!(matches!(err, InferenceError::Http { status: 500, .. }));
     }
 
     #[test]
