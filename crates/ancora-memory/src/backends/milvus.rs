@@ -578,6 +578,26 @@ pub fn parse_collection_stats(body: &Value) -> u64 {
     body["data"]["rowCount"].as_u64().unwrap_or(0)
 }
 
+/// Extract error message from a Milvus REST error response body.
+pub fn parse_error_message(body: &Value) -> Option<String> {
+    body["message"].as_str().map(|s| s.to_owned())
+}
+
+/// Extract the delete count from a delete response.
+pub fn parse_delete_count(body: &Value) -> u64 {
+    body["data"]["deleteCount"].as_u64().unwrap_or(0)
+}
+
+/// Extract alias names from a list-aliases response.
+pub fn parse_alias_names(body: &Value) -> Vec<String> {
+    body["data"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|a| a["aliasName"].as_str().map(|s| s.to_owned()))
+        .collect()
+}
+
 /// Extract inserted primary-key IDs from an insert response.
 pub fn parse_insert_ids(body: &Value) -> Vec<i64> {
     body["data"]["insertIds"]
