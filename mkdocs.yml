@@ -38,8 +38,51 @@ nav:
       - Deployment Models: concepts/deployment-models.md
       - Glossary: concepts/glossary.md
   - Language SDKs:
-      - Go: sdk/go/index.md
-      - Python: sdk/python/index.md
+      - Go:
+          - Overview: sdk/go/index.md
+          - Install: sdk/go/install.md
+          - Quickstart: sdk/go/quickstart.md
+          - Tools: sdk/go/tools.md
+          - Structured Output: sdk/go/structured-output.md
+          - Multi-Agent: sdk/go/multi-agent.md
+          - Verifier: sdk/go/verifier.md
+          - Human-in-the-Loop: sdk/go/human-in-the-loop.md
+          - Streaming: sdk/go/streaming.md
+          - Memory and RAG: sdk/go/memory-and-rag.md
+          - Providers: sdk/go/providers.md
+          - Chinese Providers: sdk/go/chinese-providers.md
+          - Vector Stores: sdk/go/vector-stores.md
+          - Durability: sdk/go/durability.md
+          - Observability: sdk/go/observability.md
+          - Policy: sdk/go/policy.md
+          - MCP and A2A: sdk/go/mcp-and-a2a.md
+          - Edge Deployment: sdk/go/edge-deployment.md
+          - Testing: sdk/go/testing.md
+          - Troubleshooting: sdk/go/troubleshooting.md
+          - API Reference: sdk/go/api-reference.md
+      - Python:
+          - Overview: sdk/python/index.md
+          - Install: sdk/python/install.md
+          - Quickstart: sdk/python/quickstart.md
+          - Tools: sdk/python/tools.md
+          - Structured Output: sdk/python/structured-output.md
+          - Multi-Agent: sdk/python/multi-agent.md
+          - Verifier: sdk/python/verifier.md
+          - Human-in-the-Loop: sdk/python/human-in-the-loop.md
+          - Streaming: sdk/python/streaming.md
+          - Memory and RAG: sdk/python/memory-and-rag.md
+          - Providers: sdk/python/providers.md
+          - Chinese Providers: sdk/python/chinese-providers.md
+          - Vector Stores: sdk/python/vector-stores.md
+          - Durability: sdk/python/durability.md
+          - Observability: sdk/python/observability.md
+          - Policy: sdk/python/policy.md
+          - MCP and A2A: sdk/python/mcp-and-a2a.md
+          - Packaging and Deployment: sdk/python/deployment.md
+          - Testing: sdk/python/testing.md
+          - Troubleshooting: sdk/python/troubleshooting.md
+          - API Reference: sdk/python/api-reference.md
+          - Migration: sdk/python/migration.md
       - TypeScript: sdk/ts/index.md
       - .NET: sdk/dotnet/index.md
       - Java: sdk/java/index.md
