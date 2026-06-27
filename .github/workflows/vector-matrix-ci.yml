@@ -1,0 +1,86 @@
+name: vector-matrix-ci
+
+on:
+  push:
+    paths:
+      - "crates/ancora-core/tests/vector_*"
+      - ".github/workflows/vector-matrix-ci.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-core/tests/vector_*"
+      - ".github/workflows/vector-matrix-ci.yml"
+
+jobs:
+  vector-matrix:
+    name: Vector store test matrix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Run in-memory conformance
+        run: cargo test --test vector_inmemory_conformance
+
+      - name: Run SQLite conformance
+        run: cargo test --test vector_sqlite_conformance
+
+      - name: Run pgvector conformance
+        run: cargo test --test vector_pgvector_conformance
+
+      - name: Run pgvector hybrid
+        run: cargo test --test vector_pgvector_hybrid
+
+      - name: Run Qdrant conformance
+        run: cargo test --test vector_qdrant_conformance
+
+      - name: Run Qdrant hybrid
+        run: cargo test --test vector_qdrant_hybrid
+
+      - name: Run Weaviate conformance
+        run: cargo test --test vector_weaviate_conformance
+
+      - name: Run Weaviate hybrid
+        run: cargo test --test vector_weaviate_hybrid
+
+      - name: Run Milvus conformance
+        run: cargo test --test vector_milvus_conformance
+
+      - name: Run Milvus partitions
+        run: cargo test --test vector_milvus_partitions
+
+      - name: Run LanceDB conformance
+        run: cargo test --test vector_lancedb_conformance
+
+      - name: Run LanceDB embedded offline
+        run: cargo test --test vector_lancedb_embedded
+
+      - name: Run Chroma conformance
+        run: cargo test --test vector_chroma_conformance
+
+      - name: Run Pinecone conformance
+        run: cargo test --test vector_pinecone_conformance
+
+      - name: Run Vespa conformance
+        run: cargo test --test vector_vespa_conformance
+
+      - name: Run Redis vector conformance
+        run: cargo test --test vector_redis_conformance
+
+      - name: Run metadata filter parity
+        run: cargo test --test vector_metadata_filter_parity
+
+      - name: Run distance metric parity
+        run: cargo test --test vector_distance_metric_parity
+
+      - name: Run backend selection by config
+        run: cargo test --test vector_backend_selection
+
+      - name: Run migration script
+        run: cargo test --test vector_migration_script
+
+      - name: Run full vector suite
+        run: cargo test -p ancora-core --test vector_inmemory_conformance --test vector_sqlite_conformance --test vector_pgvector_conformance --test vector_pgvector_hybrid --test vector_qdrant_conformance --test vector_qdrant_hybrid --test vector_weaviate_conformance --test vector_weaviate_hybrid --test vector_milvus_conformance --test vector_milvus_partitions --test vector_lancedb_conformance --test vector_lancedb_embedded --test vector_chroma_conformance --test vector_pinecone_conformance --test vector_vespa_conformance --test vector_redis_conformance --test vector_metadata_filter_parity --test vector_distance_metric_parity --test vector_backend_selection --test vector_migration_script
