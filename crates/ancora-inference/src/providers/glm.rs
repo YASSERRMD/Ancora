@@ -282,4 +282,18 @@ mod tests {
     fn is_json_object_rejects_array() {
         assert!(!is_json_object(r#"["a","b"]"#));
     }
+
+    #[test]
+    fn glm_error_normalization_401_is_auth_rejected() {
+        use crate::error::InferenceError;
+        let err = normalize_error(401, r#"{"error":{"message":"invalid api key"}}"#);
+        assert!(matches!(err, InferenceError::AuthRejected(_)));
+    }
+
+    #[test]
+    fn glm_error_normalization_500_is_http_error() {
+        use crate::error::InferenceError;
+        let err = normalize_error(500, "internal server error");
+        assert!(matches!(err, InferenceError::Http { status: 500, .. }));
+    }
 }
