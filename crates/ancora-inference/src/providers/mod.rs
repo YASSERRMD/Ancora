@@ -17,6 +17,7 @@ pub mod minimax;
 pub mod mistral;
 pub mod openai;
 pub mod openrouter;
+pub mod portkey;
 pub mod qwen;
 pub mod stepfun;
 pub mod throughput;
