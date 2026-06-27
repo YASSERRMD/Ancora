@@ -242,4 +242,44 @@ mod tests {
         let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
         assert!(ev.finished);
     }
+
+    #[test]
+    fn glm_structured_output_validates_as_json_object() {
+        use std::sync::Arc;
+        let json_client = crate::openai::OpenAiClient::new(Arc::new(build_glm_json_profile()));
+        let resp = json_client.parse_response(GLM_JSON_FIXTURE, "glm-5").unwrap();
+        // The content should be a JSON object string
+        assert!(is_json_object(&resp.content));
+    }
+
+    #[test]
+    fn glm_json_profile_injects_response_format() {
+        use crate::types::{CompletionRequest, Message};
+        use std::sync::Arc;
+        let json_client = crate::openai::OpenAiClient::new(Arc::new(build_glm_json_profile()));
+        let req = CompletionRequest::simple(
+            "glm-5",
+            vec![Message::text("user", "Extract company name as JSON")],
+        );
+        let body = json_client.build_request_body(&req, false).unwrap();
+        assert_eq!(body["response_format"]["type"], "json_object");
+    }
+
+    #[test]
+    fn glm_json_fixture_has_expected_keys() {
+        let resp = glm_client().parse_response(GLM_JSON_FIXTURE, "glm-5").unwrap();
+        let obj: serde_json::Value = serde_json::from_str(&resp.content).unwrap();
+        assert_eq!(obj["company"], "Apple Inc");
+        assert_eq!(obj["founder"], "Steve Jobs");
+    }
+
+    #[test]
+    fn is_json_object_accepts_valid_object() {
+        assert!(is_json_object(r#"{"key": "value"}"#));
+    }
+
+    #[test]
+    fn is_json_object_rejects_array() {
+        assert!(!is_json_object(r#"["a","b"]"#));
+    }
 }
