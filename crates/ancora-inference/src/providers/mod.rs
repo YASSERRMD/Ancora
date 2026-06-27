@@ -22,6 +22,7 @@ pub mod stepfun;
 pub mod throughput;
 pub mod together;
 pub mod usage;
+pub mod vercelai;
 
 /// Normalize an HTTP error for any of the five new Chinese-lab providers.
 ///
