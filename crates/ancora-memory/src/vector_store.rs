@@ -449,6 +449,16 @@ pub fn make_batches(points: Vec<Point>, batch_size: usize) -> Vec<Vec<Point>> {
     points.chunks(batch_size).map(|c| c.to_vec()).collect()
 }
 
+// ---- score threshold ------------------------------------------------------
+
+/// Apply a score threshold, keeping only results above the cutoff.
+///
+/// Used by the in-memory reference impl and any backend that does threshold
+/// filtering in Rust rather than at the store level.
+pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<ScoredPoint> {
+    results.into_iter().filter(|p| p.score >= threshold).collect()
+}
+
 // ---- the trait ------------------------------------------------------------
 
 /// The unified interface that every vector-store backend must implement.
