@@ -129,6 +129,13 @@ mod tests {
     }
 
     #[test]
+    fn azure_fixture_token_counts() {
+        let resp = client().parse_response(FIXTURE, "gpt-4o-dep").unwrap();
+        assert_eq!(resp.tokens_in, 6);
+        assert_eq!(resp.tokens_out, 3);
+    }
+
+    #[test]
     fn azure_auth_header_name_is_api_key() {
         let profile = build_azure_profile("r", "d", "2024-02-01");
         match &profile.auth {
