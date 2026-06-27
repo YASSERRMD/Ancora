@@ -591,6 +591,51 @@ pub fn validate_alpha(alpha: f32) -> Result<f32, String> {
     }
 }
 
+// ---- score threshold helpers --------------------------------------------
+
+/// A per-metric score threshold validator.
+///
+/// Cosine/dot scores are in (-1, 1); L2 scores are in (0, 1] because of
+/// the `1/(1+dist)` transform. Rejects values outside metric-specific range.
+pub struct ThresholdValidator;
+
+impl ThresholdValidator {
+    pub fn validate_cosine(threshold: f32) -> Result<(), String> {
+        if (-1.0..=1.0).contains(&threshold) { Ok(()) } else {
+            Err(format!("cosine threshold={threshold} outside [-1.0, 1.0]"))
+        }
+    }
+
+    pub fn validate_dot(threshold: f32) -> Result<(), String> {
+        // dot product is theoretically unbounded, but in practice [0,1] for normalized vecs
+        if threshold.is_finite() { Ok(()) } else {
+            Err("dot threshold must be finite".to_owned())
+        }
+    }
+
+    pub fn validate_l2(threshold: f32) -> Result<(), String> {
+        if (0.0..=1.0).contains(&threshold) { Ok(()) } else {
+            Err(format!("l2 threshold={threshold} outside [0.0, 1.0]"))
+        }
+    }
+
+    pub fn validate(metric: &str, threshold: f32) -> Result<(), String> {
+        match metric {
+            "dot" => Self::validate_dot(threshold),
+            "l2" => Self::validate_l2(threshold),
+            _ => Self::validate_cosine(threshold),
+        }
+    }
+}
+
+/// Apply an in-memory score threshold filter to a result set.
+///
+/// Used when the backend cannot push threshold into SQL (e.g. for the
+/// dot/L2 metrics where the WHERE expression is verbose).
+pub fn apply_threshold(results: Vec<(i64, f32)>, threshold: f32) -> Vec<(i64, f32)> {
+    results.into_iter().filter(|(_, score)| *score >= threshold).collect()
+}
+
 // ---- tests (all offline) ------------------------------------------------
 
 #[cfg(test)]
@@ -845,6 +890,33 @@ mod tests {
         assert!(validate_alpha(1.1).is_err());
         assert!(validate_alpha(-0.1).is_err());
         assert!(validate_alpha(0.5).is_ok());
+    }
+
+    #[test]
+    fn threshold_validator_cosine_range() {
+        assert!(ThresholdValidator::validate_cosine(0.75).is_ok());
+        assert!(ThresholdValidator::validate_cosine(1.5).is_err());
+    }
+
+    #[test]
+    fn threshold_validator_l2_range() {
+        assert!(ThresholdValidator::validate_l2(0.5).is_ok());
+        assert!(ThresholdValidator::validate_l2(-0.1).is_err());
+    }
+
+    #[test]
+    fn threshold_validator_dispatch_by_metric() {
+        assert!(ThresholdValidator::validate("cosine", 0.9).is_ok());
+        assert!(ThresholdValidator::validate("l2", 1.5).is_err());
+        assert!(ThresholdValidator::validate("dot", f32::INFINITY).is_err());
+    }
+
+    #[test]
+    fn apply_threshold_filters_low_scores() {
+        let results = vec![(1, 0.9f32), (2, 0.5), (3, 0.8)];
+        let filtered = apply_threshold(results, 0.75);
+        assert_eq!(filtered.len(), 2);
+        assert!(filtered.iter().all(|(_, s)| *s >= 0.75));
     }
 
     #[test]
