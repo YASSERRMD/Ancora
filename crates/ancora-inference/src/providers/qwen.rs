@@ -93,3 +93,14 @@ pub fn build_qwen_profile() -> ProviderProfile {
     .add_alias("plus", "qwen-plus")
     .add_alias("turbo", "qwen-turbo")
 }
+
+/// Return `true` if the model supports tool/function calls.
+///
+/// Qwen uses the standard OpenAI `tools` array in the request body.
+/// Tool-capable models: qwen3-235b-a22b, qwen3-32b, qwen3-14b, qwen3-8b,
+/// qwen-max, qwen-plus, qwen-turbo.
+pub fn supports_tools(model_id: &str) -> bool {
+    let p = build_qwen_profile();
+    let canonical = p.resolve_model_id(model_id);
+    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+}
