@@ -471,6 +471,27 @@ pub fn edge_config() -> LanceDbConfig {
     LanceDbConfig::local(edge_default_dir())
 }
 
+// ---- schema evolution helpers -------------------------------------------
+
+/// Describes an add-column migration.
+pub fn add_column_descriptor(table: &str, col: &ColumnDef, default_value: Option<Value>) -> Value {
+    let mut body = json!({ "table": table, "column": col.name, "type": col.data_type, "nullable": col.nullable });
+    if let Some(dv) = default_value {
+        body["default"] = dv;
+    }
+    body
+}
+
+/// Describes a drop-column migration.
+pub fn drop_column_descriptor(table: &str, column: &str) -> Value {
+    json!({ "table": table, "operation": "drop_column", "column": column })
+}
+
+/// Describes a rename-column migration.
+pub fn rename_column_descriptor(table: &str, old_name: &str, new_name: &str) -> Value {
+    json!({ "table": table, "operation": "rename_column", "old_name": old_name, "new_name": new_name })
+}
+
 // ---- merge insert helpers -----------------------------------------------
 
 /// Describes an upsert (merge-insert) operation -- update matching rows, insert new ones.
