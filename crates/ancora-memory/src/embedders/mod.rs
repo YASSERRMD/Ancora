@@ -26,3 +26,4 @@ pub mod pipeline;
 pub mod rerank;
 pub mod context;
 pub mod citation;
+pub mod embedder_tests;
