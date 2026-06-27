@@ -1,0 +1,188 @@
+use crate::provider::{AuthStrategy, ModelMeta, ProviderProfile};
+
+/// Portkey AI gateway base URL.
+pub const PORTKEY_URL: &str = "https://api.portkey.ai/v1";
+
+/// Build a Portkey gateway profile using the Portkey API key header.
+///
+/// Portkey is an enterprise AI gateway that supports routing, fallbacks,
+/// caching, and observability across 250+ providers. Auth uses the
+/// `x-portkey-api-key` header (read from `PORTKEY_API_KEY`). For virtual-key
+/// routing, use `build_portkey_virtual_key_profile`.
+pub fn build_portkey_profile() -> ProviderProfile {
+    ProviderProfile::new(
+        "portkey",
+        PORTKEY_URL,
+        AuthStrategy::HeaderKey {
+            env_var: "PORTKEY_API_KEY".to_owned(),
+            header: "x-portkey-api-key".to_owned(),
+        },
+    )
+    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("openai/gpt-4o-mini", 128_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("anthropic/claude-3-5-haiku", 200_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("anthropic/claude-3-7-sonnet", 200_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("gemini/gemini-2.0-flash", 1_048_576).with_tools().with_vision().with_streaming())
+    .add_alias("gpt-4o", "openai/gpt-4o")
+    .add_alias("gpt-4o-mini", "openai/gpt-4o-mini")
+    .add_alias("haiku", "anthropic/claude-3-5-haiku")
+    .add_alias("sonnet", "anthropic/claude-3-7-sonnet")
+    .add_alias("gemini-flash", "gemini/gemini-2.0-flash")
+}
+
+/// Build a Portkey profile that targets a specific virtual key.
+///
+/// Virtual keys let you pre-configure a provider and model in the Portkey
+/// dashboard. The virtual key is sent in `x-portkey-virtual-key` and routes
+/// directly to the configured upstream without needing the raw API key at
+/// call time.
+pub fn build_portkey_virtual_key_profile(virtual_key_env: impl Into<String>) -> ProviderProfile {
+    let vk_env: String = virtual_key_env.into();
+    ProviderProfile::new(
+        "portkey",
+        PORTKEY_URL,
+        AuthStrategy::HeaderKey {
+            env_var: "PORTKEY_API_KEY".to_owned(),
+            header: "x-portkey-api-key".to_owned(),
+        },
+    )
+    .with_extra_header("x-portkey-virtual-key", format!("${{{}}}", vk_env))
+    .add_model(ModelMeta::new("default", 200_000).with_tools().with_vision().with_streaming())
+}
+
+/// Configuration builder for Portkey gateway routing options.
+#[derive(Debug, Default, Clone)]
+pub struct PortkeyConfig {
+    /// Optional config ID set in the Portkey dashboard (routing strategy, retries).
+    pub config_id: Option<String>,
+    /// Optional virtual key for provider routing.
+    pub virtual_key_env: Option<String>,
+    /// Optional trace ID for request correlation.
+    pub trace_id: Option<String>,
+}
+
+impl PortkeyConfig {
+    pub fn new() -> Self { Self::default() }
+
+    pub fn with_config(mut self, config_id: impl Into<String>) -> Self {
+        self.config_id = Some(config_id.into()); self
+    }
+    pub fn with_virtual_key_env(mut self, env_var: impl Into<String>) -> Self {
+        self.virtual_key_env = Some(env_var.into()); self
+    }
+    pub fn with_trace_id(mut self, trace_id: impl Into<String>) -> Self {
+        self.trace_id = Some(trace_id.into()); self
+    }
+}
+
+/// Build a Portkey gateway profile from a `PortkeyConfig`.
+pub fn build_portkey_from_config(config: PortkeyConfig) -> ProviderProfile {
+    let mut profile = build_portkey_profile();
+    if let Some(cid) = config.config_id {
+        profile = profile.with_extra_header("x-portkey-config", cid);
+    }
+    if let Some(trace) = config.trace_id {
+        profile = profile.with_extra_header("x-portkey-trace-id", trace);
+    }
+    profile
+}
+
+/// Normalize a Portkey HTTP error to `InferenceError`.
+pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
+    crate::error::InferenceError::from_http(status, body, None)
+}
+
+#[cfg(test)]
+const PORTKEY_FIXTURE: &str = r#"{"id":"chatcmpl-pk-01","choices":[{"message":{"role":"assistant","content":"Hello from Portkey","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":11,"completion_tokens":4}}"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn pk_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_portkey_profile()))
+    }
+
+    #[test]
+    fn portkey_provider_name() {
+        assert_eq!(build_portkey_profile().name, "portkey");
+    }
+
+    #[test]
+    fn portkey_recorded_fixture_completes() {
+        let resp = pk_client().parse_response(PORTKEY_FIXTURE, "openai/gpt-4o").unwrap();
+        assert_eq!(resp.content, "Hello from Portkey");
+        assert_eq!(resp.tokens_in, 11);
+        assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
+    fn portkey_uses_header_key_auth() {
+        let p = build_portkey_profile();
+        assert!(matches!(
+            &p.auth,
+            AuthStrategy::HeaderKey { header, .. } if header == "x-portkey-api-key"
+        ));
+    }
+
+    #[test]
+    fn portkey_base_url() {
+        assert_eq!(build_portkey_profile().base_url, PORTKEY_URL);
+    }
+
+    #[test]
+    fn portkey_config_builder_sets_config_header() {
+        let cfg = PortkeyConfig::new().with_config("my-dashboard-config");
+        let p = build_portkey_from_config(cfg);
+        assert_eq!(
+            p.extra_headers.get("x-portkey-config").map(|s| s.as_str()),
+            Some("my-dashboard-config")
+        );
+    }
+
+    #[test]
+    fn portkey_config_builder_sets_trace_id() {
+        let cfg = PortkeyConfig::new().with_trace_id("req-abc123");
+        let p = build_portkey_from_config(cfg);
+        assert_eq!(
+            p.extra_headers.get("x-portkey-trace-id").map(|s| s.as_str()),
+            Some("req-abc123")
+        );
+    }
+
+    #[test]
+    fn portkey_virtual_key_profile_has_virtual_key_header() {
+        let p = build_portkey_virtual_key_profile("MY_VK_ENV");
+        assert!(p.extra_headers.contains_key("x-portkey-virtual-key"));
+    }
+
+    #[test]
+    fn portkey_error_429_is_rate_limit() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "rate limited");
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
+
+    #[test]
+    fn portkey_config_with_multiple_headers() {
+        let cfg = PortkeyConfig::new()
+            .with_config("my-config")
+            .with_trace_id("trace-001");
+        let p = build_portkey_from_config(cfg);
+        assert!(p.extra_headers.contains_key("x-portkey-config"));
+        assert!(p.extra_headers.contains_key("x-portkey-trace-id"));
+    }
+
+    #[test]
+    fn portkey_sonnet_alias_has_vision() {
+        let p = build_portkey_profile();
+        assert!(p.model_meta("sonnet").unwrap().capabilities.vision);
+    }
+
+    #[test]
+    fn portkey_gemini_flash_alias_has_tools() {
+        let p = build_portkey_profile();
+        assert!(p.model_meta("gemini-flash").unwrap().capabilities.tools);
+    }
+}

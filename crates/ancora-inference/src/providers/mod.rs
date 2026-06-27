@@ -6,21 +6,42 @@ pub mod deepseek;
 pub mod doubao;
 pub mod fireworks;
 pub mod ernie;
+pub mod gateway;
 pub mod gemini;
 pub mod hunyuan;
 pub mod glm;
 pub mod groq;
 pub mod kimi;
+pub mod litellm;
 pub mod mimo;
 pub mod minimax;
 pub mod mistral;
 pub mod openai;
 pub mod openrouter;
+pub mod portkey;
 pub mod qwen;
 pub mod stepfun;
 pub mod throughput;
 pub mod together;
 pub mod usage;
+pub mod vercelai;
+
+/// Normalize an HTTP error for any of the four gateway providers.
+///
+/// Dispatches to the provider-specific `normalize_error` function when one
+/// exists, otherwise falls through to the generic `InferenceError::from_http`.
+pub fn normalize_gateway_error(
+    provider_name: &str,
+    status: u16,
+    body: &str,
+) -> crate::error::InferenceError {
+    match provider_name {
+        "openrouter" | "litellm" | "litellm-local" | "vercelai" | "portkey" => {
+            crate::error::InferenceError::from_http(status, body, None)
+        }
+        _ => crate::error::InferenceError::from_http(status, body, None),
+    }
+}
 
 /// Normalize an HTTP error for any of the five new Chinese-lab providers.
 ///

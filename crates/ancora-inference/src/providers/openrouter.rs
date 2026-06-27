@@ -61,6 +61,27 @@ pub fn build_openrouter_profile(config: OpenRouterConfig) -> ProviderProfile {
     profile
 }
 
+/// Build a simple OpenRouter profile for a single model (no fallbacks, default attribution).
+pub fn build_openrouter_simple(model_id: impl Into<String>) -> ProviderProfile {
+    let model: String = model_id.into();
+    build_openrouter_profile(OpenRouterConfig {
+        model_id: model,
+        fallback_models: vec![],
+        app_name: "Ancora".to_owned(),
+        site_url: "https://github.com/YASSERRMD/Ancora".to_owned(),
+    })
+}
+
+/// Return true if the model ID uses OpenRouter's `provider/model` namespacing.
+pub fn is_namespaced_model_id(model_id: &str) -> bool {
+    model_id.contains('/')
+}
+
+/// Delegate SSE line parsing to the shared OpenAI-compatible parser.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
 #[cfg(test)]
 const FIXTURE: &str = r#"{"id":"gen-openrouter","choices":[{"message":{"role":"assistant","content":"Hello from OpenRouter","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":7,"completion_tokens":4}}"#;
 
@@ -185,6 +206,24 @@ mod tests {
             site_url: "https://static.test".to_owned(),
         });
         assert_eq!(p.extra_headers.get("X-Title").map(|s| s.as_str()), Some("StaticApp"));
+    }
+
+    #[test]
+    fn openrouter_simple_builder_produces_named_profile() {
+        let p = build_openrouter_simple("openai/gpt-4o");
+        assert_eq!(p.name, "openrouter");
+    }
+
+    #[test]
+    fn openrouter_is_namespaced_model_id() {
+        assert!(is_namespaced_model_id("openai/gpt-4o"));
+        assert!(!is_namespaced_model_id("gpt-4o"));
+    }
+
+    #[test]
+    fn openrouter_parse_stream_done_signals_end() {
+        let result = parse_stream_line("data: [DONE]");
+        assert!(result.map(|e| e.finished).unwrap_or(false));
     }
 
     #[test]

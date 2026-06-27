@@ -1,0 +1,156 @@
+use crate::provider::{AuthStrategy, ModelMeta, ProviderProfile};
+
+/// Default local LiteLLM proxy URL.
+pub const LITELLM_DEFAULT_URL: &str = "http://localhost:4000";
+
+/// Build a LiteLLM proxy profile pointing at a custom base URL.
+///
+/// LiteLLM is an open-source proxy that exposes an OpenAI-compatible API and
+/// routes to 100+ providers. Auth is controlled by the LiteLLM master key;
+/// leave `LITELLM_API_KEY` unset for unauthenticated local deployments (use
+/// `build_litellm_noauth_profile` instead).
+pub fn build_litellm_profile(base_url: impl Into<String>) -> ProviderProfile {
+    ProviderProfile::new(
+        "litellm",
+        base_url,
+        AuthStrategy::BearerToken { env_var: "LITELLM_API_KEY".to_owned() },
+    )
+    // Pre-registered virtual model IDs for common routing targets.
+    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("openai/gpt-4o-mini", 128_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("anthropic/claude-3-5-haiku", 200_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("anthropic/claude-3-7-sonnet", 200_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("gemini/gemini-2.0-flash", 1_048_576).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("mistral/mistral-small-latest", 32_768).with_tools().with_streaming())
+    .add_model(ModelMeta::new("groq/llama3-8b-8192", 8_192).with_tools().with_streaming())
+    .add_model(ModelMeta::new("together_ai/meta-llama/Llama-3-8b-chat-hf", 8_192).with_streaming())
+    .add_alias("gpt-4o", "openai/gpt-4o")
+    .add_alias("gpt-4o-mini", "openai/gpt-4o-mini")
+    .add_alias("haiku", "anthropic/claude-3-5-haiku")
+    .add_alias("sonnet", "anthropic/claude-3-7-sonnet")
+    .add_alias("gemini-flash", "gemini/gemini-2.0-flash")
+    .add_alias("mistral-small", "mistral/mistral-small-latest")
+    .add_alias("llama3-groq", "groq/llama3-8b-8192")
+}
+
+/// Build a LiteLLM profile with routing tags attached via the `X-Litellm-Tags` header.
+///
+/// Tags are a LiteLLM feature that allow grouping / cost attribution of requests.
+pub fn build_litellm_tagged_profile(base_url: impl Into<String>, tags: &[&str]) -> ProviderProfile {
+    let tag_header = tags.join(",");
+    ProviderProfile::new(
+        "litellm",
+        base_url,
+        AuthStrategy::BearerToken { env_var: "LITELLM_API_KEY".to_owned() },
+    )
+    .with_extra_header("X-Litellm-Tags", tag_header)
+    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
+    .add_alias("gpt-4o", "openai/gpt-4o")
+}
+
+/// Build a LiteLLM profile with no authentication (local dev / trusted network).
+pub fn build_litellm_noauth_profile(base_url: impl Into<String>) -> ProviderProfile {
+    ProviderProfile::new(
+        "litellm-local",
+        base_url,
+        AuthStrategy::None,
+    )
+    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
+    .add_model(ModelMeta::new("anthropic/claude-3-5-haiku", 200_000).with_tools().with_vision().with_streaming())
+    .add_alias("gpt-4o", "openai/gpt-4o")
+    .add_alias("haiku", "anthropic/claude-3-5-haiku")
+}
+
+/// Return true if the model ID uses LiteLLM's `provider/model` routing format.
+pub fn is_routed_model_id(model_id: &str) -> bool {
+    model_id.contains('/')
+}
+
+/// Delegate SSE line parsing to the shared OpenAI-compatible parser.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
+/// Normalize a LiteLLM HTTP error to `InferenceError`.
+pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
+    crate::error::InferenceError::from_http(status, body, None)
+}
+
+#[cfg(test)]
+const LITELLM_FIXTURE: &str = r#"{"id":"chatcmpl-ll-01","choices":[{"message":{"role":"assistant","content":"Hello from LiteLLM","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":6}}"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn llm_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(
+            build_litellm_profile(LITELLM_DEFAULT_URL),
+        ))
+    }
+
+    #[test]
+    fn litellm_provider_name() {
+        assert_eq!(build_litellm_profile("http://localhost:4000").name, "litellm");
+    }
+
+    #[test]
+    fn litellm_recorded_fixture_completes() {
+        let resp = llm_client().parse_response(LITELLM_FIXTURE, "openai/gpt-4o").unwrap();
+        assert_eq!(resp.content, "Hello from LiteLLM");
+        assert_eq!(resp.tokens_in, 10);
+        assert_eq!(resp.tokens_out, 6);
+    }
+
+    #[test]
+    fn litellm_noauth_profile_name() {
+        assert_eq!(build_litellm_noauth_profile("http://localhost:4000").name, "litellm-local");
+    }
+
+    #[test]
+    fn litellm_is_routed_model_id() {
+        assert!(is_routed_model_id("openai/gpt-4o"));
+        assert!(!is_routed_model_id("gpt-4o"));
+    }
+
+    #[test]
+    fn litellm_tagged_profile_has_header() {
+        let p = build_litellm_tagged_profile("http://localhost:4000", &["prod", "billing"]);
+        assert_eq!(
+            p.extra_headers.get("X-Litellm-Tags").map(|s| s.as_str()),
+            Some("prod,billing")
+        );
+    }
+
+    #[test]
+    fn litellm_groq_alias_resolves() {
+        let p = build_litellm_profile("http://localhost:4000");
+        assert_eq!(p.resolve_model_id("llama3-groq"), "groq/llama3-8b-8192");
+    }
+
+    #[test]
+    fn litellm_error_429_is_rate_limit() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "quota exceeded");
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
+
+    #[test]
+    fn litellm_gemini_alias_has_vision() {
+        let p = build_litellm_profile("http://localhost:4000");
+        assert!(p.model_meta("gemini-flash").unwrap().capabilities.vision);
+    }
+
+    #[test]
+    fn litellm_parse_sse_token_returns_event() {
+        let line = r#"data: {"choices":[{"delta":{"content":"hi"},"finish_reason":null}]}"#;
+        assert!(parse_stream_line(line).is_some());
+    }
+
+    #[test]
+    fn litellm_parse_sse_done_signals_end() {
+        let result = parse_stream_line("data: [DONE]");
+        assert!(result.map(|e| e.finished).unwrap_or(false));
+    }
+}
