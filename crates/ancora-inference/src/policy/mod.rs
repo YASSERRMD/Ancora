@@ -180,4 +180,34 @@ mod tests {
         let excluded = vec![ResidencyTag::Cn];
         assert!(is_allowed("glm-llamacpp", &excluded));
     }
+
+    #[test]
+    fn kimi_international_tagged_us() {
+        let tags = residency_tags("kimi");
+        assert!(tags.contains(&ResidencyTag::Us));
+    }
+
+    #[test]
+    fn kimi_domestic_tagged_cn() {
+        let tags = residency_tags("kimi-cn");
+        assert!(tags.contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn kimi_domestic_blocked_under_non_cn_residency() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("kimi-cn", &excluded));
+    }
+
+    #[test]
+    fn kimi_international_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("kimi", &excluded));
+    }
+
+    #[test]
+    fn minimax_tagged_cn() {
+        let tags = residency_tags("minimax");
+        assert!(tags.contains(&ResidencyTag::Cn));
+    }
 }
