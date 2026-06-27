@@ -48,9 +48,19 @@ pub fn supports_tools(model_id: &str) -> bool {
 
 /// Parse a single SSE line from a MiniMax streaming response.
 ///
-/// MiniMax uses the standard OpenAI SSE format.
+/// MiniMax uses the standard OpenAI SSE format. Replies with `[DONE]` to
+/// signal end of stream.
 pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
     crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
+/// Collect all token text from a slice of SSE lines into a single string.
+pub fn collect_stream_text(lines: &[&str]) -> String {
+    lines.iter()
+        .filter_map(|l| parse_stream_line(l))
+        .filter(|ev| !ev.text.is_empty())
+        .map(|ev| ev.text)
+        .collect()
 }
 
 /// Return `true` if the model supports vision (image) input.
