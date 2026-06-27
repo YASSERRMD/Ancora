@@ -130,4 +130,37 @@ mod tests {
     fn portkey_base_url() {
         assert_eq!(build_portkey_profile().base_url, PORTKEY_URL);
     }
+
+    #[test]
+    fn portkey_config_builder_sets_config_header() {
+        let cfg = PortkeyConfig::new().with_config("my-dashboard-config");
+        let p = build_portkey_from_config(cfg);
+        assert_eq!(
+            p.extra_headers.get("x-portkey-config").map(|s| s.as_str()),
+            Some("my-dashboard-config")
+        );
+    }
+
+    #[test]
+    fn portkey_config_builder_sets_trace_id() {
+        let cfg = PortkeyConfig::new().with_trace_id("req-abc123");
+        let p = build_portkey_from_config(cfg);
+        assert_eq!(
+            p.extra_headers.get("x-portkey-trace-id").map(|s| s.as_str()),
+            Some("req-abc123")
+        );
+    }
+
+    #[test]
+    fn portkey_virtual_key_profile_has_virtual_key_header() {
+        let p = build_portkey_virtual_key_profile("MY_VK_ENV");
+        assert!(p.extra_headers.contains_key("x-portkey-virtual-key"));
+    }
+
+    #[test]
+    fn portkey_error_429_is_rate_limit() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "rate limited");
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
 }
