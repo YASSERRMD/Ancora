@@ -85,4 +85,63 @@ pub fn build_kimi_domestic_profile() -> ProviderProfile {
         KIMI_URL_DOMESTIC,
         AuthStrategy::BearerToken { env_var: "MOONSHOT_API_KEY".to_owned() },
     )
+    .add_model(
+        ModelMeta::new("kimi-k2", 131_072)
+            .with_pricing(0.60, 2.50)
+            .with_tools()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("moonshot-v1-128k", 131_072)
+            .with_pricing(1.00, 1.00)
+            .with_streaming(),
+    )
+}
+
+#[cfg(test)]
+const KIMI_FIXTURE: &str = r#"{"id":"chatcmpl-kimi-01","choices":[{"message":{"role":"assistant","content":"Hello from Kimi K2","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":11,"completion_tokens":8}}"#;
+
+#[cfg(test)]
+const KIMI_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-kimi-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-km-01","type":"function","function":{"name":"search","arguments":"{\"query\":\"LLM benchmarks 2025\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":22,"completion_tokens":11}}"#;
+
+#[cfg(test)]
+const KIMI_STREAM_LINES: &[&str] = &[
+    r#"data: {"choices":[{"delta":{"content":"Kimi"},"finish_reason":null}]}"#,
+    r#"data: {"choices":[{"delta":{"content":" K2"},"finish_reason":"stop"}]}"#,
+    "data: [DONE]",
+];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn kimi_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_kimi_profile()))
+    }
+
+    #[test]
+    fn kimi_recorded_fixture_completes() {
+        let resp = kimi_client().parse_response(KIMI_FIXTURE, "kimi-k2").unwrap();
+        assert_eq!(resp.content, "Hello from Kimi K2");
+        assert_eq!(resp.tokens_in, 11);
+        assert_eq!(resp.tokens_out, 8);
+    }
+
+    #[test]
+    fn kimi_provider_name_is_kimi() {
+        assert_eq!(build_kimi_profile().name, "kimi");
+    }
+
+    #[test]
+    fn kimi_default_url_is_international() {
+        let p = build_kimi_profile();
+        assert!(p.base_url.contains("moonshot.ai"));
+    }
+
+    #[test]
+    fn kimi_cn_region_resolves_domestic() {
+        let p = build_kimi_profile();
+        assert!(p.base_url_for_region(Some("cn")).contains("moonshot.cn"));
+    }
 }
