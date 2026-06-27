@@ -81,7 +81,17 @@ pub(crate) fn extract_system(messages: &[Message]) -> (Option<String>, Vec<&Mess
 ///
 /// Plain-text messages serialize content as a JSON string.
 /// Messages with content parts serialize as a JSON array of blocks.
+/// Tool-result messages (`role == "tool"`) are re-wrapped as a `user`
+/// message containing a `tool_result` content block.
 pub(crate) fn encode_message(msg: &Message) -> AnthropicRequestMessage {
+    if msg.role == "tool" {
+        let block = serde_json::json!([{
+            "type": "tool_result",
+            "tool_use_id": "",
+            "content": msg.content
+        }]);
+        return AnthropicRequestMessage { role: "user".to_owned(), content: block };
+    }
     if msg.content_parts.is_empty() {
         AnthropicRequestMessage {
             role: msg.role.clone(),
@@ -105,6 +115,17 @@ pub(crate) fn encode_message(msg: &Message) -> AnthropicRequestMessage {
 mod tests {
     use super::*;
     use crate::types::Message;
+
+    #[test]
+    fn encode_message_tool_role_becomes_user_with_tool_result_block() {
+        let msg = Message::text("tool", "sunny in Paris");
+        let m = encode_message(&msg);
+        let j = serde_json::to_value(&m).unwrap();
+        assert_eq!(j["role"], "user");
+        let block = &j["content"][0];
+        assert_eq!(block["type"], "tool_result");
+        assert_eq!(block["content"], "sunny in Paris");
+    }
 
     #[test]
     fn encode_message_plain_text_content_is_string() {
