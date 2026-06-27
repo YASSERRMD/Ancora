@@ -59,6 +59,11 @@ pub fn build_glm_profile() -> ProviderProfile {
     .add_alias("vl", "glm-4v")
 }
 
+/// Normalize a GLM HTTP error to `InferenceError`.
+pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError {
+    crate::error::InferenceError::from_http(status, body, None)
+}
+
 /// Compute the USD cost for a GLM request given token counts.
 ///
 /// Returns `None` if the model has no pricing metadata or the model-id is unknown.
@@ -111,4 +116,61 @@ pub fn supports_tools(model_id: &str) -> bool {
     let p = build_glm_profile();
     let canonical = p.resolve_model_id(model_id);
     p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+}
+
+#[cfg(test)]
+const GLM_FIXTURE: &str = r#"{"id":"chatcmpl-glm-01","choices":[{"message":{"role":"assistant","content":"Hello from GLM-5","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":14,"completion_tokens":7}}"#;
+
+#[cfg(test)]
+const GLM_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-glm-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-glm-01","type":"function","function":{"name":"extract_entities","arguments":"{\"text\":\"Apple Inc was founded by Steve Jobs\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":30,"completion_tokens":15}}"#;
+
+#[cfg(test)]
+const GLM_JSON_FIXTURE: &str = r#"{"id":"chatcmpl-glm-03","choices":[{"message":{"role":"assistant","content":"{\"company\":\"Apple Inc\",\"founder\":\"Steve Jobs\",\"year\":1976}","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":40,"completion_tokens":20}}"#;
+
+#[cfg(test)]
+const GLM_STREAM_LINES: &[&str] = &[
+    r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
+    r#"data: {"choices":[{"delta":{"content":" from GLM"},"finish_reason":"stop"}]}"#,
+    "data: [DONE]",
+];
+
+#[cfg(test)]
+const GLM_SELF_HOST_FIXTURE: &str = r#"{"id":"chatcmpl-glm-sh-01","choices":[{"message":{"role":"assistant","content":"Hello from vLLM GLM","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":6}}"#;
+
+#[cfg(test)]
+const GLM_LLAMACPP_FIXTURE: &str = r#"{"id":"chatcmpl-glm-lc-01","choices":[{"message":{"role":"assistant","content":"Hello from llama.cpp GLM","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":7}}"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn glm_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_glm_profile()))
+    }
+
+    #[test]
+    fn glm_recorded_fixture_completes() {
+        let resp = glm_client().parse_response(GLM_FIXTURE, "glm-5").unwrap();
+        assert_eq!(resp.content, "Hello from GLM-5");
+        assert_eq!(resp.tokens_in, 14);
+        assert_eq!(resp.tokens_out, 7);
+    }
+
+    #[test]
+    fn glm_fixture_no_tool_calls() {
+        let resp = glm_client().parse_response(GLM_FIXTURE, "glm-5").unwrap();
+        assert!(resp.tool_calls.is_empty());
+    }
+
+    #[test]
+    fn glm_provider_name_is_glm() {
+        assert_eq!(build_glm_profile().name, "glm");
+    }
+
+    #[test]
+    fn glm_base_url_is_bigmodel() {
+        let p = build_glm_profile();
+        assert!(p.base_url.contains("bigmodel.cn"));
+    }
 }
