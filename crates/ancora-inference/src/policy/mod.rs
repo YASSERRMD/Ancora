@@ -24,6 +24,11 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "deepseek" => vec![ResidencyTag::Cn],
         // Self-hosted DeepSeek: residency depends on where the host runs
         "deepseek-self-host" => vec![ResidencyTag::Unknown],
+        // Kimi (Moonshot AI) -- international endpoint is non-CN; domestic is CN
+        "kimi" => vec![ResidencyTag::Us],
+        "kimi-cn" => vec![ResidencyTag::Cn],
+        // MiniMax -- CN infrastructure
+        "minimax" => vec![ResidencyTag::Cn],
         // GLM (Zhipu AI) -- direct endpoint is CN-region
         "glm" => vec![ResidencyTag::Cn],
         "glm-self-host" => vec![ResidencyTag::Unknown],
