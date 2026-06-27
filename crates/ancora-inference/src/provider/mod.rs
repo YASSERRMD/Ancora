@@ -72,6 +72,24 @@ impl ProviderProfile {
         self
     }
 
+    /// Push a request-body transform applied before every HTTP call.
+    pub fn with_request_transform(
+        mut self,
+        f: impl Fn(&mut serde_json::Value) + Send + Sync + 'static,
+    ) -> Self {
+        self.request_transforms.push(f);
+        self
+    }
+
+    /// Push a response-body transform applied after every HTTP response.
+    pub fn with_response_transform(
+        mut self,
+        f: impl Fn(&mut serde_json::Value) + Send + Sync + 'static,
+    ) -> Self {
+        self.response_transforms.push(f);
+        self
+    }
+
     /// Resolve a user-supplied model id through the alias map.
     pub fn resolve_model_id<'a>(&'a self, id: &'a str) -> &'a str {
         self.model_aliases.get(id).map(|s| s.as_str()).unwrap_or(id)
