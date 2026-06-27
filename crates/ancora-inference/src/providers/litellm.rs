@@ -121,10 +121,7 @@ mod tests {
     #[test]
     fn litellm_groq_alias_resolves() {
         let p = build_litellm_profile("http://localhost:4000");
-        assert_eq!(
-            p.resolve_model_id("llama3-groq"),
-            Some("groq/llama3-8b-8192".to_owned())
-        );
+        assert_eq!(p.resolve_model_id("llama3-groq"), "groq/llama3-8b-8192");
     }
 
     #[test]

@@ -98,10 +98,7 @@ mod tests {
     #[test]
     fn vercelai_haiku_alias_resolves() {
         let p = build_vercelai_profile();
-        assert_eq!(
-            p.resolve_model_id("haiku"),
-            Some("anthropic/claude-3-5-haiku-20241022".to_owned())
-        );
+        assert_eq!(p.resolve_model_id("haiku"), "anthropic/claude-3-5-haiku-20241022");
     }
 
     #[test]
