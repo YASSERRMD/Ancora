@@ -170,6 +170,29 @@ impl Filter {
     }
 }
 
+/// Evaluate a filter expression against a payload.
+///
+/// Returns `true` if the payload satisfies the filter. Used by the in-memory
+/// reference implementation; backends with native filter support may bypass this.
+pub fn filter_matches(payload: &Payload, filter: &Filter) -> bool {
+    match filter {
+        Filter::Eq(key, val) => payload.get(key).map(|v| v == val).unwrap_or(false),
+        Filter::Ne(key, val) => payload.get(key).map(|v| v != val).unwrap_or(true),
+        Filter::Gt(key, val) => match (payload.get(key), val) {
+            (Some(PayloadValue::Integer(a)), PayloadValue::Integer(b)) => a > b,
+            (Some(PayloadValue::Float(a)), PayloadValue::Float(b)) => a > b,
+            _ => false,
+        },
+        Filter::Lt(key, val) => match (payload.get(key), val) {
+            (Some(PayloadValue::Integer(a)), PayloadValue::Integer(b)) => a < b,
+            (Some(PayloadValue::Float(a)), PayloadValue::Float(b)) => a < b,
+            _ => false,
+        },
+        Filter::And(a, b) => filter_matches(payload, a) && filter_matches(payload, b),
+        Filter::Or(a, b) => filter_matches(payload, a) || filter_matches(payload, b),
+    }
+}
+
 // ---- collection lifecycle -------------------------------------------------
 
 /// Specification for creating a new vector collection.
