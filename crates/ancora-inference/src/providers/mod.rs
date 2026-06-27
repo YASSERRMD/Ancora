@@ -4,6 +4,7 @@ pub mod bedrock;
 pub mod cohere;
 pub mod deepseek;
 pub mod fireworks;
+pub mod ernie;
 pub mod gemini;
 pub mod glm;
 pub mod groq;
