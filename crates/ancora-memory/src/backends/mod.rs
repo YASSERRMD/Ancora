@@ -34,3 +34,4 @@ pub mod lancedb_integration;
 pub mod lancedb_multimodal_tests;
 pub mod lancedb_maintenance_tests;
 pub mod lancedb_ann_index_tests;
+pub mod lancedb_vector_search_tests;
