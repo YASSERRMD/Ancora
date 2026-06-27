@@ -129,6 +129,17 @@ mod tests {
     }
 
     #[test]
+    fn azure_auth_header_name_is_api_key() {
+        let profile = build_azure_profile("r", "d", "2024-02-01");
+        match &profile.auth {
+            AuthStrategy::HeaderKey { header, .. } => {
+                assert_eq!(header, "api-key");
+            }
+            other => panic!("expected HeaderKey, got {other:?}"),
+        }
+    }
+
+    #[test]
     fn azure_api_version_in_url_not_body() {
         use crate::types::{CompletionRequest, Message};
         let p = Arc::new(build_azure_profile("r", "d", "2024-02-01"));
