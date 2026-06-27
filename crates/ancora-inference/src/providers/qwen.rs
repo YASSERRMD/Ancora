@@ -188,4 +188,41 @@ mod tests {
         let p = build_qwen_profile();
         assert!(p.base_url.contains("dashscope-intl.aliyuncs.com"));
     }
+
+    #[test]
+    fn qwen_tool_round_trip_works() {
+        let resp = qwen_client().parse_response(QWEN_TOOL_FIXTURE, "qwen-plus").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        assert_eq!(resp.tool_calls[0].function.name, "translate");
+        let args: serde_json::Value =
+            serde_json::from_str(&resp.tool_calls[0].function.arguments).unwrap();
+        assert_eq!(args["target_lang"], "zh");
+    }
+
+    #[test]
+    fn qwen_tool_call_request_body_has_tools() {
+        use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
+        let mut req = CompletionRequest::simple(
+            "qwen-plus",
+            vec![Message::text("user", "Translate: Hello")],
+        );
+        req.tools = vec![ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: "translate".to_owned(),
+                description: "Translate text".to_owned(),
+                parameters: serde_json::json!({"type":"object","properties":{"text":{"type":"string"},"target_lang":{"type":"string"}},"required":["text","target_lang"]}),
+            },
+        }];
+        let body = qwen_client().build_request_body(&req, false).unwrap();
+        assert!(body["tools"].is_array());
+        assert_eq!(body["tools"][0]["function"]["name"], "translate");
+    }
+
+    #[test]
+    fn qwen_tool_fixture_token_counts() {
+        let resp = qwen_client().parse_response(QWEN_TOOL_FIXTURE, "qwen-plus").unwrap();
+        assert_eq!(resp.tokens_in, 25);
+        assert_eq!(resp.tokens_out, 12);
+    }
 }
