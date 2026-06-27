@@ -406,6 +406,43 @@ pub fn parse_scroll_points(body: &Value) -> Vec<(u64, Value)> {
         .collect()
 }
 
+// ---- sharding and cluster routing ----------------------------------------
+
+/// URL for cluster/shard information about a collection.
+pub fn shards_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/shards")
+}
+
+/// URL for transferring a shard to another node.
+pub fn shard_transfer_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/shards/transfer")
+}
+
+/// Build a body to initiate a shard transfer (distributed Qdrant only).
+pub fn shard_transfer_body(shard_id: u32, from_peer_id: u64, to_peer_id: u64) -> serde_json::Value {
+    json!({
+        "shard_id": shard_id,
+        "from_peer_id": from_peer_id,
+        "to_peer_id": to_peer_id,
+        "method": "snapshot"
+    })
+}
+
+/// URL for the locks endpoint (prevents new writes during maintenance).
+pub fn locks_url(base: &str) -> String {
+    format!("{base}/locks")
+}
+
+/// Build a body to set the write-lock state on the Qdrant instance.
+pub fn set_lock_body(error_message: &str) -> serde_json::Value {
+    json!({ "error_message": error_message, "write": true })
+}
+
+/// Build a body to release the write lock.
+pub fn release_lock_body() -> serde_json::Value {
+    json!({ "write": false })
+}
+
 // ---- snapshot and collection management ----------------------------------
 
 /// URL for creating a snapshot of a specific collection.
@@ -697,6 +734,34 @@ pub fn payload_to_json(payload: &crate::vector_store::Payload) -> Value {
 mod tests {
     use super::*;
     use crate::vector_store::{Distance, Filter, PayloadValue};
+
+    #[test]
+    fn shards_url_contains_collection_name() {
+        let url = shards_url("http://localhost:6333", "docs");
+        assert!(url.contains("docs"), "url: {url}");
+        assert!(url.ends_with("/shards"), "url: {url}");
+    }
+
+    #[test]
+    fn shard_transfer_body_has_required_fields() {
+        let body = shard_transfer_body(0, 100, 200);
+        assert_eq!(body["shard_id"], 0);
+        assert_eq!(body["from_peer_id"], 100u64);
+        assert_eq!(body["to_peer_id"], 200u64);
+        assert_eq!(body["method"], "snapshot");
+    }
+
+    #[test]
+    fn set_lock_body_write_is_true() {
+        let body = set_lock_body("maintenance");
+        assert_eq!(body["write"], true);
+    }
+
+    #[test]
+    fn release_lock_body_write_is_false() {
+        let body = release_lock_body();
+        assert_eq!(body["write"], false);
+    }
 
     #[test]
     fn create_snapshot_url_ends_with_snapshots() {
