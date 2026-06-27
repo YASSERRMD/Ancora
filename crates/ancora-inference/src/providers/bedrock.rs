@@ -122,4 +122,50 @@ mod tests {
         let hp = haiku.pricing.as_ref().unwrap();
         assert!(hp.input_per_million < sp.input_per_million);
     }
+
+    #[test]
+    fn bedrock_claude_sonnet_context_window() {
+        let p = build_bedrock_profile();
+        let meta = p.model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0").unwrap();
+        assert_eq!(meta.context_window, 200_000);
+    }
+
+    #[test]
+    fn bedrock_llama_context_window() {
+        let p = build_bedrock_profile();
+        let meta = p.model_meta("meta.llama3-70b-instruct-v1:0").unwrap();
+        assert_eq!(meta.context_window, 8_192);
+    }
+
+    #[test]
+    fn bedrock_mistral_context_window() {
+        let p = build_bedrock_profile();
+        let meta = p.model_meta("mistral.mistral-large-2402-v1:0").unwrap();
+        assert_eq!(meta.context_window, 32_000);
+    }
+
+    #[test]
+    fn bedrock_all_models_have_streaming() {
+        let p = build_bedrock_profile();
+        let models = [
+            "anthropic.claude-3-5-sonnet-20241022-v2:0",
+            "anthropic.claude-3-haiku-20240307-v1:0",
+            "meta.llama3-70b-instruct-v1:0",
+            "mistral.mistral-large-2402-v1:0",
+        ];
+        for model_id in models {
+            let meta = p.model_meta(model_id).unwrap_or_else(|| panic!("{model_id} missing"));
+            assert!(meta.capabilities.streaming, "{model_id} should have streaming");
+        }
+    }
+
+    #[test]
+    fn bedrock_cost_computed_for_haiku() {
+        let p = build_bedrock_profile();
+        let meta = p.model_meta("anthropic.claude-3-haiku-20240307-v1:0").unwrap();
+        let cost = meta.compute_cost(100, 50, 0).unwrap();
+        // 100 in * $0.25/M + 50 out * $1.25/M
+        let expected = 100.0 * 0.25 / 1_000_000.0 + 50.0 * 1.25 / 1_000_000.0;
+        assert!((cost - expected).abs() < 1e-12);
+    }
 }
