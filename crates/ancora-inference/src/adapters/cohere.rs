@@ -565,4 +565,26 @@ mod tests {
         let resp = client().parse_response(FIXTURE, "command-r-plus").unwrap();
         assert!(resp.tool_calls.is_empty());
     }
+
+    #[test]
+    fn cohere_tool_call_fixture_parsed() {
+        let resp = client().parse_response(FIXTURE_TOOL, "command-r-plus").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        assert_eq!(resp.tool_calls[0].function.name, "get_weather");
+    }
+
+    #[test]
+    fn cohere_tool_call_arguments_contain_location() {
+        let resp = client().parse_response(FIXTURE_TOOL, "command-r-plus").unwrap();
+        let args: serde_json::Value =
+            serde_json::from_str(&resp.tool_calls[0].function.arguments).unwrap();
+        assert_eq!(args["location"], "San Francisco");
+    }
+
+    #[test]
+    fn cohere_tool_call_tokens_correct() {
+        let resp = client().parse_response(FIXTURE_TOOL, "command-r-plus").unwrap();
+        assert_eq!(resp.tokens_in, 20);
+        assert_eq!(resp.tokens_out, 8);
+    }
 }
