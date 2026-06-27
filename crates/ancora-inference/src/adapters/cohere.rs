@@ -587,4 +587,32 @@ mod tests {
         assert_eq!(resp.tokens_in, 20);
         assert_eq!(resp.tokens_out, 8);
     }
+
+    #[test]
+    fn cohere_streaming_fixture_ordered() {
+        let texts: Vec<String> = FIXTURE_STREAM.iter()
+            .filter_map(|l| parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(texts, vec!["Hello", " from", " Cohere"]);
+    }
+
+    #[test]
+    fn cohere_streaming_combined_text() {
+        let combined: String = FIXTURE_STREAM.iter()
+            .filter_map(|l| parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text)
+            .collect();
+        assert_eq!(combined, "Hello from Cohere");
+    }
+
+    #[test]
+    fn cohere_stream_end_emits_finished() {
+        let last_line = FIXTURE_STREAM.last().unwrap();
+        let ev = parse_sse_line(last_line).unwrap();
+        assert!(ev.finished);
+        assert!(ev.text.is_empty());
+    }
 }
