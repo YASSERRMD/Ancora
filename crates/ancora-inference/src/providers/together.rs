@@ -171,6 +171,29 @@ mod tests {
         assert_eq!(body["tools"][0]["function"]["name"], "calculator");
     }
 
+    fn together_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_together_profile()))
+    }
+
+    #[test]
+    fn together_recorded_fixture_completes() {
+        let resp = together_client()
+            .parse_response(TOGETHER_FIXTURE, "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .unwrap();
+        assert_eq!(resp.content, "Hello from Together");
+        assert_eq!(resp.tokens_in, 8);
+        assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
+    fn together_fixture_no_tool_calls() {
+        let resp = together_client()
+            .parse_response(TOGETHER_FIXTURE, "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .unwrap();
+        assert!(resp.tool_calls.is_empty());
+    }
+
     #[test]
     fn together_request_body_model_resolved() {
         use crate::openai::OpenAiClient;
