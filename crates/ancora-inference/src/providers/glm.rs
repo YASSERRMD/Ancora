@@ -349,4 +349,34 @@ mod tests {
         let expected = 0.60 + 2.40 * 0.5;
         assert!((cost - expected).abs() < 1e-6);
     }
+
+    #[test]
+    fn glm_self_host_fixture_completes_offline() {
+        use std::sync::Arc;
+        let client = crate::openai::OpenAiClient::new(Arc::new(
+            build_glm_self_host_profile("http://localhost:8000"),
+        ));
+        let resp = client.parse_response(GLM_SELF_HOST_FIXTURE, "glm-4-9b-chat").unwrap();
+        assert_eq!(resp.content, "Hello from vLLM GLM");
+        assert_eq!(resp.tokens_in, 10);
+        assert_eq!(resp.tokens_out, 6);
+    }
+
+    #[test]
+    fn glm_self_host_has_zero_cost() {
+        use std::sync::Arc;
+        let client = crate::openai::OpenAiClient::new(Arc::new(
+            build_glm_self_host_profile("http://localhost:8000"),
+        ));
+        let resp = client.parse_response(GLM_SELF_HOST_FIXTURE, "glm-4-9b-chat").unwrap();
+        let cost = resp.cost_usd.unwrap_or(0.0);
+        assert_eq!(cost, 0.0);
+    }
+
+    #[test]
+    fn glm_self_host_base_url_custom() {
+        let p = build_glm_self_host_profile("http://gpu-server:8000");
+        assert_eq!(p.base_url, "http://gpu-server:8000");
+        assert_eq!(p.name, "glm-self-host");
+    }
 }
