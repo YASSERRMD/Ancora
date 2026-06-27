@@ -26,11 +26,19 @@ pub fn build_deepseek_profile() -> ProviderProfile {
             .with_pricing(0.55, 2.19)
             .with_streaming(),
     )
+    // DeepSeek Coder (long-context, code-optimized)
+    .add_model(
+        ModelMeta::new("deepseek-coder", 128_000)
+            .with_pricing(0.14, 0.28)
+            .with_tools()
+            .with_streaming(),
+    )
     // Aliases
     .add_alias("deepseek-v3", "deepseek-chat")
     .add_alias("deepseek-r1", "deepseek-reasoner")
     .add_alias("v3", "deepseek-chat")
     .add_alias("r1", "deepseek-reasoner")
+    .add_alias("coder", "deepseek-coder")
 }
 
 /// Build a self-hosted DeepSeek profile for vLLM or other OpenAI-compatible servers.
@@ -104,6 +112,34 @@ mod tests {
         let p = build_deepseek_profile();
         let m = p.model_meta("deepseek-reasoner").unwrap();
         assert!(!m.capabilities.tools);
+    }
+
+    #[test]
+    fn deepseek_chat_context_window() {
+        let p = build_deepseek_profile();
+        let m = p.model_meta("deepseek-chat").unwrap();
+        assert_eq!(m.context_window, 64_000);
+    }
+
+    #[test]
+    fn deepseek_reasoner_context_window() {
+        let p = build_deepseek_profile();
+        let m = p.model_meta("deepseek-reasoner").unwrap();
+        assert_eq!(m.context_window, 64_000);
+    }
+
+    #[test]
+    fn deepseek_coder_larger_context() {
+        let p = build_deepseek_profile();
+        let coder = p.model_meta("deepseek-coder").unwrap();
+        let chat = p.model_meta("deepseek-chat").unwrap();
+        assert!(coder.context_window >= chat.context_window);
+    }
+
+    #[test]
+    fn deepseek_coder_alias_resolves() {
+        let p = build_deepseek_profile();
+        assert_eq!(p.resolve_model_id("coder"), "deepseek-coder");
     }
 
     #[test]
