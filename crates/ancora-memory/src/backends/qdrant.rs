@@ -258,6 +258,26 @@ pub fn delete_by_ids_body(ids: &[u64]) -> Value {
     json!({ "points": ids })
 }
 
+/// Build the JSON body for a delete-by-filter request.
+pub fn delete_by_filter_body(filter: &Filter) -> Value {
+    json!({ "filter": filter_to_qdrant(filter) })
+}
+
+/// Build the JSON body for a delete-by-UUID-ids request.
+pub fn delete_by_uuid_ids_body(ids: &[&str]) -> Value {
+    json!({ "points": ids })
+}
+
+/// URL for the delete endpoint.
+pub fn delete_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/points/delete?wait=true")
+}
+
+/// URL for the payload index endpoint.
+pub fn payload_index_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/index")
+}
+
 /// Build the JSON body for a scroll (paginated list) request.
 pub fn scroll_body(limit: usize, offset: Option<u64>) -> Value {
     let mut body = json!({
@@ -475,6 +495,32 @@ mod tests {
     fn batch_search_url_includes_batch_suffix() {
         let url = batch_search_url("http://localhost:6333", "docs");
         assert!(url.ends_with("/search/batch"), "url: {url}");
+    }
+
+    #[test]
+    fn delete_by_ids_body_has_points_key() {
+        let body = delete_by_ids_body(&[1, 2, 3]);
+        assert!(body["points"].is_array());
+        assert_eq!(body["points"].as_array().unwrap().len(), 3);
+    }
+
+    #[test]
+    fn delete_by_filter_body_has_filter_key() {
+        let f = Filter::Eq("status".to_owned(), PayloadValue::String("old".to_owned()));
+        let body = delete_by_filter_body(&f);
+        assert!(body["filter"].is_object(), "body: {body}");
+    }
+
+    #[test]
+    fn delete_url_has_wait_param() {
+        let url = delete_url("http://localhost:6333", "docs");
+        assert!(url.contains("wait=true"), "url: {url}");
+    }
+
+    #[test]
+    fn payload_index_url_format() {
+        let url = payload_index_url("http://localhost:6333", "docs");
+        assert!(url.ends_with("/index"), "url: {url}");
     }
 
     #[test]
