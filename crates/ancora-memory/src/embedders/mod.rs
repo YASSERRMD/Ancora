@@ -29,3 +29,5 @@ pub mod citation;
 pub mod embedder_tests;
 pub mod chunker_tests;
 pub mod pipeline_tests;
+pub mod rerank_tests;
+pub mod context_tests;
