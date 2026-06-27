@@ -66,4 +66,17 @@ mod tests {
         assert!(auth.as_header().unwrap().is_none());
         assert!(auth.as_query_param().is_none());
     }
+
+    #[test]
+    fn header_key_as_header_attaches_custom_header() {
+        unsafe { std::env::set_var("ANCORA_TEST_HEADER_KEY_106", "sk-test-value") };
+        let auth = AuthStrategy::HeaderKey {
+            header: "X-Api-Key".to_owned(),
+            env_var: "ANCORA_TEST_HEADER_KEY_106".to_owned(),
+        };
+        let (name, val) = auth.as_header().unwrap().unwrap();
+        assert_eq!(name, "X-Api-Key");
+        assert_eq!(val, "sk-test-value");
+        unsafe { std::env::remove_var("ANCORA_TEST_HEADER_KEY_106") };
+    }
 }
