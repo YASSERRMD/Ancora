@@ -135,6 +135,14 @@ mod tests {
     }
 
     #[test]
+    fn openrouter_fixture_content_and_tokens() {
+        let resp = client().parse_response(FIXTURE, "openai/gpt-4o").unwrap();
+        assert_eq!(resp.content, "Hello from OpenRouter");
+        assert_eq!(resp.tokens_in, 7);
+        assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
     fn openrouter_fallback_empty_when_no_fallbacks() {
         use crate::types::{CompletionRequest, Message};
         let p = Arc::new(build_openrouter_profile(OpenRouterConfig {
