@@ -604,6 +604,23 @@ pub fn parse_class_object_count(body: &Value) -> Option<u64> {
     body["objectCount"].as_u64()
 }
 
+/// Parse match/delete counts from a `POST /v1/batch/objects` delete response.
+pub fn parse_batch_delete_result(body: &Value) -> (u64, u64) {
+    let matched = body["results"]["matches"].as_u64().unwrap_or(0);
+    let deleted = body["results"]["successful"].as_u64().unwrap_or(0);
+    (matched, deleted)
+}
+
+/// Extract GraphQL errors (if any) from a Weaviate GraphQL response.
+pub fn parse_graphql_errors(body: &Value) -> Vec<String> {
+    body["errors"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|e| e["message"].as_str().map(|m| m.to_owned()))
+        .collect()
+}
+
 /// Extract GraphQL Get results from a Weaviate GraphQL response.
 pub fn parse_graphql_get(body: &Value, class: &str) -> Vec<Value> {
     body["data"]["Get"][class]
@@ -924,6 +941,40 @@ mod tests {
         assert_eq!(results.len(), 2);
         assert_eq!(results[0].0, "id-1");
         assert!((results[0].1 - 0.9f32).abs() < 1e-4);
+    }
+
+    #[test]
+    fn parse_batch_delete_result_extracts_counts() {
+        let body = json!({ "results": { "matches": 5, "successful": 4 } });
+        let (matched, deleted) = parse_batch_delete_result(&body);
+        assert_eq!(matched, 5);
+        assert_eq!(deleted, 4);
+    }
+
+    #[test]
+    fn parse_batch_delete_result_zeros_on_missing() {
+        let body = json!({});
+        let (matched, deleted) = parse_batch_delete_result(&body);
+        assert_eq!(matched, 0);
+        assert_eq!(deleted, 0);
+    }
+
+    #[test]
+    fn parse_graphql_errors_extracts_messages() {
+        let body = json!({
+            "errors": [
+                { "message": "class not found" },
+                { "message": "property unknown" },
+            ]
+        });
+        let errs = parse_graphql_errors(&body);
+        assert_eq!(errs, vec!["class not found", "property unknown"]);
+    }
+
+    #[test]
+    fn parse_graphql_errors_empty_on_no_errors() {
+        let body = json!({ "data": { "Get": {} } });
+        assert!(parse_graphql_errors(&body).is_empty());
     }
 
     #[test]
