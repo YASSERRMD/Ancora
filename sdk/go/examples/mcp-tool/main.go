@@ -71,5 +71,10 @@ func main() {
 	}
 	fmt.Printf("echo result: %s\n", echo)
 
+	// Demonstrate unregister path.
+	tk.Tools().Unregister("echo")
+	fmt.Printf("after unregister -- has 'echo': %v\n", tk.Tools().Has("echo"))
+	fmt.Printf("tool count: %d\n", tk.Tools().Count())
+
 	fmt.Println("mcp-tool done")
 }
