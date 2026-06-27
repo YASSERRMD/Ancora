@@ -152,4 +152,13 @@ mod tests {
         assert_eq!(p.base_url_for_region(Some("us")), "https://api.acme.test");
         assert_eq!(p.base_url_for_region(None), "https://api.acme.test");
     }
+
+    #[test]
+    fn request_transform_applied_via_builder() {
+        let p = ProviderProfile::new("t", "http://x", AuthStrategy::None)
+            .with_request_transform(|v| v["injected"] = serde_json::json!(42));
+        let mut body = serde_json::json!({});
+        p.request_transforms.apply(&mut body);
+        assert_eq!(body["injected"], serde_json::json!(42));
+    }
 }
