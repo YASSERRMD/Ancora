@@ -7,6 +7,15 @@ pub struct PricingMeta {
     pub cached_per_million: Option<f64>,
 }
 
+impl PricingMeta {
+    /// Compute total cost in USD for a single request.
+    pub fn total_cost(&self, tokens_in: u64, tokens_out: u64, cached_in: u64) -> f64 {
+        (tokens_in as f64) * self.input_per_million / 1_000_000.0
+            + (tokens_out as f64) * self.output_per_million / 1_000_000.0
+            + (cached_in as f64) * self.cached_per_million.unwrap_or(0.0) / 1_000_000.0
+    }
+}
+
 /// Feature flags for a model.
 #[derive(Debug, Clone, Default)]
 pub struct CapabilityFlags {
