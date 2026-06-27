@@ -243,6 +243,27 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_cache_hit_tokens_present_in_fixture() {
+        // The fixture has prompt_cache_hit_tokens=4 and prompt_cache_miss_tokens=6.
+        // Standard OpenAI parse uses prompt_tokens (10) for tokens_in.
+        // Cache-hit accounting is handled by the provider profile's cached_per_million
+        // tier; the `compute_cost` method receives cached_in as the third argument.
+        let raw: serde_json::Value = serde_json::from_str(DS_FIXTURE).unwrap();
+        let cached = raw["usage"]["prompt_cache_hit_tokens"].as_u64().unwrap_or(0);
+        assert_eq!(cached, 4);
+    }
+
+    #[test]
+    fn deepseek_cache_hit_cost_lower_than_full() {
+        let p = build_deepseek_profile();
+        let meta = p.model_meta("deepseek-chat").unwrap();
+        let full_cost = meta.compute_cost(10, 5, 0).unwrap();
+        // 4 cached tokens billed at $0.07/M instead of $0.27/M
+        let cached_cost = meta.compute_cost(6, 5, 4).unwrap();
+        assert!(cached_cost < full_cost);
+    }
+
+    #[test]
     fn deepseek_reasoning_fixture_tokens_correct() {
         let resp = ds_client().parse_response(DS_REASONING_FIXTURE, "deepseek-reasoner").unwrap();
         assert_eq!(resp.tokens_in, 8);
