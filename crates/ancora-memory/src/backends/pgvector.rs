@@ -183,6 +183,57 @@ pub fn upsert_sql(table: &str) -> String {
     )
 }
 
+/// Serialize a `Payload` map to a JSON string suitable for the JSONB column.
+pub fn serialize_payload(payload: &crate::vector_store::Payload) -> Result<String, String> {
+    use crate::vector_store::PayloadValue;
+    let mut obj = serde_json::Map::new();
+    for (k, v) in payload {
+        let jv = match v {
+            PayloadValue::String(s) => serde_json::Value::String(s.clone()),
+            PayloadValue::Integer(n) => serde_json::Value::Number((*n).into()),
+            PayloadValue::Float(f) => serde_json::Value::Number(
+                serde_json::Number::from_f64(*f)
+                    .ok_or_else(|| format!("non-finite float for key `{k}`"))?,
+            ),
+            PayloadValue::Bool(b) => serde_json::Value::Bool(*b),
+            PayloadValue::Null => serde_json::Value::Null,
+        };
+        obj.insert(k.clone(), jv);
+    }
+    serde_json::to_string(&obj).map_err(|e| e.to_string())
+}
+
+/// Deserialize a JSON string from the JSONB column back to a `Payload` map.
+pub fn deserialize_payload(json: &str) -> Result<crate::vector_store::Payload, String> {
+    use crate::vector_store::PayloadValue;
+    let obj: serde_json::Map<String, serde_json::Value> =
+        serde_json::from_str(json).map_err(|e| e.to_string())?;
+    let mut payload = crate::vector_store::Payload::new();
+    for (k, v) in obj {
+        let pv = match v {
+            serde_json::Value::String(s) => PayloadValue::String(s),
+            serde_json::Value::Number(n) => {
+                if let Some(i) = n.as_i64() {
+                    PayloadValue::Integer(i)
+                } else {
+                    PayloadValue::Float(n.as_f64().unwrap_or(0.0))
+                }
+            }
+            serde_json::Value::Bool(b) => PayloadValue::Bool(b),
+            serde_json::Value::Null => PayloadValue::Null,
+            _ => PayloadValue::Null,
+        };
+        payload.insert(k, pv);
+    }
+    Ok(payload)
+}
+
+/// Encode an embedding as a pgvector literal string: `[0.1,0.2,0.3]`.
+pub fn encode_vector(embedding: &[f32]) -> String {
+    let inner: Vec<String> = embedding.iter().map(|v| format!("{v}")).collect();
+    format!("[{}]", inner.join(","))
+}
+
 /// Generate a cosine similarity query with optional LIMIT and OFFSET.
 pub fn cosine_query_sql(table: &str, limit: usize, offset: usize) -> String {
     format!(
@@ -411,6 +462,27 @@ mod tests {
     fn upsert_sql_has_on_conflict() {
         let sql = upsert_sql("docs");
         assert!(sql.contains("ON CONFLICT"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn serialize_payload_round_trips() {
+        use crate::vector_store::{Payload, PayloadValue};
+        let mut p = Payload::new();
+        p.insert("name".to_owned(), PayloadValue::String("test".to_owned()));
+        p.insert("count".to_owned(), PayloadValue::Integer(42));
+        p.insert("flag".to_owned(), PayloadValue::Bool(true));
+        let json = serialize_payload(&p).unwrap();
+        let back = deserialize_payload(&json).unwrap();
+        assert_eq!(back.get("name"), Some(&PayloadValue::String("test".to_owned())));
+        assert_eq!(back.get("count"), Some(&PayloadValue::Integer(42)));
+        assert_eq!(back.get("flag"), Some(&PayloadValue::Bool(true)));
+    }
+
+    #[test]
+    fn encode_vector_format() {
+        let v = encode_vector(&[0.1, 0.2, 0.3]);
+        assert!(v.starts_with('[') && v.ends_with(']'));
+        assert!(v.contains("0.1"));
     }
 
     #[test]
