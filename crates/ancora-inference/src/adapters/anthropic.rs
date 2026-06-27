@@ -143,7 +143,22 @@ pub(crate) fn encode_message(msg: &Message) -> AnthropicRequestMessage {
         let parts: Vec<serde_json::Value> = msg.content_parts.iter().map(|p| match p {
             ContentPart::Text { text } => serde_json::json!({"type": "text", "text": text}),
             ContentPart::ImageUrl { image_url } => {
-                serde_json::json!({"type": "text", "text": format!("[image: {}]", image_url.url)})
+                // data: URLs are base64-encoded; Anthropic accepts them via the
+                // "base64" source type. Plain URLs use the "url" source type.
+                if let Some(rest) = image_url.url.strip_prefix("data:") {
+                    if let Some(idx) = rest.find(";base64,") {
+                        let media_type = &rest[..idx];
+                        let data = &rest[idx + 8..];
+                        return serde_json::json!({
+                            "type": "image",
+                            "source": {"type": "base64", "media_type": media_type, "data": data}
+                        });
+                    }
+                }
+                serde_json::json!({
+                    "type": "image",
+                    "source": {"type": "url", "url": image_url.url}
+                })
             }
         }).collect();
         AnthropicRequestMessage {
@@ -283,5 +298,37 @@ mod tests {
         let m = encode_message(&msg);
         let j = serde_json::to_value(&m).unwrap();
         assert!(j["content"].is_array());
+    }
+
+    #[test]
+    fn encode_message_url_image_produces_image_block_with_url_source() {
+        let msg = Message::with_image("user", "look", "https://example.com/photo.jpg");
+        let m = encode_message(&msg);
+        let j = serde_json::to_value(&m).unwrap();
+        let img_block = &j["content"][1];
+        assert_eq!(img_block["type"], "image");
+        assert_eq!(img_block["source"]["type"], "url");
+        assert_eq!(img_block["source"]["url"], "https://example.com/photo.jpg");
+    }
+
+    #[test]
+    fn encode_message_data_url_image_produces_base64_source() {
+        use crate::types::{ContentPart, ImageUrl};
+        let msg = Message {
+            role: "user".to_owned(),
+            content: String::new(),
+            content_parts: vec![ContentPart::ImageUrl {
+                image_url: ImageUrl {
+                    url: "data:image/jpeg;base64,/9j/abc".to_owned(),
+                    detail: None,
+                },
+            }],
+        };
+        let m = encode_message(&msg);
+        let j = serde_json::to_value(&m).unwrap();
+        let block = &j["content"][0];
+        assert_eq!(block["source"]["type"], "base64");
+        assert_eq!(block["source"]["media_type"], "image/jpeg");
+        assert_eq!(block["source"]["data"], "/9j/abc");
     }
 }
