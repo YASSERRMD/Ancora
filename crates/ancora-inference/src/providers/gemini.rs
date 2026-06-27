@@ -39,3 +39,61 @@ pub fn build_gemini_profile() -> ProviderProfile {
     .add_alias("gemini-flash", "gemini-2.0-flash")
     .add_alias("gemini-pro", "gemini-2.5-pro")
 }
+
+#[cfg(test)]
+const FIXTURE_CHAT: &str = r#"{"candidates":[{"content":{"role":"model","parts":[{"text":"Hello from Gemini"}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":8,"candidatesTokenCount":4}}"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::adapters::gemini::GeminiClient;
+    use std::sync::Arc;
+
+    fn client() -> GeminiClient {
+        GeminiClient::new(Arc::new(build_gemini_profile()))
+    }
+
+    #[test]
+    fn gemini_recorded_fixture_completes() {
+        let resp = client().parse_response(FIXTURE_CHAT, "gemini-2.0-flash").unwrap();
+        assert_eq!(resp.content, "Hello from Gemini");
+        assert_eq!(resp.tokens_in, 8);
+        assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
+    fn gemini_cost_computed_from_profile_pricing() {
+        let resp = client().parse_response(FIXTURE_CHAT, "gemini-2.0-flash").unwrap();
+        // 8 * $0.10/M + 4 * $0.40/M
+        let expected = 8.0 * 0.10 / 1_000_000.0 + 4.0 * 0.40 / 1_000_000.0;
+        let cost = resp.cost_usd.expect("cost must be Some for priced model");
+        assert!((cost - expected).abs() < 1e-12);
+    }
+
+    #[test]
+    fn gemini_profile_base_url_correct() {
+        let p = build_gemini_profile();
+        assert_eq!(p.base_url, "https://generativelanguage.googleapis.com");
+    }
+
+    #[test]
+    fn gemini_profile_uses_query_param_auth() {
+        use crate::provider::AuthStrategy;
+        let p = build_gemini_profile();
+        assert!(matches!(p.auth, AuthStrategy::QueryParam { .. }));
+    }
+
+    #[test]
+    fn gemini_alias_gemini_flash_resolves() {
+        let p = build_gemini_profile();
+        assert_eq!(p.resolve_model_id("gemini-flash"), "gemini-2.0-flash");
+    }
+
+    #[test]
+    fn gemini_flash_model_has_large_context() {
+        let p = build_gemini_profile();
+        let meta = p.model_meta("gemini-2.0-flash").unwrap();
+        assert_eq!(meta.context_window, 1_000_000);
+        assert!(meta.capabilities.vision);
+    }
+}
