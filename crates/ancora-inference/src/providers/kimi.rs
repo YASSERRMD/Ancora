@@ -1,4 +1,4 @@
-use crate::provider::{AuthStrategy, ProviderProfile};
+use crate::provider::{AuthStrategy, ModelMeta, ProviderProfile};
 
 /// International endpoint for Kimi (Moonshot AI).
 pub const KIMI_URL_INTERNATIONAL: &str = "https://api.moonshot.ai/v1";
@@ -17,6 +17,41 @@ pub fn build_kimi_profile() -> ProviderProfile {
     )
     .add_region("intl", KIMI_URL_INTERNATIONAL)
     .add_region("cn", KIMI_URL_DOMESTIC)
+    // Kimi K2 -- most capable, long context, tools (flagship)
+    .add_model(
+        ModelMeta::new("kimi-k2", 131_072)
+            .with_pricing(0.60, 2.50)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Kimi K2 Turbo -- faster, same context
+    .add_model(
+        ModelMeta::new("kimi-k2-turbo", 131_072)
+            .with_pricing(0.20, 0.80)
+            .with_tools()
+            .with_streaming(),
+    )
+    // Classic moonshot models (still in use)
+    .add_model(
+        ModelMeta::new("moonshot-v1-128k", 131_072)
+            .with_pricing(1.00, 1.00)
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("moonshot-v1-32k", 32_768)
+            .with_pricing(0.24, 0.24)
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("moonshot-v1-8k", 8_192)
+            .with_pricing(0.12, 0.12)
+            .with_streaming(),
+    )
+    .add_alias("k2", "kimi-k2")
+    .add_alias("k2-turbo", "kimi-k2-turbo")
+    .add_alias("128k", "moonshot-v1-128k")
+    .add_alias("32k", "moonshot-v1-32k")
+    .add_alias("8k", "moonshot-v1-8k")
 }
 
 /// Build the Kimi domestic (China) provider profile.
