@@ -38,3 +38,24 @@ pub fn build_minimax_profile() -> ProviderProfile {
     .add_alias("vl-01", "MiniMax-VL-01")
     .add_alias("m2", "MiniMax-M2")
 }
+
+/// Return `true` if the model supports tool/function calls.
+pub fn supports_tools(model_id: &str) -> bool {
+    let p = build_minimax_profile();
+    let canonical = p.resolve_model_id(model_id);
+    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+}
+
+/// Parse a single SSE line from a MiniMax streaming response.
+///
+/// MiniMax uses the standard OpenAI SSE format.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
+/// Return `true` if the model supports vision (image) input.
+pub fn supports_vision(model_id: &str) -> bool {
+    let p = build_minimax_profile();
+    let canonical = p.resolve_model_id(model_id);
+    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.vision)
+}
