@@ -27,3 +27,4 @@ pub mod rerank;
 pub mod context;
 pub mod citation;
 pub mod embedder_tests;
+pub mod chunker_tests;
