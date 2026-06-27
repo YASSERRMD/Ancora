@@ -317,6 +317,24 @@ pub struct CollectionInfo {
 
 // ---- query request --------------------------------------------------------
 
+/// Named-vector collection configuration for multi-vector points.
+///
+/// Some backends (e.g., Qdrant) allow a single point to carry multiple named
+/// embedding vectors -- one per modality (text, image, audio).
+#[derive(Debug, Clone, Default)]
+pub struct NamedVectorConfig {
+    /// Map from vector name to its dimensionality and distance metric.
+    pub vectors: HashMap<String, (usize, Distance)>,
+}
+
+impl NamedVectorConfig {
+    pub fn new() -> Self { Self::default() }
+    pub fn add(mut self, name: impl Into<String>, dims: usize, distance: Distance) -> Self {
+        self.vectors.insert(name.into(), (dims, distance));
+        self
+    }
+}
+
 /// A dense-vector similarity search request.
 #[derive(Debug, Clone)]
 pub struct QueryRequest {
