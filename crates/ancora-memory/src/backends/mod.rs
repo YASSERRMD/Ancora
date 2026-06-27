@@ -20,3 +20,4 @@ pub mod milvus_filter_tests;
 pub mod milvus_partition_tests;
 pub mod milvus_consistency_tests;
 pub mod milvus_reconnect_tests;
+pub mod milvus_integration;
