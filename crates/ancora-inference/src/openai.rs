@@ -319,4 +319,34 @@ mod tests {
         let client = OpenAiClient::new(profile).with_region("eu");
         assert_eq!(client.effective_base_url(), "https://eu.api.test");
     }
+
+    #[test]
+    fn pricing_metadata_feeds_cost_accounting() {
+        let profile = Arc::new(
+            ProviderProfile::new("pricing-test", "http://localhost", AuthStrategy::None)
+                .add_model(
+                    ModelMeta::new("expensive-model", 32_000)
+                        .with_pricing(30.0, 60.0),
+                ),
+        );
+        let client = OpenAiClient::new(profile);
+        // 1000 input tokens @ $30/M + 500 output tokens @ $60/M
+        // = 0.030 + 0.030 = $0.060
+        let resp = client.parse_response(FIXTURE_CHAT_RESPONSE, "expensive-model").unwrap();
+        // FIXTURE has 10 prompt + 4 completion tokens
+        let expected = 10.0 * 30.0 / 1_000_000.0 + 4.0 * 60.0 / 1_000_000.0;
+        let cost = resp.cost_usd.expect("cost should be Some for priced model");
+        assert!((cost - expected).abs() < 1e-12, "cost {cost} != {expected}");
+    }
+
+    #[test]
+    fn no_pricing_metadata_yields_none_cost() {
+        let profile = Arc::new(
+            ProviderProfile::new("unpriced", "http://localhost", AuthStrategy::None)
+                .add_model(ModelMeta::new("free-model", 4_096)),
+        );
+        let client = OpenAiClient::new(profile);
+        let resp = client.parse_response(FIXTURE_CHAT_RESPONSE, "free-model").unwrap();
+        assert!(resp.cost_usd.is_none());
+    }
 }
