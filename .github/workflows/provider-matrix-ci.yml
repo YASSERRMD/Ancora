@@ -1,0 +1,90 @@
+name: provider-matrix-ci
+
+on:
+  push:
+    paths:
+      - "crates/ancora-core/tests/provider_*"
+      - "crates/ancora-core/src/routing.rs"
+      - "crates/ancora-core/src/cost.rs"
+      - ".github/workflows/provider-matrix-ci.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-core/tests/provider_*"
+      - "crates/ancora-core/src/routing.rs"
+      - "crates/ancora-core/src/cost.rs"
+      - ".github/workflows/provider-matrix-ci.yml"
+
+jobs:
+  provider-matrix:
+    name: Provider mapping and cost fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Run OpenAI fixture
+        run: cargo test --test provider_openai_fixture
+
+      - name: Run Azure fixture
+        run: cargo test --test provider_azure_fixture
+
+      - name: Run OpenRouter fixture
+        run: cargo test --test provider_openrouter_fixture
+
+      - name: Run Anthropic fixture
+        run: cargo test --test provider_anthropic_fixture
+
+      - name: Run Gemini fixture
+        run: cargo test --test provider_gemini_fixture
+
+      - name: Run Bedrock fixture
+        run: cargo test --test provider_bedrock_fixture
+
+      - name: Run Mistral fixture
+        run: cargo test --test provider_mistral_fixture
+
+      - name: Run Cohere fixture
+        run: cargo test --test provider_cohere_fixture
+
+      - name: Run Groq fixture
+        run: cargo test --test provider_groq_fixture
+
+      - name: Run Together fixture
+        run: cargo test --test provider_together_fixture
+
+      - name: Run Fireworks fixture
+        run: cargo test --test provider_fireworks_fixture
+
+      - name: Run DeepSeek fixture
+        run: cargo test --test provider_deepseek_fixture
+
+      - name: Run Qwen fixture
+        run: cargo test --test provider_qwen_fixture
+
+      - name: Run GLM fixture
+        run: cargo test --test provider_glm_fixture
+
+      - name: Run Kimi fixture
+        run: cargo test --test provider_kimi_fixture
+
+      - name: Run MiniMax fixture
+        run: cargo test --test provider_minimax_fixture
+
+      - name: Run CN batch fixture (StepFun, Ernie, Hunyuan, Doubao, Mimo)
+        run: cargo test --test provider_cn_batch_fixture
+
+      - name: Run gateway routing fixture
+        run: cargo test --test provider_gateway_routing_fixture
+
+      - name: Run cost accounting fixture
+        run: cargo test --test provider_cost_accounting_fixture
+
+      - name: Run residency fixture
+        run: cargo test --test provider_residency_fixture
+
+      - name: Run full provider suite (all tests)
+        run: cargo test -p ancora-core --test provider_openai_fixture --test provider_azure_fixture --test provider_openrouter_fixture --test provider_anthropic_fixture --test provider_gemini_fixture --test provider_bedrock_fixture --test provider_mistral_fixture --test provider_cohere_fixture --test provider_groq_fixture --test provider_together_fixture --test provider_fireworks_fixture --test provider_deepseek_fixture --test provider_qwen_fixture --test provider_glm_fixture --test provider_kimi_fixture --test provider_minimax_fixture --test provider_cn_batch_fixture --test provider_gateway_routing_fixture --test provider_cost_accounting_fixture --test provider_residency_fixture
