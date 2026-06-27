@@ -16,11 +16,15 @@ python -m examples.single_agent
 | Example | Description |
 |---------|-------------|
 | `single_agent` | Start a run and print each event kind |
+| `structured_output` | Derive a JSON Schema from Pydantic models and inject into system prompt |
 | `rag_memory` | Tool-based retrieval with memory persistence |
-| `mcp_tool_use` | Multiple tools registered and dispatched |
+| `mcp_tool_use` | Multiple tools registered and dispatched by name |
 | `streaming` | Stream tokens as they arrive |
-| `human_in_loop` | Pause a run and resume with a decision |
-| `multi_agent` | Run two agents concurrently |
+| `human_in_loop` | Pause a run and resume with a human decision |
+| `multi_agent` | Run two agents concurrently with asyncio.gather |
+| `qwen_gateway` | Configure Qwen model variants and run via standard transport |
+| `durable_restart` | Persist events to a journal and replay on restart |
+| `cost_otel` | Track event counts, bytes, and token estimates with span tracing |
 | `conformance_runner` | Run the full conformance suite and print results |
 | `tool_composition` | Tools that call other tools |
 | `async_tools` | Tools with async callbacks via adispatch |
