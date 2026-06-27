@@ -185,6 +185,7 @@ nav:
       - Go Test Plan: testing/go-test-plan.md
       - Python Test Plan: testing/python-test-plan.md
       - .NET Test Plan: testing/dotnet-test-plan.md
+      - Java Test Plan: testing/java-test-plan.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
