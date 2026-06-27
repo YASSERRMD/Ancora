@@ -63,6 +63,21 @@ impl Default for FallbackChain {
     fn default() -> Self { Self::new() }
 }
 
+/// Parse the cost USD value from an OpenRouter `x-openrouter-cost` response header.
+///
+/// OpenRouter includes the actual cost of a request in a response header.
+/// Returns `None` if the header is absent, empty, or not a valid float.
+pub fn parse_openrouter_cost_header(header_value: Option<&str>) -> Option<f64> {
+    header_value?.trim().parse::<f64>().ok()
+}
+
+/// Parse the model actually used from an OpenRouter `x-openrouter-model` response header.
+///
+/// When a fallback fires, OpenRouter reports the model that was actually used.
+pub fn parse_openrouter_model_header(header_value: Option<&str>) -> Option<&str> {
+    header_value.map(|s| s.trim()).filter(|s| !s.is_empty())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
