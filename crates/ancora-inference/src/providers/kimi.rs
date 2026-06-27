@@ -61,6 +61,13 @@ pub fn build_kimi_profile() -> ProviderProfile {
     .add_alias("long", "moonshot-v1-long")
 }
 
+/// Return `true` if the model supports tool/function calls.
+pub fn supports_tools(model_id: &str) -> bool {
+    let p = build_kimi_profile();
+    let canonical = p.resolve_model_id(model_id);
+    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+}
+
 /// Build the Kimi domestic (China) provider profile.
 ///
 /// Routes to `api.moonshot.cn`. Use when running workloads inside China or
