@@ -42,6 +42,11 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "qwen-cn" => vec![ResidencyTag::Cn],
         // Self-hosted Qwen: residency depends on deployment
         "qwen-self-host" => vec![ResidencyTag::Unknown],
+        // Gateway providers (US-based managed gateways)
+        "openrouter" => vec![ResidencyTag::Us],
+        "litellm" | "litellm-local" => vec![ResidencyTag::Unknown],
+        "portkey" => vec![ResidencyTag::Us],
+        "vercelai" => vec![ResidencyTag::Us],
         // StepFun (Step AI) -- CN infrastructure
         "stepfun" => vec![ResidencyTag::Cn],
         // Baidu ERNIE (Qianfan) -- CN infrastructure
