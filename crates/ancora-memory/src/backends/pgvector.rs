@@ -42,12 +42,47 @@ pub fn create_table_sql(table: &str, dimensions: usize) -> String {
     )
 }
 
+/// Validated HNSW index parameters.
+#[derive(Debug, Clone, Copy)]
+pub struct HnswParams {
+    /// Number of bi-directional links per layer (range 2-100, default 16).
+    pub m: u16,
+    /// Size of the dynamic candidate list during construction (range 4-1000, default 100).
+    pub ef_construct: u16,
+}
+
+impl HnswParams {
+    pub fn new(m: u16, ef_construct: u16) -> Result<Self, String> {
+        if !(2..=100).contains(&m) {
+            return Err(format!("m={m} out of range [2, 100]"));
+        }
+        if !(4..=1000).contains(&ef_construct) {
+            return Err(format!("ef_construct={ef_construct} out of range [4, 1000]"));
+        }
+        Ok(Self { m, ef_construct })
+    }
+}
+
+impl Default for HnswParams {
+    fn default() -> Self { Self { m: 16, ef_construct: 100 } }
+}
+
 /// Generate an HNSW index creation statement for cosine similarity.
 pub fn create_hnsw_index_sql(table: &str, m: u16, ef_construct: u16) -> String {
     format!(
         "CREATE INDEX IF NOT EXISTS {table}_embedding_idx \
          ON {table} USING hnsw (embedding vector_cosine_ops) \
          WITH (m = {m}, ef_construction = {ef_construct});"
+    )
+}
+
+/// Generate an HNSW index for a specific distance operator class.
+pub fn create_hnsw_index_with_ops_sql(table: &str, params: &HnswParams, ops: &str) -> String {
+    format!(
+        "CREATE INDEX IF NOT EXISTS {table}_embedding_idx \
+         ON {table} USING hnsw (embedding {ops}) \
+         WITH (m = {m}, ef_construction = {ef_construct});",
+        m = params.m, ef_construct = params.ef_construct
     )
 }
 
@@ -261,6 +296,43 @@ mod tests {
     fn create_hnsw_index_sql_params() {
         let sql = create_hnsw_index_sql("docs", 16, 100);
         assert!(sql.contains("m = 16") || sql.contains("m=16"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn hnsw_params_validation_rejects_out_of_range_m() {
+        assert!(HnswParams::new(1, 100).is_err(), "m=1 should fail");
+        assert!(HnswParams::new(101, 100).is_err(), "m=101 should fail");
+        assert!(HnswParams::new(16, 100).is_ok());
+    }
+
+    #[test]
+    fn hnsw_params_validation_rejects_out_of_range_ef() {
+        assert!(HnswParams::new(16, 3).is_err(), "ef_construct=3 should fail");
+        assert!(HnswParams::new(16, 1001).is_err(), "ef_construct=1001 should fail");
+        assert!(HnswParams::new(16, 200).is_ok());
+    }
+
+    #[test]
+    fn hnsw_index_with_l2_ops_contains_correct_class() {
+        let params = HnswParams::default();
+        let sql = create_hnsw_index_with_ops_sql("docs", &params, "vector_l2_ops");
+        assert!(sql.contains("vector_l2_ops"), "SQL: {sql}");
+        assert!(sql.contains("USING hnsw"));
+    }
+
+    #[test]
+    fn sanitize_identifier_allows_alphanumeric_underscore() {
+        assert!(sanitize_identifier("my_table_123").is_ok());
+        assert!(sanitize_identifier("bad-table").is_err());
+        assert!(sanitize_identifier("drop; table").is_err());
+    }
+
+    #[test]
+    fn distance_operator_returns_correct_symbol() {
+        assert_eq!(distance_operator("cosine"), "<=>");
+        assert_eq!(distance_operator("dot"), "<#>");
+        assert_eq!(distance_operator("l2"), "<->");
+        assert_eq!(distance_operator("unknown"), "<=>"); // default to cosine
     }
 
     #[test]
