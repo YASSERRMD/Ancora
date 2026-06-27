@@ -59,6 +59,13 @@ pub fn build_glm_profile() -> ProviderProfile {
     .add_alias("vl", "glm-4v")
 }
 
+/// Return the context-window size in tokens for a given model-id (resolves aliases).
+pub fn context_window(model_id: &str) -> Option<u32> {
+    let p = build_glm_profile();
+    let canonical = p.resolve_model_id(model_id);
+    p.model_catalog.get(canonical).map(|m| m.context_window)
+}
+
 /// Build a GLM profile that forces JSON-object output via `response_format`.
 ///
 /// Adds a request transform that injects `{"response_format":{"type":"json_object"}}`
