@@ -364,6 +364,38 @@ pub fn graphql_hybrid_query(
     json!({ "query": q })
 }
 
+// ---- backup and node management ------------------------------------------
+
+/// URL for creating a backup.
+pub fn backup_create_url(base: &str, backend: &str, backup_id: &str) -> String {
+    format!("{base}/v1/backups/{backend}/{backup_id}")
+}
+
+/// URL for restoring a backup.
+pub fn backup_restore_url(base: &str, backend: &str, backup_id: &str) -> String {
+    format!("{base}/v1/backups/{backend}/{backup_id}/restore")
+}
+
+/// Build the body for creating a backup.
+pub fn backup_create_body(include: &[&str], exclude: &[&str]) -> Value {
+    json!({ "include": include, "exclude": exclude })
+}
+
+/// URL for cluster node status.
+pub fn nodes_url(base: &str) -> String {
+    format!("{base}/v1/nodes")
+}
+
+/// Parse node names from a Weaviate nodes response.
+pub fn parse_node_names(body: &Value) -> Vec<String> {
+    body["nodes"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|n| n["name"].as_str().map(|s| s.to_owned()))
+        .collect()
+}
+
 // ---- aggregate queries ---------------------------------------------------
 
 /// Build a GraphQL Aggregate query for total object count.
@@ -746,6 +778,32 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn backup_create_url_has_backend_and_id() {
+        let url = backup_create_url("http://localhost:8080", "s3", "bk-001");
+        assert!(url.contains("/backups/s3/bk-001"), "url: {url}");
+    }
+
+    #[test]
+    fn backup_restore_url_ends_with_restore() {
+        let url = backup_restore_url("http://localhost:8080", "s3", "bk-001");
+        assert!(url.ends_with("/restore"), "url: {url}");
+    }
+
+    #[test]
+    fn backup_create_body_has_include_and_exclude() {
+        let body = backup_create_body(&["Document", "Author"], &["TempData"]);
+        assert!(body["include"].is_array());
+        assert!(body["exclude"].is_array());
+    }
+
+    #[test]
+    fn parse_node_names_extracts_names() {
+        let body = json!({ "nodes": [{ "name": "node1" }, { "name": "node2" }] });
+        let names = parse_node_names(&body);
+        assert_eq!(names, vec!["node1", "node2"]);
     }
 
     #[test]
