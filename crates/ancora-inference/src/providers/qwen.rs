@@ -4,6 +4,10 @@ use crate::provider::{AuthStrategy, ModelMeta, ProviderProfile};
 pub const QWEN_URL_SINGAPORE: &str =
     "https://dashscope-intl.aliyuncs.com/compatible-mode";
 
+/// DashScope Frankfurt regional endpoint (EU, GDPR-compliant processing).
+pub const QWEN_URL_FRANKFURT: &str =
+    "https://dashscope-intl-eu.aliyuncs.com/compatible-mode";
+
 /// Build the Alibaba Qwen (DashScope) provider profile.
 ///
 /// Uses the Singapore international endpoint by default. Auth is read from
@@ -16,6 +20,7 @@ pub fn build_qwen_profile() -> ProviderProfile {
         AuthStrategy::BearerToken { env_var: "DASHSCOPE_API_KEY".to_owned() },
     )
     .add_region("sg", QWEN_URL_SINGAPORE)
+    .add_region("eu", QWEN_URL_FRANKFURT)
     // Qwen3 235B MoE -- flagship; tools, 128k context
     .add_model(
         ModelMeta::new("qwen3-235b-a22b", 131_072)
