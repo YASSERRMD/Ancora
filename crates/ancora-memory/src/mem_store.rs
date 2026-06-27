@@ -182,7 +182,14 @@ pub fn make_text_point(id: u64, vec: Vec<f32>, text: &str) -> Point {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::conformance::suite;
     use crate::vector_store::*;
+
+    fn fresh(dims: usize) -> MemStore {
+        let s = MemStore::new();
+        s.create_collection(CollectionSpec::new("col", dims, Distance::Cosine)).unwrap();
+        s
+    }
 
     #[test]
     fn mem_store_create_and_describe() {
@@ -212,5 +219,76 @@ mod tests {
         let results = store.query("docs", QueryRequest::new(vec![1.0, 0.0, 0.0], 1)).unwrap();
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].id, PointId::Num(1));
+    }
+
+    #[test]
+    fn mem_store_drop_collection_removes_it() {
+        let store = MemStore::new();
+        store.create_collection(CollectionSpec::new("tmp", 2, Distance::Cosine)).unwrap();
+        store.drop_collection("tmp").unwrap();
+        let err = store.describe_collection("tmp");
+        assert!(matches!(err, Err(VectorStoreError::NotFound(_))));
+    }
+
+    #[test]
+    fn mem_store_dimension_mismatch_on_upsert() {
+        let store = test_store("col", 3);
+        let err = store.upsert("col", vec![Point::new(1u64, vec![1.0, 0.0])]);
+        assert!(matches!(err, Err(VectorStoreError::DimensionMismatch { .. })));
+    }
+
+    #[test]
+    fn mem_store_delete_by_filter() {
+        let store = fresh(2);
+        store.upsert("col", vec![
+            Point::new(1u64, vec![1.0, 0.0]).with_payload("keep", "yes"),
+            Point::new(2u64, vec![0.0, 1.0]).with_payload("keep", "no"),
+        ]).unwrap();
+        let count = store.delete_by_filter("col", Filter::Eq("keep".to_owned(), PayloadValue::String("no".to_owned()))).unwrap();
+        assert_eq!(count, 1);
+        let info = store.describe_collection("col").unwrap();
+        assert_eq!(info.point_count, 1);
+    }
+
+    // Full conformance suite runs against MemStore
+    #[test]
+    fn conformance_full_upsert_query() {
+        let s = fresh(3);
+        suite::conformance_upsert_then_query_returns_nearest(&s);
+    }
+    #[test]
+    fn conformance_full_filter() {
+        let s = fresh(2);
+        suite::conformance_metadata_filter_narrows_results(&s);
+    }
+    #[test]
+    fn conformance_full_delete() {
+        let s = fresh(2);
+        suite::conformance_delete_removes_a_point(&s);
+    }
+    #[test]
+    fn conformance_full_batch() {
+        let s = fresh(3);
+        suite::conformance_batch_upsert_ordering(&s);
+    }
+    #[test]
+    fn conformance_full_distance() {
+        let s = fresh(2);
+        suite::conformance_distance_metrics_behave(&s);
+    }
+    #[test]
+    fn conformance_full_pagination() {
+        let s = fresh(3);
+        suite::conformance_pagination_stable(&s);
+    }
+    #[test]
+    fn conformance_full_hybrid() {
+        let s = fresh(2);
+        suite::conformance_hybrid_search_merges_dense_and_keyword(&s);
+    }
+    #[test]
+    fn conformance_full_threshold() {
+        let s = fresh(3);
+        suite::conformance_score_threshold_filters(&s);
     }
 }
