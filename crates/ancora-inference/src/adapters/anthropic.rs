@@ -1,6 +1,14 @@
+use std::sync::Arc;
+
 use serde::{Deserialize, Serialize};
 
-use crate::types::{ContentPart, FunctionCall, Message, TokenEvent, ToolCall, ToolDefinition};
+use crate::client::ModelClient;
+use crate::error::InferenceError;
+use crate::provider::ProviderProfile;
+use crate::types::{
+    CompletionRequest, CompletionResponse, ContentPart, FunctionCall, Message, TokenEvent,
+    ToolCall, ToolDefinition,
+};
 
 // ---- Wire types: request ---------------------------------------------------
 
@@ -8,6 +16,35 @@ use crate::types::{ContentPart, FunctionCall, Message, TokenEvent, ToolCall, Too
 pub(crate) struct AnthropicRequestMessage {
     pub role: String,
     pub content: serde_json::Value,
+}
+
+// ---- Wire types: request body ----------------------------------------------
+
+#[derive(Debug, Serialize)]
+struct AnthropicRequest {
+    model: String,
+    max_tokens: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    system: Option<String>,
+    messages: Vec<AnthropicRequestMessage>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    tools: Vec<AnthropicToolDef>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stream: Option<bool>,
+}
+
+// ---- Wire types: response body ---------------------------------------------
+
+#[derive(Debug, Deserialize)]
+struct AnthropicUsage {
+    input_tokens: u64,
+    output_tokens: u64,
+}
+
+#[derive(Debug, Deserialize)]
+struct AnthropicResponse {
+    content: Vec<AnthropicResponseBlock>,
+    usage: AnthropicUsage,
 }
 
 // ---- Wire types: streaming -------------------------------------------------
@@ -165,6 +202,147 @@ pub(crate) fn encode_message(msg: &Message) -> AnthropicRequestMessage {
             role: msg.role.clone(),
             content: serde_json::json!(parts),
         }
+    }
+}
+
+// ---- Client ----------------------------------------------------------------
+
+/// HTTP client for the Anthropic Messages API.
+///
+/// Wire format differs from OpenAI: system prompt is a top-level field,
+/// tools use `input_schema` instead of `parameters`, and responses carry
+/// a `content` array of typed blocks rather than a single `message` choice.
+pub struct AnthropicClient {
+    profile: Arc<ProviderProfile>,
+}
+
+impl AnthropicClient {
+    pub fn new(profile: Arc<ProviderProfile>) -> Self {
+        Self { profile }
+    }
+
+    /// Build the JSON request body for a (non-)streaming Anthropic call.
+    pub(crate) fn build_request_body(
+        &self,
+        request: &CompletionRequest,
+        stream: bool,
+    ) -> Result<serde_json::Value, InferenceError> {
+        let model_id = self.profile.resolve_model_id(&request.model_id).to_owned();
+        let (system, non_system) = extract_system(&request.messages);
+        let messages: Vec<AnthropicRequestMessage> =
+            non_system.iter().map(|m| encode_message(m)).collect();
+        let tools: Vec<AnthropicToolDef> = request.tools.iter().map(encode_tool).collect();
+        let wire = AnthropicRequest {
+            model: model_id,
+            max_tokens: request.max_tokens.unwrap_or(4096),
+            system,
+            messages,
+            tools,
+            stream: if stream { Some(true) } else { None },
+        };
+        let mut body = serde_json::to_value(&wire)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        self.profile.request_transforms.apply(&mut body);
+        Ok(body)
+    }
+
+    fn apply_auth(&self, mut req: ureq::Request) -> Result<ureq::Request, InferenceError> {
+        match self.profile.auth.as_header() {
+            Ok(Some((name, val))) => req = req.set(&name, &val),
+            Ok(None) => {}
+            Err(e) => return Err(InferenceError::MissingCredential(e)),
+        }
+        for (k, v) in &self.profile.extra_headers {
+            req = req.set(k, v);
+        }
+        Ok(req)
+    }
+
+    fn post(&self, body: &serde_json::Value) -> Result<String, InferenceError> {
+        let url = self.profile.completions_url(None);
+        let json = serde_json::to_string(body)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let req = self.apply_auth(ureq::post(&url))?;
+        req.set("Content-Type", "application/json")
+            .send_string(&json)
+            .map_err(|e| InferenceError::Unreachable(e.to_string()))?
+            .into_string()
+            .map_err(|e| InferenceError::Parse(e.to_string()))
+    }
+
+    fn post_stream(
+        &self,
+        body: &serde_json::Value,
+        on_token: &mut dyn FnMut(TokenEvent),
+    ) -> Result<(), InferenceError> {
+        let url = self.profile.completions_url(None);
+        let json = serde_json::to_string(body)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let req = self.apply_auth(ureq::post(&url))?;
+        let resp = req
+            .set("Content-Type", "application/json")
+            .send_string(&json)
+            .map_err(|e| InferenceError::Unreachable(e.to_string()))?;
+        use std::io::BufRead;
+        let reader = std::io::BufReader::new(resp.into_reader());
+        for line in reader.lines() {
+            let line = line.map_err(|e| InferenceError::Parse(e.to_string()))?;
+            if let Some(event) = parse_sse_line(&line) {
+                on_token(event);
+            }
+        }
+        Ok(())
+    }
+
+    /// Decode a recorded Anthropic JSON response body.
+    ///
+    /// Combines text blocks into `content`, converts `tool_use` blocks
+    /// into `ToolCall`s, and computes cost from the profile's pricing metadata.
+    pub fn parse_response(
+        &self,
+        body: &str,
+        model_id: &str,
+    ) -> Result<CompletionResponse, InferenceError> {
+        let wire: AnthropicResponse = serde_json::from_str(body)
+            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let (content, tool_calls) = decode_tool_calls(wire.content);
+        let tokens_in = wire.usage.input_tokens;
+        let tokens_out = wire.usage.output_tokens;
+        let cost_usd = self
+            .profile
+            .model_meta(model_id)
+            .and_then(|m| m.compute_cost(tokens_in, tokens_out, 0));
+        Ok(CompletionResponse { content, tokens_in, tokens_out, cost_usd, tool_calls })
+    }
+}
+
+impl ModelClient for AnthropicClient {
+    fn complete(&self, request: &CompletionRequest) -> Result<CompletionResponse, InferenceError> {
+        let body = self.build_request_body(request, false)?;
+        let resp_str = self.post(&body)?;
+        self.parse_response(&resp_str, &request.model_id)
+    }
+
+    fn stream_complete(
+        &self,
+        request: &CompletionRequest,
+        on_token: &mut dyn FnMut(TokenEvent),
+    ) -> Result<CompletionResponse, InferenceError> {
+        let body = self.build_request_body(request, true)?;
+        let mut content = String::new();
+        self.post_stream(&body, &mut |event: TokenEvent| {
+            if !event.text.is_empty() {
+                content.push_str(&event.text);
+            }
+            on_token(event);
+        })?;
+        Ok(CompletionResponse {
+            content,
+            tokens_in: 0,
+            tokens_out: 0,
+            cost_usd: None,
+            tool_calls: vec![],
+        })
     }
 }
 
