@@ -1,32 +1,34 @@
 # .NET SDK
 
 The Ancora .NET SDK targets .NET 8+ and uses P/Invoke to call the native
-Ancora engine.
+Ancora engine. Events are delivered via `IAsyncEnumerable<RunEvent>` and
+structured output uses `System.Text.Json`.
 
 ## Pages
 
 | Page | Description |
 |------|-------------|
-| Install | NuGet package and native library setup |
-| Quickstart | Minimal single-agent example |
-| Tools | Registering delegates as agent tools |
-| Structured output | System.Text.Json schema generation |
-| Multi-agent | Graph-based orchestration |
-| Verifier | Primary and verifier pattern |
-| Human-in-the-loop | Suspend and resume a run |
-| Streaming | `IAsyncEnumerable<RunEvent>` iteration |
-| Memory and RAG | Context injection and retrieval |
-| Providers | Ollama, Anthropic, OpenAI, Azure |
-| Chinese providers | GLM, Qwen, DeepSeek |
-| Vector stores | LanceDB, pgvector, Milvus, Qdrant |
-| Durability | Persistent SQLite journal |
-| Observability | Cost tracking and OTEL export |
-| Policy | Data residency rules |
-| MCP and A2A | Interoperability |
-| Edge deployment | Single-binary deployment |
-| Testing | Offline xUnit test patterns |
-| Troubleshooting | Common errors and fixes |
-| API reference | Full symbol index |
+| [Install](install.md) | NuGet package and native library setup |
+| [Quickstart](quickstart.md) | Minimal single-agent example |
+| [Tools](tools.md) | Registering delegates as agent tools |
+| [Structured output](structured-output.md) | System.Text.Json schema generation |
+| [Multi-agent](multi-agent.md) | Graph-based orchestration |
+| [Verifier](verifier.md) | Primary and verifier pattern |
+| [Human-in-the-loop](human-in-the-loop.md) | Suspend and resume a run |
+| [Streaming](streaming.md) | `IAsyncEnumerable<RunEvent>` iteration |
+| [Memory and RAG](memory-and-rag.md) | Context injection and retrieval |
+| [Providers](providers.md) | Ollama, Anthropic, OpenAI, Azure |
+| [GLM self-host](glm-selfhost.md) | Local and self-hosted GLM models |
+| [Vector stores](vector-stores.md) | pgvector, Milvus, Qdrant, Azure AI Search |
+| [Durability](durability.md) | Persistent SQLite journal |
+| [Observability](observability.md) | Cost tracking and OTEL export |
+| [Policy](policy.md) | Data residency rules |
+| [MCP and A2A](mcp-and-a2a.md) | Interoperability |
+| [Deployment](deployment.md) | Single-binary, Docker, ASP.NET Core |
+| [Testing](testing.md) | Offline xUnit test patterns |
+| [Troubleshooting](troubleshooting.md) | Common errors and fixes |
+| [API reference](api-reference.md) | Full symbol index |
+| [Migration](migration.md) | From Microsoft.Extensions.AI and Semantic Kernel |
 
 ## Requirements
 
@@ -39,7 +41,7 @@ Ancora engine.
 | Type | Description |
 |------|-------------|
 | `Runtime` | Engine handle; dispose when done |
-| `Agent(IDisposable)` | Runs agent tasks |
+| `Agent (IDisposable)` | Runs agent tasks |
 | `AgentSpec` | Model, instructions, tools, policy |
 | `RunHandle` | Handle to an in-flight run |
 | `RunEvent` | Base for `StartedEvent`, `TokenEvent`, `CompletedEvent`, `ResumedEvent`, `ToolCallEvent` |
