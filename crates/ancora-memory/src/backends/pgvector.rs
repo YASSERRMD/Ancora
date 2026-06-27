@@ -86,6 +86,35 @@ pub fn create_hnsw_index_with_ops_sql(table: &str, params: &HnswParams, ops: &st
     )
 }
 
+/// Validated IVF-Flat index parameters.
+#[derive(Debug, Clone, Copy)]
+pub struct IvfFlatParams {
+    /// Number of inverted file lists (clusters). Typical range 1-1000.
+    pub lists: u32,
+    /// Number of probes during search. Higher = better recall, slower query.
+    pub probes: u32,
+}
+
+impl IvfFlatParams {
+    pub fn new(lists: u32, probes: u32) -> Result<Self, String> {
+        if lists == 0 { return Err("lists must be >= 1".to_owned()); }
+        if probes == 0 { return Err("probes must be >= 1".to_owned()); }
+        if probes > lists { return Err(format!("probes({probes}) > lists({lists}) is wasteful")); }
+        Ok(Self { lists, probes })
+    }
+
+    /// Recommended default: sqrt(row_count) for lists, 10% of lists for probes.
+    pub fn for_table_size(row_count: u64) -> Self {
+        let lists = ((row_count as f64).sqrt() as u32).max(1);
+        let probes = (lists / 10).max(1);
+        Self { lists, probes }
+    }
+}
+
+impl Default for IvfFlatParams {
+    fn default() -> Self { Self { lists: 100, probes: 10 } }
+}
+
 /// Generate an IVF-Flat index creation statement.
 pub fn create_ivfflat_index_sql(table: &str, lists: u32) -> String {
     format!(
@@ -93,6 +122,16 @@ pub fn create_ivfflat_index_sql(table: &str, lists: u32) -> String {
          ON {table} USING ivfflat (embedding vector_cosine_ops) \
          WITH (lists = {lists});"
     )
+}
+
+/// Generate a `SET ivfflat.probes` session setting SQL.
+pub fn set_ivfflat_probes_sql(probes: u32) -> String {
+    format!("SET ivfflat.probes = {probes};")
+}
+
+/// Generate a `SET hnsw.ef_search` session setting SQL.
+pub fn set_hnsw_ef_search_sql(ef_search: u16) -> String {
+    format!("SET hnsw.ef_search = {ef_search};")
 }
 
 /// Generate a `DROP TABLE` statement.
@@ -338,6 +377,34 @@ mod tests {
     #[test]
     fn drop_table_sql_format() {
         assert_eq!(drop_table_sql("docs"), "DROP TABLE IF EXISTS docs;");
+    }
+
+    #[test]
+    fn ivfflat_params_rejects_zero_lists() {
+        assert!(IvfFlatParams::new(0, 5).is_err());
+    }
+
+    #[test]
+    fn ivfflat_params_rejects_probes_greater_than_lists() {
+        assert!(IvfFlatParams::new(10, 15).is_err());
+        assert!(IvfFlatParams::new(10, 10).is_ok());
+    }
+
+    #[test]
+    fn ivfflat_params_for_table_size() {
+        let p = IvfFlatParams::for_table_size(10_000);
+        assert_eq!(p.lists, 100); // sqrt(10_000)
+        assert!(p.probes <= p.lists);
+    }
+
+    #[test]
+    fn set_ivfflat_probes_sql_correct() {
+        assert_eq!(set_ivfflat_probes_sql(5), "SET ivfflat.probes = 5;");
+    }
+
+    #[test]
+    fn set_hnsw_ef_search_sql_correct() {
+        assert_eq!(set_hnsw_ef_search_sql(64), "SET hnsw.ef_search = 64;");
     }
 
     #[test]
