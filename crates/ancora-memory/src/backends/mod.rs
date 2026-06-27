@@ -24,3 +24,4 @@ pub mod milvus_integration;
 pub mod milvus_sizing_tests;
 pub mod milvus_hybrid_tests;
 pub mod lancedb;
+pub mod lancedb_conformance;
