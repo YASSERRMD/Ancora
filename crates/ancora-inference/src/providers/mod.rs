@@ -9,6 +9,7 @@ pub mod groq;
 pub mod mistral;
 pub mod openai;
 pub mod openrouter;
+pub mod qwen;
 pub mod throughput;
 pub mod together;
 pub mod usage;
