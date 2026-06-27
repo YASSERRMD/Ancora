@@ -346,6 +346,50 @@ fn merge_must(a: Value, b: Value) -> Value {
     json!({ "must": must_conditions })
 }
 
+// ---- error handling ------------------------------------------------------
+
+/// Qdrant error codes returned in the `status` field of error responses.
+#[derive(Debug, PartialEq)]
+pub enum QdrantError {
+    NotFound(String),
+    AlreadyExists(String),
+    BadRequest(String),
+    Unauthorized,
+    InternalError(String),
+    Unknown(u16, String),
+}
+
+impl QdrantError {
+    /// Parse a Qdrant error from HTTP status code and response body.
+    pub fn from_response(status: u16, body: &str) -> Self {
+        let message = parse_error_message(body);
+        match status {
+            404 => Self::NotFound(message),
+            409 => Self::AlreadyExists(message),
+            400 | 422 => Self::BadRequest(message),
+            401 | 403 => Self::Unauthorized,
+            500 => Self::InternalError(message),
+            _ => Self::Unknown(status, message),
+        }
+    }
+
+    pub fn is_transient(&self) -> bool {
+        matches!(self, Self::InternalError(_) | Self::Unknown(500..=599, _))
+    }
+}
+
+fn parse_error_message(body: &str) -> String {
+    if let Ok(v) = serde_json::from_str::<serde_json::Value>(body) {
+        if let Some(msg) = v["status"]["error"].as_str() {
+            return msg.to_owned();
+        }
+        if let Some(msg) = v["message"].as_str() {
+            return msg.to_owned();
+        }
+    }
+    body.chars().take(256).collect()
+}
+
 // ---- response parsing helpers --------------------------------------------
 
 /// Extract the scored points from a Qdrant search response.
@@ -560,6 +604,41 @@ mod tests {
             .or(Filter::Eq("x".to_owned(), PayloadValue::String("b".to_owned())));
         let json = filter_to_qdrant(&f);
         assert!(json["should"].is_array(), "json: {json}");
+    }
+
+    #[test]
+    fn qdrant_error_404_is_not_found() {
+        let err = QdrantError::from_response(404, r#"{"status":{"error":"collection not found"}}"#);
+        assert!(matches!(err, QdrantError::NotFound(_)));
+    }
+
+    #[test]
+    fn qdrant_error_409_is_already_exists() {
+        let err = QdrantError::from_response(409, "{}");
+        assert!(matches!(err, QdrantError::AlreadyExists(_)));
+    }
+
+    #[test]
+    fn qdrant_error_500_is_transient() {
+        let err = QdrantError::from_response(500, "internal");
+        assert!(err.is_transient());
+    }
+
+    #[test]
+    fn qdrant_error_400_is_not_transient() {
+        let err = QdrantError::from_response(400, "bad request");
+        assert!(!err.is_transient());
+    }
+
+    #[test]
+    fn qdrant_error_parses_status_error_field() {
+        let body = r#"{"status":{"error":"dimension mismatch"}}"#;
+        let err = QdrantError::from_response(400, body);
+        if let QdrantError::BadRequest(msg) = err {
+            assert!(msg.contains("dimension mismatch"), "msg: {msg}");
+        } else {
+            panic!("expected BadRequest");
+        }
     }
 
     #[test]
