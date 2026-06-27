@@ -42,6 +42,37 @@ pub enum Distance {
     L2,
 }
 
+impl Distance {
+    /// Compute the similarity score between two vectors using this metric.
+    /// Higher is always more similar, regardless of the underlying geometry.
+    pub fn score(&self, a: &[f32], b: &[f32]) -> f32 {
+        match self {
+            Distance::Cosine => cosine_similarity(a, b),
+            Distance::Dot => dot_product(a, b),
+            Distance::L2 => l2_similarity(a, b),
+        }
+    }
+}
+
+/// Cosine similarity: dot(a, b) / (|a| * |b|). Returns 1.0 for identical vectors.
+pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
+    let dot: f32 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
+    let mag_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
+    let mag_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
+    if mag_a == 0.0 || mag_b == 0.0 { 0.0 } else { dot / (mag_a * mag_b) }
+}
+
+/// Dot product (inner product) of two vectors.
+pub fn dot_product(a: &[f32], b: &[f32]) -> f32 {
+    a.iter().zip(b.iter()).map(|(x, y)| x * y).sum()
+}
+
+/// L2 (Euclidean) distance converted to a similarity score: 1 / (1 + dist).
+pub fn l2_similarity(a: &[f32], b: &[f32]) -> f32 {
+    let dist: f32 = a.iter().zip(b.iter()).map(|(x, y)| (x - y).powi(2)).sum::<f32>().sqrt();
+    1.0 / (1.0 + dist)
+}
+
 // ---- payload value --------------------------------------------------------
 
 /// A value stored in a point's payload (metadata).
