@@ -71,6 +71,33 @@ mod tests {
     }
 
     #[test]
+    fn cost_summary_correct_for_openai_fixture() {
+        use crate::providers::openai::build_openai_profile;
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"hi","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":8,"completion_tokens":4}}"#;
+        let client = OpenAiClient::new(Arc::new(build_openai_profile()));
+        let resp = client.parse_response(FIXTURE, "gpt-4o").unwrap();
+        let summary = UsageSummary::from_response("openai", "gpt-4o", &resp);
+        // 8 * $2.5/M + 4 * $10.0/M = 0.000020 + 0.000040 = 0.000060
+        let expected = 8.0 * 2.5 / 1_000_000.0 + 4.0 * 10.0 / 1_000_000.0;
+        assert!((summary.cost_usd.unwrap() - expected).abs() < 1e-12);
+    }
+
+    #[test]
+    fn cost_summary_correct_for_azure_fixture() {
+        use crate::providers::azure::build_azure_profile;
+        use crate::openai::OpenAiClient;
+        use std::sync::Arc;
+        const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"ok","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":5,"completion_tokens":2}}"#;
+        let client = OpenAiClient::new(Arc::new(build_azure_profile("r", "dep", "2024-02-01")));
+        let resp = client.parse_response(FIXTURE, "dep").unwrap();
+        let summary = UsageSummary::from_response("azure-openai", "dep", &resp);
+        // Azure deployment has no pricing metadata -> cost is None
+        assert!(summary.cost_usd.is_none(), "Azure profile has no pricing so cost should be None");
+    }
+
+    #[test]
     fn usage_summary_merge_handles_none_cost() {
         let r1 = resp(10, 4, None);
         let r2 = resp(20, 8, Some(0.002));
