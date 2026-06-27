@@ -214,4 +214,20 @@ mod tests {
             .collect();
         assert_eq!(texts, vec!["Kimi", " K2"]);
     }
+
+    #[test]
+    fn kimi_gateway_fixture_completes_offline() {
+        use std::sync::Arc;
+        let client = crate::openai::OpenAiClient::new(Arc::new(
+            build_kimi_gateway_profile("http://localhost:4000"),
+        ));
+        let resp = client.parse_response(KIMI_FIXTURE, "kimi-k2").unwrap();
+        assert_eq!(resp.content, "Hello from Kimi K2");
+    }
+
+    #[test]
+    fn kimi_gateway_profile_name() {
+        let p = build_kimi_gateway_profile("http://localhost:4000");
+        assert_eq!(p.name, "kimi-gateway");
+    }
 }
