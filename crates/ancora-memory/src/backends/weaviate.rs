@@ -229,6 +229,31 @@ pub fn graphql_near_vector_with_certainty_query(
     json!({ "query": query })
 }
 
+// ---- cross-reference links -----------------------------------------------
+
+/// Build the URL for adding a cross-reference to an object.
+pub fn add_reference_url(base: &str, class: &str, id: &str, property: &str) -> String {
+    format!("{base}/v1/objects/{class}/{id}/references/{property}")
+}
+
+/// Build the body for a cross-reference to another object.
+pub fn add_reference_body(to_class: &str, to_id: &str) -> Value {
+    json!({ "beacon": format!("weaviate://localhost/{to_class}/{to_id}") })
+}
+
+/// Build a batch reference body for `POST /v1/batch/references`.
+pub fn batch_references_body(refs: &[(&str, &str, &str, &str, &str)]) -> Vec<Value> {
+    // (from_class, from_id, property, to_class, to_id)
+    refs.iter().map(|(from_class, from_id, property, to_class, to_id)| json!({
+        "from": format!("weaviate://localhost/{from_class}/{from_id}/{property}"),
+        "to": format!("weaviate://localhost/{to_class}/{to_id}")
+    })).collect()
+}
+
+pub fn batch_references_url(base: &str) -> String {
+    format!("{base}/v1/batch/references")
+}
+
 // ---- multi-tenancy support -----------------------------------------------
 
 /// URL for managing tenants of a multi-tenant class.
@@ -581,6 +606,28 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn add_reference_body_has_beacon() {
+        let body = add_reference_body("Author", "author-uuid");
+        assert!(body["beacon"].as_str().unwrap().contains("Author"), "body: {body}");
+        assert!(body["beacon"].as_str().unwrap().contains("author-uuid"), "body: {body}");
+    }
+
+    #[test]
+    fn add_reference_url_includes_property() {
+        let url = add_reference_url("http://localhost:8080", "Document", "uuid-1", "author");
+        assert!(url.ends_with("/author"), "url: {url}");
+    }
+
+    #[test]
+    fn batch_references_body_has_from_and_to() {
+        let refs = vec![("Document", "doc-1", "author", "Author", "auth-1")];
+        let bodies = batch_references_body(&refs);
+        assert_eq!(bodies.len(), 1);
+        assert!(bodies[0]["from"].as_str().unwrap().contains("Document"));
+        assert!(bodies[0]["to"].as_str().unwrap().contains("Author"));
     }
 
     #[test]
