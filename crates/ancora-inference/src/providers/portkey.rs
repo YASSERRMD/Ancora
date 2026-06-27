@@ -163,4 +163,26 @@ mod tests {
         let err = normalize_error(429, "rate limited");
         assert!(matches!(err, InferenceError::RateLimit { .. }));
     }
+
+    #[test]
+    fn portkey_config_with_multiple_headers() {
+        let cfg = PortkeyConfig::new()
+            .with_config("my-config")
+            .with_trace_id("trace-001");
+        let p = build_portkey_from_config(cfg);
+        assert!(p.extra_headers.contains_key("x-portkey-config"));
+        assert!(p.extra_headers.contains_key("x-portkey-trace-id"));
+    }
+
+    #[test]
+    fn portkey_sonnet_alias_has_vision() {
+        let p = build_portkey_profile();
+        assert!(p.model_meta("sonnet").unwrap().capabilities.vision);
+    }
+
+    #[test]
+    fn portkey_gemini_flash_alias_has_tools() {
+        let p = build_portkey_profile();
+        assert!(p.model_meta("gemini-flash").unwrap().capabilities.tools);
+    }
 }
