@@ -625,6 +625,18 @@ pub fn should_retry_status(status: u16) -> bool {
     matches!(status, 429 | 500 | 502 | 503 | 504)
 }
 
+// ---- collection alias helpers --------------------------------------------
+
+/// Build a rename-alias request body (swap alias to a new collection).
+pub fn rename_alias_body(old_alias: &str, new_alias: &str) -> Value {
+    json!({ "oldAliasName": old_alias, "newAliasName": new_alias })
+}
+
+/// Build an alter-alias request body (point existing alias to a new collection).
+pub fn alter_alias_body(collection: &str, alias: &str) -> Value {
+    json!({ "collectionName": collection, "aliasName": alias })
+}
+
 // ---- collection sizing guidance ------------------------------------------
 
 /// Returns a rough nlist recommendation for IVF_FLAT given the expected row count.
