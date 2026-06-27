@@ -18,6 +18,13 @@ pub struct ProviderProfile {
     pub name: String,
     pub base_url: String,
     pub auth: AuthStrategy,
+    /// Path appended to the base URL to reach the chat-completions endpoint.
+    ///
+    /// Defaults to `"/v1/chat/completions"` (OpenAI standard). Azure uses
+    /// `"/chat/completions"` with an api-version suffix.
+    pub chat_completions_path: String,
+    /// Fixed headers added to every HTTP request (e.g. OpenRouter app-attribution).
+    pub extra_headers: HashMap<String, String>,
     /// Per-model metadata keyed by canonical model-id.
     pub model_catalog: HashMap<String, ModelMeta>,
     /// Short-name aliases pointing at canonical model-ids.
@@ -38,12 +45,26 @@ impl ProviderProfile {
             name: name.into(),
             base_url: base_url.into(),
             auth,
+            chat_completions_path: "/v1/chat/completions".to_owned(),
+            extra_headers: HashMap::new(),
             model_catalog: HashMap::new(),
             model_aliases: HashMap::new(),
             regional_urls: HashMap::new(),
             request_transforms: RequestTransformChain::default(),
             response_transforms: ResponseTransformChain::default(),
         }
+    }
+
+    /// Override the chat-completions endpoint path (e.g. for Azure).
+    pub fn with_chat_path(mut self, path: impl Into<String>) -> Self {
+        self.chat_completions_path = path.into();
+        self
+    }
+
+    /// Add a fixed HTTP header sent with every request (e.g. for app-attribution).
+    pub fn with_extra_header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        self.extra_headers.insert(name.into(), value.into());
+        self
     }
 
     /// Register model metadata into the catalog.
@@ -108,6 +129,15 @@ impl ProviderProfile {
             .map(|s| s.as_str())
             .unwrap_or(&self.base_url)
     }
+
+    /// Full chat-completions URL for a given optional region.
+    pub fn completions_url(&self, region: Option<&str>) -> String {
+        format!(
+            "{}{}",
+            self.base_url_for_region(region).trim_end_matches('/'),
+            self.chat_completions_path
+        )
+    }
 }
 
 #[cfg(test)]
@@ -160,5 +190,30 @@ mod tests {
         let mut body = serde_json::json!({});
         p.request_transforms.apply(&mut body);
         assert_eq!(body["injected"], serde_json::json!(42));
+    }
+
+    #[test]
+    fn completions_url_default_path() {
+        let p = ProviderProfile::new("p", "https://api.test", AuthStrategy::None);
+        assert_eq!(p.completions_url(None), "https://api.test/v1/chat/completions");
+    }
+
+    #[test]
+    fn completions_url_custom_path() {
+        let p = ProviderProfile::new("az", "https://my.openai.azure.com/openai/deployments/dep", AuthStrategy::None)
+            .with_chat_path("/chat/completions?api-version=2024-02-01");
+        assert_eq!(
+            p.completions_url(None),
+            "https://my.openai.azure.com/openai/deployments/dep/chat/completions?api-version=2024-02-01"
+        );
+    }
+
+    #[test]
+    fn extra_header_stored_in_profile() {
+        let p = ProviderProfile::new("or", "https://openrouter.ai/api", AuthStrategy::None)
+            .with_extra_header("HTTP-Referer", "https://myapp.test")
+            .with_extra_header("X-Title", "MyApp");
+        assert_eq!(p.extra_headers.get("HTTP-Referer").map(|s| s.as_str()), Some("https://myapp.test"));
+        assert_eq!(p.extra_headers.get("X-Title").map(|s| s.as_str()), Some("MyApp"));
     }
 }

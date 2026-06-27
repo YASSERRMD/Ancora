@@ -14,6 +14,7 @@ impl ModelClient for MockClient {
             tokens_in: request.messages.iter().map(|m| m.content.len() as u64).sum(),
             tokens_out: self.response.len() as u64,
             cost_usd: None,
+            tool_calls: vec![],
         })
     }
 }
@@ -24,12 +25,10 @@ mod tests {
     use crate::types::Message;
 
     fn req(content: &str) -> CompletionRequest {
-        CompletionRequest {
-            model_id: "mock".to_string(),
-            messages: vec![Message { role: "user".to_string(), content: content.to_string() }],
-            max_tokens: None,
-            temperature: None,
-        }
+        CompletionRequest::simple(
+            "mock",
+            vec![Message::text("user", content)],
+        )
     }
 
     #[test]
@@ -39,6 +38,7 @@ mod tests {
         assert_eq!(resp.content, "hello");
         assert_eq!(resp.tokens_out, 5);
         assert!(resp.cost_usd.is_none());
+        assert!(resp.tool_calls.is_empty());
     }
 
     #[test]
