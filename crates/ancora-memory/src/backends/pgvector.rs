@@ -348,6 +348,37 @@ pub fn delete_by_ids_sql(table: &str, count: usize) -> String {
 
 use crate::vector_store::{Filter, PayloadValue};
 
+/// Validate that a filter does not exceed maximum nesting depth.
+///
+/// Deep nesting can produce very long SQL WHERE clauses; 16 levels is enough
+/// for any realistic agent memory query.
+pub fn validate_filter_depth(filter: &Filter) -> Result<(), String> {
+    fn depth(f: &Filter, n: u8) -> Result<u8, String> {
+        if n > 16 { return Err("filter exceeds maximum nesting depth (16)".to_owned()); }
+        match f {
+            Filter::And(a, b) | Filter::Or(a, b) => {
+                let da = depth(a, n + 1)?;
+                let db = depth(b, n + 1)?;
+                Ok(da.max(db))
+            }
+            _ => Ok(n),
+        }
+    }
+    depth(filter, 0).map(|_| ())
+}
+
+/// Build a complete WHERE clause from a filter, including the keyword.
+///
+/// Returns `None` when the filter list is empty (no WHERE needed).
+pub fn build_where_clause(filter: &Filter, param_offset: usize) -> (String, Vec<FilterParam>) {
+    let (fragment, params) = filter_to_sql(filter, param_offset);
+    if fragment.is_empty() {
+        (String::new(), params)
+    } else {
+        (format!("WHERE {fragment}"), params)
+    }
+}
+
 /// Translate a `Filter` into a SQL WHERE clause fragment.
 ///
 /// Uses jsonb operators for payload access. Returns `("", vec![])` for no filter.
@@ -630,5 +661,45 @@ mod tests {
         let (sql, params) = filter_to_sql(&f, 0);
         assert!(sql.contains("AND"), "SQL: {sql}");
         assert_eq!(params.len(), 2);
+    }
+
+    #[test]
+    fn filter_to_sql_or_compound() {
+        let f = Filter::Eq("tag".to_owned(), PayloadValue::String("news".to_owned()))
+            .or(Filter::Eq("tag".to_owned(), PayloadValue::String("blog".to_owned())));
+        let (sql, params) = filter_to_sql(&f, 0);
+        assert!(sql.contains("OR"), "SQL: {sql}");
+        assert_eq!(params.len(), 2);
+    }
+
+    #[test]
+    fn filter_to_sql_ne_integer() {
+        let f = Filter::Ne("year".to_owned(), PayloadValue::Integer(2020));
+        let (sql, _) = filter_to_sql(&f, 0);
+        assert!(sql.contains("!="), "SQL: {sql}");
+    }
+
+    #[test]
+    fn filter_to_sql_bool_value() {
+        let f = Filter::Eq("active".to_owned(), PayloadValue::Bool(true));
+        let (sql, params) = filter_to_sql(&f, 0);
+        assert!(sql.contains("::boolean"), "SQL: {sql}");
+        assert!(matches!(params[0], FilterParam::Bool(true)));
+    }
+
+    #[test]
+    fn validate_filter_depth_rejects_deep_nesting() {
+        let mut f = Filter::Eq("a".to_owned(), PayloadValue::Integer(1));
+        for _ in 0..18 {
+            f = f.and(Filter::Eq("a".to_owned(), PayloadValue::Integer(1)));
+        }
+        assert!(validate_filter_depth(&f).is_err());
+    }
+
+    #[test]
+    fn build_where_clause_prepends_where_keyword() {
+        let f = Filter::Eq("x".to_owned(), PayloadValue::String("y".to_owned()));
+        let (clause, _) = build_where_clause(&f, 0);
+        assert!(clause.starts_with("WHERE "), "clause: {clause}");
     }
 }
