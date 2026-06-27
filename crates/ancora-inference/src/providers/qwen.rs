@@ -72,17 +72,19 @@ pub fn build_qwen_profile() -> ProviderProfile {
             .with_tools()
             .with_streaming(),
     )
-    // Qwen Plus -- balanced capability/cost
+    // Qwen Plus -- balanced capability/cost; cached input at 25% of full rate
     .add_model(
         ModelMeta::new("qwen-plus", 131_072)
             .with_pricing(0.40, 1.20)
+            .with_cached_pricing(0.10)
             .with_tools()
             .with_streaming(),
     )
-    // Qwen Turbo -- fastest, lowest cost
+    // Qwen Turbo -- fastest, lowest cost; cached input at 20% of full rate
     .add_model(
         ModelMeta::new("qwen-turbo", 131_072)
             .with_pricing(0.05, 0.10)
+            .with_cached_pricing(0.01)
             .with_tools()
             .with_streaming(),
     )
