@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
-use crate::types::Message;
+use crate::types::{FunctionDefinition, Message, ToolDefinition};
 
 // ---- Wire types: chat history ----------------------------------------------
 
@@ -47,6 +49,64 @@ pub(crate) fn split_messages(messages: &[Message]) -> (String, Vec<CohereChatTur
     (current, history)
 }
 
+// ---- Wire types: tools -----------------------------------------------------
+
+/// A single parameter definition in Cohere's tool format.
+#[derive(Debug, Serialize, Clone)]
+pub(crate) struct CohereParamDef {
+    pub description: String,
+    #[serde(rename = "type")]
+    pub kind: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub required: Option<bool>,
+}
+
+/// A Cohere tool definition.
+#[derive(Debug, Serialize, Clone)]
+pub(crate) struct CohereToolDef {
+    pub name: String,
+    pub description: String,
+    pub parameter_definitions: HashMap<String, CohereParamDef>,
+}
+
+/// Convert a `ToolDefinition` into Cohere's `parameter_definitions` format.
+///
+/// Cohere does not use JSON Schema objects; instead it uses a flat map from
+/// parameter name to `{description, type, required}`.
+pub(crate) fn encode_tool(t: &ToolDefinition) -> CohereToolDef {
+    encode_function_as_cohere_tool(&t.function)
+}
+
+pub(crate) fn encode_function_as_cohere_tool(f: &FunctionDefinition) -> CohereToolDef {
+    let mut param_defs = HashMap::new();
+    if let Some(props) = f.parameters.get("properties").and_then(|v| v.as_object()) {
+        let required_list: Vec<&str> = f.parameters
+            .get("required")
+            .and_then(|v| v.as_array())
+            .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect())
+            .unwrap_or_default();
+
+        for (name, schema) in props {
+            let description = schema.get("description")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_owned();
+            let kind = schema.get("type")
+                .and_then(|v| v.as_str())
+                .unwrap_or("str")
+                .to_owned();
+            let required = Some(required_list.contains(&name.as_str()));
+            param_defs.insert(name.clone(), CohereParamDef { description, kind, required });
+        }
+    }
+
+    CohereToolDef {
+        name: f.name.clone(),
+        description: f.description.clone(),
+        parameter_definitions: param_defs,
+    }
+}
+
 /// Collect system messages into a single preamble string.
 ///
 /// Cohere uses a top-level `preamble` field instead of a system role in the
@@ -66,7 +126,7 @@ pub(crate) fn extract_preamble(messages: &[Message]) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::Message;
+    use crate::types::{FunctionDefinition, Message, ToolDefinition};
 
     #[test]
     fn cohere_role_user_maps_to_user() {
@@ -146,5 +206,61 @@ mod tests {
     fn extract_preamble_no_system_returns_none() {
         let msgs = vec![Message::text("user", "Hello")];
         assert_eq!(extract_preamble(&msgs), None);
+    }
+
+    fn make_tool(name: &str, desc: &str, params: serde_json::Value) -> ToolDefinition {
+        ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: name.to_owned(),
+                description: desc.to_owned(),
+                parameters: params,
+            },
+        }
+    }
+
+    #[test]
+    fn encode_tool_has_correct_name_and_description() {
+        let tool = make_tool("get_weather", "Get current weather", serde_json::json!({
+            "type": "object",
+            "properties": {
+                "location": {"type": "str", "description": "City name"}
+            },
+            "required": ["location"]
+        }));
+        let def = encode_tool(&tool);
+        assert_eq!(def.name, "get_weather");
+        assert_eq!(def.description, "Get current weather");
+    }
+
+    #[test]
+    fn encode_tool_parameter_definitions_has_location() {
+        let tool = make_tool("get_weather", "Get current weather", serde_json::json!({
+            "type": "object",
+            "properties": {
+                "location": {"type": "str", "description": "City name"}
+            },
+            "required": ["location"]
+        }));
+        let def = encode_tool(&tool);
+        let param = def.parameter_definitions.get("location").unwrap();
+        assert_eq!(param.kind, "str");
+        assert_eq!(param.description, "City name");
+        assert_eq!(param.required, Some(true));
+    }
+
+    #[test]
+    fn encode_tool_optional_parameter_marked_false() {
+        let tool = make_tool("search", "Search", serde_json::json!({
+            "type": "object",
+            "properties": {
+                "query": {"type": "str", "description": "Search query"},
+                "limit": {"type": "int", "description": "Max results"}
+            },
+            "required": ["query"]
+        }));
+        let def = encode_tool(&tool);
+        let limit = def.parameter_definitions.get("limit").unwrap();
+        assert_eq!(limit.required, Some(false));
     }
 }
