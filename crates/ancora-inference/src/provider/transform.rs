@@ -93,4 +93,30 @@ mod tests {
         assert!(req.is_empty());
         assert!(res.is_empty());
     }
+
+    #[test]
+    fn transforms_run_in_registration_order_with_counter() {
+        let mut chain = RequestTransformChain::default();
+        chain.push(|v| {
+            let n = v["n"].as_i64().unwrap_or(0);
+            v["n"] = json!(n + 1);
+        });
+        chain.push(|v| {
+            let n = v["n"].as_i64().unwrap_or(0);
+            v["n"] = json!(n * 10);
+        });
+        let mut body = json!({"n": 0});
+        chain.apply(&mut body);
+        // (0 + 1) * 10 = 10 if run in order
+        assert_eq!(body["n"], json!(10));
+    }
+
+    #[test]
+    fn set_field_helper_injects_value() {
+        let mut chain = RequestTransformChain::default();
+        chain.push(set_field("safe_mode", json!(true)));
+        let mut body = json!({});
+        chain.apply(&mut body);
+        assert_eq!(body["safe_mode"], json!(true));
+    }
 }
