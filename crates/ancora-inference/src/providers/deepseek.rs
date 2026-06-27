@@ -374,6 +374,29 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_self_host_profile_base_url() {
+        let p = build_deepseek_self_host_profile("http://localhost:8000");
+        assert_eq!(p.base_url, "http://localhost:8000");
+        assert_eq!(p.name, "deepseek-self-host");
+    }
+
+    #[test]
+    fn deepseek_self_host_has_zero_cost() {
+        let p = build_deepseek_self_host_profile("http://localhost:8000");
+        let m = p.model_meta("deepseek-chat").unwrap();
+        let pricing = m.pricing.as_ref().unwrap();
+        assert_eq!(pricing.input_per_million, 0.0);
+        assert_eq!(pricing.output_per_million, 0.0);
+    }
+
+    #[test]
+    fn deepseek_self_host_alias_works() {
+        let p = build_deepseek_self_host_profile("http://localhost:8000");
+        assert_eq!(p.resolve_model_id("deepseek-v3"), "deepseek-chat");
+        assert_eq!(p.resolve_model_id("deepseek-r1"), "deepseek-reasoner");
+    }
+
+    #[test]
     fn deepseek_rate_limit_with_retry_after_header() {
         use crate::error::InferenceError;
         // When DeepSeek provides Retry-After, the duration is parsed
