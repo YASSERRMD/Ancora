@@ -142,6 +142,23 @@ mod tests {
     }
 
     #[test]
+    fn together_llama_has_pricing() {
+        let p = build_together_profile();
+        let m = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();
+        assert!(m.pricing.is_some());
+    }
+
+    #[test]
+    fn together_llama_8b_cheaper_than_70b() {
+        let p = build_together_profile();
+        let large = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();
+        let small = p.model_meta("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo").unwrap();
+        let lp = large.pricing.as_ref().unwrap();
+        let sp = small.pricing.as_ref().unwrap();
+        assert!(sp.input_per_million < lp.input_per_million);
+    }
+
+    #[test]
     fn together_llama31_large_context() {
         let p = build_together_profile();
         let m = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();

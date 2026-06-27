@@ -155,6 +155,23 @@ mod tests {
         );
     }
 
+    #[test]
+    fn fireworks_llama_70b_has_pricing() {
+        let p = build_fireworks_profile();
+        let m = p.model_meta("accounts/fireworks/models/llama-v3p1-70b-instruct").unwrap();
+        assert!(m.pricing.is_some());
+    }
+
+    #[test]
+    fn fireworks_llama_8b_cheaper_than_405b() {
+        let p = build_fireworks_profile();
+        let large = p.model_meta("accounts/fireworks/models/llama-v3p1-405b-instruct").unwrap();
+        let small = p.model_meta("accounts/fireworks/models/llama-v3p1-8b-instruct").unwrap();
+        let lp = large.pricing.as_ref().unwrap();
+        let sp = small.pricing.as_ref().unwrap();
+        assert!(sp.input_per_million < lp.input_per_million);
+    }
+
     fn fw_client() -> crate::openai::OpenAiClient {
         use std::sync::Arc;
         crate::openai::OpenAiClient::new(Arc::new(build_fireworks_profile()))

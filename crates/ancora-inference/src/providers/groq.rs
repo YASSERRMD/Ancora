@@ -159,6 +159,23 @@ mod tests {
     }
 
     #[test]
+    fn groq_llama3_70b_has_pricing() {
+        let p = build_groq_profile();
+        let m = p.model_meta("llama3-70b-8192").unwrap();
+        assert!(m.pricing.is_some());
+    }
+
+    #[test]
+    fn groq_small_model_cheaper_than_large() {
+        let p = build_groq_profile();
+        let large = p.model_meta("llama-3.3-70b-versatile").unwrap();
+        let small = p.model_meta("llama-3.1-8b-instant").unwrap();
+        let lp = large.pricing.as_ref().unwrap();
+        let sp = small.pricing.as_ref().unwrap();
+        assert!(sp.input_per_million < lp.input_per_million);
+    }
+
+    #[test]
     fn groq_stream_done_emits_finished() {
         use crate::openai::OpenAiClient;
         let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
