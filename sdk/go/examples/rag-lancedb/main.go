@@ -100,4 +100,10 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("done: %d event(s)\n", len(evs))
+
+	// Show the retrieved passages that were injected.
+	fmt.Println("injected passages:")
+	for i, h := range hits {
+		fmt.Printf("  [%d] %s\n", i+1, h)
+	}
 }
