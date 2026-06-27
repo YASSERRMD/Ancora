@@ -37,3 +37,4 @@ pub mod lancedb_ann_index_tests;
 pub mod lancedb_vector_search_tests;
 pub mod lancedb_delete_tests;
 pub mod chroma;
+pub mod pinecone;
