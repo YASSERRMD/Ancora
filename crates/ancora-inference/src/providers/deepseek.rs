@@ -362,6 +362,30 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_rate_limit_backoff_with_retry_after() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "rate limited");
+        // Without a Retry-After header there is no duration hint
+        if let InferenceError::RateLimit { retry_after } = err {
+            assert!(retry_after.is_none(), "no header means no hint");
+        } else {
+            panic!("expected RateLimit");
+        }
+    }
+
+    #[test]
+    fn deepseek_rate_limit_with_retry_after_header() {
+        use crate::error::InferenceError;
+        // When DeepSeek provides Retry-After, the duration is parsed
+        let err = InferenceError::from_http(429, "rate limited", Some("30"));
+        if let InferenceError::RateLimit { retry_after } = err {
+            assert_eq!(retry_after.unwrap().as_secs(), 30);
+        } else {
+            panic!("expected RateLimit");
+        }
+    }
+
+    #[test]
     fn deepseek_error_500_is_http_error() {
         use crate::error::InferenceError;
         let err = normalize_error(500, "internal server error");
