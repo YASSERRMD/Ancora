@@ -40,3 +40,4 @@ pub mod chroma;
 pub mod pinecone;
 pub mod vespa;
 pub mod redis_vector;
+pub mod chroma_conformance;
