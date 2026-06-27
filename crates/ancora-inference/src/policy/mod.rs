@@ -24,6 +24,10 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "deepseek" => vec![ResidencyTag::Cn],
         // Self-hosted DeepSeek: residency depends on where the host runs
         "deepseek-self-host" => vec![ResidencyTag::Unknown],
+        // GLM (Zhipu AI) -- direct endpoint is CN-region
+        "glm" => vec![ResidencyTag::Cn],
+        "glm-self-host" => vec![ResidencyTag::Unknown],
+        "glm-llamacpp" => vec![ResidencyTag::Unknown],
         // Qwen (DashScope) -- regional awareness
         // Default / Singapore international endpoint: non-CN, neutral
         "qwen" => vec![ResidencyTag::Us],
@@ -146,5 +150,29 @@ mod tests {
     fn qwen_self_host_not_blocked_when_cn_excluded() {
         let excluded = vec![ResidencyTag::Cn];
         assert!(is_allowed("qwen-self-host", &excluded));
+    }
+
+    #[test]
+    fn glm_direct_tagged_cn() {
+        let tags = residency_tags("glm");
+        assert!(tags.contains(&ResidencyTag::Cn));
+    }
+
+    #[test]
+    fn glm_direct_blocked_under_eu_only_residency() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(!is_allowed("glm", &excluded));
+    }
+
+    #[test]
+    fn glm_self_host_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("glm-self-host", &excluded));
+    }
+
+    #[test]
+    fn glm_llamacpp_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("glm-llamacpp", &excluded));
     }
 }
