@@ -124,4 +124,33 @@ mod tests {
         assert!(FallbackChain::new().is_empty());
         assert_eq!(sample_chain().len(), 3);
     }
+
+    #[test]
+    fn parse_openrouter_cost_header_parses_float() {
+        let cost = parse_openrouter_cost_header(Some("0.000042"));
+        assert!((cost.unwrap() - 0.000042).abs() < 1e-12);
+    }
+
+    #[test]
+    fn parse_openrouter_cost_header_none_on_absent() {
+        assert_eq!(parse_openrouter_cost_header(None), None);
+    }
+
+    #[test]
+    fn parse_openrouter_cost_header_none_on_garbage() {
+        assert_eq!(parse_openrouter_cost_header(Some("not-a-number")), None);
+    }
+
+    #[test]
+    fn parse_openrouter_model_header_strips_whitespace() {
+        assert_eq!(
+            parse_openrouter_model_header(Some("  openai/gpt-4o  ")),
+            Some("openai/gpt-4o")
+        );
+    }
+
+    #[test]
+    fn parse_openrouter_model_header_none_on_empty() {
+        assert_eq!(parse_openrouter_model_header(Some("")), None);
+    }
 }
