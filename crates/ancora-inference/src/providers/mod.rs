@@ -1,5 +1,6 @@
 pub mod anthropic;
 pub mod azure;
+pub mod gemini;
 pub mod openai;
 pub mod openrouter;
 pub mod usage;
