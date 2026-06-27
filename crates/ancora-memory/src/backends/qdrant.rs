@@ -70,6 +70,49 @@ pub fn scroll_url(base: &str, name: &str) -> String {
     format!("{base}/collections/{name}/points/scroll")
 }
 
+// ---- collection alias management ----------------------------------------
+
+/// URL for managing collection aliases.
+pub fn aliases_url(base: &str) -> String {
+    format!("{base}/collections/aliases")
+}
+
+/// URL for listing aliases of a specific collection.
+pub fn collection_aliases_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/aliases")
+}
+
+/// Build the body to create a collection alias.
+pub fn create_alias_body(collection_name: &str, alias_name: &str) -> serde_json::Value {
+    json!({
+        "actions": [{
+            "create_alias": {
+                "collection_name": collection_name,
+                "alias_name": alias_name
+            }
+        }]
+    })
+}
+
+/// Build the body to delete a collection alias.
+pub fn delete_alias_body(alias_name: &str) -> serde_json::Value {
+    json!({
+        "actions": [{
+            "delete_alias": { "alias_name": alias_name }
+        }]
+    })
+}
+
+/// Build the body to rename an alias (atomic swap for zero-downtime re-index).
+pub fn rename_alias_body(old_alias: &str, new_alias: &str) -> serde_json::Value {
+    json!({
+        "actions": [
+            { "delete_alias": { "alias_name": old_alias } },
+            { "create_alias": { "collection_name": new_alias, "alias_name": old_alias } }
+        ]
+    })
+}
+
 // ---- score threshold and result post-processing -------------------------
 
 /// Apply a score threshold filter to search results.
@@ -959,6 +1002,32 @@ mod tests {
     fn qdrant_error_400_is_not_transient() {
         let err = QdrantError::from_response(400, "bad request");
         assert!(!err.is_transient());
+    }
+
+    #[test]
+    fn create_alias_body_has_create_alias_action() {
+        let body = create_alias_body("docs_v2", "docs");
+        let action = &body["actions"][0];
+        assert_eq!(action["create_alias"]["alias_name"], "docs");
+        assert_eq!(action["create_alias"]["collection_name"], "docs_v2");
+    }
+
+    #[test]
+    fn delete_alias_body_has_delete_alias_action() {
+        let body = delete_alias_body("docs");
+        assert_eq!(body["actions"][0]["delete_alias"]["alias_name"], "docs");
+    }
+
+    #[test]
+    fn rename_alias_body_has_two_actions() {
+        let body = rename_alias_body("docs_old", "docs_new");
+        assert_eq!(body["actions"].as_array().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn aliases_url_format() {
+        let url = aliases_url("http://localhost:6333");
+        assert!(url.ends_with("/aliases"), "url: {url}");
     }
 
     #[test]
