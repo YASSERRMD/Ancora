@@ -15,6 +15,7 @@ pub fn build_qwen_profile() -> ProviderProfile {
         QWEN_URL_SINGAPORE,
         AuthStrategy::BearerToken { env_var: "DASHSCOPE_API_KEY".to_owned() },
     )
+    .add_region("sg", QWEN_URL_SINGAPORE)
     // Qwen3 235B MoE -- flagship; tools, 128k context
     .add_model(
         ModelMeta::new("qwen3-235b-a22b", 131_072)
