@@ -32,12 +32,23 @@ pub(crate) struct GeminiContent {
     pub parts: Vec<GeminiPart>,
 }
 
+/// Map a generic conversation role to the Gemini-specific role label.
+///
+/// Gemini accepts only `"user"` and `"model"`. OpenAI-style `"assistant"`
+/// maps to `"model"`. Any other role (including `"system"`) maps to `"user"`.
+pub(crate) fn map_role(role: &str) -> &'static str {
+    match role {
+        "assistant" | "model" => "model",
+        _ => "user",
+    }
+}
+
 /// Encode a `Message` into the Gemini `contents` array item shape.
 ///
 /// Gemini uses `user` and `model` as the only valid roles; all other roles
 /// (assistant, system) map to `user` as a fallback.
 pub(crate) fn encode_message(msg: &Message) -> GeminiContent {
-    let role = "user".to_owned(); // refined by map_role in next commit
+    let role = map_role(&msg.role).to_owned();
     let parts = if msg.content_parts.is_empty() {
         vec![GeminiPart { text: Some(msg.content.clone()), inline_data: None, function_call: None }]
     } else {
@@ -67,6 +78,27 @@ mod tests {
         let c = encode_message(&Message::text("user", "Hello"));
         let j = serde_json::to_value(&c).unwrap();
         assert_eq!(j["parts"][0]["text"], "Hello");
+    }
+
+    #[test]
+    fn map_role_user_stays_user() {
+        assert_eq!(map_role("user"), "user");
+    }
+
+    #[test]
+    fn map_role_assistant_becomes_model() {
+        assert_eq!(map_role("assistant"), "model");
+    }
+
+    #[test]
+    fn map_role_system_falls_back_to_user() {
+        assert_eq!(map_role("system"), "user");
+    }
+
+    #[test]
+    fn encode_message_assistant_role_maps_to_model() {
+        let c = encode_message(&Message::text("assistant", "Sure"));
+        assert_eq!(c.role, "model");
     }
 
     #[test]
