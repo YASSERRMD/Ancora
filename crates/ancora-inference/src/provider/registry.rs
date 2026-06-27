@@ -72,4 +72,27 @@ mod tests {
         reg.register(fake_profile("p"));
         assert_eq!(reg.len(), 1);
     }
+
+    #[test]
+    fn registry_resolves_profile_by_name_and_exposes_catalog() {
+        let mut reg = ProviderRegistry::new();
+        let profile = ProviderProfile::new("myco", "https://api.myco.test", AuthStrategy::None)
+            .add_model(crate::provider::meta::ModelMeta::new("myco-large", 200_000).with_pricing(3.0, 9.0))
+            .add_alias("large", "myco-large");
+        reg.register(profile);
+
+        let p = reg.get("myco").expect("profile should be registered");
+        assert_eq!(p.name, "myco");
+        let meta = p.model_meta("large").expect("alias should resolve");
+        assert_eq!(meta.model_id, "myco-large");
+        assert_eq!(meta.context_window, 200_000);
+    }
+
+    #[test]
+    fn registry_contains_checks_presence() {
+        let mut reg = ProviderRegistry::new();
+        assert!(!reg.contains("x"));
+        reg.register(fake_profile("x"));
+        assert!(reg.contains("x"));
+    }
 }
