@@ -186,6 +186,30 @@ mod tests {
     }
 
     #[test]
+    fn fireworks_recorded_fixture_completes() {
+        let resp = fw_client()
+            .parse_response(
+                FIREWORKS_FIXTURE,
+                "accounts/fireworks/models/llama-v3p1-70b-instruct",
+            )
+            .unwrap();
+        assert_eq!(resp.content, "Hello from Fireworks");
+        assert_eq!(resp.tokens_in, 9);
+        assert_eq!(resp.tokens_out, 4);
+    }
+
+    #[test]
+    fn fireworks_fixture_no_tool_calls() {
+        let resp = fw_client()
+            .parse_response(
+                FIREWORKS_FIXTURE,
+                "accounts/fireworks/models/llama-v3p1-70b-instruct",
+            )
+            .unwrap();
+        assert!(resp.tool_calls.is_empty());
+    }
+
+    #[test]
     fn fireworks_function_calling_model_resolved() {
         use crate::types::{CompletionRequest, Message};
         let req = CompletionRequest::simple("llama3.1-70b", vec![Message::text("user", "Hi")]);
