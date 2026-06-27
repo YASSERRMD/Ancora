@@ -31,3 +31,4 @@ pub mod lancedb_object_storage_tests;
 pub mod lancedb_version_tests;
 pub mod lancedb_offline_tests;
 pub mod lancedb_integration;
+pub mod lancedb_multimodal_tests;
