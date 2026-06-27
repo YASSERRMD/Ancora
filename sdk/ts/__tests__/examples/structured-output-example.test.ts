@@ -103,4 +103,14 @@ describe('structured-output example smoke test', () => {
     expect(keys).toContain('confidence')
     expect(keys).toContain('action_item')
   })
+
+  it('zodToInputSchema marks all non-optional fields as required', () => {
+    const schema = z.object({
+      required_field: z.string(),
+      optional_field: z.string().optional(),
+    })
+    const inputSchema = zodToInputSchema(schema)
+    expect(inputSchema.required).toContain('required_field')
+    expect(inputSchema.required).not.toContain('optional_field')
+  })
 })
