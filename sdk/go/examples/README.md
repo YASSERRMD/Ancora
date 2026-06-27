@@ -56,3 +56,66 @@ Runs an agent with SQLite persistence; the run ID and events are stored in `exam
 ```bash
 go run ./examples/sqlite-persistence
 ```
+
+### structured-output
+
+Derives a JSON Schema from a Go struct with `SchemaFromStruct` and injects
+the schema into the agent system prompt so the agent knows the expected output shape.
+
+```bash
+go run ./examples/structured-output
+```
+
+### streaming-chat
+
+Consumes agent events in real-time via `EventChan` rather than waiting for all
+events with `DrainEvents`.
+
+```bash
+go run ./examples/streaming-chat
+```
+
+### rag-lancedb
+
+Builds an offline RAG context from a small document corpus and injects retrieved
+passages into the agent system prompt before the run.
+
+```bash
+go run ./examples/rag-lancedb
+```
+
+### mcp-tool
+
+Registers Go-native tool functions with `GoToolRegistry`, wires them into a
+`RuntimeToolkit`, and invokes them by name with raw JSON input/output.
+
+```bash
+go run ./examples/mcp-tool
+```
+
+### glm-provider
+
+Configures agent specs for the ChatGLM model family (glm-4, glm-4-flash,
+glm-4-air, glm-3-turbo) and runs each variant through the standard transport.
+
+```bash
+go run ./examples/glm-provider
+```
+
+### durable-restart
+
+Persists run events to a SQLite journal via `StoringTransport` and replays
+them from the store after a simulated restart without re-running the agent.
+
+```bash
+go run ./examples/durable-restart
+```
+
+### cost-otel
+
+Wraps an agent run in lightweight span tracking to record event counts,
+duration, and estimated token cost -- mirroring OpenTelemetry span data.
+
+```bash
+go run ./examples/cost-otel
+```
