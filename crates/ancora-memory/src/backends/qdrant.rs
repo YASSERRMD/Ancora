@@ -70,6 +70,33 @@ pub fn scroll_url(base: &str, name: &str) -> String {
     format!("{base}/collections/{name}/points/scroll")
 }
 
+// ---- score threshold and result post-processing -------------------------
+
+/// Apply a score threshold filter to search results.
+pub fn apply_score_threshold(
+    results: Vec<(u64, f32, serde_json::Value)>,
+    threshold: f32,
+) -> Vec<(u64, f32, serde_json::Value)> {
+    results.into_iter().filter(|(_, score, _)| *score >= threshold).collect()
+}
+
+/// Re-rank search results by score descending.
+pub fn sort_by_score(mut results: Vec<(u64, f32, serde_json::Value)>) -> Vec<(u64, f32, serde_json::Value)> {
+    results.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+    results
+}
+
+/// Deduplicate results by point ID, keeping the highest score for each.
+pub fn dedup_by_id(results: Vec<(u64, f32, serde_json::Value)>) -> Vec<(u64, f32, serde_json::Value)> {
+    let mut seen: std::collections::HashMap<u64, (f32, serde_json::Value)> = std::collections::HashMap::new();
+    for (id, score, payload) in results {
+        seen.entry(id)
+            .and_modify(|(s, _)| { if score > *s { *s = score; } })
+            .or_insert((score, payload));
+    }
+    seen.into_iter().map(|(id, (score, payload))| (id, score, payload)).collect()
+}
+
 // ---- collection lifecycle helpers ----------------------------------------
 
 /// Build the JSON body for a collection with multiple named vectors.
@@ -932,6 +959,31 @@ mod tests {
     fn qdrant_error_400_is_not_transient() {
         let err = QdrantError::from_response(400, "bad request");
         assert!(!err.is_transient());
+    }
+
+    #[test]
+    fn apply_score_threshold_filters_low_scores() {
+        let results = vec![(1u64, 0.9f32, json!({})), (2, 0.5, json!({})), (3, 0.8, json!({}))];
+        let filtered = apply_score_threshold(results, 0.75);
+        assert_eq!(filtered.len(), 2);
+    }
+
+    #[test]
+    fn sort_by_score_descending() {
+        let results = vec![(1u64, 0.5f32, json!({})), (2, 0.9, json!({})), (3, 0.7, json!({}))];
+        let sorted = sort_by_score(results);
+        assert_eq!(sorted[0].0, 2);
+        assert_eq!(sorted[1].0, 3);
+    }
+
+    #[test]
+    fn dedup_by_id_keeps_highest_score() {
+        let results = vec![(1u64, 0.5f32, json!({})), (1, 0.9, json!({})), (2, 0.7, json!({}))];
+        let mut deduped = dedup_by_id(results);
+        deduped.sort_by_key(|(id, _, _)| *id);
+        assert_eq!(deduped.len(), 2);
+        let score_for_1 = deduped.iter().find(|(id, _, _)| *id == 1).unwrap().1;
+        assert!((score_for_1 - 0.9).abs() < 0.001);
     }
 
     #[test]
