@@ -135,6 +135,22 @@ mod tests {
     }
 
     #[test]
+    fn openrouter_fallback_empty_when_no_fallbacks() {
+        use crate::types::{CompletionRequest, Message};
+        let p = Arc::new(build_openrouter_profile(OpenRouterConfig {
+            model_id: "openai/gpt-4o".to_owned(),
+            fallback_models: vec![],
+            app_name: "t".to_owned(),
+            site_url: "https://t.test".to_owned(),
+        }));
+        let c = OpenAiClient::new(p);
+        let req = CompletionRequest::simple("openai/gpt-4o", vec![Message::text("user", "hi")]);
+        let body = c.build_request_body(&req, false).unwrap();
+        // When no fallbacks, the "models" key should not exist
+        assert!(body.get("models").is_none(), "no fallbacks should mean no models key");
+    }
+
+    #[test]
     fn openrouter_attribution_headers_use_env_independent_values() {
         // Extra headers must be static strings from config, not from env vars.
         let p = build_openrouter_profile(OpenRouterConfig {
