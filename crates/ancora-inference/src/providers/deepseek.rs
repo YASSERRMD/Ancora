@@ -223,6 +223,24 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_streaming_parser_uses_openai_sse() {
+        use crate::openai::OpenAiClient;
+        let texts: Vec<String> = DS_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(texts, vec!["Hello", " DeepSeek"]);
+    }
+
+    #[test]
+    fn deepseek_stream_done_emits_finished() {
+        use crate::openai::OpenAiClient;
+        let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
+        assert!(ev.finished);
+    }
+
+    #[test]
     fn deepseek_tool_call_model_resolved_in_body() {
         use crate::types::{CompletionRequest, Message};
         let req = CompletionRequest::simple("deepseek-v3", vec![Message::text("user", "Hi")]);
