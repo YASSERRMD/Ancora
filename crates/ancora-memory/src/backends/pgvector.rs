@@ -383,6 +383,36 @@ pub fn delete_by_ids_sql(table: &str, count: usize) -> String {
     format!("DELETE FROM {table} WHERE id IN ({});", params.join(", "))
 }
 
+/// Generate a DELETE-with-RETURNING statement for filter-based deletes.
+///
+/// Returns the SQL and the bound params from the filter. The RETURNING clause
+/// lets the caller count deleted rows without an extra SELECT.
+pub fn delete_by_filter_sql(
+    table: &str,
+    filter: &Filter,
+) -> (String, Vec<FilterParam>) {
+    let (where_fragment, params) = filter_to_sql(filter, 0);
+    let sql = if where_fragment.is_empty() {
+        format!("DELETE FROM {table} RETURNING id;")
+    } else {
+        format!("DELETE FROM {table} WHERE {where_fragment} RETURNING id;")
+    };
+    (sql, params)
+}
+
+/// Generate a SELECT COUNT(*) query filtered by a WHERE clause fragment.
+///
+/// Used to preview how many rows a filter would delete before committing.
+pub fn count_by_filter_sql(table: &str, filter: &Filter) -> (String, Vec<FilterParam>) {
+    let (where_fragment, params) = filter_to_sql(filter, 0);
+    let sql = if where_fragment.is_empty() {
+        format!("SELECT COUNT(*) FROM {table};")
+    } else {
+        format!("SELECT COUNT(*) FROM {table} WHERE {where_fragment};")
+    };
+    (sql, params)
+}
+
 // ---- filter-to-SQL mapping -----------------------------------------------
 
 use crate::vector_store::{Filter, PayloadValue};
@@ -703,6 +733,23 @@ mod tests {
     fn delete_by_ids_sql_placeholders() {
         let sql = delete_by_ids_sql("docs", 3);
         assert!(sql.contains("$1") && sql.contains("$2") && sql.contains("$3"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn delete_by_filter_sql_has_returning() {
+        let f = Filter::Eq("tag".to_owned(), PayloadValue::String("old".to_owned()));
+        let (sql, params) = delete_by_filter_sql("docs", &f);
+        assert!(sql.contains("DELETE FROM docs"), "SQL: {sql}");
+        assert!(sql.contains("RETURNING id"), "SQL: {sql}");
+        assert!(!params.is_empty());
+    }
+
+    #[test]
+    fn count_by_filter_sql_has_count_star() {
+        let f = Filter::Gt("year".to_owned(), PayloadValue::Integer(2020));
+        let (sql, params) = count_by_filter_sql("docs", &f);
+        assert!(sql.contains("COUNT(*)"), "SQL: {sql}");
+        assert!(!params.is_empty());
     }
 
     #[test]
