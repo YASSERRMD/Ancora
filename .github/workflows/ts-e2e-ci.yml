@@ -1,0 +1,46 @@
+name: TypeScript E2E CI
+
+on:
+  push:
+    paths:
+      - 'sdk/ts/**'
+      - '.github/workflows/ts-e2e-ci.yml'
+  pull_request:
+    paths:
+      - 'sdk/ts/**'
+      - '.github/workflows/ts-e2e-ci.yml'
+
+jobs:
+  ts-e2e:
+    name: TypeScript SDK tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: sdk/ts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: sdk/ts
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: sdk/ts
+        run: npx jest --testPathPattern='phase144' --passWithNoTests
+
+      - name: Run e2e tests
+        working-directory: sdk/ts
+        run: npx jest --testPathPattern='phase145' --passWithNoTests
+
+      - name: Run full test suite
+        working-directory: sdk/ts
+        run: npx jest
+
+      - name: Smoke benchmark
+        working-directory: sdk/ts
+        run: npx jest --testPathPattern='phase145-perf-benchmark'
