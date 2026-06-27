@@ -18,3 +18,4 @@ ureq = { version = "2", optional = true }
 default = []
 pgvector = ["serde", "tokio", "tokio-postgres"]
 qdrant = ["serde", "ureq"]
+weaviate = ["serde", "ureq"]
