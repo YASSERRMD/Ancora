@@ -53,3 +53,4 @@ pub mod pinecone_integration;
 pub mod vespa_integration;
 pub mod redis_vector_integration;
 pub mod backend_selector_ext_tests;
+pub mod redis_vector_filter_tests;
