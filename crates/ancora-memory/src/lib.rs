@@ -11,3 +11,4 @@ pub mod vector_store;
 pub mod mem_store;
 pub mod conformance;
 pub mod backends;
+pub mod embedders;
