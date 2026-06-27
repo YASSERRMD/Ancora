@@ -459,10 +459,16 @@ fn payload_numeric_op(key: &str, op: &str, val: &PayloadValue, offset: usize) ->
 
 // ---- hybrid: tsvector keyword search ------------------------------------
 
+/// Clamp alpha to [0, 1] for hybrid score blending.
+fn clamp_alpha(alpha: f32) -> f32 {
+    alpha.clamp(0.0, 1.0)
+}
+
 /// Generate a hybrid search SQL using both cosine similarity and `tsvector` keyword ranking.
 ///
 /// The `alpha` parameter blends the scores. Result columns: id, payload, score.
 pub fn hybrid_query_sql(table: &str, limit: usize, alpha: f32) -> String {
+    let alpha = clamp_alpha(alpha);
     let beta = 1.0 - alpha;
     format!(
         "SELECT id, payload, \
@@ -471,6 +477,49 @@ pub fn hybrid_query_sql(table: &str, limit: usize, alpha: f32) -> String {
          ORDER BY score DESC \
          LIMIT {limit};"
     )
+}
+
+/// Generate a hybrid query that searches a specific text column name.
+///
+/// Use this when the text is stored under a key other than `text` in the payload.
+pub fn hybrid_query_column_sql(table: &str, text_key: &str, limit: usize, alpha: f32) -> String {
+    let alpha = clamp_alpha(alpha);
+    let beta = 1.0 - alpha;
+    format!(
+        "SELECT id, payload, \
+         ({alpha} * (1 - (embedding <=> $1)) + {beta} * ts_rank(to_tsvector(payload->>'{text_key}'), plainto_tsquery($2))) AS score \
+         FROM {table} \
+         ORDER BY score DESC \
+         LIMIT {limit};"
+    )
+}
+
+/// Generate a hybrid query with an additional filter clause.
+pub fn hybrid_query_with_filter_sql(
+    table: &str,
+    limit: usize,
+    alpha: f32,
+    filter_sql: &str,
+) -> String {
+    let alpha = clamp_alpha(alpha);
+    let beta = 1.0 - alpha;
+    format!(
+        "SELECT id, payload, \
+         ({alpha} * (1 - (embedding <=> $1)) + {beta} * ts_rank(to_tsvector(payload->>'text'), plainto_tsquery($2))) AS score \
+         FROM {table} \
+         WHERE {filter_sql} \
+         ORDER BY score DESC \
+         LIMIT {limit};"
+    )
+}
+
+/// Validate that an alpha value is in the expected [0,1] range.
+pub fn validate_alpha(alpha: f32) -> Result<f32, String> {
+    if (0.0..=1.0).contains(&alpha) {
+        Ok(alpha)
+    } else {
+        Err(format!("alpha={alpha} outside [0.0, 1.0]"))
+    }
 }
 
 // ---- tests (all offline) ------------------------------------------------
@@ -652,6 +701,34 @@ mod tests {
         let (sql, params) = filter_to_sql(&f, 0);
         assert!(sql.contains("payload->>'source'"));
         assert!(matches!(params[0], FilterParam::Text(ref s) if s == "wiki"));
+    }
+
+    #[test]
+    fn hybrid_query_sql_contains_tsvector() {
+        let sql = hybrid_query_sql("docs", 5, 0.7);
+        assert!(sql.contains("to_tsvector"), "SQL: {sql}");
+        assert!(sql.contains("plainto_tsquery"), "SQL: {sql}");
+        assert!(sql.contains("ORDER BY score DESC"));
+    }
+
+    #[test]
+    fn hybrid_query_column_sql_uses_custom_key() {
+        let sql = hybrid_query_column_sql("docs", "body", 5, 0.5);
+        assert!(sql.contains("'body'"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn hybrid_alpha_clamping() {
+        let sql1 = hybrid_query_sql("docs", 5, 1.5); // clamped to 1.0
+        let sql2 = hybrid_query_sql("docs", 5, 1.0);
+        assert_eq!(sql1, sql2, "alpha should be clamped to 1.0");
+    }
+
+    #[test]
+    fn validate_alpha_rejects_out_of_range() {
+        assert!(validate_alpha(1.1).is_err());
+        assert!(validate_alpha(-0.1).is_err());
+        assert!(validate_alpha(0.5).is_ok());
     }
 
     #[test]
