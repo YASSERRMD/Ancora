@@ -44,11 +44,37 @@ jobs:
         working-directory: sdk/dotnet
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests
+      - name: Run tests with coverage
         working-directory: sdk/dotnet
-        run: dotnet test --no-build --configuration Release --verbosity normal
+        run: |
+          dotnet test --no-build --configuration Release --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
         env:
           LD_LIBRARY_PATH: "${{ github.workspace }}/sdk/dotnet/Ancora.Tests"
+
+      - name: Enforce coverage threshold
+        working-directory: sdk/dotnet
+        run: |
+          COVER_MIN=60
+          REPORT=$(find . -name "coverage.cobertura.xml" | head -1)
+          if [ -z "$REPORT" ]; then
+            echo "No coverage report found; skipping threshold check."
+            exit 0
+          fi
+          LINE_RATE=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('$REPORT')
+          root = tree.getroot()
+          rate = float(root.attrib.get('line-rate', '0'))
+          print(int(rate * 100))
+          ")
+          echo "Line coverage: ${LINE_RATE}%"
+          if [ "$LINE_RATE" -lt "$COVER_MIN" ]; then
+            echo "Coverage ${LINE_RATE}% is below threshold ${COVER_MIN}%"
+            exit 1
+          fi
+          echo "Coverage ${LINE_RATE}% meets threshold ${COVER_MIN}%"
 
   pack:
     name: NuGet pack (dry run)
