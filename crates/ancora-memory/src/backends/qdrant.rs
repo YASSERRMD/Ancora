@@ -336,6 +336,59 @@ pub fn parse_scroll_points(body: &Value) -> Vec<(u64, Value)> {
         .collect()
 }
 
+// ---- hybrid search via full-text and sparse vectors ----------------------
+
+/// URL for the sparse/dense hybrid search endpoint.
+pub fn query_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/points/query")
+}
+
+/// Build a hybrid query body using the Qdrant `query` endpoint (v1.7+).
+///
+/// `prefetch` runs a dense vector search first; the outer `query` re-ranks
+/// using a keyword sparse model. This enables semantic + keyword fusion.
+pub fn hybrid_query_body(
+    dense_vector: &[f32],
+    sparse_indices: &[u32],
+    sparse_values: &[f32],
+    top_k: usize,
+    alpha: f32,
+) -> Value {
+    let alpha = alpha.clamp(0.0, 1.0);
+    json!({
+        "prefetch": [{
+            "query": dense_vector,
+            "limit": top_k * 2
+        }],
+        "query": {
+            "fusion": "rrf"
+        },
+        "limit": top_k,
+        "with_payload": true,
+        "params": {
+            "dense_weight": alpha,
+            "sparse_weight": 1.0 - alpha
+        }
+    })
+}
+
+/// Build a simple RRF fusion body combining multiple prefetch queries.
+pub fn rrf_fusion_body(
+    vectors: &[&[f32]],
+    top_k: usize,
+) -> Value {
+    let prefetches: Vec<Value> = vectors.iter().map(|v| json!({
+        "query": v,
+        "limit": top_k
+    })).collect();
+    json!({
+        "prefetch": prefetches,
+        "query": { "fusion": "rrf" },
+        "limit": top_k,
+        "with_payload": true
+    })
+}
+
 // ---- filter translation --------------------------------------------------
 
 /// Translate a `Filter` to the Qdrant REST filter JSON schema.
@@ -465,6 +518,36 @@ pub fn parse_collection_info(body: &Value) -> Option<(usize, u64)> {
 mod tests {
     use super::*;
     use crate::vector_store::{Distance, Filter, PayloadValue};
+
+    #[test]
+    fn query_url_format() {
+        let url = query_url("http://localhost:6333", "docs");
+        assert!(url.ends_with("/points/query"), "url: {url}");
+    }
+
+    #[test]
+    fn hybrid_query_body_has_prefetch_and_fusion() {
+        let body = hybrid_query_body(&[0.1f32], &[0, 1], &[0.5f32, 0.5], 5, 0.7);
+        assert!(body["prefetch"].is_array(), "body: {body}");
+        assert_eq!(body["query"]["fusion"], "rrf");
+        assert_eq!(body["limit"], 5);
+    }
+
+    #[test]
+    fn rrf_fusion_body_has_multiple_prefetches() {
+        let v1 = vec![0.1f32, 0.2];
+        let v2 = vec![0.3f32, 0.4];
+        let body = rrf_fusion_body(&[v1.as_slice(), v2.as_slice()], 5);
+        assert_eq!(body["prefetch"].as_array().unwrap().len(), 2);
+        assert_eq!(body["query"]["fusion"], "rrf");
+    }
+
+    #[test]
+    fn hybrid_alpha_clamped_in_body() {
+        let body = hybrid_query_body(&[0.1f32], &[], &[], 5, 1.5); // clamps to 1.0
+        let dw = body["params"]["dense_weight"].as_f64().unwrap();
+        assert!((dw - 1.0).abs() < 0.001, "dense_weight: {dw}");
+    }
 
     #[test]
     fn qdrant_config_default_url() {
