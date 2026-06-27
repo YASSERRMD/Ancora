@@ -244,6 +244,44 @@ pub fn cosine_query_sql(table: &str, limit: usize, offset: usize) -> String {
     )
 }
 
+/// Generate a cosine similarity query with a score threshold applied in SQL.
+///
+/// Only rows where `1 - cosine_distance >= threshold` are returned. This
+/// lets Postgres prune results before transferring them over the wire.
+pub fn cosine_query_with_threshold_sql(
+    table: &str,
+    limit: usize,
+    offset: usize,
+    threshold: f32,
+) -> String {
+    format!(
+        "SELECT id, payload, 1 - (embedding <=> $1) AS score \
+         FROM {table} \
+         WHERE 1 - (embedding <=> $1) >= {threshold} \
+         ORDER BY embedding <=> $1 \
+         LIMIT {limit} OFFSET {offset};"
+    )
+}
+
+/// Generate a filtered cosine query (WHERE clause inserted before ORDER BY).
+///
+/// `filter_sql` is a fragment like `payload->>'lang' = $2`. The embedding
+/// vector is always `$1`; filter params start at `param_offset + 1`.
+pub fn cosine_query_with_filter_sql(
+    table: &str,
+    limit: usize,
+    offset: usize,
+    filter_sql: &str,
+) -> String {
+    format!(
+        "SELECT id, payload, 1 - (embedding <=> $1) AS score \
+         FROM {table} \
+         WHERE {filter_sql} \
+         ORDER BY embedding <=> $1 \
+         LIMIT {limit} OFFSET {offset};"
+    )
+}
+
 /// Generate a dot-product similarity query.
 pub fn dot_query_sql(table: &str, limit: usize) -> String {
     format!(
@@ -490,6 +528,20 @@ mod tests {
         let sql = cosine_query_sql("docs", 10, 0);
         assert!(sql.contains("<=>"), "SQL: {sql}");
         assert!(sql.contains("LIMIT 10"));
+    }
+
+    #[test]
+    fn cosine_query_with_threshold_has_where() {
+        let sql = cosine_query_with_threshold_sql("docs", 5, 0, 0.75);
+        assert!(sql.contains("WHERE"), "SQL: {sql}");
+        assert!(sql.contains("0.75") || sql.contains(">="), "SQL: {sql}");
+    }
+
+    #[test]
+    fn cosine_query_with_filter_contains_filter_fragment() {
+        let sql = cosine_query_with_filter_sql("docs", 5, 0, "payload->>'lang' = $2");
+        assert!(sql.contains("payload->>'lang'"), "SQL: {sql}");
+        assert!(sql.contains("ORDER BY"), "SQL: {sql}");
     }
 
     #[test]
