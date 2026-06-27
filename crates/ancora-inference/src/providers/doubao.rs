@@ -109,4 +109,30 @@ mod tests {
         let p = build_doubao_profile();
         assert!(p.model_meta("vision").unwrap().capabilities.vision);
     }
+
+    #[test]
+    fn doubao_thinking_has_no_tools_flag() {
+        let p = build_doubao_profile();
+        assert!(!p.model_meta("thinking").unwrap().capabilities.tools);
+    }
+
+    #[test]
+    fn doubao_character_fits_128k_context() {
+        let p = build_doubao_profile();
+        let meta = p.model_meta("character").unwrap();
+        assert!(meta.fits_context(100_000));
+    }
+
+    #[test]
+    fn doubao_self_host_profile_name() {
+        let p = build_doubao_self_host_profile("http://localhost:8000");
+        assert_eq!(p.name, "doubao-self-host");
+    }
+
+    #[test]
+    fn doubao_error_429_is_rate_limit() {
+        use crate::error::InferenceError;
+        let err = normalize_error(429, "rate limited");
+        assert!(matches!(err, InferenceError::RateLimit { .. }));
+    }
 }
