@@ -47,6 +47,45 @@ pub fn rate_limit_meta(provider_name: &str) -> Option<RateLimitMeta> {
 /// This module provides shared metadata accessors used by tests and
 /// diagnostics to verify throughput-host profiles conform to expectations.
 
+/// Result from a host health probe.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum HealthStatus {
+    /// Profile is structurally valid and credentials are present in the environment.
+    Ready,
+    /// Credential environment variable is missing.
+    MissingCredential(String),
+    /// Profile is structurally invalid (e.g. no models registered, no HTTPS).
+    InvalidProfile(String),
+}
+
+/// Check whether a throughput host profile is ready to serve requests.
+///
+/// This is a structural health probe -- it does NOT make a live HTTP call.
+/// It verifies:
+/// 1. The base URL uses HTTPS.
+/// 2. At least one model is registered in the catalog.
+/// 3. The required API key environment variable is set.
+pub fn health_probe(profile: &ProviderProfile) -> HealthStatus {
+    if !profile.base_url.starts_with("https://") {
+        return HealthStatus::InvalidProfile("base_url must use HTTPS".to_owned());
+    }
+    if profile.model_catalog.is_empty() {
+        return HealthStatus::InvalidProfile("no models registered".to_owned());
+    }
+    match profile.auth.resolve() {
+        Some(_) => HealthStatus::Ready,
+        None => {
+            let env_var = match &profile.auth {
+                crate::provider::AuthStrategy::BearerToken { env_var } => env_var.clone(),
+                crate::provider::AuthStrategy::HeaderKey { env_var, .. } => env_var.clone(),
+                crate::provider::AuthStrategy::QueryParam { env_var, .. } => env_var.clone(),
+                crate::provider::AuthStrategy::None => return HealthStatus::Ready,
+            };
+            HealthStatus::MissingCredential(env_var)
+        }
+    }
+}
+
 /// Verify that a provider profile looks like a throughput host.
 ///
 /// Returns `true` when:
@@ -188,6 +227,34 @@ mod tests {
             groq.requests_per_minute < fw.requests_per_minute,
             "groq free tier is more restrictive than fireworks"
         );
+    }
+
+    #[test]
+    fn health_probe_missing_credential_for_groq() {
+        use crate::providers::groq::build_groq_profile;
+        // GROQ_API_KEY is not set in test environment
+        if std::env::var("GROQ_API_KEY").is_ok() {
+            return; // skip if key happens to be in environment
+        }
+        let p = build_groq_profile();
+        let status = health_probe(&p);
+        assert_eq!(status, HealthStatus::MissingCredential("GROQ_API_KEY".to_owned()));
+    }
+
+    #[test]
+    fn health_probe_invalid_profile_no_https() {
+        use crate::provider::AuthStrategy;
+        let p = ProviderProfile::new("test", "http://insecure.example.com", AuthStrategy::None);
+        let status = health_probe(&p);
+        assert_eq!(status, HealthStatus::InvalidProfile("base_url must use HTTPS".to_owned()));
+    }
+
+    #[test]
+    fn health_probe_invalid_profile_no_models() {
+        use crate::provider::AuthStrategy;
+        let p = ProviderProfile::new("test", "https://example.com", AuthStrategy::None);
+        let status = health_probe(&p);
+        assert_eq!(status, HealthStatus::InvalidProfile("no models registered".to_owned()));
     }
 
     #[test]
