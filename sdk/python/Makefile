@@ -4,7 +4,9 @@ PIP = $(VENV)/bin/pip
 MATURIN = $(PYTHON) -m maturin
 PYTEST = $(VENV)/bin/pytest
 
-.PHONY: venv develop test clean
+COVER_MIN ?= 70
+
+.PHONY: venv develop test coverage clean
 
 venv:
 	python3 -m venv $(VENV)
@@ -15,6 +17,10 @@ develop: venv
 
 test: develop
 	$(PYTEST) tests/ -v --asyncio-mode=auto
+
+coverage: develop
+	$(PYTEST) tests/ --cov=ancora --cov-report=term-missing --asyncio-mode=auto | \
+	  awk -v min=$(COVER_MIN) '/^TOTAL/ { pct=$$4+0; if (pct<min) { print "Coverage " pct "% below threshold " min "%"; exit 1 } else { print "Coverage " pct "% OK" } }'
 
 clean:
 	rm -rf $(VENV) dist/ *.egg-info/
