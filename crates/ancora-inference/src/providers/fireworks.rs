@@ -154,4 +154,45 @@ mod tests {
             "accounts/fireworks/models/llama-v3p1-405b-instruct"
         );
     }
+
+    fn fw_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_fireworks_profile()))
+    }
+
+    #[test]
+    fn fireworks_function_calling_request_body_has_tools() {
+        use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
+        let mut req = CompletionRequest::simple(
+            "llama3.1-70b",
+            vec![Message::text("user", "What is the weather?")],
+        );
+        req.tools = vec![ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: "get_weather".to_owned(),
+                description: "Get weather for location".to_owned(),
+                parameters: serde_json::json!({
+                    "type": "object",
+                    "properties": {"location": {"type": "string"}},
+                    "required": ["location"]
+                }),
+            },
+        }];
+        let body = fw_client().build_request_body(&req, false).unwrap();
+        assert!(body["tools"].is_array());
+        assert_eq!(body["tools"][0]["type"], "function");
+        assert_eq!(body["tools"][0]["function"]["name"], "get_weather");
+    }
+
+    #[test]
+    fn fireworks_function_calling_model_resolved() {
+        use crate::types::{CompletionRequest, Message};
+        let req = CompletionRequest::simple("llama3.1-70b", vec![Message::text("user", "Hi")]);
+        let body = fw_client().build_request_body(&req, false).unwrap();
+        assert_eq!(
+            body["model"],
+            "accounts/fireworks/models/llama-v3p1-70b-instruct"
+        );
+    }
 }
