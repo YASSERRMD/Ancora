@@ -8,6 +8,10 @@ pub const QWEN_URL_SINGAPORE: &str =
 pub const QWEN_URL_FRANKFURT: &str =
     "https://dashscope-intl-eu.aliyuncs.com/compatible-mode";
 
+/// DashScope Virginia regional endpoint (US East).
+pub const QWEN_URL_VIRGINIA: &str =
+    "https://dashscope-intl-us.aliyuncs.com/compatible-mode";
+
 /// Build the Alibaba Qwen (DashScope) provider profile.
 ///
 /// Uses the Singapore international endpoint by default. Auth is read from
@@ -21,6 +25,7 @@ pub fn build_qwen_profile() -> ProviderProfile {
     )
     .add_region("sg", QWEN_URL_SINGAPORE)
     .add_region("eu", QWEN_URL_FRANKFURT)
+    .add_region("us", QWEN_URL_VIRGINIA)
     // Qwen3 235B MoE -- flagship; tools, 128k context
     .add_model(
         ModelMeta::new("qwen3-235b-a22b", 131_072)
