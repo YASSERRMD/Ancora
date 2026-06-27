@@ -15,11 +15,13 @@ pub struct CompletionRequest {
 }
 
 /// The response returned by a model after completion.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CompletionResponse {
     pub content: String,
     pub tokens_in: u64,
     pub tokens_out: u64,
+    /// USD cost computed from provider pricing metadata, when available.
+    pub cost_usd: Option<f64>,
 }
 
 /// A token fragment emitted during streaming completion.
