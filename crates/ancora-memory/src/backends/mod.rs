@@ -13,3 +13,4 @@ pub mod weaviate_conformance;
 pub mod weaviate_hybrid_tests;
 pub mod weaviate_filter_tests;
 pub mod weaviate_integration;
+pub mod weaviate_generative_tests;
