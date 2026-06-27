@@ -63,6 +63,59 @@ pub fn is_speech_model(model_id: &str) -> bool {
     canonical.contains("Speech")
 }
 
+#[cfg(test)]
+const MINIMAX_FIXTURE: &str = r#"{"id":"chatcmpl-mm-01","choices":[{"message":{"role":"assistant","content":"Hello from MiniMax","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":13,"completion_tokens":6}}"#;
+
+#[cfg(test)]
+const MINIMAX_VL_FIXTURE: &str = r#"{"id":"chatcmpl-mm-vl-01","choices":[{"message":{"role":"assistant","content":"I see a red apple in the image","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":50,"completion_tokens":10}}"#;
+
+#[cfg(test)]
+const MINIMAX_STREAM_LINES: &[&str] = &[
+    r#"data: {"choices":[{"delta":{"content":"Mini"},"finish_reason":null}]}"#,
+    r#"data: {"choices":[{"delta":{"content":"Max"},"finish_reason":"stop"}]}"#,
+    "data: [DONE]",
+];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn minimax_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_minimax_profile()))
+    }
+
+    #[test]
+    fn minimax_recorded_fixture_completes() {
+        let resp = minimax_client().parse_response(MINIMAX_FIXTURE, "MiniMax-Text-01").unwrap();
+        assert_eq!(resp.content, "Hello from MiniMax");
+        assert_eq!(resp.tokens_in, 13);
+        assert_eq!(resp.tokens_out, 6);
+    }
+
+    #[test]
+    fn minimax_provider_name_is_minimax() {
+        assert_eq!(build_minimax_profile().name, "minimax");
+    }
+
+    #[test]
+    fn minimax_text01_has_1m_context() {
+        let p = build_minimax_profile();
+        let meta = p.model_meta("MiniMax-Text-01").unwrap();
+        assert!(meta.context_window >= 1_000_000);
+    }
+
+    #[test]
+    fn minimax_m2_has_tools() {
+        assert!(supports_tools("m2"));
+    }
+
+    #[test]
+    fn minimax_vl_has_vision() {
+        assert!(supports_vision("vl-01"));
+    }
+}
+
 /// Return `true` if the model supports tool/function calls.
 pub fn supports_tools(model_id: &str) -> bool {
     let p = build_minimax_profile();
