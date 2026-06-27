@@ -29,3 +29,4 @@ pub mod lancedb_sql_filter_tests;
 pub mod lancedb_hybrid_search_tests;
 pub mod lancedb_object_storage_tests;
 pub mod lancedb_version_tests;
+pub mod lancedb_offline_tests;
