@@ -11,3 +11,4 @@ pub mod qdrant_integration;
 pub mod weaviate;
 pub mod weaviate_conformance;
 pub mod weaviate_hybrid_tests;
+pub mod weaviate_filter_tests;
