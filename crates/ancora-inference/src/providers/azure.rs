@@ -127,4 +127,16 @@ mod tests {
         assert!(p1.completions_url(None).contains("2024-02-01"));
         assert!(p2.completions_url(None).contains("2024-05-01-preview"));
     }
+
+    #[test]
+    fn azure_api_version_in_url_not_body() {
+        use crate::types::{CompletionRequest, Message};
+        let p = Arc::new(build_azure_profile("r", "d", "2024-02-01"));
+        let c = OpenAiClient::new(p.clone());
+        let req = CompletionRequest::simple("d", vec![Message::text("user", "hi")]);
+        let body = c.build_request_body(&req, false).unwrap();
+        // api-version must be in the URL, not in the JSON body
+        assert!(body.get("api-version").is_none(), "api-version should not be in body");
+        assert!(p.completions_url(None).contains("api-version"));
+    }
 }
