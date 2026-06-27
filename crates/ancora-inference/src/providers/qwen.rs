@@ -254,4 +254,39 @@ mod tests {
         let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
         assert!(ev.finished);
     }
+
+    #[test]
+    fn qwen_sg_region_resolves_singapore_url() {
+        let p = build_qwen_profile();
+        assert!(p.base_url_for_region(Some("sg")).contains("dashscope-intl.aliyuncs.com"));
+        assert!(!p.base_url_for_region(Some("sg")).contains("-eu"));
+        assert!(!p.base_url_for_region(Some("sg")).contains("-us"));
+    }
+
+    #[test]
+    fn qwen_eu_region_resolves_frankfurt_url() {
+        let p = build_qwen_profile();
+        assert!(p.base_url_for_region(Some("eu")).contains("-eu"));
+    }
+
+    #[test]
+    fn qwen_us_region_resolves_virginia_url() {
+        let p = build_qwen_profile();
+        assert!(p.base_url_for_region(Some("us")).contains("-us"));
+    }
+
+    #[test]
+    fn qwen_cn_region_resolves_china_url() {
+        let p = build_qwen_profile();
+        let cn_url = p.base_url_for_region(Some("cn"));
+        assert!(cn_url.contains("dashscope.aliyuncs.com"));
+        assert!(!cn_url.contains("-intl"));
+    }
+
+    #[test]
+    fn qwen_unknown_region_falls_back_to_default() {
+        let p = build_qwen_profile();
+        // Unknown region should fall back to the default (Singapore)
+        assert_eq!(p.base_url_for_region(Some("au")), p.base_url_for_region(None));
+    }
 }
