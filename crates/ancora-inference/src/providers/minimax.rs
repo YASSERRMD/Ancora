@@ -114,6 +114,31 @@ mod tests {
     fn minimax_vl_has_vision() {
         assert!(supports_vision("vl-01"));
     }
+
+    #[test]
+    fn minimax_multimodal_vl_fixture_parses() {
+        let resp = minimax_client().parse_response(MINIMAX_VL_FIXTURE, "MiniMax-VL-01").unwrap();
+        assert!(resp.content.contains("apple"));
+        assert_eq!(resp.tokens_in, 50);
+        assert_eq!(resp.tokens_out, 10);
+    }
+
+    #[test]
+    fn minimax_speech_model_detected() {
+        assert!(is_speech_model("speech"));
+        assert!(!is_speech_model("text-01"));
+    }
+
+    #[test]
+    fn minimax_streaming_combined_text() {
+        let text = collect_stream_text(MINIMAX_STREAM_LINES);
+        assert_eq!(text, "MiniMax");
+    }
+
+    #[test]
+    fn minimax_vl_not_speech_model() {
+        assert!(!is_speech_model("vl-01"));
+    }
 }
 
 /// Return `true` if the model supports tool/function calls.
