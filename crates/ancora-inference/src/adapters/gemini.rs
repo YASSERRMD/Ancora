@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{ContentPart, Message};
+use crate::types::{ContentPart, FunctionCall, Message, ToolCall, ToolDefinition};
 
 // ---- Wire types: request ---------------------------------------------------
 
@@ -30,6 +30,100 @@ pub(crate) struct GeminiFunctionCall {
 pub(crate) struct GeminiContent {
     pub role: String,
     pub parts: Vec<GeminiPart>,
+}
+
+// ---- Wire types: tool definitions -----------------------------------------
+
+#[derive(Debug, Serialize, Clone)]
+pub(crate) struct GeminiFunctionDeclaration {
+    pub name: String,
+    pub description: String,
+    pub parameters: serde_json::Value,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub(crate) struct GeminiTool {
+    pub function_declarations: Vec<GeminiFunctionDeclaration>,
+}
+
+// ---- Wire types: response --------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct GeminiResponsePart {
+    #[serde(default)]
+    pub text: Option<String>,
+    #[serde(default)]
+    pub function_call: Option<GeminiFunctionCall>,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct GeminiResponseContent {
+    pub parts: Vec<GeminiResponsePart>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct GeminiCandidate {
+    pub content: GeminiResponseContent,
+    #[serde(default)]
+    pub finish_reason: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct GeminiUsageMetadata {
+    #[serde(default)]
+    pub prompt_token_count: u64,
+    #[serde(default)]
+    pub candidates_token_count: u64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct GeminiResponse {
+    pub candidates: Vec<GeminiCandidate>,
+    #[serde(default)]
+    pub usage_metadata: GeminiUsageMetadata,
+}
+
+/// Encode a `ToolDefinition` into a Gemini `functionDeclarations` entry.
+///
+/// Gemini uses `parameters` (same key as the JSON Schema spec), unlike
+/// Anthropic which uses `input_schema`.
+pub(crate) fn encode_tool(t: &ToolDefinition) -> GeminiFunctionDeclaration {
+    GeminiFunctionDeclaration {
+        name: t.function.name.clone(),
+        description: t.function.description.clone(),
+        parameters: t.function.parameters.clone(),
+    }
+}
+
+/// Decode Gemini response candidates into text and tool calls.
+pub(crate) fn decode_response(resp: GeminiResponse) -> (String, Vec<ToolCall>, u64, u64) {
+    let tokens_in = resp.usage_metadata.prompt_token_count;
+    let tokens_out = resp.usage_metadata.candidates_token_count;
+    let candidate = match resp.candidates.into_iter().next() {
+        Some(c) => c,
+        None => return (String::new(), vec![], tokens_in, tokens_out),
+    };
+    let mut text = String::new();
+    let mut calls = Vec::new();
+    for part in candidate.content.parts {
+        if let Some(t) = part.text {
+            text.push_str(&t);
+        }
+        if let Some(fc) = part.function_call {
+            calls.push(ToolCall {
+                id: format!("call_{}", fc.name),
+                kind: "function".to_owned(),
+                function: FunctionCall {
+                    name: fc.name.clone(),
+                    arguments: serde_json::to_string(&fc.args).unwrap_or_default(),
+                },
+            });
+        }
+    }
+    (text, calls, tokens_in, tokens_out)
 }
 
 /// Map a generic conversation role to the Gemini-specific role label.
@@ -106,6 +200,48 @@ mod tests {
         let c = encode_message(&Message::text("user", "Hi"));
         let j = serde_json::to_value(&c).unwrap();
         assert!(j["role"].is_string());
+    }
+
+    #[test]
+    fn encode_tool_preserves_name_description_parameters() {
+        use crate::types::{FunctionDefinition, ToolDefinition};
+        let td = ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: "get_weather".to_owned(),
+                description: "Get weather".to_owned(),
+                parameters: serde_json::json!({"type": "object"}),
+            },
+        };
+        let fd = encode_tool(&td);
+        assert_eq!(fd.name, "get_weather");
+        assert_eq!(fd.parameters, serde_json::json!({"type": "object"}));
+    }
+
+    #[test]
+    fn decode_response_extracts_function_call_part() {
+        let resp = GeminiResponse {
+            candidates: vec![GeminiCandidate {
+                content: GeminiResponseContent {
+                    parts: vec![GeminiResponsePart {
+                        text: None,
+                        function_call: Some(GeminiFunctionCall {
+                            name: "get_weather".to_owned(),
+                            args: serde_json::json!({"city": "Tokyo"}),
+                        }),
+                    }],
+                },
+                finish_reason: Some("STOP".to_owned()),
+            }],
+            usage_metadata: GeminiUsageMetadata { prompt_token_count: 10, candidates_token_count: 5 },
+        };
+        let (text, calls, tok_in, tok_out) = decode_response(resp);
+        assert!(text.is_empty());
+        assert_eq!(calls.len(), 1);
+        assert_eq!(calls[0].function.name, "get_weather");
+        assert!(calls[0].function.arguments.contains("Tokyo"));
+        assert_eq!(tok_in, 10);
+        assert_eq!(tok_out, 5);
     }
 
     #[test]
