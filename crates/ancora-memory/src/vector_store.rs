@@ -461,6 +461,37 @@ pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<S
 
 // ---- the trait ------------------------------------------------------------
 
+// ---- batch helper tests --------------------------------------------------
+
+#[cfg(test)]
+mod batch_tests {
+    use super::*;
+
+    #[test]
+    fn make_batches_splits_correctly() {
+        let pts: Vec<Point> = (0u64..5).map(|i| Point::new(i, vec![i as f32])).collect();
+        let batches = make_batches(pts, 2);
+        assert_eq!(batches.len(), 3); // [0,1], [2,3], [4]
+        assert_eq!(batches[0].len(), 2);
+        assert_eq!(batches[2].len(), 1);
+    }
+
+    #[test]
+    fn make_batches_zero_size_returns_all() {
+        let pts: Vec<Point> = (0u64..5).map(|i| Point::new(i, vec![i as f32])).collect();
+        let batches = make_batches(pts, 0);
+        assert_eq!(batches.len(), 1);
+        assert_eq!(batches[0].len(), 5);
+    }
+
+    #[test]
+    fn batch_config_defaults() {
+        let cfg = BatchConfig::default();
+        assert_eq!(cfg.batch_size, 100);
+        assert_eq!(cfg.retries, 3);
+    }
+}
+
 // ---- unit tests for trait utilities --------------------------------------
 
 #[cfg(test)]
