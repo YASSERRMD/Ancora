@@ -164,4 +164,34 @@ mod tests {
     fn kimi_128k_has_no_tools() {
         assert!(!supports_tools("moonshot-v1-128k"));
     }
+
+    #[test]
+    fn kimi_long_context_assembly_correct() {
+        use crate::types::{CompletionRequest, Message};
+        let many: Vec<Message> = (0..200)
+            .map(|i| Message::text(if i % 2 == 0 { "user" } else { "assistant" }, &format!("msg {i}")))
+            .collect();
+        let req = CompletionRequest::simple("moonshot-v1-long", many.clone());
+        let body = kimi_client().build_request_body(&req, false).unwrap();
+        assert_eq!(body["model"], "moonshot-v1-long");
+        assert_eq!(body["messages"].as_array().unwrap().len(), 200);
+    }
+
+    #[test]
+    fn kimi_long_model_fits_large_context() {
+        let p = build_kimi_profile();
+        let meta = p.model_meta("moonshot-v1-long").unwrap();
+        assert!(meta.fits_context(500_000));
+    }
+
+    #[test]
+    fn kimi_streaming_fixture_ordered() {
+        use crate::openai::OpenAiClient;
+        let texts: Vec<String> = KIMI_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(texts, vec!["Kimi", " K2"]);
+    }
 }
