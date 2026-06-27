@@ -86,12 +86,28 @@ pub fn build_qwen_profile() -> ProviderProfile {
             .with_tools()
             .with_streaming(),
     )
+    // Vision-language models
+    .add_model(
+        ModelMeta::new("qwen-vl-max", 32_768)
+            .with_pricing(3.00, 9.00)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("qwen-vl-plus", 32_768)
+            .with_pricing(0.80, 2.40)
+            .with_vision()
+            .with_streaming(),
+    )
     // Model-id aliases for convenience
     .add_alias("qwen3-max", "qwen3-235b-a22b")
     .add_alias("qwq", "qwq-32b")
     .add_alias("max", "qwen-max")
     .add_alias("plus", "qwen-plus")
     .add_alias("turbo", "qwen-turbo")
+    .add_alias("vl-max", "qwen-vl-max")
+    .add_alias("vl-plus", "qwen-vl-plus")
 }
 
 /// Parse a single SSE line from a DashScope streaming response.
