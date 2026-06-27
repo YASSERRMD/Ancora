@@ -140,6 +140,56 @@ pub fn upsert_body(points: &[(u64, Vec<f32>, Value)]) -> Value {
     json!({ "points": pts })
 }
 
+/// A point ID that can be either a numeric u64 or a UUID string.
+#[derive(Debug, Clone)]
+pub enum QdrantPointId {
+    Num(u64),
+    Uuid(String),
+}
+
+impl From<u64> for QdrantPointId {
+    fn from(n: u64) -> Self { Self::Num(n) }
+}
+
+impl From<&str> for QdrantPointId {
+    fn from(s: &str) -> Self { Self::Uuid(s.to_owned()) }
+}
+
+impl QdrantPointId {
+    pub fn to_json(&self) -> Value {
+        match self {
+            Self::Num(n) => json!(n),
+            Self::Uuid(s) => json!(s),
+        }
+    }
+}
+
+/// Build a upsert body for points with mixed numeric/UUID IDs.
+pub fn upsert_body_typed(points: &[(QdrantPointId, Vec<f32>, Value)]) -> Value {
+    let pts: Vec<Value> = points.iter().map(|(id, vec, payload)| json!({
+        "id": id.to_json(),
+        "vector": vec,
+        "payload": payload
+    })).collect();
+    json!({ "points": pts })
+}
+
+/// Build a upsert body for points with named vectors.
+pub fn upsert_named_vector_body(
+    points: &[(u64, &str, Vec<f32>, Value)],
+) -> Value {
+    let pts: Vec<Value> = points.iter().map(|(id, vec_name, embedding, payload)| {
+        let mut vector_map = serde_json::Map::new();
+        vector_map.insert(vec_name.to_string(), json!(embedding));
+        json!({
+            "id": id,
+            "vector": serde_json::Value::Object(vector_map),
+            "payload": payload
+        })
+    }).collect();
+    json!({ "points": pts })
+}
+
 /// Build the JSON body for a nearest-neighbour search request.
 pub fn search_body(vector: &[f32], top_k: usize, filter: Option<&Filter>) -> Value {
     let mut body = json!({
@@ -314,6 +364,36 @@ mod tests {
         let body = upsert_body(&pts);
         assert!(body["points"].is_array());
         assert_eq!(body["points"][0]["id"], 1);
+    }
+
+    #[test]
+    fn qdrant_point_id_num_to_json() {
+        let id = QdrantPointId::Num(42);
+        assert_eq!(id.to_json(), json!(42u64));
+    }
+
+    #[test]
+    fn qdrant_point_id_uuid_to_json() {
+        let id = QdrantPointId::Uuid("abc-123".to_owned());
+        assert_eq!(id.to_json(), json!("abc-123"));
+    }
+
+    #[test]
+    fn upsert_body_typed_with_uuid_id() {
+        let pts = vec![(
+            QdrantPointId::Uuid("uuid-1".to_owned()),
+            vec![0.1f32],
+            json!({}),
+        )];
+        let body = upsert_body_typed(&pts);
+        assert_eq!(body["points"][0]["id"], "uuid-1");
+    }
+
+    #[test]
+    fn upsert_named_vector_body_nests_vector_under_name() {
+        let pts = vec![(1u64, "text", vec![0.1f32, 0.2], json!({}))];
+        let body = upsert_named_vector_body(&pts);
+        assert!(body["points"][0]["vector"]["text"].is_array());
     }
 
     #[test]
