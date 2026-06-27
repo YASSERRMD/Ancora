@@ -6,6 +6,7 @@ pub mod deepseek;
 pub mod doubao;
 pub mod fireworks;
 pub mod ernie;
+pub mod gateway;
 pub mod gemini;
 pub mod hunyuan;
 pub mod glm;
