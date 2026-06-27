@@ -386,6 +386,20 @@ impl ModelClient for CohereClient {
 }
 
 #[cfg(test)]
+const FIXTURE: &str = r#"{"text":"Hello from Cohere!","generation_id":"gen-01","tool_calls":[],"meta":{"tokens":{"input_tokens":12,"output_tokens":5}}}"#;
+
+#[cfg(test)]
+const FIXTURE_TOOL: &str = r#"{"text":"","generation_id":"gen-02","tool_calls":[{"name":"get_weather","parameters":{"location":"San Francisco"}}],"meta":{"tokens":{"input_tokens":20,"output_tokens":8}}}"#;
+
+#[cfg(test)]
+const FIXTURE_STREAM: &[&str] = &[
+    r#"data: {"event_type":"text-generation","text":"Hello"}"#,
+    r#"data: {"event_type":"text-generation","text":" from"}"#,
+    r#"data: {"event_type":"text-generation","text":" Cohere"}"#,
+    r#"data: {"event_type":"stream-end","finish_reason":"COMPLETE","response":{}}"#,
+];
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::types::{FunctionDefinition, Message, ToolDefinition};
@@ -524,5 +538,31 @@ mod tests {
         let def = encode_tool(&tool);
         let limit = def.parameter_definitions.get("limit").unwrap();
         assert_eq!(limit.required, Some(false));
+    }
+
+    fn client() -> CohereClient {
+        use crate::providers::cohere::build_cohere_profile;
+        use std::sync::Arc;
+        CohereClient::new(Arc::new(build_cohere_profile()))
+    }
+
+    #[test]
+    fn cohere_recorded_fixture_completes() {
+        let resp = client().parse_response(FIXTURE, "command-r-plus").unwrap();
+        assert_eq!(resp.content, "Hello from Cohere!");
+        assert_eq!(resp.tokens_in, 12);
+        assert_eq!(resp.tokens_out, 5);
+    }
+
+    #[test]
+    fn cohere_fixture_content_non_empty() {
+        let resp = client().parse_response(FIXTURE, "command-r-plus").unwrap();
+        assert!(!resp.content.is_empty());
+    }
+
+    #[test]
+    fn cohere_fixture_no_tool_calls() {
+        let resp = client().parse_response(FIXTURE, "command-r-plus").unwrap();
+        assert!(resp.tool_calls.is_empty());
     }
 }
