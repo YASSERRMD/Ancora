@@ -45,6 +45,9 @@ pub fn build_anthropic_profile() -> ProviderProfile {
 const FIXTURE_CHAT: &str = r#"{"id":"msg_01","type":"message","role":"assistant","content":[{"type":"text","text":"Hello from Anthropic"}],"model":"claude-sonnet-4-6","stop_reason":"end_turn","usage":{"input_tokens":12,"output_tokens":4}}"#;
 
 #[cfg(test)]
+const FIXTURE_TOOL_CALL: &str = r#"{"id":"msg_02","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_01XYZ","name":"get_weather","input":{"city":"Paris"}}],"stop_reason":"tool_use","usage":{"input_tokens":25,"output_tokens":12}}"#;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::adapters::anthropic::AnthropicClient;
@@ -99,5 +102,63 @@ mod tests {
     fn anthropic_alias_claude_opus_resolves() {
         let p = build_anthropic_profile();
         assert_eq!(p.resolve_model_id("claude-opus"), "claude-opus-4-8");
+    }
+
+    #[test]
+    fn anthropic_tool_call_parsed_from_fixture() {
+        let resp = client().parse_response(FIXTURE_TOOL_CALL, "claude-sonnet-4-6").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        let tc = &resp.tool_calls[0];
+        assert_eq!(tc.id, "toolu_01XYZ");
+        assert_eq!(tc.function.name, "get_weather");
+        assert!(tc.function.arguments.contains("Paris"));
+    }
+
+    #[test]
+    fn anthropic_tool_call_content_is_empty() {
+        let resp = client().parse_response(FIXTURE_TOOL_CALL, "claude-sonnet-4-6").unwrap();
+        assert!(resp.content.is_empty());
+    }
+
+    #[test]
+    fn anthropic_request_body_contains_tools_array() {
+        use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
+        let req = CompletionRequest {
+            model_id: "claude-sonnet-4-6".to_owned(),
+            messages: vec![Message::text("user", "What is the weather?")],
+            max_tokens: Some(1024),
+            temperature: None,
+            tools: vec![ToolDefinition {
+                kind: "function".to_owned(),
+                function: FunctionDefinition {
+                    name: "get_weather".to_owned(),
+                    description: "Get current weather".to_owned(),
+                    parameters: serde_json::json!({"type": "object", "properties": {"city": {"type": "string"}}}),
+                },
+            }],
+            tool_choice: None,
+        };
+        let body = client().build_request_body(&req, false).unwrap();
+        let tools = body["tools"].as_array().unwrap();
+        assert_eq!(tools.len(), 1);
+        assert_eq!(tools[0]["name"], "get_weather");
+        assert!(tools[0]["input_schema"].is_object());
+    }
+
+    #[test]
+    fn anthropic_request_body_system_at_top_level() {
+        use crate::types::{CompletionRequest, Message};
+        let req = CompletionRequest::simple(
+            "claude-sonnet-4-6",
+            vec![
+                Message::text("system", "You are helpful"),
+                Message::text("user", "Hello"),
+            ],
+        );
+        let body = client().build_request_body(&req, false).unwrap();
+        assert_eq!(body["system"], "You are helpful");
+        let messages = body["messages"].as_array().unwrap();
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0]["role"], "user");
     }
 }
