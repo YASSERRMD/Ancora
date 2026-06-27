@@ -461,6 +461,48 @@ pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<S
 
 // ---- the trait ------------------------------------------------------------
 
+// ---- distance metric tests -----------------------------------------------
+
+#[cfg(test)]
+mod distance_tests {
+    use super::*;
+
+    #[test]
+    fn cosine_identical_vectors_is_one() {
+        let v = vec![1.0, 0.0, 0.0];
+        assert!((cosine_similarity(&v, &v) - 1.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn cosine_orthogonal_is_zero() {
+        let a = vec![1.0, 0.0];
+        let b = vec![0.0, 1.0];
+        assert!((cosine_similarity(&a, &b)).abs() < 1e-6);
+    }
+
+    #[test]
+    fn dot_product_basic() {
+        let a = vec![2.0, 3.0];
+        let b = vec![4.0, 5.0];
+        assert!((dot_product(&a, &b) - 23.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn l2_identical_is_one() {
+        let v = vec![1.0, 2.0, 3.0];
+        assert!((l2_similarity(&v, &v) - 1.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn distance_score_method_dispatches() {
+        let a = vec![1.0, 0.0];
+        let b = vec![1.0, 0.0];
+        assert!((Distance::Cosine.score(&a, &b) - 1.0).abs() < 1e-6);
+        assert!((Distance::Dot.score(&a, &b) - 1.0).abs() < 1e-6);
+        assert!((Distance::L2.score(&a, &b) - 1.0).abs() < 1e-6);
+    }
+}
+
 // ---- batch helper tests --------------------------------------------------
 
 #[cfg(test)]
