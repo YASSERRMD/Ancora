@@ -100,4 +100,9 @@ describe('rag-qdrant example smoke test', () => {
     expect(text.startsWith('Context:')).toBe(true)
     agent.free()
   })
+
+  it('keywordRetrieve ranks more-matching passage higher', () => {
+    const hits = keywordRetrieve(corpus, 'qdrant vector search engine', 4)
+    expect(hits[0].source).toContain('qdrant')
+  })
 })
