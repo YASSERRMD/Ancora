@@ -189,4 +189,56 @@ mod tests {
             "groq free tier is more restrictive than fireworks"
         );
     }
+
+    #[test]
+    fn groq_streaming_ordered() {
+        use crate::openai::OpenAiClient;
+        use crate::providers::groq::build_groq_profile;
+        use std::sync::Arc;
+        let _client = OpenAiClient::new(Arc::new(build_groq_profile()));
+        let lines = [
+            r#"data: {"choices":[{"delta":{"content":"one"},"finish_reason":null}]}"#,
+            r#"data: {"choices":[{"delta":{"content":" two"},"finish_reason":null}]}"#,
+            r#"data: {"choices":[{"delta":{"content":" three"},"finish_reason":"stop"}]}"#,
+            "data: [DONE]",
+        ];
+        let tokens: Vec<String> = lines.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(tokens, vec!["one", " two", " three"]);
+    }
+
+    #[test]
+    fn together_streaming_ordered() {
+        use crate::openai::OpenAiClient;
+        let lines = [
+            r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
+            r#"data: {"choices":[{"delta":{"content":" Together"},"finish_reason":"stop"}]}"#,
+            "data: [DONE]",
+        ];
+        let tokens: Vec<String> = lines.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(tokens, vec!["Hello", " Together"]);
+    }
+
+    #[test]
+    fn fireworks_streaming_ordered() {
+        use crate::openai::OpenAiClient;
+        let lines = [
+            r#"data: {"choices":[{"delta":{"content":"Spark"},"finish_reason":null}]}"#,
+            r#"data: {"choices":[{"delta":{"content":"s"},"finish_reason":"stop"}]}"#,
+            "data: [DONE]",
+        ];
+        let tokens: Vec<String> = lines.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(tokens, vec!["Spark", "s"]);
+    }
 }
