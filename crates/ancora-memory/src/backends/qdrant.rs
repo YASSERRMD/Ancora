@@ -336,6 +336,53 @@ pub fn parse_scroll_points(body: &Value) -> Vec<(u64, Value)> {
         .collect()
 }
 
+// ---- snapshot and collection management ----------------------------------
+
+/// URL for creating a snapshot of a specific collection.
+pub fn create_snapshot_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/snapshots")
+}
+
+/// URL for listing all snapshots of a collection.
+pub fn list_snapshots_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/snapshots")
+}
+
+/// URL for deleting a specific snapshot.
+pub fn delete_snapshot_url(base: &str, name: &str, snapshot_name: &str) -> String {
+    format!("{base}/collections/{name}/snapshots/{snapshot_name}")
+}
+
+/// URL for listing all collections.
+pub fn list_collections_url(base: &str) -> String {
+    format!("{base}/collections")
+}
+
+/// Parse collection names from a Qdrant list-collections response.
+pub fn parse_collection_names(body: &serde_json::Value) -> Vec<String> {
+    body["result"]["collections"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|c| c["name"].as_str().map(|s| s.to_owned()))
+        .collect()
+}
+
+/// Build the body to recover a collection from a snapshot URL.
+pub fn recover_from_snapshot_body(snapshot_url: &str) -> serde_json::Value {
+    json!({ "location": snapshot_url })
+}
+
+/// URL for the cluster info endpoint (useful for health checks).
+pub fn cluster_url(base: &str) -> String {
+    format!("{base}/cluster")
+}
+
+/// URL for the readiness check endpoint.
+pub fn readiness_url(base: &str) -> String {
+    format!("{base}/readyz")
+}
+
 // ---- hybrid search via full-text and sparse vectors ----------------------
 
 /// URL for the sparse/dense hybrid search endpoint.
@@ -518,6 +565,31 @@ pub fn parse_collection_info(body: &Value) -> Option<(usize, u64)> {
 mod tests {
     use super::*;
     use crate::vector_store::{Distance, Filter, PayloadValue};
+
+    #[test]
+    fn create_snapshot_url_ends_with_snapshots() {
+        let url = create_snapshot_url("http://localhost:6333", "docs");
+        assert!(url.ends_with("/snapshots"), "url: {url}");
+    }
+
+    #[test]
+    fn list_collections_url_format() {
+        assert_eq!(list_collections_url("http://localhost:6333"), "http://localhost:6333/collections");
+    }
+
+    #[test]
+    fn parse_collection_names_extracts_names() {
+        let body = serde_json::json!({
+            "result": { "collections": [{ "name": "docs" }, { "name": "images" }] }
+        });
+        let names = parse_collection_names(&body);
+        assert_eq!(names, vec!["docs", "images"]);
+    }
+
+    #[test]
+    fn readiness_url_format() {
+        assert_eq!(readiness_url("http://localhost:6333"), "http://localhost:6333/readyz");
+    }
 
     #[test]
     fn query_url_format() {
