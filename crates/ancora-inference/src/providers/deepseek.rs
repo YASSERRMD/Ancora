@@ -234,6 +234,22 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_reasoning_content_does_not_break_parsing() {
+        // DeepSeek R1 adds a `reasoning_content` field to the message object.
+        // The OpenAI client ignores unknown fields (serde default behavior),
+        // so the standard `content` field is still extracted correctly.
+        let resp = ds_client().parse_response(DS_REASONING_FIXTURE, "deepseek-reasoner").unwrap();
+        assert_eq!(resp.content, "The answer is 42");
+    }
+
+    #[test]
+    fn deepseek_reasoning_fixture_tokens_correct() {
+        let resp = ds_client().parse_response(DS_REASONING_FIXTURE, "deepseek-reasoner").unwrap();
+        assert_eq!(resp.tokens_in, 8);
+        assert_eq!(resp.tokens_out, 6);
+    }
+
+    #[test]
     fn deepseek_stream_done_emits_finished() {
         use crate::openai::OpenAiClient;
         let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
