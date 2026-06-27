@@ -106,7 +106,29 @@ nav:
           - Troubleshooting: sdk/ts/troubleshooting.md
           - API Reference: sdk/ts/api-reference.md
           - Migration: sdk/ts/migration.md
-      - .NET: sdk/dotnet/index.md
+      - .NET:
+          - Overview: sdk/dotnet/index.md
+          - Install: sdk/dotnet/install.md
+          - Quickstart: sdk/dotnet/quickstart.md
+          - Tools: sdk/dotnet/tools.md
+          - Structured Output: sdk/dotnet/structured-output.md
+          - Multi-Agent: sdk/dotnet/multi-agent.md
+          - Verifier: sdk/dotnet/verifier.md
+          - Human-in-the-Loop: sdk/dotnet/human-in-the-loop.md
+          - Streaming: sdk/dotnet/streaming.md
+          - Memory and RAG: sdk/dotnet/memory-and-rag.md
+          - Providers: sdk/dotnet/providers.md
+          - GLM Self-Host: sdk/dotnet/glm-selfhost.md
+          - Vector Stores: sdk/dotnet/vector-stores.md
+          - Durability: sdk/dotnet/durability.md
+          - Observability: sdk/dotnet/observability.md
+          - Policy: sdk/dotnet/policy.md
+          - MCP and A2A: sdk/dotnet/mcp-and-a2a.md
+          - Deployment: sdk/dotnet/deployment.md
+          - Testing: sdk/dotnet/testing.md
+          - Troubleshooting: sdk/dotnet/troubleshooting.md
+          - API Reference: sdk/dotnet/api-reference.md
+          - Migration: sdk/dotnet/migration.md
       - Java: sdk/java/index.md
       - Rust: sdk/rust/index.md
   - Quickstarts: quickstarts/index.md
