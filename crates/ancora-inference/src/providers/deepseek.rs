@@ -263,6 +263,23 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_tool_round_trip_works() {
+        let resp = ds_client().parse_response(DS_TOOL_FIXTURE, "deepseek-chat").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        assert_eq!(resp.tool_calls[0].function.name, "get_weather");
+        let args: serde_json::Value =
+            serde_json::from_str(&resp.tool_calls[0].function.arguments).unwrap();
+        assert_eq!(args["location"], "Beijing");
+    }
+
+    #[test]
+    fn deepseek_tool_fixture_token_counts() {
+        let resp = ds_client().parse_response(DS_TOOL_FIXTURE, "deepseek-chat").unwrap();
+        assert_eq!(resp.tokens_in, 20);
+        assert_eq!(resp.tokens_out, 10);
+    }
+
+    #[test]
     fn deepseek_cache_hit_tokens_present_in_fixture() {
         // The fixture has prompt_cache_hit_tokens=4 and prompt_cache_miss_tokens=6.
         // Standard OpenAI parse uses prompt_tokens (10) for tokens_in.
