@@ -114,4 +114,21 @@ mod tests {
         let p = build_openai_profile();
         assert_eq!(p.resolve_model_id("gpt-4o-latest"), "gpt-4o");
     }
+
+    #[test]
+    fn openai_mini_model_catalog() {
+        let p = build_openai_profile();
+        let meta = p.model_meta("gpt-4o-mini").unwrap();
+        assert_eq!(meta.context_window, 128_000);
+        // mini is cheaper
+        let pricing = meta.pricing.as_ref().unwrap();
+        assert!(pricing.input_per_million < 1.0);
+    }
+
+    #[test]
+    fn openai_o1_catalog_no_vision() {
+        let p = build_openai_profile();
+        let meta = p.model_meta("o1").unwrap();
+        assert!(!meta.capabilities.vision);
+    }
 }
