@@ -37,10 +37,34 @@ pub fn build_doubao_profile() -> ProviderProfile {
             .with_vision()
             .with_streaming(),
     )
+    // Doubao 1.5 Thinking -- chain-of-thought reasoning
+    .add_model(
+        ModelMeta::new("doubao-1.5-thinking-32k", 32_768)
+            .with_pricing(0.06, 0.12)
+            .with_streaming(),
+    )
+    // Doubao Character -- long-context roleplay / persona
+    .add_model(
+        ModelMeta::new("doubao-character-128k", 131_072)
+            .with_pricing(0.05, 0.10)
+            .with_tools()
+            .with_streaming(),
+    )
     .add_alias("pro-32k", "doubao-1.5-pro-32k")
     .add_alias("pro-256k", "doubao-1.5-pro-256k")
     .add_alias("lite", "doubao-1.5-lite-32k")
     .add_alias("vision", "doubao-1.5-vision-32k")
+    .add_alias("thinking", "doubao-1.5-thinking-32k")
+    .add_alias("character", "doubao-character-128k")
+}
+
+/// Build a self-hosted Doubao-compatible profile (e.g., vLLM-served Doubao weights).
+pub fn build_doubao_self_host_profile(base_url: impl Into<String>) -> ProviderProfile {
+    ProviderProfile::new(
+        "doubao-self-host",
+        base_url,
+        AuthStrategy::BearerToken { env_var: "DOUBAO_SELF_HOST_API_KEY".to_owned() },
+    )
 }
 
 /// Normalize a Doubao HTTP error to `InferenceError`.
