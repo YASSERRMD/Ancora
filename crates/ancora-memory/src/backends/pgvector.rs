@@ -413,6 +413,47 @@ pub fn count_by_filter_sql(table: &str, filter: &Filter) -> (String, Vec<FilterP
     (sql, params)
 }
 
+// ---- transactional journal table ----------------------------------------
+
+/// Generate DDL for the upsert journal table.
+///
+/// The journal records every upsert attempt with a deduplication key so
+/// retried writes are idempotent. A cleanup query can prune rows older than
+/// a given timestamp.
+pub fn create_journal_table_sql(journal: &str) -> String {
+    format!(
+        "CREATE TABLE IF NOT EXISTS {journal} (\
+         idempotency_key TEXT PRIMARY KEY, \
+         collection TEXT NOT NULL, \
+         committed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), \
+         row_count INT NOT NULL\
+         );"
+    )
+}
+
+/// Generate the SQL that records a completed upsert batch in the journal.
+pub fn insert_journal_sql(journal: &str) -> String {
+    format!(
+        "INSERT INTO {journal} (idempotency_key, collection, row_count) \
+         VALUES ($1, $2, $3) \
+         ON CONFLICT (idempotency_key) DO NOTHING;"
+    )
+}
+
+/// Generate the SQL that checks if an idempotency key has already been processed.
+pub fn check_journal_sql(journal: &str) -> String {
+    format!(
+        "SELECT row_count FROM {journal} WHERE idempotency_key = $1;"
+    )
+}
+
+/// Generate a cleanup statement that removes journal entries older than an interval.
+pub fn purge_journal_sql(journal: &str) -> String {
+    format!(
+        "DELETE FROM {journal} WHERE committed_at < NOW() - $1::interval;"
+    )
+}
+
 // ---- filter-to-SQL mapping -----------------------------------------------
 
 use crate::vector_store::{Filter, PayloadValue};
@@ -917,6 +958,34 @@ mod tests {
         let filtered = apply_threshold(results, 0.75);
         assert_eq!(filtered.len(), 2);
         assert!(filtered.iter().all(|(_, s)| *s >= 0.75));
+    }
+
+    #[test]
+    fn create_journal_table_has_idempotency_key_primary_key() {
+        let sql = create_journal_table_sql("upsert_journal");
+        assert!(sql.contains("idempotency_key TEXT PRIMARY KEY"), "SQL: {sql}");
+        assert!(sql.contains("committed_at TIMESTAMPTZ"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn insert_journal_sql_has_on_conflict_do_nothing() {
+        let sql = insert_journal_sql("upsert_journal");
+        assert!(sql.contains("ON CONFLICT"), "SQL: {sql}");
+        assert!(sql.contains("DO NOTHING"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn check_journal_sql_selects_row_count() {
+        let sql = check_journal_sql("upsert_journal");
+        assert!(sql.contains("row_count"), "SQL: {sql}");
+        assert!(sql.contains("idempotency_key = $1"), "SQL: {sql}");
+    }
+
+    #[test]
+    fn purge_journal_sql_has_interval_param() {
+        let sql = purge_journal_sql("upsert_journal");
+        assert!(sql.contains("interval"), "SQL: {sql}");
+        assert!(sql.contains("DELETE FROM"), "SQL: {sql}");
     }
 
     #[test]
