@@ -171,6 +171,43 @@ pub(crate) fn parse_response(
     })
 }
 
+// ---- Streaming -------------------------------------------------------------
+
+/// Cohere streaming event types (the `event_type` field on each chunk).
+/// Cohere uses `\ndata: {...}` SSE lines where the JSON has an `event_type`.
+#[derive(Debug, Deserialize)]
+#[serde(tag = "event_type", rename_all = "kebab-case")]
+pub(crate) enum CohereStreamEvent {
+    #[serde(rename = "text-generation")]
+    TextGeneration { text: String },
+    #[serde(rename = "stream-end")]
+    StreamEnd {
+        #[serde(default)]
+        finish_reason: String,
+    },
+    #[serde(other)]
+    Other,
+}
+
+/// Parse a single SSE line from a Cohere streaming response.
+///
+/// Cohere streams `data: {...}` lines. Each JSON object has an `event_type`
+/// field: "text-generation" carries a `text` chunk; "stream-end" signals
+/// the end of the stream.
+pub fn parse_sse_line(line: &str) -> Option<crate::types::TokenEvent> {
+    let data = line.strip_prefix("data: ")?;
+    let evt: CohereStreamEvent = serde_json::from_str(data).ok()?;
+    match evt {
+        CohereStreamEvent::TextGeneration { text } => {
+            Some(crate::types::TokenEvent { text, finished: false })
+        }
+        CohereStreamEvent::StreamEnd { .. } => {
+            Some(crate::types::TokenEvent { text: String::new(), finished: true })
+        }
+        CohereStreamEvent::Other => None,
+    }
+}
+
 /// Collect system messages into a single preamble string.
 ///
 /// Cohere uses a top-level `preamble` field instead of a system role in the
