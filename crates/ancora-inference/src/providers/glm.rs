@@ -213,4 +213,33 @@ mod tests {
     fn glm_supports_tools_flash_false() {
         assert!(!supports_tools("flash"));
     }
+
+    #[test]
+    fn glm_streaming_fixture_ordered() {
+        use crate::openai::OpenAiClient;
+        let tokens: Vec<String> = GLM_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(tokens, vec!["Hello", " from GLM"]);
+    }
+
+    #[test]
+    fn glm_streaming_combined_text() {
+        use crate::openai::OpenAiClient;
+        let combined: String = GLM_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text)
+            .collect();
+        assert_eq!(combined, "Hello from GLM");
+    }
+
+    #[test]
+    fn glm_stream_done_emits_finished() {
+        use crate::openai::OpenAiClient;
+        let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
+        assert!(ev.finished);
+    }
 }
