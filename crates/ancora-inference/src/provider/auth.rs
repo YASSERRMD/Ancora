@@ -79,4 +79,19 @@ mod tests {
         assert_eq!(val, "sk-test-value");
         unsafe { std::env::remove_var("ANCORA_TEST_HEADER_KEY_106") };
     }
+
+    #[test]
+    fn query_param_returns_name_and_value() {
+        unsafe { std::env::set_var("ANCORA_TEST_QPARAM_106", "qp-token") };
+        let auth = AuthStrategy::QueryParam {
+            param: "api_key".to_owned(),
+            env_var: "ANCORA_TEST_QPARAM_106".to_owned(),
+        };
+        let (name, val) = auth.as_query_param().unwrap();
+        assert_eq!(name, "api_key");
+        assert_eq!(val, "qp-token");
+        // query-param auth produces no header
+        assert!(auth.as_header().unwrap().is_none());
+        unsafe { std::env::remove_var("ANCORA_TEST_QPARAM_106") };
+    }
 }
