@@ -106,4 +106,11 @@ describe('durable-restart example smoke test', () => {
     }
     expect(journal.runCount).toBe(3)
   })
+
+  it('recordRun is idempotent for the same run ID', () => {
+    const journal = new RunJournal()
+    journal.recordRun('dup')
+    journal.recordRun('dup')
+    expect(journal.runCount).toBe(1)
+  })
 })
