@@ -47,6 +47,22 @@ pub(crate) fn split_messages(messages: &[Message]) -> (String, Vec<CohereChatTur
     (current, history)
 }
 
+/// Collect system messages into a single preamble string.
+///
+/// Cohere uses a top-level `preamble` field instead of a system role in the
+/// messages array. Multiple system messages are joined with a blank line.
+pub(crate) fn extract_preamble(messages: &[Message]) -> Option<String> {
+    let parts: Vec<&str> = messages.iter()
+        .filter(|m| m.role == "system")
+        .map(|m| m.content.as_str())
+        .collect();
+    if parts.is_empty() {
+        None
+    } else {
+        Some(parts.join("\n\n"))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -103,5 +119,32 @@ mod tests {
         let (current, history) = split_messages(&msgs);
         assert_eq!(current, "Hi");
         assert!(history.is_empty());
+    }
+
+    #[test]
+    fn extract_preamble_single_system_message() {
+        let msgs = vec![
+            Message::text("system", "You are a helpful assistant."),
+            Message::text("user", "Hi"),
+        ];
+        let preamble = extract_preamble(&msgs);
+        assert_eq!(preamble, Some("You are a helpful assistant.".to_owned()));
+    }
+
+    #[test]
+    fn extract_preamble_multiple_system_messages_joined() {
+        let msgs = vec![
+            Message::text("system", "Part one."),
+            Message::text("system", "Part two."),
+            Message::text("user", "Hello"),
+        ];
+        let preamble = extract_preamble(&msgs);
+        assert_eq!(preamble, Some("Part one.\n\nPart two.".to_owned()));
+    }
+
+    #[test]
+    fn extract_preamble_no_system_returns_none() {
+        let msgs = vec![Message::text("user", "Hello")];
+        assert_eq!(extract_preamble(&msgs), None);
     }
 }
