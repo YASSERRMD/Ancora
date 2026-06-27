@@ -135,6 +135,23 @@ mod tests {
     }
 
     #[test]
+    fn openrouter_routes_to_a_specific_target_model_id() {
+        use crate::types::{CompletionRequest, Message};
+        // Selecting a non-default model works the same as the default
+        let target = "google/gemini-flash-1.5";
+        let p = Arc::new(build_openrouter_profile(OpenRouterConfig {
+            model_id: target.to_owned(),
+            fallback_models: vec![],
+            app_name: "t".to_owned(),
+            site_url: "https://t.test".to_owned(),
+        }));
+        let c = OpenAiClient::new(p);
+        let req = CompletionRequest::simple(target, vec![Message::text("user", "hi")]);
+        let body = c.build_request_body(&req, false).unwrap();
+        assert_eq!(body["model"].as_str().unwrap(), target);
+    }
+
+    #[test]
     fn openrouter_fixture_content_and_tokens() {
         let resp = client().parse_response(FIXTURE, "openai/gpt-4o").unwrap();
         assert_eq!(resp.content, "Hello from OpenRouter");
