@@ -461,6 +461,52 @@ pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<S
 
 // ---- the trait ------------------------------------------------------------
 
+// ---- hybrid score tests --------------------------------------------------
+
+#[cfg(test)]
+mod hybrid_tests {
+    use super::*;
+
+    #[test]
+    fn hybrid_score_pure_vector() {
+        let s = hybrid_score(0.8, 0.2, 1.0);
+        assert!((s - 0.8).abs() < 1e-6);
+    }
+
+    #[test]
+    fn hybrid_score_pure_keyword() {
+        let s = hybrid_score(0.8, 0.2, 0.0);
+        assert!((s - 0.2).abs() < 1e-6);
+    }
+
+    #[test]
+    fn hybrid_score_blended() {
+        let s = hybrid_score(1.0, 0.0, 0.5);
+        assert!((s - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn keyword_score_naive_all_words_present() {
+        assert!((keyword_score_naive("apple banana cherry", "apple cherry") - 1.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn keyword_score_naive_missing_word_is_zero() {
+        assert!((keyword_score_naive("apple banana", "cherry")).abs() < 1e-6);
+    }
+
+    #[test]
+    fn apply_score_threshold_removes_low() {
+        let pts = vec![
+            ScoredPoint { id: PointId::Num(1), score: 0.9, payload: Payload::new() },
+            ScoredPoint { id: PointId::Num(2), score: 0.3, payload: Payload::new() },
+        ];
+        let filtered = apply_score_threshold(pts, 0.5);
+        assert_eq!(filtered.len(), 1);
+        assert_eq!(filtered[0].id, PointId::Num(1));
+    }
+}
+
 // ---- pagination tests ----------------------------------------------------
 
 #[cfg(test)]
