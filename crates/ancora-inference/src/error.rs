@@ -100,4 +100,18 @@ mod tests {
         let e = InferenceError::from_http(500, "server error", None);
         assert!(matches!(e, InferenceError::Http { status: 500, .. }));
     }
+
+    #[test]
+    fn rate_limit_display_includes_retry_seconds() {
+        let e = InferenceError::RateLimit { retry_after: Some(Duration::from_secs(30)) };
+        let s = e.to_string();
+        assert!(s.contains("30s"), "expected retry seconds in: {s}");
+    }
+
+    #[test]
+    fn rate_limit_display_without_header() {
+        let e = InferenceError::RateLimit { retry_after: None };
+        let s = e.to_string();
+        assert!(!s.contains("retry after"), "unexpected retry-after in: {s}");
+    }
 }
