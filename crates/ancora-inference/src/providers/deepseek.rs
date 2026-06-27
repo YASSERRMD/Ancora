@@ -284,6 +284,32 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_long_context_request_assembles_correctly() {
+        use crate::types::{CompletionRequest, Message};
+        // Build a request with many messages that would fill a large context
+        let many_messages: Vec<Message> = (0..100)
+            .map(|i| {
+                if i % 2 == 0 {
+                    Message::text("user", &format!("Turn {i}: what is {i}+{i}?"))
+                } else {
+                    Message::text("assistant", &format!("Turn {i}: the answer is {}", i + i))
+                }
+            })
+            .collect();
+        let req = CompletionRequest::simple("deepseek-coder", many_messages.clone());
+        let body = ds_client().build_request_body(&req, false).unwrap();
+        assert_eq!(body["model"], "deepseek-coder");
+        assert_eq!(body["messages"].as_array().unwrap().len(), 100);
+    }
+
+    #[test]
+    fn deepseek_coder_model_fits_large_context() {
+        let p = build_deepseek_profile();
+        let meta = p.model_meta("deepseek-coder").unwrap();
+        assert!(meta.fits_context(100_000));
+    }
+
+    #[test]
     fn deepseek_streaming_combined_text() {
         use crate::openai::OpenAiClient;
         let combined: String = DS_STREAM_LINES.iter()
