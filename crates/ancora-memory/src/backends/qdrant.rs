@@ -204,6 +204,55 @@ pub fn search_body(vector: &[f32], top_k: usize, filter: Option<&Filter>) -> Val
     body
 }
 
+/// Build a search body with a score threshold.
+pub fn search_body_with_threshold(
+    vector: &[f32],
+    top_k: usize,
+    score_threshold: f32,
+    filter: Option<&Filter>,
+) -> Value {
+    let mut body = search_body(vector, top_k, filter);
+    body["score_threshold"] = json!(score_threshold);
+    body
+}
+
+/// Build a search body for a named vector within a multi-vector collection.
+pub fn search_named_vector_body(
+    vector_name: &str,
+    vector: &[f32],
+    top_k: usize,
+    filter: Option<&Filter>,
+) -> Value {
+    let mut vector_map = serde_json::Map::new();
+    vector_map.insert("name".to_owned(), json!(vector_name));
+    vector_map.insert("vector".to_owned(), json!(vector));
+    let mut body = json!({
+        "vector": serde_json::Value::Object(vector_map),
+        "limit": top_k,
+        "with_payload": true,
+        "with_vector": false
+    });
+    if let Some(f) = filter {
+        body["filter"] = filter_to_qdrant(f);
+    }
+    body
+}
+
+/// Build a batch search body (Qdrant `POST /collections/{name}/points/search/batch`).
+pub fn batch_search_body(queries: &[(&[f32], usize)]) -> Value {
+    let searches: Vec<Value> = queries.iter().map(|(vec, limit)| json!({
+        "vector": vec,
+        "limit": limit,
+        "with_payload": true
+    })).collect();
+    json!({ "searches": searches })
+}
+
+/// URL for batch search endpoint.
+pub fn batch_search_url(base: &str, name: &str) -> String {
+    format!("{base}/collections/{name}/points/search/batch")
+}
+
 /// Build the JSON body for a delete-by-ids request.
 pub fn delete_by_ids_body(ids: &[u64]) -> Value {
     json!({ "points": ids })
@@ -401,6 +450,31 @@ mod tests {
         let body = search_body(&[0.1, 0.2], 5, None);
         assert_eq!(body["limit"], 5);
         assert_eq!(body["with_payload"], true);
+    }
+
+    #[test]
+    fn search_body_with_threshold_has_score_threshold() {
+        let body = search_body_with_threshold(&[0.1, 0.2], 5, 0.75, None);
+        assert!((body["score_threshold"].as_f64().unwrap() - 0.75).abs() < 0.001);
+    }
+
+    #[test]
+    fn search_named_vector_body_includes_vector_name() {
+        let body = search_named_vector_body("text", &[0.1, 0.2], 5, None);
+        assert_eq!(body["vector"]["name"], "text");
+        assert!(body["vector"]["vector"].is_array());
+    }
+
+    #[test]
+    fn batch_search_body_has_searches_array() {
+        let body = batch_search_body(&[(&[0.1f32, 0.2], 5), (&[0.3f32], 3)]);
+        assert_eq!(body["searches"].as_array().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn batch_search_url_includes_batch_suffix() {
+        let url = batch_search_url("http://localhost:6333", "docs");
+        assert!(url.ends_with("/search/batch"), "url: {url}");
     }
 
     #[test]
