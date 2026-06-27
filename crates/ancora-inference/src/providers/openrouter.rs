@@ -209,6 +209,24 @@ mod tests {
     }
 
     #[test]
+    fn openrouter_simple_builder_produces_named_profile() {
+        let p = build_openrouter_simple("openai/gpt-4o");
+        assert_eq!(p.name, "openrouter");
+    }
+
+    #[test]
+    fn openrouter_is_namespaced_model_id() {
+        assert!(is_namespaced_model_id("openai/gpt-4o"));
+        assert!(!is_namespaced_model_id("gpt-4o"));
+    }
+
+    #[test]
+    fn openrouter_parse_stream_done_signals_end() {
+        let result = parse_stream_line("data: [DONE]");
+        assert!(result.map(|e| e.finished).unwrap_or(false));
+    }
+
+    #[test]
     fn openrouter_model_id_passthrough_different_providers() {
         use crate::types::{CompletionRequest, Message};
         let models = [
