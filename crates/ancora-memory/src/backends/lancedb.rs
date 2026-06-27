@@ -465,6 +465,12 @@ pub fn edge_default_dir() -> String {
     std::env::var("ANCORA_LANCEDB_DIR").unwrap_or_else(|_| "./ancora_lancedb".to_owned())
 }
 
+/// Returns a `LanceDbConfig` suitable for an edge single-binary deployment.
+/// Uses `ANCORA_LANCEDB_DIR` if set, falling back to `./ancora_lancedb`.
+pub fn edge_config() -> LanceDbConfig {
+    LanceDbConfig::local(edge_default_dir())
+}
+
 // ---- unit tests ----------------------------------------------------------
 
 #[cfg(test)]
