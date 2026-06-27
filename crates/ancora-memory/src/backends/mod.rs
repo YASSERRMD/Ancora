@@ -25,3 +25,4 @@ pub mod milvus_sizing_tests;
 pub mod milvus_hybrid_tests;
 pub mod lancedb;
 pub mod lancedb_conformance;
+pub mod lancedb_sql_filter_tests;
