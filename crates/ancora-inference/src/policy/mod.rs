@@ -228,6 +228,44 @@ mod tests {
     }
 
     #[test]
+    fn openrouter_tagged_us() {
+        assert!(residency_tags("openrouter").contains(&ResidencyTag::Us));
+    }
+
+    #[test]
+    fn portkey_tagged_us() {
+        assert!(residency_tags("portkey").contains(&ResidencyTag::Us));
+    }
+
+    #[test]
+    fn vercelai_tagged_us() {
+        assert!(residency_tags("vercelai").contains(&ResidencyTag::Us));
+    }
+
+    #[test]
+    fn litellm_local_tagged_unknown() {
+        assert!(residency_tags("litellm-local").contains(&ResidencyTag::Unknown));
+    }
+
+    #[test]
+    fn openrouter_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("openrouter", &excluded));
+    }
+
+    #[test]
+    fn portkey_blocked_when_us_excluded() {
+        let excluded = vec![ResidencyTag::Us];
+        assert!(!is_allowed("portkey", &excluded));
+    }
+
+    #[test]
+    fn litellm_local_allowed_when_cn_excluded() {
+        let excluded = vec![ResidencyTag::Cn];
+        assert!(is_allowed("litellm-local", &excluded));
+    }
+
+    #[test]
     fn stepfun_tagged_cn() {
         assert!(residency_tags("stepfun").contains(&ResidencyTag::Cn));
     }
