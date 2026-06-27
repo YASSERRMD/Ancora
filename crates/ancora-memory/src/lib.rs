@@ -8,3 +8,4 @@ pub mod tier;
 pub mod traits;
 pub mod vector;
 pub mod vector_store;
+pub mod mem_store;
