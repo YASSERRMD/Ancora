@@ -34,9 +34,33 @@ pub fn build_minimax_profile() -> ProviderProfile {
             .with_tools()
             .with_streaming(),
     )
+    // MiniMax Speech -- audio/voice model (not chat completion; listed for catalog completeness)
+    .add_model(
+        ModelMeta::new("MiniMax-Speech-02-Turbo", 4_096)
+            .with_pricing(0.008, 0.000)
+            .with_streaming(),
+    )
     .add_alias("text-01", "MiniMax-Text-01")
     .add_alias("vl-01", "MiniMax-VL-01")
     .add_alias("m2", "MiniMax-M2")
+    .add_alias("speech", "MiniMax-Speech-02-Turbo")
+}
+
+/// Return `true` if the model is a vision-language model.
+///
+/// MiniMax-VL-01 accepts image content in the `content` array.
+pub fn is_vision_model(model_id: &str) -> bool {
+    supports_vision(model_id)
+}
+
+/// Return `true` if the model is a speech/audio model.
+///
+/// Speech models use a different endpoint (`/v1/t2a_v2`) and are not
+/// chat-completion compatible. This flag signals that routing is needed.
+pub fn is_speech_model(model_id: &str) -> bool {
+    let p = build_minimax_profile();
+    let canonical = p.resolve_model_id(model_id);
+    canonical.contains("Speech")
 }
 
 /// Return `true` if the model supports tool/function calls.
