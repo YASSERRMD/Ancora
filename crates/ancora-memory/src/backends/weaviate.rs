@@ -229,6 +229,36 @@ pub fn graphql_near_vector_with_certainty_query(
     json!({ "query": query })
 }
 
+// ---- multi-tenancy support -----------------------------------------------
+
+/// URL for managing tenants of a multi-tenant class.
+pub fn tenants_url(base: &str, class: &str) -> String {
+    format!("{base}/v1/schema/{class}/tenants")
+}
+
+/// Build the body to add tenants to a class.
+pub fn add_tenants_body(tenants: &[&str]) -> Value {
+    let ts: Vec<Value> = tenants.iter().map(|t| json!({ "name": t })).collect();
+    json!(ts)
+}
+
+/// Build the multi-tenant version of an object URL.
+pub fn tenant_object_url(base: &str, class: &str, id: &str, tenant: &str) -> String {
+    format!("{base}/v1/objects/{class}/{id}?tenant={tenant}")
+}
+
+/// Build an object body with a tenant annotation.
+pub fn create_tenant_object_body(
+    class: &str,
+    tenant: &str,
+    properties: &Value,
+    vector: Option<&[f32]>,
+) -> Value {
+    let mut body = create_object_body(class, properties, vector);
+    body["tenant"] = json!(tenant);
+    body
+}
+
 // ---- GraphQL BM25 hybrid search -----------------------------------------
 
 /// Build a GraphQL BM25 keyword search query.
@@ -551,6 +581,32 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn tenants_url_format() {
+        let url = tenants_url("http://localhost:8080", "Document");
+        assert!(url.ends_with("/Document/tenants"), "url: {url}");
+    }
+
+    #[test]
+    fn add_tenants_body_is_array_of_name_objects() {
+        let body = add_tenants_body(&["tenant_a", "tenant_b"]);
+        assert_eq!(body[0]["name"], "tenant_a");
+        assert_eq!(body[1]["name"], "tenant_b");
+    }
+
+    #[test]
+    fn tenant_object_url_has_tenant_param() {
+        let url = tenant_object_url("http://localhost:8080", "Document", "uuid-1", "org_a");
+        assert!(url.contains("tenant=org_a"), "url: {url}");
+    }
+
+    #[test]
+    fn create_tenant_object_body_has_tenant_field() {
+        let props = json!({"title": "test"});
+        let body = create_tenant_object_body("Document", "org_a", &props, None);
+        assert_eq!(body["tenant"], "org_a");
     }
 
     #[test]
