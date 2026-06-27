@@ -61,6 +61,27 @@ pub fn build_openrouter_profile(config: OpenRouterConfig) -> ProviderProfile {
     profile
 }
 
+/// Build a simple OpenRouter profile for a single model (no fallbacks, default attribution).
+pub fn build_openrouter_simple(model_id: impl Into<String>) -> ProviderProfile {
+    let model: String = model_id.into();
+    build_openrouter_profile(OpenRouterConfig {
+        model_id: model,
+        fallback_models: vec![],
+        app_name: "Ancora".to_owned(),
+        site_url: "https://github.com/YASSERRMD/Ancora".to_owned(),
+    })
+}
+
+/// Return true if the model ID uses OpenRouter's `provider/model` namespacing.
+pub fn is_namespaced_model_id(model_id: &str) -> bool {
+    model_id.contains('/')
+}
+
+/// Delegate SSE line parsing to the shared OpenAI-compatible parser.
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
+    crate::openai::OpenAiClient::parse_sse_line(line)
+}
+
 #[cfg(test)]
 const FIXTURE: &str = r#"{"id":"gen-openrouter","choices":[{"message":{"role":"assistant","content":"Hello from OpenRouter","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":7,"completion_tokens":4}}"#;
 
