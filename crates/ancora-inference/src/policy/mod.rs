@@ -42,6 +42,17 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "qwen-cn" => vec![ResidencyTag::Cn],
         // Self-hosted Qwen: residency depends on deployment
         "qwen-self-host" => vec![ResidencyTag::Unknown],
+        // StepFun (Step AI) -- CN infrastructure
+        "stepfun" => vec![ResidencyTag::Cn],
+        // Baidu ERNIE (Qianfan) -- CN infrastructure
+        "ernie" => vec![ResidencyTag::Cn],
+        // Tencent Hunyuan -- CN infrastructure
+        "hunyuan" => vec![ResidencyTag::Cn],
+        // ByteDance Doubao (Volcano Engine ARK) -- CN infrastructure
+        "doubao" => vec![ResidencyTag::Cn],
+        "doubao-self-host" => vec![ResidencyTag::Unknown],
+        // Xiaomi MiMo -- open-source, self-hosted; residency depends on deployment
+        "mimo" | "mimo-local" => vec![ResidencyTag::Unknown],
         // US-based providers
         "openai" | "groq" | "together" | "fireworks" | "anthropic" => vec![ResidencyTag::Us],
         // Azure: depends on deployment region, default US
