@@ -99,7 +99,7 @@ pub fn build_qwen_profile() -> ProviderProfile {
 /// DashScope uses the standard OpenAI SSE format:
 /// `data: {"choices":[{"delta":{"content":"..."},"finish_reason":null}]}`
 /// Delegates to `OpenAiClient::parse_sse_line` which handles `[DONE]`.
-pub fn parse_stream_line(line: &str) -> Option<crate::openai::TokenEvent> {
+pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
     crate::openai::OpenAiClient::parse_sse_line(line)
 }
 
