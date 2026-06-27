@@ -47,11 +47,18 @@ pub fn build_kimi_profile() -> ProviderProfile {
             .with_pricing(0.12, 0.12)
             .with_streaming(),
     )
+    // Kimi Moonlight -- very long context, designed for document analysis
+    .add_model(
+        ModelMeta::new("moonshot-v1-long", 1_000_000)
+            .with_pricing(1.50, 1.50)
+            .with_streaming(),
+    )
     .add_alias("k2", "kimi-k2")
     .add_alias("k2-turbo", "kimi-k2-turbo")
     .add_alias("128k", "moonshot-v1-128k")
     .add_alias("32k", "moonshot-v1-32k")
     .add_alias("8k", "moonshot-v1-8k")
+    .add_alias("long", "moonshot-v1-long")
 }
 
 /// Build the Kimi domestic (China) provider profile.
