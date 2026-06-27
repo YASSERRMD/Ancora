@@ -135,6 +135,18 @@ mod tests {
     }
 
     #[test]
+    fn openrouter_attribution_headers_use_env_independent_values() {
+        // Extra headers must be static strings from config, not from env vars.
+        let p = build_openrouter_profile(OpenRouterConfig {
+            model_id: "openai/gpt-4o".to_owned(),
+            fallback_models: vec![],
+            app_name: "StaticApp".to_owned(),
+            site_url: "https://static.test".to_owned(),
+        });
+        assert_eq!(p.extra_headers.get("X-Title").map(|s| s.as_str()), Some("StaticApp"));
+    }
+
+    #[test]
     fn openrouter_model_id_passthrough_different_providers() {
         use crate::types::{CompletionRequest, Message};
         let models = [
