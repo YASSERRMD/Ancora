@@ -74,6 +74,25 @@ pub fn build_deepseek_self_host_profile(base_url: impl Into<String>) -> Provider
 }
 
 #[cfg(test)]
+const DS_FIXTURE: &str = r#"{"id":"chatcmpl-ds-01","choices":[{"message":{"role":"assistant","content":"Hello from DeepSeek","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":5,"prompt_cache_hit_tokens":4,"prompt_cache_miss_tokens":6}}"#;
+
+#[cfg(test)]
+const DS_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-ds-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-ds-01","type":"function","function":{"name":"get_weather","arguments":"{\"location\":\"Beijing\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":20,"completion_tokens":10,"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":20}}"#;
+
+#[cfg(test)]
+const DS_STREAM_LINES: &[&str] = &[
+    r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
+    r#"data: {"choices":[{"delta":{"content":" DeepSeek"},"finish_reason":"stop"}]}"#,
+    "data: [DONE]",
+];
+
+// DeepSeek R1 returns a reasoning_content field alongside content.
+// The OpenAI client extracts `choices[].message.content`; reasoning_content
+// is an additional field that should not break parsing.
+#[cfg(test)]
+const DS_REASONING_FIXTURE: &str = r#"{"id":"chatcmpl-ds-r1","choices":[{"message":{"role":"assistant","content":"The answer is 42","reasoning_content":"Let me think step by step..."},"finish_reason":"stop"}],"usage":{"prompt_tokens":8,"completion_tokens":6}}"#;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -179,5 +198,35 @@ mod tests {
         for (id, m) in &p.model_catalog {
             assert!(m.capabilities.streaming, "{id} must stream");
         }
+    }
+
+    fn ds_client() -> crate::openai::OpenAiClient {
+        use std::sync::Arc;
+        crate::openai::OpenAiClient::new(Arc::new(build_deepseek_profile()))
+    }
+
+    #[test]
+    fn deepseek_tool_call_mapping_request_has_tools() {
+        use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
+        let mut req = CompletionRequest::simple("deepseek-chat", vec![Message::text("user", "What is the weather?")]);
+        req.tools = vec![ToolDefinition {
+            kind: "function".to_owned(),
+            function: FunctionDefinition {
+                name: "get_weather".to_owned(),
+                description: "Get weather".to_owned(),
+                parameters: serde_json::json!({"type":"object","properties":{"location":{"type":"string"}},"required":["location"]}),
+            },
+        }];
+        let body = ds_client().build_request_body(&req, false).unwrap();
+        assert!(body["tools"].is_array());
+        assert_eq!(body["tools"][0]["function"]["name"], "get_weather");
+    }
+
+    #[test]
+    fn deepseek_tool_call_model_resolved_in_body() {
+        use crate::types::{CompletionRequest, Message};
+        let req = CompletionRequest::simple("deepseek-v3", vec![Message::text("user", "Hi")]);
+        let body = ds_client().build_request_body(&req, false).unwrap();
+        assert_eq!(body["model"], "deepseek-chat");
     }
 }
