@@ -400,4 +400,35 @@ mod tests {
         assert_eq!(p.base_url, "http://gpu-server:8000");
         assert_eq!(p.name, "glm-self-host");
     }
+
+    #[test]
+    fn glm_llamacpp_fixture_completes_offline() {
+        use std::sync::Arc;
+        let client = crate::openai::OpenAiClient::new(Arc::new(
+            build_glm_llamacpp_profile("http://localhost:8080"),
+        ));
+        let resp = client.parse_response(GLM_LLAMACPP_FIXTURE, "glm-4-9b-chat-q4_k_m").unwrap();
+        assert_eq!(resp.content, "Hello from llama.cpp GLM");
+        assert_eq!(resp.tokens_in, 9);
+        assert_eq!(resp.tokens_out, 7);
+    }
+
+    #[test]
+    fn glm_llamacpp_profile_name() {
+        let p = build_glm_llamacpp_profile("http://localhost:8080");
+        assert_eq!(p.name, "glm-llamacpp");
+    }
+
+    #[test]
+    fn glm_llamacpp_uses_no_auth() {
+        use crate::provider::AuthStrategy;
+        let p = build_glm_llamacpp_profile("http://localhost:8080");
+        assert!(matches!(p.auth, AuthStrategy::None));
+    }
+
+    #[test]
+    fn glm_llamacpp_alias_resolves() {
+        let p = build_glm_llamacpp_profile("http://localhost:8080");
+        assert_eq!(p.resolve_model_id("glm4"), "glm-4-9b-chat-q4_k_m");
+    }
 }
