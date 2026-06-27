@@ -24,6 +24,15 @@ pub fn residency_tags(provider_name: &str) -> Vec<ResidencyTag> {
         "deepseek" => vec![ResidencyTag::Cn],
         // Self-hosted DeepSeek: residency depends on where the host runs
         "deepseek-self-host" => vec![ResidencyTag::Unknown],
+        // Qwen (DashScope) -- regional awareness
+        // Default / Singapore international endpoint: non-CN, neutral
+        "qwen" => vec![ResidencyTag::Us],
+        // Explicit region-pinned variants (used when caller passes region label)
+        "qwen-eu" => vec![ResidencyTag::Eu],
+        "qwen-us" => vec![ResidencyTag::Us],
+        "qwen-cn" => vec![ResidencyTag::Cn],
+        // Self-hosted Qwen: residency depends on deployment
+        "qwen-self-host" => vec![ResidencyTag::Unknown],
         // US-based providers
         "openai" | "groq" | "together" | "fireworks" | "anthropic" => vec![ResidencyTag::Us],
         // Azure: depends on deployment region, default US
