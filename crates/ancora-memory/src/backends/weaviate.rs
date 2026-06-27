@@ -364,6 +364,42 @@ pub fn graphql_hybrid_query(
     json!({ "query": q })
 }
 
+// ---- generative search (RAG) GraphQL -------------------------------------
+
+/// Build a GraphQL generative search query (Weaviate's built-in RAG).
+///
+/// `prompt_template` is a Go-style template, e.g. `"Summarize {title}: {body}"`.
+pub fn graphql_generative_query(
+    class: &str,
+    vector: &[f32],
+    limit: usize,
+    prompt_template: &str,
+    fields: &[&str],
+) -> Value {
+    let vec_str = format!("[{}]", vector.iter().map(|v| format!("{v}")).collect::<Vec<_>>().join(","));
+    let field_str = fields.join(" ");
+    let query = format!(
+        r#"{{ Get {{ {class}(nearVector: {{ vector: {vec_str} }} limit: {limit}) {{ {field_str} _additional {{ generate(singleResult: {{ prompt: "{prompt_template}" }}) {{ singleResult error }} id }} }} }} }}"#
+    );
+    json!({ "query": query })
+}
+
+/// Build a grouped generative task query (all results -> one LLM call).
+pub fn graphql_grouped_generative_query(
+    class: &str,
+    vector: &[f32],
+    limit: usize,
+    task_prompt: &str,
+    fields: &[&str],
+) -> Value {
+    let vec_str = format!("[{}]", vector.iter().map(|v| format!("{v}")).collect::<Vec<_>>().join(","));
+    let field_str = fields.join(" ");
+    let query = format!(
+        r#"{{ Get {{ {class}(nearVector: {{ vector: {vec_str} }} limit: {limit}) {{ {field_str} _additional {{ generate(groupedResult: {{ task: "{task_prompt}" }}) {{ groupedResult error }} id }} }} }} }}"#
+    );
+    json!({ "query": query })
+}
+
 // ---- GraphQL where filter ------------------------------------------------
 
 /// Build a Weaviate `where` filter value operand.
@@ -652,6 +688,23 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn graphql_generative_query_contains_generate_keyword() {
+        let body = graphql_generative_query("Document", &[0.1f32], 3, "Summarize {title}", &["title"]);
+        let q = body["query"].as_str().unwrap();
+        assert!(q.contains("generate"), "query: {q}");
+        assert!(q.contains("singleResult"), "query: {q}");
+        assert!(q.contains("Summarize"), "query: {q}");
+    }
+
+    #[test]
+    fn graphql_grouped_generative_query_contains_grouped_result() {
+        let body = graphql_grouped_generative_query("Document", &[0.1f32], 3, "Analyze all docs", &["title"]);
+        let q = body["query"].as_str().unwrap();
+        assert!(q.contains("groupedResult"), "query: {q}");
+        assert!(q.contains("Analyze all docs"), "query: {q}");
     }
 
     #[test]
