@@ -9,3 +9,10 @@ description = "Composable memory tiers for Ancora agents"
 
 [dependencies]
 serde_json = "1"
+serde = { version = "1", features = ["derive"], optional = true }
+tokio = { version = "1", features = ["rt"], optional = true }
+tokio-postgres = { version = "0.7", optional = true }
+
+[features]
+default = []
+pgvector = ["serde", "tokio", "tokio-postgres"]
