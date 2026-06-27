@@ -57,6 +57,16 @@ pub fn build_groq_profile() -> ProviderProfile {
     .add_alias("gemma2", "gemma2-9b-it")
 }
 
+/// Groq uses the standard OpenAI SSE format.
+/// `OpenAiClient::parse_sse_line` handles the stream without modification.
+/// This constant documents the expected line format for offline tests.
+#[cfg(test)]
+const GROQ_STREAM_LINES: &[&str] = &[
+    r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
+    r#"data: {"choices":[{"delta":{"content":" Groq"},"finish_reason":"stop"}]}"#,
+    "data: [DONE]",
+];
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -132,5 +142,23 @@ mod tests {
         let p = build_groq_profile();
         let meta = p.model_meta("llama-3.3-70b-versatile").unwrap();
         assert_eq!(meta.context_window, 128_000);
+    }
+
+    #[test]
+    fn groq_streaming_uses_openai_sse_format() {
+        use crate::openai::OpenAiClient;
+        let texts: Vec<String> = GROQ_STREAM_LINES.iter()
+            .filter_map(|l| OpenAiClient::parse_sse_line(l))
+            .filter(|ev| !ev.text.is_empty())
+            .map(|ev| ev.text.clone())
+            .collect();
+        assert_eq!(texts, vec!["Hello", " Groq"]);
+    }
+
+    #[test]
+    fn groq_stream_done_emits_finished() {
+        use crate::openai::OpenAiClient;
+        let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
+        assert!(ev.finished);
     }
 }
