@@ -1,5 +1,42 @@
 use crate::provider::ProviderProfile;
 
+/// Per-host rate-limit metadata.
+///
+/// Throughput hosts expose different rate-limit tiers depending on the model.
+/// This struct captures the publicly documented limits so they can be checked
+/// in tests and surfaced in health probes.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RateLimitMeta {
+    /// Requests per minute for the default (free) tier.
+    pub requests_per_minute: u32,
+    /// Tokens per minute for the default tier.
+    pub tokens_per_minute: u32,
+    /// Whether the host returns a `Retry-After` header on 429 responses.
+    pub retry_after_header: bool,
+}
+
+/// Documented rate limits for the three throughput hosts (free/default tier).
+pub fn rate_limit_meta(provider_name: &str) -> Option<RateLimitMeta> {
+    match provider_name {
+        "groq" => Some(RateLimitMeta {
+            requests_per_minute: 30,
+            tokens_per_minute: 6_000,
+            retry_after_header: true,
+        }),
+        "together" => Some(RateLimitMeta {
+            requests_per_minute: 60,
+            tokens_per_minute: 200_000,
+            retry_after_header: false,
+        }),
+        "fireworks" => Some(RateLimitMeta {
+            requests_per_minute: 600,
+            tokens_per_minute: 1_000_000,
+            retry_after_header: false,
+        }),
+        _ => None,
+    }
+}
+
 /// Common characteristics shared by high-throughput inference hosts.
 ///
 /// Groq, Together AI, and Fireworks AI are all:
@@ -82,5 +119,35 @@ mod tests {
         let p = build_fireworks_profile();
         let ids = tool_capable_model_ids(&p);
         assert!(!ids.is_empty());
+    }
+
+    #[test]
+    fn groq_rate_limit_meta_known() {
+        let meta = rate_limit_meta("groq").unwrap();
+        assert!(meta.requests_per_minute > 0);
+        assert!(meta.tokens_per_minute > 0);
+    }
+
+    #[test]
+    fn together_rate_limit_meta_known() {
+        let meta = rate_limit_meta("together").unwrap();
+        assert!(meta.requests_per_minute > 0);
+    }
+
+    #[test]
+    fn fireworks_rate_limit_meta_known() {
+        let meta = rate_limit_meta("fireworks").unwrap();
+        assert!(meta.tokens_per_minute > 0);
+    }
+
+    #[test]
+    fn groq_retry_after_header_present() {
+        let meta = rate_limit_meta("groq").unwrap();
+        assert!(meta.retry_after_header);
+    }
+
+    #[test]
+    fn unknown_provider_has_no_rate_limit_meta() {
+        assert!(rate_limit_meta("unknown-host").is_none());
     }
 }
