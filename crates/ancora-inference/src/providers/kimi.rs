@@ -144,4 +144,24 @@ mod tests {
         let p = build_kimi_profile();
         assert!(p.base_url_for_region(Some("cn")).contains("moonshot.cn"));
     }
+
+    #[test]
+    fn kimi_tool_round_trip_works() {
+        let resp = kimi_client().parse_response(KIMI_TOOL_FIXTURE, "kimi-k2").unwrap();
+        assert_eq!(resp.tool_calls.len(), 1);
+        assert_eq!(resp.tool_calls[0].function.name, "search");
+        let args: serde_json::Value =
+            serde_json::from_str(&resp.tool_calls[0].function.arguments).unwrap();
+        assert_eq!(args["query"], "LLM benchmarks 2025");
+    }
+
+    #[test]
+    fn kimi_k2_has_tools() {
+        assert!(supports_tools("kimi-k2"));
+    }
+
+    #[test]
+    fn kimi_128k_has_no_tools() {
+        assert!(!supports_tools("moonshot-v1-128k"));
+    }
 }
