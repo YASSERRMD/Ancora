@@ -11,6 +11,7 @@ pub mod hunyuan;
 pub mod glm;
 pub mod groq;
 pub mod kimi;
+pub mod litellm;
 pub mod mimo;
 pub mod minimax;
 pub mod mistral;
