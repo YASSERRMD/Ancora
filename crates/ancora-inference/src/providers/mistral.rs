@@ -107,6 +107,32 @@ mod tests {
     }
 
     #[test]
+    fn mistral_cost_computed_from_pricing_for_large_model() {
+        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        // 8 in * $2.0/M + 4 out * $6.0/M
+        let expected = 8.0 * 2.0 / 1_000_000.0 + 4.0 * 6.0 / 1_000_000.0;
+        let cost = resp.cost_usd.unwrap();
+        assert!((cost - expected).abs() < 1e-12);
+    }
+
+    #[test]
+    fn mistral_small_model_has_lower_pricing() {
+        let p = build_mistral_profile();
+        let large = p.model_meta("mistral-large-latest").unwrap();
+        let small = p.model_meta("mistral-small-latest").unwrap();
+        let lp = large.pricing.as_ref().unwrap();
+        let sp = small.pricing.as_ref().unwrap();
+        assert!(sp.input_per_million < lp.input_per_million);
+    }
+
+    #[test]
+    fn mistral_codestral_has_tools_capability() {
+        let p = build_mistral_profile();
+        let meta = p.model_meta("codestral-latest").unwrap();
+        assert!(meta.capabilities.tools);
+    }
+
+    #[test]
     fn mistral_stream_done_sentinel_emits_finished() {
         let ev = OpenAiClient::parse_sse_line("data: [DONE]").unwrap();
         assert!(ev.finished);
