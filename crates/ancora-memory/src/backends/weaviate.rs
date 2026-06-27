@@ -229,6 +229,52 @@ pub fn graphql_near_vector_with_certainty_query(
     json!({ "query": query })
 }
 
+// ---- vector index configuration ------------------------------------------
+
+/// Weaviate vector index types.
+pub mod vector_index_type {
+    pub const HNSW: &str = "hnsw";
+    pub const FLAT: &str = "flat";
+}
+
+/// Build an HNSW index config object for class creation.
+pub fn hnsw_index_config(ef_construction: u16, max_connections: u8, ef: i32) -> Value {
+    json!({
+        "vectorIndexType": vector_index_type::HNSW,
+        "vectorIndexConfig": {
+            "efConstruction": ef_construction,
+            "maxConnections": max_connections,
+            "ef": ef
+        }
+    })
+}
+
+/// Build a flat index config (BQ-compressed, for very large collections).
+pub fn flat_index_config(bq_compression: bool) -> Value {
+    json!({
+        "vectorIndexType": vector_index_type::FLAT,
+        "vectorIndexConfig": {
+            "bq": { "enabled": bq_compression }
+        }
+    })
+}
+
+/// Build a class creation body with explicit vector index config.
+pub fn create_class_with_index_body(
+    class_name: &str,
+    vectorizer: &str,
+    index_config: &Value,
+) -> Value {
+    let mut body = create_class_body(class_name, "", vectorizer);
+    if let Some(vit) = index_config.get("vectorIndexType") {
+        body["vectorIndexType"] = vit.clone();
+    }
+    if let Some(vic) = index_config.get("vectorIndexConfig") {
+        body["vectorIndexConfig"] = vic.clone();
+    }
+    body
+}
+
 // ---- cross-reference links -----------------------------------------------
 
 /// Build the URL for adding a cross-reference to an object.
@@ -606,6 +652,29 @@ mod tests {
     fn retry_delay_exponential_for_small_n() {
         assert_eq!(weaviate_retry_delay_ms(0), 150);
         assert_eq!(weaviate_retry_delay_ms(1), 300);
+    }
+
+    #[test]
+    fn hnsw_index_config_has_correct_structure() {
+        let cfg = hnsw_index_config(128, 64, 100);
+        assert_eq!(cfg["vectorIndexType"], "hnsw");
+        assert_eq!(cfg["vectorIndexConfig"]["efConstruction"], 128);
+        assert_eq!(cfg["vectorIndexConfig"]["maxConnections"], 64);
+    }
+
+    #[test]
+    fn flat_index_config_has_bq_enabled() {
+        let cfg = flat_index_config(true);
+        assert_eq!(cfg["vectorIndexType"], "flat");
+        assert_eq!(cfg["vectorIndexConfig"]["bq"]["enabled"], true);
+    }
+
+    #[test]
+    fn create_class_with_index_body_merges_index_config() {
+        let idx = hnsw_index_config(100, 32, 64);
+        let body = create_class_with_index_body("Document", "none", &idx);
+        assert_eq!(body["vectorIndexType"], "hnsw");
+        assert_eq!(body["class"], "Document");
     }
 
     #[test]
