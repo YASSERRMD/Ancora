@@ -5,6 +5,7 @@ pub mod cohere;
 pub mod deepseek;
 pub mod fireworks;
 pub mod gemini;
+pub mod glm;
 pub mod groq;
 pub mod mistral;
 pub mod openai;
