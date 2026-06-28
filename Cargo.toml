@@ -10,6 +10,7 @@ members = [
     "crates/ancora-multitenancy",
     "crates/ancora-quota",
     "crates/ancora-backup",
+    "crates/ancora-dr",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
