@@ -1,10 +1,12 @@
 pub mod attribute;
+pub mod audit;
 pub mod condition;
 pub mod context;
 pub mod engine;
 pub mod policy;
 
 pub use attribute::{AttributeSet, AttributeValue};
+pub use audit::{AbacAuditLog, AbacDecisionRecord};
 pub use condition::Condition;
 pub use context::RequestContext;
 pub use engine::{Decision, PolicyEngine};
@@ -32,4 +34,5 @@ mod tests {
     mod test_complex_condition;
     mod test_wildcard_action;
     mod test_env_attributes;
+    mod test_abac_audit;
 }
