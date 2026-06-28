@@ -5,6 +5,7 @@ pub mod selector;
 pub mod parallel;
 pub mod result_merge;
 pub mod call_graph;
+pub mod timeout;
 
 #[cfg(test)]
 mod tests;
