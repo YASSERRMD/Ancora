@@ -1,0 +1,9 @@
+[package]
+name = "ancora-netpol"
+version = "0.1.0"
+edition = "2021"
+description = "Network policy enforcement with egress rules and allow/deny lists for Ancora"
+keywords = ["network", "policy", "egress", "firewall", "security"]
+categories = ["authentication", "network-programming"]
+
+[dependencies]
