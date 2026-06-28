@@ -4,6 +4,7 @@ pub mod cost;
 pub mod journal_api;
 pub mod model;
 pub mod pagination;
+pub mod resume;
 pub mod scheduler;
 pub mod store;
 
