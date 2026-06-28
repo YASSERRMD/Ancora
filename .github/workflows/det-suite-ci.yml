@@ -1,0 +1,112 @@
+name: Determinism Suite CI
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-core/tests/det_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/det-suite-ci.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-core/tests/det_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/det-suite-ci.yml'
+
+jobs:
+  det-suite:
+    name: Determinism tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-det-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: det_identical_inputs
+        run: cargo test -p ancora-core --test det_identical_inputs
+
+      - name: det_no_re_execute
+        run: cargo test -p ancora-core --test det_no_re_execute
+
+      - name: det_parallel_join
+        run: cargo test -p ancora-core --test det_parallel_join
+
+      - name: det_map_ordering
+        run: cargo test -p ancora-core --test det_map_ordering
+
+      - name: det_time_and_random
+        run: cargo test -p ancora-core --test det_time_and_random
+
+      - name: det_process_restart
+        run: cargo test -p ancora-core --test det_process_restart
+
+      - name: det_cross_language_replay
+        run: cargo test -p ancora-core --test det_cross_language_replay
+
+      - name: det_divergence_code_change
+        run: cargo test -p ancora-core --test det_divergence_code_change
+
+      - name: det_divergence_schema_change
+        run: cargo test -p ancora-core --test det_divergence_schema_change
+
+      - name: det_property_random_graphs
+        run: cargo test -p ancora-core --test det_property_random_graphs
+
+      - name: det_property_tool_sequences
+        run: cargo test -p ancora-core --test det_property_tool_sequences
+
+      - name: det_large_journal_perf
+        run: cargo test -p ancora-core --test det_large_journal_perf
+
+      - name: det_partial_journal
+        run: cargo test -p ancora-core --test det_partial_journal
+
+      - name: det_corrupted_journal
+        run: cargo test -p ancora-core --test det_corrupted_journal
+
+      - name: det_version_migration
+        run: cargo test -p ancora-core --test det_version_migration
+
+      - name: det_cost_replay
+        run: cargo test -p ancora-core --test det_cost_replay
+
+      - name: det_otel_replay
+        run: cargo test -p ancora-core --test det_otel_replay
+
+      - name: det_no_network_replay
+        run: cargo test -p ancora-core --test det_no_network_replay
+
+      - name: det_idempotent_replay
+        run: cargo test -p ancora-core --test det_idempotent_replay
+
+      - name: full det suite
+        run: |
+          cargo test -p ancora-core \
+            --test det_identical_inputs \
+            --test det_no_re_execute \
+            --test det_parallel_join \
+            --test det_map_ordering \
+            --test det_time_and_random \
+            --test det_process_restart \
+            --test det_cross_language_replay \
+            --test det_divergence_code_change \
+            --test det_divergence_schema_change \
+            --test det_property_random_graphs \
+            --test det_property_tool_sequences \
+            --test det_large_journal_perf \
+            --test det_partial_journal \
+            --test det_corrupted_journal \
+            --test det_version_migration \
+            --test det_cost_replay \
+            --test det_otel_replay \
+            --test det_no_network_replay \
+            --test det_idempotent_replay

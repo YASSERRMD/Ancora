@@ -187,6 +187,7 @@ nav:
       - .NET Test Plan: testing/dotnet-test-plan.md
       - Java Test Plan: testing/java-test-plan.md
       - Cross-Language Test Plan: testing/xlang-test-plan.md
+      - Determinism Guarantees: testing/determinism-guarantees.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
