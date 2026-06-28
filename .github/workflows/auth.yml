@@ -1,0 +1,60 @@
+name: ancora-auth
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-auth/**'
+      - 'docs/auth/**'
+      - '.github/workflows/auth.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-auth/**'
+      - 'docs/auth/**'
+      - '.github/workflows/auth.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: ancora-auth tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-auth-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build ancora-auth
+        run: cargo build -p ancora-auth
+
+      - name: Run ancora-auth tests
+        run: cargo test -p ancora-auth -- --test-threads=1
+
+      - name: Assert minimum test count
+        run: |
+          count=$(cargo test -p ancora-auth 2>&1 | grep -c "^test .* ok$" || true)
+          echo "Test count: $count"
+          test "$count" -ge 60
+
+      - name: Check no em dashes in crate
+        run: |
+          if grep -r $'\xe2\x80\x94' crates/ancora-auth/ docs/auth/; then
+            echo "Em dash found" && exit 1
+          fi
+          echo "No em dashes found"
+
+      - name: Check docs present
+        run: |
+          test -f docs/auth/sso-integration-guide.md
+          test -f docs/auth/idp-setup.md
+          test -f docs/auth/service-account-guide.md
