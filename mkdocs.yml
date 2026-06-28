@@ -193,6 +193,7 @@ nav:
       - Coverage Gates: testing/coverage-gates.md
       - Documentation Audit: testing/doc-audit-report.md
       - Example Parity: testing/example-parity-report.md
+      - Benchmark Report: testing/benchmark-report.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
