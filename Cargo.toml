@@ -84,6 +84,7 @@ members = [
     "crates/ancora-studio",
     "crates/ancora-obssdk",
     "crates/ancora-obsint",
+    "crates/ancora-safemon",
 ]
 
 [workspace.package]
