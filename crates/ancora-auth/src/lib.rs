@@ -52,4 +52,5 @@ mod tests {
     mod test_bulk_revoke;
     mod test_audit_log;
     mod test_logout_flow;
+    mod test_jwks_validator_rotation;
 }
