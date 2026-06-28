@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/ancora-proto",
     "crates/ancora-core",
+    "crates/ancora-controlplane",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
