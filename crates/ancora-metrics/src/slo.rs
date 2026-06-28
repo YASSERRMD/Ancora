@@ -83,3 +83,7 @@ impl BurnRateAlert {
         self.fired = self.current_burn_rate > sustainable_burn * self.threshold_multiplier;
     }
 }
+
+/// Default burn-rate multipliers used in operational deployments.
+pub const FAST_BURN_MULTIPLIER: f64 = 14.4;
+pub const SLOW_BURN_MULTIPLIER: f64 = 3.0;
