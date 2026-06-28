@@ -1,0 +1,11 @@
+[package]
+name = "ancora-keymgmt"
+version = "0.1.0"
+edition = "2021"
+description = "Key lifecycle management with HSM integration stub, rotation, and audit for Ancora"
+keywords = ["key-management", "hsm", "rotation", "cryptography", "security"]
+categories = ["cryptography", "data-structures"]
+license = "MIT"
+repository = "https://github.com/YASSERRMD/Ancora"
+
+[dependencies]
