@@ -1,5 +1,6 @@
 pub mod assignment;
 pub mod audit;
+pub mod bulk;
 pub mod guard;
 pub mod checker;
 pub mod permission;
