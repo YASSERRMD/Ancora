@@ -8,6 +8,7 @@ pub mod guarded_tool_synthesis;
 pub mod skills_subagent;
 pub mod background_agent;
 pub mod contract_net_example;
+pub mod verified_reasoning;
 
 use std::collections::HashMap;
 use std::time::Instant;
