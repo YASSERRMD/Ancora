@@ -192,6 +192,7 @@ nav:
       - Security and Policy: testing/security-policy-test-plan.md
       - Coverage Gates: testing/coverage-gates.md
       - Documentation Audit: testing/doc-audit-report.md
+      - Example Parity: testing/example-parity-report.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
