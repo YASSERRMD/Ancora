@@ -29,5 +29,6 @@ mod tests {
     mod test_scores_equal;
     mod test_cost_equal;
     mod test_examples_run;
+    mod test_shared_dataset;
     mod test_polyglot_stitching;
 }
