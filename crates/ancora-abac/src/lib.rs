@@ -41,4 +41,5 @@ mod tests {
     mod test_report;
     mod test_not_eq;
     mod test_resource_lookup;
+    mod test_classification_preset;
 }
