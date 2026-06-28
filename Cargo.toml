@@ -72,6 +72,7 @@ members = [
     "crates/ancora-py",
     "crates/ancora-napi",
     "crates/ancora-examples",
+    "crates/ancora-trace",
 ]
 
 [workspace.package]
