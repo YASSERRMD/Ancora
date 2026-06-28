@@ -1,0 +1,42 @@
+name: ancora-oe-e2e
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-oe-e2e/**'
+      - '.github/workflows/ancora-oe-e2e.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-oe-e2e/**'
+      - '.github/workflows/ancora-oe-e2e.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Obs and eval e2e tests (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-oe-e2e-${{ hashFiles('Cargo.lock') }}
+
+      - name: Build
+        run: cargo build -p ancora-oe-e2e
+
+      - name: Test (offline)
+        run: cargo test -p ancora-oe-e2e
+        env:
+          # Ensure no network calls escape during tests.
+          RUST_LOG: off
