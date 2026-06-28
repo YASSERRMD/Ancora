@@ -8,6 +8,7 @@
 //! Audit: [`ComplianceAuditLog`] tracking status transitions.
 //! Stats: [`ComplianceStats`] with per-framework aggregates.
 //! Export: [`report_to_csv`], [`controls_to_csv`] for reporting.
+pub mod assessment;
 pub mod audit;
 pub mod control;
 pub mod evidence;
@@ -19,6 +20,7 @@ pub mod registry;
 pub mod report;
 pub mod stats;
 
+pub use assessment::{AssessmentResult, AutoAssessor};
 pub use audit::{AssessmentRecord, ComplianceAuditLog};
 pub use control::{ComplianceControl, ControlStatus};
 pub use evidence::{EvidenceItem, EvidenceKind, EvidenceStore};
@@ -61,4 +63,6 @@ mod tests {
     mod test_stats_gap_count;
     mod test_export_report_csv;
     mod test_export_controls_csv;
+    mod test_assessor_bulk_mark;
+    mod test_assessor_load_preset;
 }
