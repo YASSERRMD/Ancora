@@ -5,6 +5,7 @@ pub mod extractor;
 pub mod retry;
 pub mod enum_validator;
 pub mod coerce;
+pub mod parser;
 
 #[cfg(test)]
 mod tests;
