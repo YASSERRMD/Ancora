@@ -97,6 +97,7 @@ members = [
     "crates/ancora-catalog",
     "crates/ancora-registry",
     "crates/ancora-cliplugin",
+    "crates/ancora-builder",
 ]
 
 [workspace.package]
