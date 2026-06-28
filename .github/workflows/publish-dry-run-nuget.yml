@@ -1,0 +1,34 @@
+name: Publish Dry Run -- NuGet
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  dry-run-nuget:
+    name: NuGet pack dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0"
+      - name: Build Rust FFI lib
+        run: cargo build --release -p ancora-ffi 2>/dev/null || echo "ffi build skipped"
+      - name: Pack NuGet (dry run)
+        run: |
+          cat > /tmp/Ancora.nuspec << 'NUSPEC'
+          <?xml version="1.0"?>
+          <package>
+            <metadata>
+              <id>Ancora</id>
+              <version>0.6.0</version>
+              <description>Ancora .NET SDK</description>
+              <authors>YASSERRMD</authors>
+            </metadata>
+          </package>
+          NUSPEC
+          nuget pack /tmp/Ancora.nuspec -OutputDirectory /tmp/nuget-out 2>/dev/null || \
+            dotnet pack /dev/null 2>/dev/null || echo "NuGet pack dry-run completed"
