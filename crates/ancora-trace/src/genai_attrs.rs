@@ -180,6 +180,24 @@ pub fn set_model_and_provider(span: &mut Span, provider: &str, model: &str) {
     span.set_attr_str(GEN_AI_REQUEST_MODEL, model);
 }
 
+/// Structured tenant and run identity extracted from span attributes.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TenantRunContext {
+    pub tenant_id: String,
+    pub run_id: String,
+    pub agent_id: String,
+}
+
+/// Extract tenant and run context from a span.
+///
+/// Returns `None` if any required attribute is absent.
+pub fn tenant_run_context(span: &Span) -> Option<TenantRunContext> {
+    let tenant_id = get_str(span, ANCORA_TENANT_ID)?.to_owned();
+    let run_id = get_str(span, ANCORA_RUN_ID)?.to_owned();
+    let agent_id = get_str(span, ANCORA_AGENT_ID)?.to_owned();
+    Some(TenantRunContext { tenant_id, run_id, agent_id })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
