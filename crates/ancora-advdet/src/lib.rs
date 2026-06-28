@@ -22,5 +22,7 @@ mod tests {
     mod no_network;
     mod divergence;
     mod cost_replay;
+    mod rand_seed;
+    mod otel_replay;
     mod perf_replay;
 }
