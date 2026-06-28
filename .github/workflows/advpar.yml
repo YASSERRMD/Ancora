@@ -1,0 +1,59 @@
+name: advpar
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-advpar/**'
+      - 'sdk/go/examples/advanced-parity/**'
+  pull_request:
+    paths:
+      - 'crates/ancora-advpar/**'
+
+jobs:
+  rust-parity:
+    name: Rust advanced parity suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+
+      - name: Run ancora-advpar tests
+        run: cargo test -p ancora-advpar --lib
+
+      - name: Verify test count
+        run: |
+          COUNT=$(cargo test -p ancora-advpar --lib 2>&1 | grep -E "^test result" | head -1 | grep -oE "[0-9]+ passed" | grep -oE "[0-9]+")
+          echo "Tests passed: $COUNT"
+          if [ "$COUNT" -lt 90 ]; then
+            echo "Expected at least 90 passing tests, got $COUNT"
+            exit 1
+          fi
+
+  go-parity:
+    name: Go advanced parity example
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run Go advanced parity example
+        run: |
+          cd sdk/go
+          go run ./examples/advanced-parity/ | grep -v "^===" | grep -v "^$" | while read line; do
+            if echo "$line" | grep -q "^FAIL"; then
+              echo "Parity failure: $line"
+              exit 1
+            fi
+          done
