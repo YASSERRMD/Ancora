@@ -22,6 +22,7 @@ members = [
     "crates/ancora-migrate",
     "crates/ancora-loadtest",
     "crates/ancora-runbook",
+    "crates/ancora-toolcall",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
