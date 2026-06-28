@@ -13,4 +13,4 @@ pub use budget::{BudgetPeriod, TenantBudget, ProjectBudget};
 pub use attribution::{CostRecord, CostAttributor};
 pub use chargeback::{ChargebackLine, ChargebackReport};
 pub use forecast::CostForecaster;
-pub use api::{TenantCostSummary, cost_dashboard};
+pub use api::{TenantCostSummary, cost_dashboard, list_tenant_summaries};

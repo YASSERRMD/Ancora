@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::{
-        api::{cost_dashboard, TenantCostSummary},
+        api::{cost_dashboard, list_tenant_summaries, TenantCostSummary},
         attribution::{CostAttributor, CostRecord},
         budget::{BudgetPeriod, TenantBudget},
     };
@@ -9,7 +9,6 @@ mod tests {
     #[test]
     fn cost_api_returns_correct_figures() {
         let b = TenantBudget::new("t1", 100.0, 0.8, BudgetPeriod::Monthly, 0);
-        // Simulate spending
         let mut b2 = b.clone();
         b2.record_spend(30.0).ok();
         let summary = TenantCostSummary::from_budget(&b2);
@@ -26,13 +25,12 @@ mod tests {
         assert_eq!(d["title"], "Ancora Cost Dashboard");
         assert_eq!(d["record_count"], 1);
     }
-}
 
     #[test]
     fn list_summaries_returns_all_budgets() {
-        use crate::api::list_tenant_summaries;
         let b1 = TenantBudget::new("t1", 100.0, 0.8, BudgetPeriod::Monthly, 0);
         let b2 = TenantBudget::new("t2", 200.0, 0.8, BudgetPeriod::Monthly, 0);
         let summaries = list_tenant_summaries(&[b1, b2]);
         assert_eq!(summaries.len(), 2);
     }
+}
