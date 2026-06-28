@@ -3,6 +3,7 @@ pub mod playbook;
 pub mod escalation;
 pub mod postmortem;
 pub mod catalog;
+pub mod incident_registry;
 
 #[cfg(test)]
 mod tests;
