@@ -1,0 +1,60 @@
+//! Key lifecycle management with HSM integration stub, rotation, and audit for Ancora.
+//!
+//! Core types: [`CryptoKey`], [`KeyAlgorithm`], [`KeyPurpose`], [`KeyStatus`].
+//! Store: [`KeyStore`] with multi-version key storage and tenant isolation.
+//! Rotation: [`rotate_key`] and [`RotationPolicy`] for automated key rotation.
+//! HSM: [`HsmStub`] with [`HsmConfig`] for hardware-backed key generation simulation.
+//! Audit: [`KeyAuditLog`] tracking all key lifecycle operations.
+//! Expiry: [`ExpiryChecker`] for expired and expiring-soon key detection.
+//! Stats: [`KeyStats`] with per-tenant active key counts and algorithm distribution.
+//! Builder: [`KeyBuilder`] fluent constructor for [`CryptoKey`].
+pub mod audit;
+pub mod builder;
+pub mod expiry;
+pub mod hsm;
+pub mod key;
+pub mod rotation;
+pub mod stats;
+pub mod store;
+
+pub use audit::{KeyAuditEntry, KeyAuditLog, KeyOperation};
+pub use builder::KeyBuilder;
+pub use expiry::ExpiryChecker;
+pub use hsm::{HsmBackend, HsmConfig, HsmStub};
+pub use key::{CryptoKey, KeyAlgorithm, KeyPurpose, KeyStatus};
+pub use rotation::{RotationPolicy, rotate_key};
+pub use stats::{KeyStats, KeyStatusSummary};
+pub use store::{KeyStore, KeyStoreError};
+
+#[cfg(test)]
+mod tests {
+    mod test_key_algorithm_display;
+    mod test_key_status_display;
+    mod test_key_new;
+    mod test_key_expiry;
+    mod test_key_deactivate;
+    mod test_key_compromise;
+    mod test_key_destroy;
+    mod test_store_create;
+    mod test_store_get_active;
+    mod test_store_duplicate_error;
+    mod test_store_version_count;
+    mod test_store_list_tenant_active;
+    mod test_rotation_policy_should_rotate;
+    mod test_rotate_key;
+    mod test_rotate_key_new_version;
+    mod test_hsm_backend_display;
+    mod test_hsm_generate_key;
+    mod test_hsm_hardware_backed;
+    mod test_audit_log_record;
+    mod test_audit_log_for_key;
+    mod test_audit_log_for_tenant;
+    mod test_audit_log_rotations;
+    mod test_expiry_expired_keys;
+    mod test_expiry_expiring_soon;
+    mod test_stats_for_tenant;
+    mod test_builder_defaults;
+    mod test_builder_full;
+    mod test_key_metadata;
+    mod test_store_get_version;
+}
