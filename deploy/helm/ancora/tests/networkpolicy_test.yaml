@@ -1,0 +1,24 @@
+suite: network policy tests
+
+tests:
+  - it: renders two NetworkPolicy objects when enabled
+    asserts:
+      - hasDocuments:
+          count: 2
+    template: templates/networkpolicy.yaml
+
+  - it: does not render NetworkPolicy when disabled
+    set:
+      networkPolicy.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+    template: templates/networkpolicy.yaml
+
+  - it: control-plane policy targets control-plane pods
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.podSelector.matchLabels["app.kubernetes.io/component"]
+          value: control-plane
+    template: templates/networkpolicy.yaml
