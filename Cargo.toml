@@ -103,6 +103,7 @@ members = [
     "crates/ancora-market",
     "crates/ancora-sdkext",
     "crates/ancora-recipe",
+    "crates/ancora-fwadapt",
 ]
 
 [workspace.package]
