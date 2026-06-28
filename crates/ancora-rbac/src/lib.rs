@@ -1,4 +1,5 @@
 pub mod assignment;
+pub mod guard;
 pub mod checker;
 pub mod permission;
 pub mod policy;
@@ -6,6 +7,7 @@ pub mod role;
 
 pub use assignment::{AssignmentStore, RoleAssignment};
 pub use checker::{AuthzDecision, PermissionChecker};
+pub use guard::RbacGuard;
 pub use permission::Permission;
 pub use policy::{default_permissions, RolePolicy};
 pub use role::Role;
@@ -32,4 +34,5 @@ mod tests {
     mod test_operator_can_secret;
     mod test_default_policy_immutable;
     mod test_role_as_str;
+    mod test_rbac_guard;
 }
