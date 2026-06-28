@@ -10,6 +10,7 @@
 //! Export: [`report_to_csv`], [`controls_to_csv`] for reporting.
 pub mod assessment;
 pub mod audit;
+pub mod query;
 pub mod control;
 pub mod evidence;
 pub mod export;
@@ -27,6 +28,7 @@ pub use evidence::{EvidenceItem, EvidenceKind, EvidenceStore};
 pub use export::{controls_to_csv, report_to_csv};
 pub use framework::{ControlId, Framework};
 pub use gap::{GapAnalyzer, GapItem};
+pub use query::ControlQuery;
 pub use registry::ControlRegistry;
 pub use report::ComplianceReport;
 pub use stats::ComplianceStats;
