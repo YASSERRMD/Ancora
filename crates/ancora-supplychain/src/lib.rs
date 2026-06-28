@@ -9,6 +9,7 @@ pub mod audit;
 pub mod builder;
 pub mod component;
 pub mod export;
+pub mod graph;
 pub mod policy;
 pub mod provenance;
 pub mod query;
@@ -28,6 +29,7 @@ pub use report::SupplyChainReport;
 pub use sbom::{Sbom, SbomFormat, SbomStore};
 pub use signature::{ComponentSignature, SignatureAlgorithm, SignatureStore, VerificationResult};
 pub use export::{components_to_csv, sbom_to_csv, sbom_to_summary};
+pub use graph::DependencyGraph;
 pub use stats::SbomStats;
 pub use validator::{SbomIssue, SbomValidator};
 
@@ -65,4 +67,5 @@ mod tests {
     mod test_query_open_source_only;
     mod test_validator;
     mod test_export;
+    mod test_graph;
 }
