@@ -1,0 +1,44 @@
+name: behavior-evals
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/ancora-ageval/**'
+      - 'crates/ancora-examples/src/agent_eval_harness.rs'
+  pull_request:
+    paths:
+      - 'crates/ancora-ageval/**'
+      - 'crates/ancora-examples/src/agent_eval_harness.rs'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  behavior-evals:
+    name: Run behavior evals
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-ageval-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build ancora-ageval
+        run: cargo build -p ancora-ageval
+
+      - name: Run behavior eval tests
+        run: cargo test -p ancora-ageval -- --nocapture
+
+      - name: Run eval harness example
+        run: cargo test -p ancora-examples agent_eval_harness -- --nocapture
