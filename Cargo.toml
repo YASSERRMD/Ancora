@@ -41,6 +41,7 @@ members = [
     "crates/ancora-preset",
     "crates/ancora-auth",
     "crates/ancora-rbac",
+    "crates/ancora-abac",
     "crates/ancora-advbench",
     "crates/ancora-milestone",
     "crates/ancora-inference",
