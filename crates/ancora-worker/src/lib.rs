@@ -3,6 +3,7 @@ pub mod executor;
 pub mod lifecycle;
 pub mod pool;
 pub mod poison;
+pub mod requeue;
 pub mod scheduler;
 pub mod shutdown;
 
