@@ -29,4 +29,5 @@ mod tests {
     mod test_all_offline;
     mod test_crash_isolated;
     mod test_crash_isolation_detail;
+    mod test_determinism_replay;
 }
