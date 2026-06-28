@@ -4,6 +4,7 @@
 //! example remains easy to read without diving into library internals.
 
 pub mod long_running_memory;
+pub mod guarded_tool_synthesis;
 
 use std::collections::HashMap;
 use std::time::Instant;
