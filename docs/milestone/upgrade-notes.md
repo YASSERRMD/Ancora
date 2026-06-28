@@ -19,6 +19,7 @@ ancora-reason       = { path = "crates/ancora-reason" }
 ancora-ageval       = { path = "crates/ancora-ageval" }
 ancora-preset       = { path = "crates/ancora-preset" }
 ancora-advbench     = { path = "crates/ancora-advbench" }
+ancora-auth         = { path = "crates/ancora-auth" }
 ```
 
 ### API changes since Phase 160
@@ -32,8 +33,20 @@ ancora-advbench     = { path = "crates/ancora-advbench" }
 - `CitationStore::add` takes `&str, String` (not `String, String`).
 - `ReasoningJournal::record` takes `(tick, ReasoningEvent)`, not a plain string.
 
+### Crates added in Phase 201
+
+- `ancora-auth`: OIDC/SAML authentication, JWT validation, JWKS rotation,
+  session management, service accounts, MFA enforcement, token revocation.
+
+Key types: `IdpConfig`, `JwksStore`, `JwkKey`, `JwtClaims`, `JwtValidator`,
+`MockOidcIdp`, `MockSamlIdp`, `ServiceAccountRegistry`, `SessionStore`,
+`MfaEnforcer`, `RevocationStore`, `TokenIntrospector`, `AuthAuditLog`.
+
+All flows use u64 ticks, no wall-clock time.  `MockOidcIdp` and `MockSamlIdp`
+are drop-in test doubles that require zero network access.
+
 ### Test patterns
 
-All test modules within `ancora-advdet`, `ancora-advpar`, `ancora-preset`, and
-`ancora-advbench` use `crate::` imports (not the crate name) because they are
-internal `#[cfg(test)]` modules, not integration tests.
+All test modules within `ancora-advdet`, `ancora-advpar`, `ancora-preset`,
+`ancora-advbench`, and `ancora-auth` use `crate::` imports (not the crate
+name) because they are internal `#[cfg(test)]` modules, not integration tests.
