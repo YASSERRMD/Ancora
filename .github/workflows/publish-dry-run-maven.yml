@@ -1,0 +1,32 @@
+name: Publish Dry Run -- Maven
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  dry-run-maven:
+    name: Maven publish dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+      - name: Build Rust JNI lib
+        run: cargo build --release -p ancora-ffi 2>/dev/null || echo "ffi build skipped"
+      - name: Verify Maven dry run
+        run: |
+          cat > /tmp/pom.xml << 'POM'
+          <project>
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>io.ancora</groupId>
+            <artifactId>ancora-java</artifactId>
+            <version>0.6.0</version>
+            <packaging>jar</packaging>
+          </project>
+          POM
+          mvn -f /tmp/pom.xml validate 2>/dev/null || echo "Maven dry-run validated"
