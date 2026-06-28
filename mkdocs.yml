@@ -191,6 +191,7 @@ nav:
       - Reliability and Chaos: testing/reliability-chaos-test-plan.md
       - Security and Policy: testing/security-policy-test-plan.md
       - Coverage Gates: testing/coverage-gates.md
+      - Documentation Audit: testing/doc-audit-report.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
