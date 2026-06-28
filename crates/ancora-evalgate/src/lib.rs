@@ -27,4 +27,5 @@ mod tests {
     mod test_flaky_retried;
     mod test_baseline_updates;
     mod test_gate_report;
+    mod test_pr_eval;
 }
