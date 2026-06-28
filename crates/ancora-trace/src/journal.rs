@@ -66,6 +66,7 @@ pub fn journal_event_to_span(event: &JournalEvent) -> Span {
         status: derive_status(&event.metadata),
         attributes: std::collections::HashMap::new(),
         events: Vec::new(),
+        links: Vec::new(),
         retry_count: event.metadata.retry_count.unwrap_or(0) as u32,
     };
 

@@ -53,6 +53,8 @@ pub struct Span {
     pub attributes: HashMap<String, AttributeValue>,
     /// Structured events within the span lifetime.
     pub events: Vec<SpanEvent>,
+    /// Causal links to spans in other traces (e.g. continued-from on replay).
+    pub links: Vec<SpanLink>,
     /// Number of retry attempts recorded on this span.
     pub retry_count: u32,
 }
@@ -97,6 +99,26 @@ pub struct SpanEvent {
     pub attributes: HashMap<String, AttributeValue>,
 }
 
+/// A causal link from one span to another (e.g. continued-from).
+///
+/// Links express relationships that are not strict parent-child hierarchies,
+/// for example when a span resumes work started by a different trace.
+#[derive(Debug, Clone)]
+pub struct SpanLink {
+    pub linked_trace_id: TraceId,
+    pub linked_span_id: SpanId,
+    pub relationship: LinkRelationship,
+}
+
+/// The nature of the causal link.
+#[derive(Debug, Clone, PartialEq)]
+pub enum LinkRelationship {
+    /// This span continues work from the linked span (e.g. on replay).
+    ContinuedFrom,
+    /// This span follows the linked span in a fan-out pattern.
+    FollowsFrom,
+}
+
 impl Span {
     /// Create a root span (no parent).
     pub fn root(name: &str, start_ns: u64) -> Self {
@@ -113,6 +135,7 @@ impl Span {
             status: SpanStatus::Unset,
             attributes: HashMap::new(),
             events: Vec::new(),
+            links: Vec::new(),
             retry_count: 0,
         }
     }
@@ -131,8 +154,14 @@ impl Span {
             status: SpanStatus::Unset,
             attributes: HashMap::new(),
             events: Vec::new(),
+            links: Vec::new(),
             retry_count: 0,
         }
+    }
+
+    /// Add a causal link to a span in another trace.
+    pub fn add_link(&mut self, linked_trace_id: TraceId, linked_span_id: SpanId, relationship: LinkRelationship) {
+        self.links.push(SpanLink { linked_trace_id, linked_span_id, relationship });
     }
 
     /// Set a string attribute.
