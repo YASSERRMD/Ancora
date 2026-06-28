@@ -1,0 +1,23 @@
+name: ancora-rbac
+on:
+  push:
+    paths: ['crates/ancora-rbac/**', 'docs/rbac/**', '.github/workflows/rbac.yml']
+  pull_request:
+    paths: ['crates/ancora-rbac/**', 'docs/rbac/**', '.github/workflows/rbac.yml']
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p ancora-rbac
+      - name: Assert minimum test count
+        run: |
+          count=$(cargo test -p ancora-rbac 2>&1 | grep -c "^test .* ok$" || true)
+          test "$count" -ge 40
+      - name: No em dashes
+        run: '! grep -r $'\''\xe2\x80\x94'\'' crates/ancora-rbac/ docs/rbac/ && echo ok'
+      - name: Docs present
+        run: test -f docs/rbac/rbac-guide.md
