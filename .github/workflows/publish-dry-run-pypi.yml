@@ -1,0 +1,24 @@
+name: Publish Dry Run -- PyPI
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  dry-run-pypi:
+    name: PyPI wheel dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install maturin
+        run: pip install maturin
+      - name: Build wheel (dry run)
+        working-directory: crates/ancora-py
+        run: maturin build --out dist --release
+      - name: Check dist contents
+        run: ls crates/ancora-py/dist/
