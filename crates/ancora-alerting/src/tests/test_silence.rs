@@ -32,3 +32,13 @@ mod tests {
         assert!(!reg.is_silenced("HighErrorRate", 500));
     }
 }
+
+    #[test]
+    fn silence_registry_active_count() {
+        let mut reg = SilenceRegistry::default();
+        reg.add(MaintenanceWindow::new("a", 1000, 2000, None));
+        reg.add(MaintenanceWindow::new("b", 1500, 3000, None));
+        assert_eq!(reg.active_count(500), 0);
+        assert_eq!(reg.active_count(1200), 1);
+        assert_eq!(reg.active_count(1600), 2);
+    }
