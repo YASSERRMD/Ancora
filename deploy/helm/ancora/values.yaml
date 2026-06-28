@@ -1,0 +1,101 @@
+# Default values for ancora.
+
+global:
+  # Image registry prefix (override for air-gapped environments)
+  registry: ""
+  imagePullSecrets: []
+  # "single-tenant" or "multi-tenant"
+  mode: single-tenant
+
+image:
+  repository: ancora
+  tag: "v0.6.0"
+  pullPolicy: IfNotPresent
+
+controlPlane:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  service:
+    type: ClusterIP
+    port: 8080
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 2000
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+
+worker:
+  replicaCount: 2
+  concurrency: 4
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 2000
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+journalStore:
+  # "sqlite" or "postgres"
+  backend: sqlite
+  sqlite:
+    path: /data/ancora.db
+  postgres:
+    # Name of a Secret with key "connection-string"
+    connectionSecretRef: ancora-pg-secret
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: ancora.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+networkPolicy:
+  enabled: true
+
+# Secrets injected via external secret refs (never inline)
+auth:
+  # Name of a Secret with key "token"
+  tokenSecretRef: ancora-auth-secret
+
+# Air-gap / private registry overrides
+airgap:
+  enabled: false
+  registry: registry.internal.example.com
+  pullSecretName: regcred
+
+# Per-tenant caps (multi-tenant mode only)
+tenants:
+  defaultMaxWorkers: 5
+  defaultProviderAllowlist: []
