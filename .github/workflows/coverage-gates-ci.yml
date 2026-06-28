@@ -1,0 +1,46 @@
+name: Coverage Gates CI
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-core/tests/coverage_gate_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/coverage-gates-ci.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-core/tests/coverage_gate_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/coverage-gates-ci.yml'
+
+jobs:
+  coverage-gates:
+    name: Coverage gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-cov-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test coverage_gate_module_list
+      - run: cargo test -p ancora-core --test coverage_gate_event_types
+      - run: cargo test -p ancora-core --test coverage_gate_sdk_languages
+      - run: cargo test -p ancora-core --test coverage_gate_vector_backends
+      - run: cargo test -p ancora-core --test coverage_gate_security_properties
+      - run: cargo test -p ancora-core --test coverage_gate_policy_properties
+      - run: cargo test -p ancora-core --test coverage_gate_ci_workflows
+      - run: cargo test -p ancora-core --test coverage_gate_doc_pages
+      - run: cargo test -p ancora-core --test coverage_gate_a2a_scenarios
+      - run: cargo test -p ancora-core --test coverage_gate_offline_only
+      - run: cargo test -p ancora-core --test coverage_gate_replay_scenarios
+      - run: cargo test -p ancora-core --test coverage_gate_chaos_scenarios
+      - run: cargo test -p ancora-core --test coverage_gate_min_test_count
+      - run: cargo test -p ancora-core --test coverage_gate_mcp_scenarios
+      - run: cargo test -p ancora-core --test coverage_gate_otel_spans
+      - run: cargo test -p ancora-core --test coverage_gate_cost_model
+      - run: cargo test -p ancora-core --test coverage_gate_structured_output
+      - run: cargo test -p ancora-core --test coverage_gate_test_naming
