@@ -5,6 +5,7 @@ edition = "2021"
 description = "Compliance reporting for SOC 2, FedRAMP, and ISO 27001 evidence collection for Ancora"
 keywords = ["compliance", "soc2", "fedramp", "iso27001", "security"]
 categories = ["authentication", "data-structures"]
+readme = "README.md"
 license = "MIT"
 repository = "https://github.com/YASSERRMD/Ancora"
 
