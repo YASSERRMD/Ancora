@@ -13,10 +13,12 @@ pub mod audit;
 pub mod builder;
 pub mod downgrade;
 pub mod enforcer;
+pub mod export;
 pub mod label;
 pub mod policy;
 pub mod query;
 pub mod record;
+pub mod redact;
 pub mod registry;
 pub mod stats;
 
@@ -24,10 +26,12 @@ pub use audit::{AccessKind, ClassificationAuditEntry, ClassificationAuditLog};
 pub use builder::DataRecordBuilder;
 pub use downgrade::{DowngradePolicy, DowngradeResult};
 pub use enforcer::{ClassificationEnforcer, EnforcementDecision};
+pub use export::{to_csv, to_json};
 pub use label::{DataCategory, SensitivityLevel};
 pub use policy::{ClassificationPolicy, PolicyStore};
 pub use query::DataQuery;
 pub use record::DataRecord;
+pub use redact::RedactionConfig;
 pub use registry::{DataRegistry, RegistryError};
 pub use stats::DataClassStats;
 
@@ -71,4 +75,7 @@ mod tests {
     mod test_downgrade_policy_apply;
     mod test_downgrade_already_at_level;
     mod test_downgrade_denied_below_minimum;
+    mod test_redact_config;
+    mod test_export_csv;
+    mod test_export_json;
 }
