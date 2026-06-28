@@ -1,0 +1,25 @@
+name: ancora-audit
+on:
+  push:
+    paths: ['crates/ancora-audit/**', 'docs/audit/**', '.github/workflows/audit.yml']
+  pull_request:
+    paths: ['crates/ancora-audit/**', 'docs/audit/**', '.github/workflows/audit.yml']
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p ancora-audit
+      - name: Assert minimum test count
+        run: |
+          count=$(cargo test -p ancora-audit 2>&1 | grep -c "^test .* ok$" || true)
+          test "$count" -ge 40
+      - name: No em dashes
+        run: '! grep -r $'\''\xe2\x80\x94'\'' crates/ancora-audit/ docs/audit/ && echo ok'
+      - name: Docs present
+        run: test -f docs/audit/audit-guide.md
+      - name: Verify all checksums pass
+        run: cargo test -p ancora-audit verify_all 2>&1 | grep -q "test result: ok"
