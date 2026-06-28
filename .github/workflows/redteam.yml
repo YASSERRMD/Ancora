@@ -1,0 +1,33 @@
+name: redteam
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-redteam/**'
+      - 'crates/ancora-guard/**'
+  pull_request:
+    paths:
+      - 'crates/ancora-redteam/**'
+
+jobs:
+  red-team:
+    name: Red-team safety suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+
+      - name: Run ancora-redteam tests
+        run: cargo test -p ancora-redteam
+
+      - name: Verify no false negatives in regression
+        run: |
+          cargo test -p ancora-redteam regression_injection_attacks_blocked 2>&1 | grep -E "ok|FAILED"

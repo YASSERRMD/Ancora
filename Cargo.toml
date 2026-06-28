@@ -36,6 +36,7 @@ members = [
     "crates/ancora-ageval",
     "crates/ancora-adv-integration",
     "crates/ancora-advdet",
+    "crates/ancora-redteam",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
