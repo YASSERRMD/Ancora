@@ -8,6 +8,7 @@
 pub mod access_log;
 pub mod display;
 pub mod query;
+pub mod soft_delete;
 pub mod summary;
 pub mod error;
 pub mod expiry;
@@ -24,6 +25,7 @@ pub use secret::{Secret, SecretKind, SecretStatus, SecretVersion};
 pub use store::SecretStore;
 pub use validator::validate_path;
 pub use query::SecretQuery;
+pub use soft_delete::{is_soft_deleted, soft_delete};
 pub use summary::SecretSummary;
 
 #[cfg(test)]
@@ -61,4 +63,5 @@ mod tests {
     mod test_summary;
     mod test_display;
     mod test_query;
+    mod test_soft_delete;
 }
