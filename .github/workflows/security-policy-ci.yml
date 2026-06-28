@@ -1,0 +1,62 @@
+name: Security and Policy CI
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-core/tests/sec_*.rs'
+      - 'crates/ancora-core/tests/policy_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/security-policy-ci.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-core/tests/sec_*.rs'
+      - 'crates/ancora-core/tests/policy_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/security-policy-ci.yml'
+
+jobs:
+  security-tests:
+    name: Security tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-sec-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test sec_prompt_injection
+      - run: cargo test -p ancora-core --test sec_data_exfiltration
+      - run: cargo test -p ancora-core --test sec_tool_allowlist
+      - run: cargo test -p ancora-core --test sec_output_filter
+      - run: cargo test -p ancora-core --test sec_key_rotation
+      - run: cargo test -p ancora-core --test sec_audit_log
+      - run: cargo test -p ancora-core --test sec_rbac
+      - run: cargo test -p ancora-core --test sec_no_live_keys
+      - run: cargo test -p ancora-core --test sec_input_size_limit
+      - run: cargo test -p ancora-core --test sec_tls_config
+
+  policy-tests:
+    name: Policy tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-pol-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test policy_data_residency
+      - run: cargo test -p ancora-core --test policy_model_allowlist
+      - run: cargo test -p ancora-core --test policy_cost_ceiling
+      - run: cargo test -p ancora-core --test policy_retention
+      - run: cargo test -p ancora-core --test policy_sovereignty
+      - run: cargo test -p ancora-core --test policy_consent
+      - run: cargo test -p ancora-core --test policy_gdpr_erasure
+      - run: cargo test -p ancora-core --test policy_offline_mode
