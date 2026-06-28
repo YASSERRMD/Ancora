@@ -106,6 +106,7 @@ members = [
     "crates/ancora-fwadapt",
     "crates/ancora-eco",
     "crates/ancora-pkg",
+    "crates/ancora-ecodoc",
 ]
 
 [workspace.package]
