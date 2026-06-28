@@ -100,6 +100,7 @@ members = [
     "crates/ancora-builder",
     "crates/ancora-contrib",
     "crates/ancora-itk",
+    "crates/ancora-market",
 ]
 
 [workspace.package]
