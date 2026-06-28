@@ -65,3 +65,8 @@ impl FiredAlert {
         }
     }
 }
+
+/// Compute a deterministic fingerprint for a (rule, message) pair.
+pub fn fingerprint(rule_name: &str, msg: &str) -> String {
+    format!("{}:{}", rule_name, &msg[..msg.len().min(32)])
+}
