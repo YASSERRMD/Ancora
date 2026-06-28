@@ -90,6 +90,7 @@ members = [
     "crates/ancora-evallib",
     "crates/ancora-conteval",
     "crates/ancora-oe-docs",
+    "crates/ancora-oe-e2e",
 ]
 
 [workspace.package]
