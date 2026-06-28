@@ -28,4 +28,5 @@ mod tests {
     mod test_parity;
     mod test_all_offline;
     mod test_crash_isolated;
+    mod test_crash_isolation_detail;
 }
