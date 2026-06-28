@@ -111,6 +111,41 @@ impl Sampler {
     }
 }
 
+/// A trace converted into an eval case for offline evaluation.
+#[derive(Debug, Clone)]
+pub struct EvalCase {
+    /// Identifier matching the originating trace.
+    pub trace_id: String,
+    /// Input prompt passed to the model.
+    pub input: String,
+    /// Actual model output.
+    pub actual_output: String,
+    /// Optional human or automated label added after sampling.
+    pub expected_output: Option<String>,
+    /// Cost in micro-dollars.
+    pub cost_micros: u64,
+    /// Provider that served the trace.
+    pub provider: String,
+}
+
+impl From<Trace> for EvalCase {
+    fn from(t: Trace) -> Self {
+        EvalCase {
+            trace_id: t.id,
+            input: t.input,
+            actual_output: t.output,
+            expected_output: None,
+            cost_micros: t.cost_micros,
+            provider: t.provider,
+        }
+    }
+}
+
+/// Drain the sampler and convert all buffered traces into eval cases.
+pub fn drain_as_eval_cases(sampler: &mut Sampler) -> Vec<EvalCase> {
+    sampler.drain().into_iter().map(EvalCase::from).collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
