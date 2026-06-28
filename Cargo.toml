@@ -29,6 +29,7 @@ members = [
     "crates/ancora-memcon",
     "crates/ancora-toolsynth",
     "crates/ancora-skills",
+    "crates/ancora-lh",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
