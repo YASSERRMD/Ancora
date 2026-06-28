@@ -1,0 +1,26 @@
+name: ancora-enterprise
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-enterprise/**'
+      - '.github/workflows/enterprise.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-enterprise/**'
+      - '.github/workflows/enterprise.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Test ancora-enterprise
+        run: cargo test -p ancora-enterprise
+      - name: Clippy
+        run: cargo clippy -p ancora-enterprise -- -D warnings
