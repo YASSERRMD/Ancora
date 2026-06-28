@@ -30,6 +30,7 @@ members = [
     "crates/ancora-toolsynth",
     "crates/ancora-skills",
     "crates/ancora-lh",
+    "crates/ancora-coord",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
