@@ -1,0 +1,8 @@
+# Minimal CI values for helm lint --strict.
+# Provides required secret refs as placeholder names.
+auth:
+  tokenSecretRef: ci-auth-secret
+journalStore:
+  backend: sqlite
+  sqlite:
+    path: /tmp/ancora-ci.db
