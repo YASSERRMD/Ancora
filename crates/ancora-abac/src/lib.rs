@@ -39,4 +39,5 @@ mod tests {
     mod test_abac_audit;
     mod test_presets;
     mod test_report;
+    mod test_not_eq;
 }
