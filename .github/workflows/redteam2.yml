@@ -1,0 +1,26 @@
+name: ancora-redteam2
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-redteam2/**'
+      - '.github/workflows/redteam2.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-redteam2/**'
+      - '.github/workflows/redteam2.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Test ancora-redteam2
+        run: cargo test -p ancora-redteam2
+      - name: Clippy
+        run: cargo clippy -p ancora-redteam2 -- -D warnings
