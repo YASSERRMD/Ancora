@@ -37,4 +37,5 @@ mod tests {
     mod test_default_policy_immutable;
     mod test_role_as_str;
     mod test_rbac_guard;
+    mod test_rbac_audit;
 }
