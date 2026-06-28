@@ -19,6 +19,7 @@ pub mod presets;
 pub mod rotation;
 pub mod stats;
 pub mod store;
+pub mod summary;
 pub mod validator;
 
 pub use audit::{KeyAuditEntry, KeyAuditLog, KeyOperation};
@@ -68,4 +69,5 @@ mod tests {
     mod test_presets;
     mod test_validator;
     mod test_lifecycle;
+    mod test_summary;
 }
