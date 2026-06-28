@@ -39,3 +39,8 @@ pub fn cost_dashboard(attributor: &CostAttributor) -> serde_json::Value {
         "record_count": attributor.all_records().len()
     })
 }
+
+/// List all tenant cost summaries from a set of budgets.
+pub fn list_tenant_summaries(budgets: &[crate::budget::TenantBudget]) -> Vec<TenantCostSummary> {
+    budgets.iter().map(TenantCostSummary::from_budget).collect()
+}
