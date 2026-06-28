@@ -14,6 +14,7 @@ pub mod display;
 pub mod expiry;
 pub mod hsm;
 pub mod key;
+pub mod lifecycle;
 pub mod presets;
 pub mod rotation;
 pub mod stats;
@@ -25,6 +26,7 @@ pub use builder::KeyBuilder;
 pub use expiry::ExpiryChecker;
 pub use hsm::{HsmBackend, HsmConfig, HsmStub};
 pub use key::{CryptoKey, KeyAlgorithm, KeyPurpose, KeyStatus};
+pub use lifecycle::{compromise_key, deactivate_key, destroy_key, schedule_key_deletion};
 pub use presets::{aes256_encryption_key, ed25519_signing_key, ephemeral_key, hmac256_signing_key, rsa2048_auth_key};
 pub use rotation::{RotationPolicy, rotate_key};
 pub use stats::{KeyStats, KeyStatusSummary};
@@ -65,4 +67,5 @@ mod tests {
     mod test_key_purpose_display;
     mod test_presets;
     mod test_validator;
+    mod test_lifecycle;
 }
