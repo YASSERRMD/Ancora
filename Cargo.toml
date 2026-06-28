@@ -25,6 +25,7 @@ members = [
     "crates/ancora-toolcall",
     "crates/ancora-structured",
     "crates/ancora-agentmem",
+    "crates/ancora-orchestrate",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
