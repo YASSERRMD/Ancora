@@ -2,6 +2,7 @@ pub mod bounds;
 pub mod cooldown;
 pub mod decision;
 pub mod metrics;
+pub mod perf;
 pub mod policy;
 pub mod signals;
 pub mod simulator;
