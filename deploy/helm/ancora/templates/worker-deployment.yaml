@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ancora.fullname" . }}-worker
+  labels:
+    {{- include "ancora.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ancora.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "ancora.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.airgap.enabled }}
+      imagePullSecrets:
+        - name: {{ .Values.airgap.pullSecretName }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
+      containers:
+        - name: worker
+          image: {{ include "ancora.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["worker", "--concurrency", "{{ .Values.worker.concurrency }}"]
+          securityContext:
+            {{- toYaml .Values.worker.containerSecurityContext | nindent 12 }}
+          env:
+            - name: ANCORA_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.tokenSecretRef }}
+                  key: token
+            - name: ANCORA_JOURNAL_BACKEND
+              value: {{ .Values.journalStore.backend }}
+            {{- if eq .Values.journalStore.backend "postgres" }}
+            - name: ANCORA_PG_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.journalStore.postgres.connectionSecretRef }}
+                  key: connection-string
+            {{- end }}
+            {{- if eq .Values.journalStore.backend "sqlite" }}
+            - name: ANCORA_SQLITE_PATH
+              value: {{ .Values.journalStore.sqlite.path }}
+            {{- end }}
+            - name: ANCORA_WORKER_CONCURRENCY
+              value: "{{ .Values.worker.concurrency }}"
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}

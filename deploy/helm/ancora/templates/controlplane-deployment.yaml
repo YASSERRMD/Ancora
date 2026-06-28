@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ancora.fullname" . }}-control-plane
+  labels:
+    {{- include "ancora.labels" . | nindent 4 }}
+    app.kubernetes.io/component: control-plane
+spec:
+  replicas: {{ .Values.controlPlane.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ancora.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: control-plane
+  template:
+    metadata:
+      labels:
+        {{- include "ancora.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: control-plane
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.airgap.enabled }}
+      imagePullSecrets:
+        - name: {{ .Values.airgap.pullSecretName }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.controlPlane.podSecurityContext | nindent 8 }}
+      containers:
+        - name: control-plane
+          image: {{ include "ancora.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["control-plane"]
+          securityContext:
+            {{- toYaml .Values.controlPlane.containerSecurityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.controlPlane.service.port }}
+              protocol: TCP
+          env:
+            - name: ANCORA_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.tokenSecretRef }}
+                  key: token
+            - name: ANCORA_JOURNAL_BACKEND
+              value: {{ .Values.journalStore.backend }}
+            {{- if eq .Values.journalStore.backend "postgres" }}
+            - name: ANCORA_PG_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.journalStore.postgres.connectionSecretRef }}
+                  key: connection-string
+            {{- end }}
+            {{- if eq .Values.journalStore.backend "sqlite" }}
+            - name: ANCORA_SQLITE_PATH
+              value: {{ .Values.journalStore.sqlite.path }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.controlPlane.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10

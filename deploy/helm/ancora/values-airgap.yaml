@@ -1,0 +1,25 @@
+# Air-gapped deployment: all images pulled from private registry.
+# Apply on top of default values: helm install ancora ./ancora -f values-airgap.yaml
+
+airgap:
+  enabled: true
+  registry: registry.internal.example.com
+  pullSecretName: regcred
+
+global:
+  registry: ""
+
+image:
+  repository: ancora/ancora
+  tag: "v0.6.0"
+  pullPolicy: IfNotPresent
+
+# No public DNS, so ingress not useful by default
+ingress:
+  enabled: false
+
+# Journal must work without public internet
+journalStore:
+  backend: sqlite
+  sqlite:
+    path: /data/ancora.db

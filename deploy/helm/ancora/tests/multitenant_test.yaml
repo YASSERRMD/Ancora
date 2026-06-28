@@ -1,0 +1,40 @@
+suite: multi-tenant values tests
+
+tests:
+  - it: renders control plane with 2 replicas in multi-tenant mode
+    set:
+      controlPlane.replicaCount: 2
+      global.mode: multi-tenant
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+    template: templates/controlplane-deployment.yaml
+
+  - it: renders postgres env when journal backend is postgres
+    set:
+      journalStore.backend: postgres
+      journalStore.postgres.connectionSecretRef: ancora-pg-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: ANCORA_PG_CONN
+            valueFrom:
+              secretKeyRef:
+                name: ancora-pg-secret
+                key: connection-string
+    template: templates/controlplane-deployment.yaml
+
+  - it: enables HPA in multi-tenant profile
+    set:
+      autoscaling.enabled: true
+      autoscaling.minReplicas: 4
+      autoscaling.maxReplicas: 20
+    asserts:
+      - isKind:
+          of: HorizontalPodAutoscaler
+      - equal:
+          path: spec.minReplicas
+          value: 4
+    template: templates/hpa.yaml
