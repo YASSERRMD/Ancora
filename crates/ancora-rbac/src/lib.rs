@@ -2,6 +2,7 @@ pub mod assignment;
 pub mod audit;
 pub mod bulk;
 pub mod guard;
+pub mod summary;
 pub mod checker;
 pub mod permission;
 pub mod policy;
