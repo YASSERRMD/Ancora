@@ -1,0 +1,45 @@
+name: Example Parity CI
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-core/tests/example_parity_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/example-parity-ci.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-core/tests/example_parity_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/example-parity-ci.yml'
+
+jobs:
+  example-parity:
+    name: Example parity tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-parity-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test example_parity_single_agent
+      - run: cargo test -p ancora-core --test example_parity_verifier
+      - run: cargo test -p ancora-core --test example_parity_hil
+      - run: cargo test -p ancora-core --test example_parity_vector_rag
+      - run: cargo test -p ancora-core --test example_parity_mcp
+      - run: cargo test -p ancora-core --test example_parity_streaming
+      - run: cargo test -p ancora-core --test example_parity_cost
+      - run: cargo test -p ancora-core --test example_parity_otel
+      - run: cargo test -p ancora-core --test example_parity_local_provider
+      - run: cargo test -p ancora-core --test example_parity_structured_output
+      - run: cargo test -p ancora-core --test example_parity_policy
+      - run: cargo test -p ancora-core --test example_parity_durability
+      - run: cargo test -p ancora-core --test example_parity_a2a
+      - run: cargo test -p ancora-core --test example_parity_error_handling
+      - run: cargo test -p ancora-core --test example_parity_chinese_providers
+      - run: cargo test -p ancora-core --test example_parity_multi_agent
+      - run: cargo test -p ancora-core --test example_parity_edge_deployment
