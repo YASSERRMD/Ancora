@@ -1,0 +1,46 @@
+name: advdet
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-advdet/**'
+      - 'crates/ancora-orchestrate/**'
+      - 'crates/ancora-memcon/**'
+      - 'crates/ancora-toolsynth/**'
+      - 'crates/ancora-skills/**'
+      - 'crates/ancora-lh/**'
+      - 'crates/ancora-coord/**'
+      - 'crates/ancora-guard/**'
+      - 'crates/ancora-reason/**'
+      - 'crates/ancora-ageval/**'
+  pull_request:
+    paths:
+      - 'crates/ancora-advdet/**'
+
+jobs:
+  advanced-determinism:
+    name: Advanced determinism suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+
+      - name: Run ancora-advdet tests
+        run: cargo test -p ancora-advdet --lib -- --test-threads=1
+
+      - name: Verify test count
+        run: |
+          COUNT=$(cargo test -p ancora-advdet --lib 2>&1 | grep -E "^test result" | head -1 | grep -oE "[0-9]+ passed" | grep -oE "[0-9]+")
+          echo "Tests passed: $COUNT"
+          if [ "$COUNT" -lt 60 ]; then
+            echo "Expected at least 60 passing tests, got $COUNT"
+            exit 1
+          fi
