@@ -29,5 +29,6 @@ mod tests {
     mod test_redaction_holds;
     mod test_conteval_tracks;
     mod test_all_offline;
+    mod test_residency;
     mod test_cross_lang;
 }
