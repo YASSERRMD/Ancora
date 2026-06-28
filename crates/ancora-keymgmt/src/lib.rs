@@ -10,21 +10,26 @@
 //! Builder: [`KeyBuilder`] fluent constructor for [`CryptoKey`].
 pub mod audit;
 pub mod builder;
+pub mod display;
 pub mod expiry;
 pub mod hsm;
 pub mod key;
+pub mod presets;
 pub mod rotation;
 pub mod stats;
 pub mod store;
+pub mod validator;
 
 pub use audit::{KeyAuditEntry, KeyAuditLog, KeyOperation};
 pub use builder::KeyBuilder;
 pub use expiry::ExpiryChecker;
 pub use hsm::{HsmBackend, HsmConfig, HsmStub};
 pub use key::{CryptoKey, KeyAlgorithm, KeyPurpose, KeyStatus};
+pub use presets::{aes256_encryption_key, ed25519_signing_key, ephemeral_key, hmac256_signing_key, rsa2048_auth_key};
 pub use rotation::{RotationPolicy, rotate_key};
 pub use stats::{KeyStats, KeyStatusSummary};
 pub use store::{KeyStore, KeyStoreError};
+pub use validator::{KeyValidator, ValidationIssue};
 
 #[cfg(test)]
 mod tests {
@@ -57,4 +62,7 @@ mod tests {
     mod test_builder_full;
     mod test_key_metadata;
     mod test_store_get_version;
+    mod test_key_purpose_display;
+    mod test_presets;
+    mod test_validator;
 }
