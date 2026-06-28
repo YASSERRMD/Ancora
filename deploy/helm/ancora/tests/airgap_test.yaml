@@ -1,0 +1,25 @@
+suite: air-gapped values tests
+
+tests:
+  - it: uses private registry image when airgap enabled
+    set:
+      airgap.enabled: true
+      airgap.registry: registry.internal.example.com
+      airgap.pullSecretName: regcred
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: registry.internal.example.com/ancora:v0.6.0
+    template: templates/controlplane-deployment.yaml
+
+  - it: injects pull secret when airgap enabled
+    set:
+      airgap.enabled: true
+      airgap.registry: registry.internal.example.com
+      airgap.pullSecretName: regcred
+    asserts:
+      - contains:
+          path: spec.template.spec.imagePullSecrets
+          content:
+            name: regcred
+    template: templates/controlplane-deployment.yaml
