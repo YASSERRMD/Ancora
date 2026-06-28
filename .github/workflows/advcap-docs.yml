@@ -1,0 +1,77 @@
+name: advcap-docs
+
+on:
+  push:
+    paths:
+      - 'docs/advcap/**'
+  pull_request:
+    paths:
+      - 'docs/advcap/**'
+
+jobs:
+  link-check:
+    name: Check docs build and internal links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify all advcap docs exist
+        run: |
+          set -e
+          DOCS=(
+            docs/advcap/planning-and-replanning.md
+            docs/advcap/reflection-and-self-critique.md
+            docs/advcap/learned-routing-and-escalation.md
+            docs/advcap/prompt-and-policy-optimization.md
+            docs/advcap/memory-consolidation.md
+            docs/advcap/tool-synthesis.md
+            docs/advcap/skills-and-sub-agents.md
+            docs/advcap/long-horizon-agents.md
+            docs/advcap/coordination-patterns.md
+            docs/advcap/guardrails.md
+            docs/advcap/structured-reasoning.md
+            docs/advcap/behavior-evals.md
+            docs/advcap/composing-capabilities.md
+            docs/advcap/cost-control.md
+            docs/advcap/determinism-notes.md
+            docs/advcap/per-language-usage.md
+            docs/advcap/examples-index.md
+            docs/advcap/safety-considerations.md
+            docs/advcap/troubleshooting.md
+            docs/advcap/capability-maturity-matrix.md
+          )
+          for f in "${DOCS[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              exit 1
+            fi
+          done
+          echo "All advcap docs present."
+
+      - name: Check for broken cross-references
+        run: |
+          set -e
+          BROKEN=0
+          for f in docs/advcap/*.md; do
+            while IFS= read -r line; do
+              if echo "$line" | grep -qE '\[.*\]\([^)]+\.md\)'; then
+                REF=$(echo "$line" | grep -oE '\([^)]+\.md\)' | tr -d '()')
+                DIR=$(dirname "$f")
+                TARGET="$DIR/$REF"
+                if [ ! -f "$TARGET" ]; then
+                  echo "Broken link in $f: $REF (resolved to $TARGET)"
+                  BROKEN=1
+                fi
+              fi
+            done < "$f"
+          done
+          if [ "$BROKEN" -eq 1 ]; then exit 1; fi
+          echo "No broken cross-references found."
+
+      - name: Verify no em dashes in docs
+        run: |
+          if grep -rn $'\xe2\x80\x94' docs/advcap/; then
+            echo "Em dash found in advcap docs"
+            exit 1
+          fi
+          echo "No em dashes."
