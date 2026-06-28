@@ -104,6 +104,7 @@ members = [
     "crates/ancora-sdkext",
     "crates/ancora-recipe",
     "crates/ancora-fwadapt",
+    "crates/ancora-eco",
 ]
 
 [workspace.package]
