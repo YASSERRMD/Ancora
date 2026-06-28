@@ -1,0 +1,16 @@
+mod test_airgap;
+mod test_audit;
+mod test_coordination_skills;
+mod test_cost_bounded;
+mod test_dedup;
+mod test_lh_memory;
+mod test_otel;
+mod test_optimization_routing;
+mod test_parity;
+mod test_perf;
+mod test_planner_reflection;
+mod test_reasoning_citations;
+mod test_replay;
+mod test_restart;
+mod test_routing_verifier;
+mod test_toolsynth_guardrails;
