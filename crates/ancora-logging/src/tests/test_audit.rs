@@ -53,7 +53,6 @@ mod tests {
         assert_eq!(ch.query("t1", &AuditEventKind::PolicyDecision).len(), 1);
         assert_eq!(ch.query("t2", &AuditEventKind::PolicyDecision).len(), 1);
     }
-}
 
     #[test]
     fn audit_query_api_returns_latest() {
@@ -64,3 +63,4 @@ mod tests {
         assert!(latest.is_some());
         assert_eq!(latest.unwrap().tenant_id, "t2");
     }
+}
