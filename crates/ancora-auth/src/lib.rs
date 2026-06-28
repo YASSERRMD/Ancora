@@ -1,3 +1,4 @@
+pub mod audit;
 pub mod idp;
 pub mod introspect;
 pub mod jwks;
@@ -10,6 +11,7 @@ pub mod service_account;
 pub mod session;
 pub mod token;
 
+pub use audit::{AuthAuditLog, AuthEvent};
 pub use idp::{IdpConfig, IdpKind, IdpRegistry};
 pub use introspect::{IntrospectResult, IntrospectStatus, TokenIntrospector};
 pub use jwks::{JwkKey, JwksStore};
@@ -46,4 +48,5 @@ mod tests {
     mod test_revoked_token_rejected;
     mod test_oidc_mfa_required;
     mod test_bulk_revoke;
+    mod test_audit_log;
 }
