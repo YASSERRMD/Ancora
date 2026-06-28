@@ -1,3 +1,4 @@
+pub mod test_error;
 pub mod test_rate_limiter;
 pub mod test_schema;
 pub mod test_window;
