@@ -1,0 +1,51 @@
+suite: control plane deployment tests
+
+tests:
+  - it: renders control plane deployment with default values
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-ancora-control-plane
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: control-plane
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ancora:v0.6.0
+    template: templates/controlplane-deployment.yaml
+
+  - it: applies pod security context
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 1000
+    template: templates/controlplane-deployment.yaml
+
+  - it: injects auth token from secret ref
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: ANCORA_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: ancora-auth-secret
+                key: token
+    template: templates/controlplane-deployment.yaml
+
+  - it: sets sqlite journal env when backend is sqlite
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: ANCORA_SQLITE_PATH
+            value: /data/ancora.db
+    template: templates/controlplane-deployment.yaml
