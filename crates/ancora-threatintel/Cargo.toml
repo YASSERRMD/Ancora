@@ -1,0 +1,11 @@
+[package]
+name = "ancora-threatintel"
+version = "0.1.0"
+edition = "2021"
+description = "Threat intelligence with IOC feeds, threat scoring, indicator management, and feed aggregation for Ancora"
+keywords = ["threat-intelligence", "ioc", "security", "feeds", "scoring"]
+categories = ["data-structures"]
+license = "MIT"
+repository = "https://github.com/YASSERRMD/Ancora"
+
+[dependencies]
