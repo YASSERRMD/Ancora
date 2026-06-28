@@ -10,6 +10,7 @@ pub mod background_agent;
 pub mod contract_net_example;
 pub mod verified_reasoning;
 pub mod agent_eval_harness;
+pub mod advanced_combined;
 
 use std::collections::HashMap;
 use std::time::Instant;

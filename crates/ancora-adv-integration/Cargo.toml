@@ -1,31 +1,23 @@
 [package]
-name = "ancora-examples"
+name = "ancora-adv-integration"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Runnable example tests demonstrating common Ancora patterns"
+description = "End-to-end integration tests combining Ancora advanced capabilities"
 publish = false
 
 [dependencies]
-ancora-core = { path = "../ancora-core" }
-ancora-proto = { path = "../ancora-proto" }
 ancora-orchestrate = { path = "../ancora-orchestrate" }
 ancora-memcon = { path = "../ancora-memcon" }
-ancora-guard = { path = "../ancora-guard" }
 ancora-toolsynth = { path = "../ancora-toolsynth" }
 ancora-skills = { path = "../ancora-skills" }
 ancora-lh = { path = "../ancora-lh" }
 ancora-coord = { path = "../ancora-coord" }
+ancora-guard = { path = "../ancora-guard" }
 ancora-reason = { path = "../ancora-reason" }
 ancora-ageval = { path = "../ancora-ageval" }
-prost = "0.13"
-serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
 [dev-dependencies]
-ancora-core = { path = "../ancora-core" }
-ancora-proto = { path = "../ancora-proto" }
-prost = "0.13"
-serde_json = "1"
