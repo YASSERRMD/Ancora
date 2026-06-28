@@ -1,0 +1,40 @@
+name: ancora-oepar
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-oepar/**'
+      - '.github/workflows/ancora-oepar.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-oepar/**'
+      - '.github/workflows/ancora-oepar.yml'
+
+jobs:
+  obs-eval-parity:
+    name: Observability and eval parity suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-oepar-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-oepar-
+
+      - name: Build ancora-oepar
+        run: cargo build -p ancora-oepar
+
+      - name: Run parity test suite
+        run: cargo test -p ancora-oepar -- --test-threads=4
+
+      - name: Run obs_eval_example
+        run: cargo run --example obs_eval_example -p ancora-oepar
