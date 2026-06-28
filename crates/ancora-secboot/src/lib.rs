@@ -14,9 +14,11 @@ pub mod evaluator;
 pub mod measurement;
 pub mod policy;
 pub mod presets;
+pub mod query;
 pub mod report;
 pub mod seal;
 pub mod stats;
+pub mod validator;
 
 pub use attestation::{AttestationLog, AttestationRecord, AttestationStatus};
 pub use audit::{BootAuditEntry, BootAuditLog, BootEvent};
@@ -28,7 +30,9 @@ pub use policy::{BootPolicy, PolicyEffect, PolicyStore};
 pub use presets::{kernel_only_policy, permissive_boot_policy, strict_boot_policy};
 pub use report::IntegrityReport;
 pub use seal::{SealResult, SealedBlob, SealingStore, UnsealResult};
+pub use query::MeasurementQuery;
 pub use stats::BootStats;
+pub use validator::{ChainIssue, ChainValidator};
 
 #[cfg(test)]
 mod tests {
@@ -63,4 +67,6 @@ mod tests {
     mod test_stats_trust_rate;
     mod test_builder;
     mod test_presets;
+    mod test_validator;
+    mod test_query;
 }
