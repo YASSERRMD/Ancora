@@ -1,0 +1,11 @@
+[package]
+name = "ancora-toolsynth"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Safe tool synthesis and dynamic tool registration for Ancora agents"
+
+[dependencies]
+serde_json = "1"
