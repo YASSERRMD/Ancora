@@ -20,6 +20,7 @@ members = [
     "crates/ancora-opscli",
     "crates/ancora-selfheal",
     "crates/ancora-migrate",
+    "crates/ancora-loadtest",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
