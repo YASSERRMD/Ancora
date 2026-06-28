@@ -39,6 +39,7 @@ members = [
     "crates/ancora-redteam",
     "crates/ancora-advpar",
     "crates/ancora-preset",
+    "crates/ancora-advbench",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
