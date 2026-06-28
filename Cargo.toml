@@ -31,6 +31,7 @@ members = [
     "crates/ancora-skills",
     "crates/ancora-lh",
     "crates/ancora-coord",
+    "crates/ancora-guard",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
