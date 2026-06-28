@@ -62,4 +62,8 @@ mod tests {
     mod test_policy_allow_deny_rules;
     mod test_audit_log_all;
     mod test_connection_factory;
+    mod test_rule_builder;
+    mod test_policy_validator;
+    mod test_netpol_stats;
+    mod test_display;
 }
