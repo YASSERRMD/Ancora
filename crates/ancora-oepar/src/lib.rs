@@ -28,5 +28,6 @@ mod tests {
     mod test_traces_equal;
     mod test_scores_equal;
     mod test_cost_equal;
+    mod test_examples_run;
     mod test_polyglot_stitching;
 }
