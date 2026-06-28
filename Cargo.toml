@@ -99,6 +99,7 @@ members = [
     "crates/ancora-cliplugin",
     "crates/ancora-builder",
     "crates/ancora-contrib",
+    "crates/ancora-itk",
 ]
 
 [workspace.package]
