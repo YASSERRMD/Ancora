@@ -34,4 +34,5 @@ mod tests {
     mod invalid_name;
     mod invalid_caps;
     mod airgap_routing_conflict;
+    mod coding_support_analysis;
 }
