@@ -1,0 +1,9 @@
+[package]
+name = "ancora-tenant"
+version = "0.1.0"
+edition = "2021"
+description = "Per-tenant resource quotas, namespace isolation, and lifecycle management for Ancora"
+keywords = ["tenant", "isolation", "quota", "multitenancy", "saas"]
+categories = ["data-structures", "authentication"]
+
+[dependencies]
