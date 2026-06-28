@@ -54,3 +54,13 @@ mod tests {
         assert_eq!(ch.query("t2", &AuditEventKind::PolicyDecision).len(), 1);
     }
 }
+
+    #[test]
+    fn audit_query_api_returns_latest() {
+        let mut ch = AuditChannel::new();
+        ch.append(make_event(AuditEventKind::PolicyDecision, "t1"));
+        ch.append(make_event(AuditEventKind::PolicyDecision, "t2"));
+        let latest = ch.latest(&AuditEventKind::PolicyDecision);
+        assert!(latest.is_some());
+        assert_eq!(latest.unwrap().tenant_id, "t2");
+    }
