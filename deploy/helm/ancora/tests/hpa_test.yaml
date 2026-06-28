@@ -1,0 +1,24 @@
+suite: HPA tests
+
+tests:
+  - it: does not render HPA when autoscaling disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+    template: templates/hpa.yaml
+
+  - it: renders HPA when autoscaling enabled
+    set:
+      autoscaling.enabled: true
+      autoscaling.minReplicas: 2
+      autoscaling.maxReplicas: 10
+    asserts:
+      - isKind:
+          of: HorizontalPodAutoscaler
+      - equal:
+          path: spec.minReplicas
+          value: 2
+      - equal:
+          path: spec.maxReplicas
+          value: 10
+    template: templates/hpa.yaml
