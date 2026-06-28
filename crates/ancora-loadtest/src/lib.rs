@@ -1,4 +1,5 @@
 pub mod workload;
+pub mod ratelimit;
 pub mod sampler;
 pub mod throughput;
 pub mod soak;
