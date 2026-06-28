@@ -1,4 +1,5 @@
 pub mod assignment;
+pub mod audit;
 pub mod guard;
 pub mod checker;
 pub mod permission;
@@ -6,6 +7,7 @@ pub mod policy;
 pub mod role;
 
 pub use assignment::{AssignmentStore, RoleAssignment};
+pub use audit::{RbacAuditLog, RbacEvent};
 pub use checker::{AuthzDecision, PermissionChecker};
 pub use guard::RbacGuard;
 pub use permission::Permission;
