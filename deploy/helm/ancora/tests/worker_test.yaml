@@ -1,0 +1,31 @@
+suite: worker deployment tests
+
+tests:
+  - it: renders worker deployment with default values
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-ancora-worker
+      - equal:
+          path: spec.replicas
+          value: 2
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: worker
+    template: templates/worker-deployment.yaml
+
+  - it: applies worker pod security context
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+    template: templates/worker-deployment.yaml
+
+  - it: sets concurrency arg on worker
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "4"
+    template: templates/worker-deployment.yaml
