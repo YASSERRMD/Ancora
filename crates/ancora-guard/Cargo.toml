@@ -1,0 +1,10 @@
+[package]
+name = "ancora-guard"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Input, output, and action guardrails for Ancora agents"
+
+[dependencies]
