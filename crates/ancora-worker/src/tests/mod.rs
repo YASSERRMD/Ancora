@@ -1,3 +1,4 @@
+mod test_backpressure;
 mod test_concurrency;
 mod test_poison;
 mod test_pool;
