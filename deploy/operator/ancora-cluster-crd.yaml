@@ -1,0 +1,51 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: ancoraclusters.ancora.io
+spec:
+  group: ancora.io
+  names:
+    kind: AncoraCluster
+    listKind: AncoraClusterList
+    plural: ancoraclusters
+    singular: ancoracluster
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [controlPlaneReplicas, workerReplicas, journalStore]
+              properties:
+                controlPlaneReplicas:
+                  type: integer
+                  minimum: 1
+                workerReplicas:
+                  type: integer
+                  minimum: 0
+                workerConcurrency:
+                  type: integer
+                  default: 4
+                autoscalerEnabled:
+                  type: boolean
+                  default: false
+                minWorkers:
+                  type: integer
+                maxWorkers:
+                  type: integer
+                image:
+                  type: string
+                journalStore:
+                  type: object
+                  required: [backend]
+                  properties:
+                    backend:
+                      type: string
+                      enum: [sqlite, postgres]
+                    connectionSecretRef:
+                      type: string
