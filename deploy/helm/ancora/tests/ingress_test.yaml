@@ -1,0 +1,23 @@
+suite: ingress tests
+
+tests:
+  - it: does not render Ingress when disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+    template: templates/ingress.yaml
+
+  - it: renders Ingress when enabled
+    set:
+      ingress.enabled: true
+      ingress.className: nginx
+      ingress.hosts[0].host: ancora.example.com
+      ingress.hosts[0].paths[0].path: /
+      ingress.hosts[0].paths[0].pathType: Prefix
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+    template: templates/ingress.yaml
