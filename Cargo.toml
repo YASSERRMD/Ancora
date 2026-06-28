@@ -11,6 +11,7 @@ members = [
     "crates/ancora-quota",
     "crates/ancora-backup",
     "crates/ancora-dr",
+    "crates/ancora-deploy",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
