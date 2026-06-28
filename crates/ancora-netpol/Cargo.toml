@@ -2,8 +2,10 @@
 name = "ancora-netpol"
 version = "0.1.0"
 edition = "2021"
-description = "Network policy enforcement with egress rules and allow/deny lists for Ancora"
+description = "Network policy enforcement with egress rules, allow/deny lists, presets, and audit log for Ancora"
 keywords = ["network", "policy", "egress", "firewall", "security"]
 categories = ["authentication", "network-programming"]
+license = "MIT"
+repository = "https://github.com/YASSERRMD/Ancora"
 
 [dependencies]
