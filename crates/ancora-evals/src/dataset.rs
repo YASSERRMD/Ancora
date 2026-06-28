@@ -53,6 +53,19 @@ impl Dataset {
         self.examples.push(example);
     }
 
+    /// Parse the version string into (major, minor, patch) if it is semver.
+    /// Returns None for non-semver version strings.
+    pub fn semver(&self) -> Option<(u32, u32, u32)> {
+        let parts: Vec<&str> = self.version.splitn(3, '.').collect();
+        if parts.len() < 3 {
+            return None;
+        }
+        let major = parts[0].parse::<u32>().ok()?;
+        let minor = parts[1].parse::<u32>().ok()?;
+        let patch = parts[2].parse::<u32>().ok()?;
+        Some((major, minor, patch))
+    }
+
     /// Return the number of examples.
     pub fn len(&self) -> usize {
         self.examples.len()
