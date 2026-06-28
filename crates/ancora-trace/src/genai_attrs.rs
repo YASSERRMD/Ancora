@@ -87,6 +87,36 @@ pub fn set_error_attr(span: &mut Span, error_kind: &str, retry_count: i64) {
     span.set_attr_int(ANCORA_RETRY_COUNT, retry_count);
 }
 
+/// Token usage summary extracted from a span.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TokenUsage {
+    pub input_tokens: i64,
+    pub output_tokens: i64,
+    pub total_tokens: i64,
+}
+
+/// Extract token usage from a span's attributes.
+///
+/// Returns `None` if either token count attribute is missing.
+pub fn token_usage(span: &Span) -> Option<TokenUsage> {
+    let input = get_int(span, GEN_AI_USAGE_INPUT_TOKENS)?;
+    let output = get_int(span, GEN_AI_USAGE_OUTPUT_TOKENS)?;
+    Some(TokenUsage {
+        input_tokens: input,
+        output_tokens: output,
+        total_tokens: input + output,
+    })
+}
+
+/// Compute estimated cost in USD given per-million-token prices.
+///
+/// This is a convenience calculation; authoritative cost is always
+/// the `ancora.cost.usd` attribute written by the journal bridge.
+pub fn estimate_cost(usage: &TokenUsage, input_price_per_m: f64, output_price_per_m: f64) -> f64 {
+    (usage.input_tokens as f64 / 1_000_000.0) * input_price_per_m
+        + (usage.output_tokens as f64 / 1_000_000.0) * output_price_per_m
+}
+
 /// Check whether a span has all required GenAI attributes.
 pub fn has_required_genai_attrs(span: &Span) -> bool {
     span.attributes.contains_key(GEN_AI_SYSTEM)
