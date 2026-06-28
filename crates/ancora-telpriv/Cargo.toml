@@ -1,0 +1,8 @@
+[package]
+name = "ancora-telpriv"
+version = "0.1.0"
+edition = "2021"
+authors = ["YASSERRMD <arafath.yasser@gmail.com>"]
+license = "Apache-2.0"
+
+[dependencies]

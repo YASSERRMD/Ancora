@@ -85,6 +85,7 @@ members = [
     "crates/ancora-obssdk",
     "crates/ancora-obsint",
     "crates/ancora-safemon",
+    "crates/ancora-telpriv",
 ]
 
 [workspace.package]
