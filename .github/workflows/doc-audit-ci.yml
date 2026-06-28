@@ -1,0 +1,47 @@
+name: Documentation Audit CI
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-core/tests/audit_*.rs'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/doc-audit-ci.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-core/tests/audit_*.rs'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/doc-audit-ci.yml'
+
+jobs:
+  doc-audit:
+    name: Documentation audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test audit_doc_completeness
+      - run: cargo test -p ancora-core --test audit_sdk_doc_completeness
+      - run: cargo test -p ancora-core --test audit_glossary_terms
+      - run: cargo test -p ancora-core --test audit_provider_docs
+      - run: cargo test -p ancora-core --test audit_changelog
+      - run: cargo test -p ancora-core --test audit_api_reference
+      - run: cargo test -p ancora-core --test audit_concept_cross_refs
+      - run: cargo test -p ancora-core --test audit_quickstart_coverage
+      - run: cargo test -p ancora-core --test audit_no_placeholder_content
+      - run: cargo test -p ancora-core --test audit_contributing_guide
+      - run: cargo test -p ancora-core --test audit_doc_link_integrity
+      - run: cargo test -p ancora-core --test audit_readme_sections
+      - run: cargo test -p ancora-core --test audit_code_samples
+      - run: cargo test -p ancora-core --test audit_faq
+      - run: cargo test -p ancora-core --test audit_doc_freshness
+      - run: cargo test -p ancora-core --test audit_troubleshooting
+      - run: cargo test -p ancora-core --test audit_examples_in_docs
