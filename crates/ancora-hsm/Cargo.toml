@@ -1,0 +1,11 @@
+[package]
+name = "ancora-hsm"
+version = "0.1.0"
+edition = "2021"
+description = "Hardware security module interface with software mock, key operations, slot management, and session handling for Ancora"
+keywords = ["hsm", "pkcs11", "hardware-security", "crypto", "key-management"]
+categories = ["data-structures"]
+license = "MIT"
+repository = "https://github.com/YASSERRMD/Ancora"
+
+[dependencies]
