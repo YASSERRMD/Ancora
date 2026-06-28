@@ -44,6 +44,7 @@ members = [
     "crates/ancora-abac",
     "crates/ancora-audit",
     "crates/ancora-tenant",
+    "crates/ancora-secrets",
     "crates/ancora-advbench",
     "crates/ancora-milestone",
     "crates/ancora-inference",

@@ -1,0 +1,9 @@
+[package]
+name = "ancora-secrets"
+version = "0.1.0"
+edition = "2021"
+description = "Secret storage with versioning, rotation, and vault-style paths for Ancora"
+keywords = ["secrets", "vault", "rotation", "security", "credentials"]
+categories = ["authentication", "data-structures"]
+
+[dependencies]
