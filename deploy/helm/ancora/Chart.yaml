@@ -1,0 +1,16 @@
+apiVersion: v2
+name: ancora
+description: Ancora - Durable AI agent runtime
+type: application
+version: 0.6.0
+appVersion: "0.6.0"
+keywords:
+  - ai
+  - agents
+  - durable
+  - orchestration
+home: https://github.com/YASSERRMD/Ancora
+maintainers:
+  - name: YASSERRMD
+    email: arafath.yasser@gmail.com
+dependencies: []
