@@ -48,3 +48,10 @@ impl SilenceRegistry {
         self.windows.iter().any(|w| w.silences(rule_name, now))
     }
 }
+
+/// Total active window count at a given time.
+impl SilenceRegistry {
+    pub fn active_count(&self, now: u64) -> usize {
+        self.windows.iter().filter(|w| w.is_active(now)).count()
+    }
+}
