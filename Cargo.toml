@@ -56,6 +56,7 @@ members = [
     "crates/ancora-zerotrust",
     "crates/ancora-hsm",
     "crates/ancora-airgap",
+    "crates/ancora-pentest",
     "crates/ancora-advbench",
     "crates/ancora-milestone",
     "crates/ancora-inference",
