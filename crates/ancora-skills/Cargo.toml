@@ -1,0 +1,11 @@
+[package]
+name = "ancora-skills"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Reusable skills and sub-agent registry for Ancora agents"
+
+[dependencies]
+serde_json = "1"
