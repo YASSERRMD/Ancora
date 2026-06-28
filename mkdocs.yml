@@ -188,6 +188,7 @@ nav:
       - Java Test Plan: testing/java-test-plan.md
       - Cross-Language Test Plan: testing/xlang-test-plan.md
       - Determinism Guarantees: testing/determinism-guarantees.md
+      - Reliability and Chaos: testing/reliability-chaos-test-plan.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
