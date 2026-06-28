@@ -1,0 +1,53 @@
+name: advbench
+
+on:
+  push:
+    paths:
+      - "crates/ancora-advbench/**"
+      - "docs/advbench/**"
+      - ".github/workflows/advbench.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-advbench/**"
+      - "docs/advbench/**"
+      - ".github/workflows/advbench.yml"
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: build ancora-advbench
+        run: cargo build -p ancora-advbench
+
+      - name: run advanced benchmarks
+        run: cargo test -p ancora-advbench 2>&1 | tee /tmp/advbench-results.txt
+
+      - name: gate on minimum 40 passing tests
+        run: |
+          PASS=$(grep -c "^test .* ok$" /tmp/advbench-results.txt || true)
+          echo "Passing tests: $PASS"
+          [ "$PASS" -ge 40 ]
+
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: verify advbench docs exist
+        run: |
+          test -f docs/advbench/methodology.md
+          test -f docs/advbench/results-and-analysis.md
+          test -f docs/advbench/cost-quality-tradeoff.md
+          test -f docs/advbench/regression-thresholds.md
+          echo "All advbench docs present."
+
+      - name: reject em dash in docs
+        run: |
+          if grep -rn $'\xe2\x80\x94' docs/advbench/; then
+            echo "FAIL: em dash found in advbench docs"
+            exit 1
+          fi
+          echo "No em dashes found."
