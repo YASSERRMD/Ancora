@@ -17,6 +17,7 @@ members = [
     "crates/ancora-alerting",
     "crates/ancora-logging",
     "crates/ancora-cost",
+    "crates/ancora-opscli",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
