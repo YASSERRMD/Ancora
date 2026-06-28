@@ -25,5 +25,8 @@ pub mod tuning;
 /// Feedback API surface.
 pub mod api;
 
+/// Review queue API layer.
+pub mod queue_api;
+
 #[cfg(test)]
 mod tests;
