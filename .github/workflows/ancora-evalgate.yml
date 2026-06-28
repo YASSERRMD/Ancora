@@ -1,0 +1,24 @@
+name: ancora-evalgate
+
+on:
+  push:
+    paths:
+      - "crates/ancora-evalgate/**"
+  pull_request:
+    paths:
+      - "crates/ancora-evalgate/**"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build -p ancora-evalgate
+
+      - name: Test
+        run: cargo test -p ancora-evalgate
