@@ -11,6 +11,7 @@ publish = false
 [dependencies]
 ancora-core = { path = "../ancora-core" }
 ancora-proto = { path = "../ancora-proto" }
+ancora-memcon = { path = "../ancora-memcon" }
 prost = "0.13"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

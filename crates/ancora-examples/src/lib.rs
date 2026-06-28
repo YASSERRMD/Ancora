@@ -3,6 +3,8 @@
 //! These utilities are intentionally minimal and self-contained so each
 //! example remains easy to read without diving into library internals.
 
+pub mod long_running_memory;
+
 use std::collections::HashMap;
 use std::time::Instant;
 
