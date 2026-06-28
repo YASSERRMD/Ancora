@@ -1,0 +1,11 @@
+[package]
+name = "ancora-incident"
+version = "0.1.0"
+edition = "2021"
+description = "Incident response with automated runbooks, escalation policies, timeline tracking, and postmortem generation for Ancora"
+keywords = ["incident-response", "runbook", "sre", "escalation", "security"]
+categories = ["data-structures"]
+license = "MIT"
+repository = "https://github.com/YASSERRMD/Ancora"
+
+[dependencies]
