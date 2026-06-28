@@ -76,6 +76,25 @@ impl Dataset {
         self.examples.is_empty()
     }
 
+    /// Import examples from agent trace lines.
+    ///
+    /// Trace line format: `TRACE|id|input|expected`
+    /// Lines that do not start with `TRACE|` are ignored.
+    pub fn from_traces(name: impl Into<String>, version: impl Into<String>, traces: &str) -> Self {
+        let mut dataset = Dataset::new(name, version);
+        for line in traces.lines() {
+            let line = line.trim();
+            if !line.starts_with("TRACE|") {
+                continue;
+            }
+            let parts: Vec<&str> = line.splitn(4, '|').collect();
+            if parts.len() == 4 {
+                dataset.add(Example::new(parts[1], parts[2], parts[3]));
+            }
+        }
+        dataset
+    }
+
     /// Load a dataset from a simple CSV-like text format:
     /// Each line: `id,input,expected`
     pub fn from_csv(name: impl Into<String>, version: impl Into<String>, csv: &str) -> Result<Self, String> {
