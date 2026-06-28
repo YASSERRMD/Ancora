@@ -1,0 +1,38 @@
+# Multi-tenant deployment overrides.
+# Apply on top of default values: helm install ancora ./ancora -f values-multi-tenant.yaml
+
+global:
+  mode: multi-tenant
+
+controlPlane:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+worker:
+  replicaCount: 4
+  concurrency: 8
+
+autoscaling:
+  enabled: true
+  minReplicas: 4
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+journalStore:
+  backend: postgres
+  postgres:
+    connectionSecretRef: ancora-pg-secret
+
+networkPolicy:
+  enabled: true
+
+tenants:
+  defaultMaxWorkers: 5
+  defaultProviderAllowlist: []
