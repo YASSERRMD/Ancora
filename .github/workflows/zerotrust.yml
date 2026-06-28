@@ -1,0 +1,38 @@
+name: ancora-zerotrust
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-zerotrust/**'
+      - '.github/workflows/zerotrust.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-zerotrust/**'
+      - '.github/workflows/zerotrust.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Check for em-dash
+        run: |
+          if grep -r $'\xe2\x80\x94' crates/ancora-zerotrust/; then
+            echo "em-dash found" && exit 1
+          fi
+      - name: Build
+        run: cargo build -p ancora-zerotrust
+      - name: Test
+        run: cargo test -p ancora-zerotrust -- --test-threads=1
+      - name: Count tests
+        run: |
+          COUNT=$(cargo test -p ancora-zerotrust -- --list 2>/dev/null | grep -c ': test$' || true)
+          echo "Test count: $COUNT"
+          if [ "$COUNT" -lt 30 ]; then echo "Need at least 30 tests, got $COUNT" && exit 1; fi
+      - name: Example
+        run: cargo run -p ancora-zerotrust --example basic_zerotrust
