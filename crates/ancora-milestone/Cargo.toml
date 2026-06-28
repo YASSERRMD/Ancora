@@ -1,0 +1,13 @@
+[package]
+name    = "ancora-milestone"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ancora-orchestrate = { path = "../ancora-orchestrate" }
+ancora-ageval      = { path = "../ancora-ageval" }
+ancora-guard       = { path = "../ancora-guard" }
+ancora-reason      = { path = "../ancora-reason" }
+ancora-preset      = { path = "../ancora-preset" }
+ancora-advbench    = { path = "../ancora-advbench" }
+serde_json         = "1"
