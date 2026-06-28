@@ -39,4 +39,5 @@ mod tests {
     mod test_role_as_str;
     mod test_rbac_guard;
     mod test_rbac_audit;
+    mod test_bulk_ops;
 }
