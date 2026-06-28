@@ -43,4 +43,5 @@ mod tests {
     mod test_bulk_ops;
     mod test_summary;
     mod test_permission_strings;
+    mod test_checker_is_allowed;
 }
