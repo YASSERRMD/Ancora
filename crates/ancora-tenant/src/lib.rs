@@ -6,6 +6,9 @@
 //! Cross-tenant safety: [`IsolationChecker`] rejects cross-tenant resource access.
 //! Reporting: [`TenantSummary`], [`QuotaSummary`] for utilization dashboards.
 pub mod admission;
+pub mod builder;
+pub mod event;
+pub mod quota_update;
 pub mod error;
 pub mod isolation;
 pub mod namespace;
@@ -15,6 +18,9 @@ pub mod summary;
 pub mod tenant;
 
 pub use admission::{AdmissionController, AdmissionDecision};
+pub use builder::TenantBuilder;
+pub use event::{TenantEvent, TenantEventKind, TenantEventLog};
+pub use quota_update::QuotaUpdate;
 pub use error::TenantError;
 pub use isolation::{IsolationChecker, IsolationResult};
 pub use namespace::Namespace;
@@ -55,4 +61,7 @@ mod tests {
     mod test_tenant_activate_after_suspend;
     mod test_admission_all_pass;
     mod test_quota_fields;
+    mod test_builder;
+    mod test_quota_update;
+    mod test_event_log;
 }
