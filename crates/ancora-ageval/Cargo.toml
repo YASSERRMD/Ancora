@@ -1,0 +1,12 @@
+[package]
+name = "ancora-ageval"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Behavior-level evaluation harness for Ancora agent capabilities"
+
+[dependencies]
+
+[dev-dependencies]
