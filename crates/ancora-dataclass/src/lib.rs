@@ -1,5 +1,19 @@
 //! Data classification with sensitivity labels, enforcement, and audit for Ancora.
 //!
+//! ## Quick start
+//!
+//! ```rust,ignore
+//! use ancora_dataclass::*;
+//! let policy = ClassificationPolicy::strict("tenant-1");
+//! let record = DataRecordBuilder::new("r1", "tenant-1", "SSN")
+//!     .level(SensitivityLevel::Restricted)
+//!     .category(DataCategory::Pii)
+//!     .tag("gdpr")
+//!     .build();
+//! let decision = ClassificationEnforcer::check_write(&policy, &record);
+//! assert!(ClassificationEnforcer::is_allowed(&decision));
+//! ```
+//!
 //! Core types: [`SensitivityLevel`], [`DataCategory`], [`DataRecord`].
 //! Policy: [`ClassificationPolicy`] with max allowed level and write controls.
 //! Enforcement: [`ClassificationEnforcer`] for read/write decisions.
@@ -9,6 +23,8 @@
 //! Query: [`DataQuery`] with level, category, tag, and tenant filters.
 //! Stats: [`DataClassStats`] with level distribution.
 //! Downgrade: [`DowngradePolicy`] with minimum level floor.
+//! Redaction: [`RedactionConfig`] for masking values at export time.
+//! Export: [`to_csv`] and [`to_json`] for records collections.
 pub mod audit;
 pub mod builder;
 pub mod downgrade;
