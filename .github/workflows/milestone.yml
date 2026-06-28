@@ -1,0 +1,77 @@
+name: milestone
+
+on:
+  push:
+    paths:
+      - "crates/ancora-milestone/**"
+      - "docs/milestone/**"
+      - ".github/workflows/milestone.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-milestone/**"
+      - "docs/milestone/**"
+      - ".github/workflows/milestone.yml"
+
+jobs:
+  milestone-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: build ancora-milestone
+        run: cargo build -p ancora-milestone
+
+      - name: run milestone tests
+        run: cargo test -p ancora-milestone 2>&1 | tee /tmp/milestone-results.txt
+
+      - name: gate on minimum 35 passing tests
+        run: |
+          PASS=$(grep -c "^test .* ok$" /tmp/milestone-results.txt || true)
+          echo "Passing tests: $PASS"
+          [ "$PASS" -ge 35 ]
+
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: verify milestone docs exist
+        run: |
+          test -f docs/milestone/advanced-capabilities-overview.md
+          test -f docs/milestone/feature-matrix.md
+          test -f docs/milestone/known-limitations.md
+          test -f docs/milestone/upgrade-notes.md
+          test -f docs/milestone/changelog.md
+          test -f docs/milestone/per-language-quickstarts.md
+          test -f docs/milestone/security-review-notes.md
+          test -f docs/milestone/government-preset-readiness.md
+          test -f docs/milestone/announcement.md
+          test -f docs/milestone/roadmap-to-part2.md
+          echo "All milestone docs present."
+
+      - name: reject em dash in docs
+        run: |
+          if grep -rn $'\xe2\x80\x94' docs/milestone/; then
+            echo "FAIL: em dash found in milestone docs"
+            exit 1
+          fi
+          echo "No em dashes found."
+
+  full-advanced-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: run ancora-advdet determinism suite
+        run: cargo test -p ancora-advdet
+
+      - name: run ancora-advpar parity suite
+        run: cargo test -p ancora-advpar
+
+      - name: run ancora-preset suite
+        run: cargo test -p ancora-preset
+
+      - name: run ancora-advbench suite
+        run: cargo test -p ancora-advbench
