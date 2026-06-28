@@ -7,6 +7,7 @@ members = [
     "crates/ancora-worker",
     "crates/ancora-autoscale",
     "crates/ancora-operator",
+    "crates/ancora-multitenancy",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
