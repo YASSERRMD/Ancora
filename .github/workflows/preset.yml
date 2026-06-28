@@ -1,0 +1,63 @@
+name: preset
+
+on:
+  push:
+    paths:
+      - "crates/ancora-preset/**"
+      - "docs/preset/**"
+      - "examples/preset/**"
+      - ".github/workflows/preset.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-preset/**"
+      - "docs/preset/**"
+      - "examples/preset/**"
+      - ".github/workflows/preset.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: build ancora-preset
+        run: cargo build -p ancora-preset
+
+      - name: test ancora-preset
+        run: cargo test -p ancora-preset 2>&1 | tee /tmp/preset-results.txt
+
+      - name: gate on minimum 60 passing tests
+        run: |
+          PASS=$(grep -c "^test .* ok$" /tmp/preset-results.txt || true)
+          echo "Passing tests: $PASS"
+          [ "$PASS" -ge 60 ]
+
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: verify preset docs exist
+        run: |
+          test -f docs/preset/preset-catalog.md
+          test -f docs/preset/customizing-presets.md
+          test -f docs/preset/government-preset-compliance.md
+          echo "All preset docs present."
+
+      - name: reject em dash in docs
+        run: |
+          if grep -rn $'\xe2\x80\x94' docs/preset/; then
+            echo "FAIL: em dash found in preset docs"
+            exit 1
+          fi
+          echo "No em dashes found."
+
+      - name: verify examples exist
+        run: |
+          test -f examples/preset/research_example.rs
+          test -f examples/preset/coding_example.rs
+          test -f examples/preset/support_example.rs
+          test -f examples/preset/analysis_example.rs
+          test -f examples/preset/government_example.rs
+          echo "All preset examples present."
