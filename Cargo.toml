@@ -87,6 +87,7 @@ members = [
     "crates/ancora-safemon",
     "crates/ancora-telpriv",
     "crates/ancora-oepar",
+    "crates/ancora-evallib",
 ]
 
 [workspace.package]
