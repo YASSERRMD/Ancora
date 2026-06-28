@@ -93,6 +93,7 @@ members = [
     "crates/ancora-oe-e2e",
     "crates/ancora-oe-milestone",
     "crates/ancora-plugin",
+    "crates/ancora-pluginiso",
 ]
 
 [workspace.package]
