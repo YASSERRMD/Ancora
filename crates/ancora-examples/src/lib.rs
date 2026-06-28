@@ -5,6 +5,7 @@
 
 pub mod long_running_memory;
 pub mod guarded_tool_synthesis;
+pub mod skills_subagent;
 
 use std::collections::HashMap;
 use std::time::Instant;
