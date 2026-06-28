@@ -190,6 +190,7 @@ nav:
       - Determinism Guarantees: testing/determinism-guarantees.md
       - Reliability and Chaos: testing/reliability-chaos-test-plan.md
       - Security and Policy: testing/security-policy-test-plan.md
+      - Coverage Gates: testing/coverage-gates.md
   - Contributing: CONTRIBUTING.md
 
 plugins:
