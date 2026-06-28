@@ -1,0 +1,10 @@
+mod test_injection;
+mod test_tool_misuse;
+mod test_exfiltration;
+mod test_privilege;
+mod test_jailbreak;
+mod test_scoring;
+mod test_regression;
+mod test_custom;
+mod test_audit;
+mod test_airgap;
