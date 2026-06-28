@@ -7,8 +7,10 @@
 //! Reporting: [`TenantSummary`], [`QuotaSummary`] for utilization dashboards.
 pub mod admission;
 pub mod builder;
+pub mod display;
 pub mod event;
 pub mod quota_update;
+pub mod snapshot;
 pub mod error;
 pub mod isolation;
 pub mod namespace;
@@ -21,6 +23,7 @@ pub use admission::{AdmissionController, AdmissionDecision};
 pub use builder::TenantBuilder;
 pub use event::{TenantEvent, TenantEventKind, TenantEventLog};
 pub use quota_update::QuotaUpdate;
+pub use snapshot::TenantSnapshot;
 pub use error::TenantError;
 pub use isolation::{IsolationChecker, IsolationResult};
 pub use namespace::Namespace;
@@ -64,4 +67,6 @@ mod tests {
     mod test_builder;
     mod test_quota_update;
     mod test_event_log;
+    mod test_display;
+    mod test_snapshot;
 }
