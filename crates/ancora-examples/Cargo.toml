@@ -11,7 +11,9 @@ publish = false
 [dependencies]
 ancora-core = { path = "../ancora-core" }
 ancora-proto = { path = "../ancora-proto" }
+ancora-orchestrate = { path = "../ancora-orchestrate" }
 ancora-memcon = { path = "../ancora-memcon" }
+ancora-guard = { path = "../ancora-guard" }
 ancora-toolsynth = { path = "../ancora-toolsynth" }
 ancora-skills = { path = "../ancora-skills" }
 ancora-lh = { path = "../ancora-lh" }
