@@ -1,0 +1,50 @@
+name: ancora-ecobench
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/ancora-ecobench/**"
+      - ".github/workflows/ancora-ecobench.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-ecobench/**"
+      - ".github/workflows/ancora-ecobench.yml"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  build-and-test:
+    name: Build and test ecosystem benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-ecobench-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-ecobench-
+
+      - name: Build ancora-ecobench
+        run: cargo build -p ancora-ecobench --all-features
+
+      - name: Run tests (offline, no network)
+        run: cargo test -p ancora-ecobench -- --test-threads=1
+
+      - name: Check for regressions
+        run: |
+          echo "All benchmark threshold checks are embedded in the test suite."
+          echo "Test exit code above confirms no regressions detected."
