@@ -27,5 +27,6 @@ mod tests {
     mod test_redact_parity;
     mod test_traces_equal;
     mod test_scores_equal;
+    mod test_cost_equal;
     mod test_polyglot_stitching;
 }
