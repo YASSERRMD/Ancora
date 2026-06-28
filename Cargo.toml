@@ -78,6 +78,7 @@ members = [
     "crates/ancora-evalgate",
     "crates/ancora-debug",
     "crates/ancora-costan",
+    "crates/ancora-drift",
 ]
 
 [workspace.package]
