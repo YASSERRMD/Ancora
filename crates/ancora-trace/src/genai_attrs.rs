@@ -156,6 +156,30 @@ pub fn get_float(span: &Span, key: &str) -> Option<f64> {
     span.attributes.get(key).and_then(|v| v.as_float())
 }
 
+/// Structured model/provider identity extracted from span attributes.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ModelIdentity {
+    pub provider: String,
+    pub requested_model: String,
+    pub response_model: Option<String>,
+}
+
+/// Extract model and provider identity from a span.
+///
+/// Returns `None` if the required attributes are absent.
+pub fn model_identity(span: &Span) -> Option<ModelIdentity> {
+    let provider = get_str(span, GEN_AI_SYSTEM)?.to_owned();
+    let requested_model = get_str(span, GEN_AI_REQUEST_MODEL)?.to_owned();
+    let response_model = get_str(span, GEN_AI_RESPONSE_MODEL).map(|s| s.to_owned());
+    Some(ModelIdentity { provider, requested_model, response_model })
+}
+
+/// Set both system (provider) and request model in one call.
+pub fn set_model_and_provider(span: &mut Span, provider: &str, model: &str) {
+    span.set_attr_str(GEN_AI_SYSTEM, provider);
+    span.set_attr_str(GEN_AI_REQUEST_MODEL, model);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
