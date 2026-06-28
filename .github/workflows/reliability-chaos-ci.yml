@@ -1,0 +1,79 @@
+name: Reliability and Chaos CI
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-core/tests/chaos_*.rs'
+      - 'crates/ancora-core/tests/load_*.rs'
+      - 'crates/ancora-core/tests/reliability_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/reliability-chaos-ci.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-core/tests/chaos_*.rs'
+      - 'crates/ancora-core/tests/load_*.rs'
+      - 'crates/ancora-core/tests/reliability_*.rs'
+      - 'crates/ancora-core/src/**'
+      - '.github/workflows/reliability-chaos-ci.yml'
+
+jobs:
+  chaos-tests:
+    name: Chaos tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-chaos-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test chaos_retry_backoff
+      - run: cargo test -p ancora-core --test chaos_network_fault
+      - run: cargo test -p ancora-core --test chaos_process_kill
+      - run: cargo test -p ancora-core --test chaos_oom_guard
+      - run: cargo test -p ancora-core --test chaos_clock_skew
+      - run: cargo test -p ancora-core --test chaos_disk_full
+      - run: cargo test -p ancora-core --test chaos_provider_failover
+      - run: cargo test -p ancora-core --test chaos_journal_corruption
+      - run: cargo test -p ancora-core --test chaos_partial_write
+
+  load-tests:
+    name: Load tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-load-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test load_throughput
+      - run: cargo test -p ancora-core --test load_concurrent_runs
+      - run: cargo test -p ancora-core --test load_token_stream
+      - run: cargo test -p ancora-core --test load_memory_store
+      - run: cargo test -p ancora-core --test load_replay_throughput
+
+  reliability-tests:
+    name: Reliability tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-rel-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo test -p ancora-core --test reliability_circuit_breaker
+      - run: cargo test -p ancora-core --test reliability_deadline
+      - run: cargo test -p ancora-core --test reliability_rate_limit
+      - run: cargo test -p ancora-core --test reliability_graceful_shutdown
+      - run: cargo test -p ancora-core --test reliability_health_check
