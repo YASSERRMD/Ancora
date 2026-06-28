@@ -27,3 +27,12 @@ mod tests {
         assert_eq!(d["record_count"], 1);
     }
 }
+
+    #[test]
+    fn list_summaries_returns_all_budgets() {
+        use crate::api::list_tenant_summaries;
+        let b1 = TenantBudget::new("t1", 100.0, 0.8, BudgetPeriod::Monthly, 0);
+        let b2 = TenantBudget::new("t2", 200.0, 0.8, BudgetPeriod::Monthly, 0);
+        let summaries = list_tenant_summaries(&[b1, b2]);
+        assert_eq!(summaries.len(), 2);
+    }
