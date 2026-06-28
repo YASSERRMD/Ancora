@@ -2,6 +2,9 @@
 name = "ancora-audit"
 version = "0.1.0"
 edition = "2021"
+description = "Immutable tamper-evident audit log for Ancora enterprise agent framework"
+keywords = ["audit", "security", "compliance", "logging", "immutable"]
+categories = ["authentication", "data-structures"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
