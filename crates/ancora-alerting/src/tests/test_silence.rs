@@ -31,7 +31,6 @@ mod tests {
         assert!(reg.is_silenced("HighErrorRate", 1500));
         assert!(!reg.is_silenced("HighErrorRate", 500));
     }
-}
 
     #[test]
     fn silence_registry_active_count() {
@@ -42,3 +41,4 @@ mod tests {
         assert_eq!(reg.active_count(1200), 1);
         assert_eq!(reg.active_count(1600), 2);
     }
+}
