@@ -6,6 +6,9 @@
 //! Access logging: [`SecretAccessLog`], [`AccessRecord`] for audit trails.
 //! Expiry: [`ExpiryChecker`] for TTL-based secret lifecycle.
 pub mod access_log;
+pub mod display;
+pub mod query;
+pub mod summary;
 pub mod error;
 pub mod expiry;
 pub mod rotation;
@@ -20,6 +23,8 @@ pub use rotation::RotationPolicy;
 pub use secret::{Secret, SecretKind, SecretStatus, SecretVersion};
 pub use store::SecretStore;
 pub use validator::validate_path;
+pub use query::SecretQuery;
+pub use summary::SecretSummary;
 
 #[cfg(test)]
 mod tests {
@@ -53,4 +58,7 @@ mod tests {
     mod test_validator_empty_path;
     mod test_validator_leading_slash;
     mod test_expiry_active_paths;
+    mod test_summary;
+    mod test_display;
+    mod test_query;
 }
