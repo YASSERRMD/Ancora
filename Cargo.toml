@@ -110,6 +110,7 @@ members = [
     "crates/ancora-eco-e2e",
     "crates/ancora-apps",
     "crates/ancora-appspar",
+    "crates/ancora-ecobench",
 ]
 
 [workspace.package]
