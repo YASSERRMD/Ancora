@@ -19,6 +19,7 @@ members = [
     "crates/ancora-cost",
     "crates/ancora-opscli",
     "crates/ancora-selfheal",
+    "crates/ancora-migrate",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
