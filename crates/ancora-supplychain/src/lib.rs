@@ -17,6 +17,7 @@ pub mod report;
 pub mod sbom;
 pub mod signature;
 pub mod stats;
+pub mod summary;
 pub mod validator;
 
 pub use audit::{SupplyChainAuditEntry, SupplyChainAuditLog, SupplyChainEvent};
@@ -30,6 +31,7 @@ pub use sbom::{Sbom, SbomFormat, SbomStore};
 pub use signature::{ComponentSignature, SignatureAlgorithm, SignatureStore, VerificationResult};
 pub use export::{components_to_csv, sbom_to_csv, sbom_to_summary};
 pub use graph::DependencyGraph;
+pub use summary::SupplyChainSummary;
 pub use stats::SbomStats;
 pub use validator::{SbomIssue, SbomValidator};
 
