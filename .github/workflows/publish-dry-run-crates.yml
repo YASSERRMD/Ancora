@@ -1,0 +1,30 @@
+name: Publish Dry Run -- crates.io
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  dry-run-crates:
+    name: Cargo publish dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Dry run publish ancora-proto
+        run: cargo publish --dry-run -p ancora-proto
+      - name: Dry run publish ancora-core
+        run: cargo publish --dry-run -p ancora-core
+      - name: Dry run publish ancora-inference
+        run: cargo publish --dry-run -p ancora-inference
+      - name: Dry run publish ancora-memory
+        run: cargo publish --dry-run -p ancora-memory
+      - name: Dry run publish ancora-tools
+        run: cargo publish --dry-run -p ancora-tools
+      - name: Dry run publish ancora-policy
+        run: cargo publish --dry-run -p ancora-policy
+      - name: Dry run publish ancora-observability
+        run: cargo publish --dry-run -p ancora-observability
+      - name: Dry run publish ancora-cli
+        run: cargo publish --dry-run -p ancora-cli

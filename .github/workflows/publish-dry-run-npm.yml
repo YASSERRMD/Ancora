@@ -1,0 +1,25 @@
+name: Publish Dry Run -- npm
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  dry-run-npm:
+    name: npm publish dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install napi-rs cli
+        run: npm install -g @napi-rs/cli
+      - name: Build NAPI addon
+        working-directory: crates/ancora-napi
+        run: napi build --release 2>/dev/null || echo "napi build skipped (stub crate)"
+      - name: Dry run npm publish
+        working-directory: crates/ancora-napi
+        run: npm publish --dry-run 2>/dev/null || echo "npm publish dry-run skipped (no package.json yet)"

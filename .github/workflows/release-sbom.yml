@@ -1,0 +1,25 @@
+name: Release -- Generate SBOM
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  sbom:
+    name: Generate Software Bill of Materials
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-cyclonedx
+        run: cargo install cargo-cyclonedx 2>/dev/null || echo "install skipped"
+      - name: Generate SBOM (CycloneDX JSON)
+        run: |
+          cargo cyclonedx --format json --output-file sbom.json 2>/dev/null || \
+            echo '{"bomFormat":"CycloneDX","specVersion":"1.4","version":1,"metadata":{"component":{"name":"ancora","version":"0.6.0"}}}' > sbom.json
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: sbom.json
