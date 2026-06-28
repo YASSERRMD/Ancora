@@ -1,0 +1,23 @@
+name: ancora-tenant
+on:
+  push:
+    paths: ['crates/ancora-tenant/**', 'docs/tenant/**', '.github/workflows/tenant.yml']
+  pull_request:
+    paths: ['crates/ancora-tenant/**', 'docs/tenant/**', '.github/workflows/tenant.yml']
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p ancora-tenant
+      - name: Assert minimum test count
+        run: |
+          count=$(cargo test -p ancora-tenant 2>&1 | grep -c "^test .* ok$" || true)
+          test "$count" -ge 55
+      - name: No em dashes
+        run: '! grep -r $'\''\xe2\x80\x94'\'' crates/ancora-tenant/ docs/tenant/ && echo ok'
+      - name: Docs present
+        run: test -f docs/tenant/tenant-guide.md
