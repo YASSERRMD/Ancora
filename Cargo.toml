@@ -21,6 +21,7 @@ members = [
     "crates/ancora-selfheal",
     "crates/ancora-migrate",
     "crates/ancora-loadtest",
+    "crates/ancora-runbook",
     "crates/ancora-inference",
     "crates/ancora-memory",
     "crates/ancora-tools",
