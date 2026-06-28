@@ -1,0 +1,41 @@
+name: ITK - Interop Test Kit
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-itk/**'
+      - '.github/workflows/itk.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-itk/**'
+      - '.github/workflows/itk.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  kit-conformance:
+    name: Run interop test kits against bundled adapters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-itk-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-itk-
+
+      - name: Build ancora-itk
+        run: cargo build -p ancora-itk
+
+      - name: Run kit conformance tests
+        run: cargo test -p ancora-itk -- --test-threads=4
