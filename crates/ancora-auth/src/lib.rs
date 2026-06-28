@@ -3,6 +3,7 @@ pub mod idp;
 pub mod introspect;
 pub mod jwks;
 pub mod jwt;
+pub mod logout;
 pub mod mfa;
 pub mod oidc;
 pub mod revocation;
@@ -16,6 +17,7 @@ pub use idp::{IdpConfig, IdpKind, IdpRegistry};
 pub use introspect::{IntrospectResult, IntrospectStatus, TokenIntrospector};
 pub use jwks::{JwkKey, JwksStore};
 pub use jwt::{JwtClaims, JwtError, JwtValidator};
+pub use logout::{logout_all_for_subject, logout_session, LogoutResult};
 pub use mfa::{MfaChallenge, MfaEnforcer, MfaMethod, MfaStatus};
 pub use oidc::{MockOidcIdp, OidcAuthCode, OidcError};
 pub use revocation::{revoke_all, RevocationStore};
@@ -49,4 +51,5 @@ mod tests {
     mod test_oidc_mfa_required;
     mod test_bulk_revoke;
     mod test_audit_log;
+    mod test_logout_flow;
 }
