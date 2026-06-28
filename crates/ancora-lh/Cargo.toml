@@ -1,0 +1,10 @@
+[package]
+name = "ancora-lh"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Long-horizon and background agent primitives for Ancora"
+
+[dependencies]
