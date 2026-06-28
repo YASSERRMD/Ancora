@@ -1,0 +1,23 @@
+name: ancora-supplychain
+on:
+  push:
+    paths: ['crates/ancora-supplychain/**', 'docs/supplychain/**', '.github/workflows/supplychain.yml']
+  pull_request:
+    paths: ['crates/ancora-supplychain/**', 'docs/supplychain/**', '.github/workflows/supplychain.yml']
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p ancora-supplychain
+      - name: Assert minimum test count
+        run: |
+          count=$(cargo test -p ancora-supplychain 2>&1 | grep -c "^test .* ok$" || true)
+          test "$count" -ge 30
+      - name: No em dashes
+        run: '! grep -r $'\''\xe2\x80\x94'\'' crates/ancora-supplychain/ docs/supplychain/ && echo ok'
+      - name: Docs present
+        run: test -f docs/supplychain/reference.md
