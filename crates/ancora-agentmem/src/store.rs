@@ -38,6 +38,10 @@ impl MemoryStore {
         scored.iter().take(k).filter_map(|(id, _)| self.entries.get(*id)).collect()
     }
 
+    pub fn remove(&mut self, id: &str) {
+        self.entries.remove(id);
+    }
+
     pub fn count(&self) -> usize {
         self.entries.len()
     }
