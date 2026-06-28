@@ -17,3 +17,15 @@ pub use rules::{
 pub use routing::WebhookRouter;
 pub use dedup::AlertDedup;
 pub use silence::{MaintenanceWindow, SilenceRegistry};
+
+/// All built-in rules. Useful for registering the full catalog at startup.
+pub fn all_rules() -> Vec<schema::AlertRule> {
+    vec![
+        high_error_rate_rule(),
+        queue_backlog_rule(),
+        worker_down_rule(),
+        cost_spike_rule(),
+        replication_lag_rule(),
+        residency_violation_rule(),
+    ]
+}
