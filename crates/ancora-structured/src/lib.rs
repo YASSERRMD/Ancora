@@ -3,6 +3,8 @@ pub mod validator;
 pub mod error;
 pub mod extractor;
 pub mod retry;
+pub mod enum_validator;
+pub mod coerce;
 
 #[cfg(test)]
 mod tests;
