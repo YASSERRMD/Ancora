@@ -101,6 +101,7 @@ members = [
     "crates/ancora-contrib",
     "crates/ancora-itk",
     "crates/ancora-market",
+    "crates/ancora-sdkext",
 ]
 
 [workspace.package]
