@@ -1,12 +1,23 @@
 pub mod builder;
+pub mod display;
 pub mod entry;
+pub mod error;
+pub mod export;
 pub mod log;
+pub mod query;
+pub mod retention;
 pub mod stats;
+pub mod tenant_summary;
 
 pub use builder::AuditEntryBuilder;
 pub use entry::{AuditEntry, Outcome, Severity};
+pub use error::AuditError;
+pub use export::{to_csv, to_json};
 pub use log::ImmutableAuditLog;
+pub use query::AuditQuery;
+pub use retention::RetentionPolicy;
 pub use stats::AuditStats;
+pub use tenant_summary::{summarize_by_tenant, TenantSummary};
 
 #[cfg(test)]
 mod tests {
@@ -30,4 +41,11 @@ mod tests {
     mod test_severity_variants;
     mod test_log_immutable_ids;
     mod test_log_empty;
+    mod test_query_builder;
+    mod test_export_json;
+    mod test_export_csv;
+    mod test_retention_policy;
+    mod test_display;
+    mod test_error;
+    mod test_tenant_summary;
 }
