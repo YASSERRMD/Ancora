@@ -32,4 +32,5 @@ mod tests {
     mod test_residency;
     mod test_cross_lang;
     mod test_zero_pii;
+    mod test_perf;
 }
