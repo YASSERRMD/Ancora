@@ -1,87 +1,50 @@
 # Changelog
 
 All notable changes to Ancora are documented here.
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+Versions follow [Semantic Versioning](https://semver.org/).
 
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
-## [Unreleased]
+## [0.6.0] - 2026-06-28
 
 ### Added
 
-- CI publish dry-run for crates.io, PyPI, npm, NuGet, Maven.
-- Docs CI: lychee link checker and markdownlint on every PR touching docs/.
-
----
-
-## [0.1.0] - 2026-06-25
-
-Initial release of the Ancora agentic framework.
-
-### Added
-
-**Core engine**
-- `ancora-core`: graph definition, journal, replay, and engine loop.
-- Append-only `JournalStore` trait with `MemoryStore` and SQLite implementations.
-- `replay_events` with exactly-once activity semantics.
-- `Graph::validate` (O(V+E), cycle detection, reachability).
-- Criterion benchmarks for graph validation, replay, and journal throughput.
-- Proptest property-based tests for replay determinism and idempotency.
-- Chaos tests: crash-and-resume, faulty-store injection, duplicate-effect detection.
-
-**FFI layer**
-- `ancora-ffi`: C ABI shim (`ancora_version`, `ancora_runtime_new`,
-  `ancora_free_runtime`).
-- CI ABI stability check (`abi-check.yml`).
-
-**Tool layer**
-- `ancora-tools`: `Tool` trait, `ToolRegistry` with JSON Schema validation.
-- `McpServer`: HTTP JSON-RPC 2.0 server with bearer-token auth.
-- LangChain adapter (`from_langchain`).
-- Security: tool-poisoning sanitization tests, auth-rejection tests.
-
-**Policy engine**
-- `ancora-policy`: declarative governance with air-gapped mode, data-residency
-  allowlists, PII redaction, audit-required flag.
-- `PolicyError::EgressBlocked` for air-gapped violations (replaces misleading
-  empty-allowlist semantics).
-
-**A2A protocol**
-- `ancora-grpc`: `AgentCard`, Ed25519 identity, `A2aClient`, task lifecycle.
-- Agent handoff (`perform_handoff`) with optional signed-identity enforcement.
-
-**Language bindings**
-- Go SDK (`sdk/go`).
-- Python SDK (`sdk/python`, maturin-based).
-- TypeScript SDK (`sdk/ts`).
-- .NET SDK (`sdk/dotnet`).
-- Java SDK (`sdk/java`).
-
-**Cross-language conformance**
-- Canonical scenario manifest (`test/xlang/scenarios.json`).
-- Journal mask and structural-equality assertion (`journal_mask`).
-- CI conformance suite (`xlang-conformance.yml`).
-
-**Documentation**
-- Architecture overview.
-- Per-language quickstarts (Rust, Go, Python, TypeScript, .NET, Java).
-- Guides: orchestration, memory, durability, observability, governance.
-- Security threat model (T1-T6).
-- Benchmark methodology and approximate results.
-- Migration guides from LangGraph, CrewAI, Microsoft Agent Framework.
-- Governance and sovereignty checklist.
+- Performance and benchmark suite (18 bench files covering all hot paths)
+- Example parity tests confirming all 6 SDK languages produce identical outputs
+- Documentation audit tests (19 audit files)
+- Coverage gate tests (19 gate files ensuring no category drops below threshold)
+- Security and policy tests (11 security files, 8 policy files)
+- Reliability and chaos tests (9 chaos, 5 load, 5 reliability files)
+- Determinism guarantee tests (19 det_ files with 14-guarantee doc)
+- Cross-language journal interop tests for all 6 SDK languages
+- A2A envelope conformance across all 6 language pairs
+- MCP tool conformance tests (rust-server, go-server)
+- OTel span field validation (6 required fields, canonical trace_id)
+- Chinese provider support: Qwen, GLM, DeepSeek, Kimi, MiniMax, StepFun, ERNIE, Hunyuan, Doubao, MiMo
+- Vector store conformance for all 11 backends
+- Edge deployment with wasm32 targets
+- Structured output validation across all 6 languages
+- Human-in-the-loop gate with approve/reject/pending states
 
 ### Changed
 
-- Nothing (initial release).
+- Workspace version bumped to 0.6.0 across all crates
 
 ### Fixed
 
-- Nothing (initial release).
+- Replay divergence detection now checks both length and value mismatches
 
----
+## [0.5.0] - 2026-04-01
 
-[Unreleased]: https://github.com/YASSERRMD/Ancora/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/YASSERRMD/Ancora/releases/tag/v0.1.0
+### Added
+
+- Initial provider coverage matrix
+- Go, Python, TypeScript SDK examples
+- Basic journal write and replay
+
+## [0.1.0] - 2025-12-01
+
+### Added
+
+- Initial workspace scaffolding
+- ancora-core, ancora-proto, ancora-inference crates
+- Basic journal format with 10 event types
