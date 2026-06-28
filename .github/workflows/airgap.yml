@@ -1,0 +1,25 @@
+name: ancora-airgap
+
+on:
+  push:
+    paths:
+      - "crates/ancora-airgap/**"
+      - ".github/workflows/airgap.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-airgap/**"
+      - ".github/workflows/airgap.yml"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: test
+        run: cargo test -p ancora-airgap
