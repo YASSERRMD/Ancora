@@ -19,7 +19,9 @@ pub mod branch;
 pub mod diff;
 pub mod inspector;
 pub mod loader;
+pub mod prompt_inspect;
 pub mod replay;
+pub mod tool_inspect;
 
 #[cfg(test)]
 mod tests {
