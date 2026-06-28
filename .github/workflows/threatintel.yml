@@ -1,0 +1,38 @@
+name: ancora-threatintel
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-threatintel/**'
+      - '.github/workflows/threatintel.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-threatintel/**'
+      - '.github/workflows/threatintel.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Check for em-dash
+        run: |
+          if grep -r $'\xe2\x80\x94' crates/ancora-threatintel/; then
+            echo "em-dash found" && exit 1
+          fi
+      - name: Build
+        run: cargo build -p ancora-threatintel
+      - name: Test
+        run: cargo test -p ancora-threatintel -- --test-threads=1
+      - name: Count tests
+        run: |
+          COUNT=$(cargo test -p ancora-threatintel -- --list 2>/dev/null | grep -c ': test$' || true)
+          echo "Test count: $COUNT"
+          if [ "$COUNT" -lt 30 ]; then echo "Need at least 30 tests, got $COUNT" && exit 1; fi
+      - name: Example
+        run: cargo run -p ancora-threatintel --example basic_threatintel
