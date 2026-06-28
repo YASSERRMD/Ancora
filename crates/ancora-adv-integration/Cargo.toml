@@ -1,0 +1,23 @@
+[package]
+name = "ancora-adv-integration"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "End-to-end integration tests combining Ancora advanced capabilities"
+publish = false
+
+[dependencies]
+ancora-orchestrate = { path = "../ancora-orchestrate" }
+ancora-memcon = { path = "../ancora-memcon" }
+ancora-toolsynth = { path = "../ancora-toolsynth" }
+ancora-skills = { path = "../ancora-skills" }
+ancora-lh = { path = "../ancora-lh" }
+ancora-coord = { path = "../ancora-coord" }
+ancora-guard = { path = "../ancora-guard" }
+ancora-reason = { path = "../ancora-reason" }
+ancora-ageval = { path = "../ancora-ageval" }
+serde_json = "1"
+
+[dev-dependencies]
