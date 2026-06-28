@@ -3,6 +3,8 @@ pub mod store;
 pub mod context_budget;
 pub mod compression;
 pub mod retrieval;
+pub mod working_memory;
+pub mod forget;
 
 #[cfg(test)]
 mod tests;
