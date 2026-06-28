@@ -38,4 +38,5 @@ mod tests {
     mod test_env_attributes;
     mod test_abac_audit;
     mod test_presets;
+    mod test_report;
 }
