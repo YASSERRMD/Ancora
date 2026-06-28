@@ -1,3 +1,10 @@
+//! Immutable tamper-evident audit log for the Ancora enterprise agent framework.
+//!
+//! Core types: [`AuditEntry`], [`ImmutableAuditLog`], [`AuditEntryBuilder`], [`AuditStats`].
+//! Filtering: [`AuditQuery`] for multi-field queries, log filter methods for single-field queries.
+//! Analysis: [`summarize_by_tenant`] for per-tenant [`AuditStats`] aggregation.
+//! Retention: [`RetentionPolicy`] identifies entries older than a tick-age threshold.
+//! Export: [`to_json`] and [`to_csv`] for reporting and archiving.
 pub mod builder;
 pub mod display;
 pub mod entry;
