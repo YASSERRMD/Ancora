@@ -1,0 +1,36 @@
+name: Benchmark CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  benchmarks:
+    name: Run Benchmark Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run bench tests
+        working-directory: crates/ancora-core
+        run: |
+          cargo test bench_journal_write --
+          cargo test bench_replay_speed --
+          cargo test bench_vector_search --
+          cargo test bench_cost_computation --
+          cargo test bench_json_serialise --
+          cargo test bench_otel_spans --
+          cargo test bench_a2a_envelope --
+          cargo test bench_parallel_join --
+          cargo test bench_policy_check --
+          cargo test bench_token_stream --
+          cargo test bench_vector_insert --
+          cargo test bench_divergence_check --
+          cargo test bench_concurrent_journals --
+          cargo test bench_memory_tier --
+          cargo test bench_structured_output --
+          cargo test bench_checkpoint --
+          cargo test bench_event_dispatch --
+          cargo test bench_hil_gate --
