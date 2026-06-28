@@ -1,0 +1,39 @@
+name: ancora-conteval
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/ancora-conteval/**'
+  pull_request:
+    paths:
+      - 'crates/ancora-conteval/**'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  conteval:
+    name: Continuous eval - build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-conteval-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build ancora-conteval
+        run: cargo build -p ancora-conteval
+
+      - name: Run ancora-conteval tests
+        run: cargo test -p ancora-conteval -- --nocapture
