@@ -5,20 +5,30 @@
 //! Audit: [`NetpolAuditLog`], [`EvaluationRecord`] for tracking all evaluations.
 //! Presets: [`presets`] module for common policies (allow-https-only, allow-internal-only, block-known-bad).
 //! Summary: [`PolicySummary`] with rule counts and evaluation statistics.
+//! Builder: [`RuleBuilder`] fluent constructor for [`NetworkRule`].
+//! Validator: [`PolicyValidator`] checks for duplicate ids and shadowed rules.
+//! Stats: [`NetpolStats`] for per-tenant and global allow/deny rates.
 pub mod audit;
+pub mod builder;
 pub mod connection;
+pub mod display;
 pub mod evaluator;
 pub mod policy;
 pub mod presets;
 pub mod rule;
+pub mod stats;
 pub mod summary;
+pub mod validator;
 
 pub use audit::{EvaluationRecord, NetpolAuditLog};
+pub use builder::RuleBuilder;
 pub use connection::ConnectionRequest;
 pub use evaluator::{PolicyDecision, PolicyEvaluator};
 pub use policy::{DefaultPosture, NetworkPolicy, PolicyStore};
 pub use rule::{Effect, NetworkRule, Protocol};
+pub use stats::NetpolStats;
 pub use summary::PolicySummary;
+pub use validator::{IssueKind, PolicyValidator, ValidationIssue};
 
 #[cfg(test)]
 mod tests {
