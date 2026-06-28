@@ -1,0 +1,11 @@
+[package]
+name = "ancora-dataclass"
+version = "0.1.0"
+edition = "2021"
+description = "Data classification with sensitivity labels, enforcement, and audit for Ancora"
+keywords = ["data", "classification", "sensitivity", "security", "compliance"]
+categories = ["authentication", "data-structures"]
+license = "MIT"
+repository = "https://github.com/YASSERRMD/Ancora"
+
+[dependencies]

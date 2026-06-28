@@ -46,6 +46,7 @@ members = [
     "crates/ancora-tenant",
     "crates/ancora-secrets",
     "crates/ancora-netpol",
+    "crates/ancora-dataclass",
     "crates/ancora-advbench",
     "crates/ancora-milestone",
     "crates/ancora-inference",
