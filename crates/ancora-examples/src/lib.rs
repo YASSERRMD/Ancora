@@ -7,6 +7,7 @@ pub mod long_running_memory;
 pub mod guarded_tool_synthesis;
 pub mod skills_subagent;
 pub mod background_agent;
+pub mod contract_net_example;
 
 use std::collections::HashMap;
 use std::time::Instant;
