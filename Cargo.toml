@@ -80,6 +80,7 @@ members = [
     "crates/ancora-costan",
     "crates/ancora-drift",
     "crates/ancora-ab",
+    "crates/ancora-feedback",
 ]
 
 [workspace.package]
