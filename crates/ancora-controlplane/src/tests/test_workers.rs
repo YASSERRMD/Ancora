@@ -63,3 +63,24 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod assignment_tests {
+    use crate::model::RunPriority;
+    use crate::store::ControlPlaneStore;
+
+    #[test]
+    fn two_workers_do_not_double_claim_a_run() {
+        let mut store = ControlPlaneStore::new();
+        store.create_run("t1", RunPriority::Normal);
+        let w1 = store.register_worker(5);
+        let w2 = store.register_worker(5);
+        let c1 = store.claim_run(&w1.id).unwrap();
+        let c2 = store.claim_run(&w2.id).unwrap();
+        let total_claimed = [c1.is_some(), c2.is_some()]
+            .iter()
+            .filter(|&&x| x)
+            .count();
+        assert_eq!(total_claimed, 1, "exactly one worker should claim the run");
+    }
+}
