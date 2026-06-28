@@ -104,3 +104,10 @@ impl Default for AuditChannel {
         Self::new()
     }
 }
+
+/// Returns the most recent event of a given kind for any tenant.
+impl AuditChannel {
+    pub fn latest(&self, kind: &AuditEventKind) -> Option<&AuditEvent> {
+        self.events.iter().rev().find(|e| &e.kind == kind)
+    }
+}
