@@ -8,6 +8,7 @@
 pub mod audit;
 pub mod builder;
 pub mod component;
+pub mod export;
 pub mod policy;
 pub mod provenance;
 pub mod query;
@@ -15,6 +16,7 @@ pub mod report;
 pub mod sbom;
 pub mod signature;
 pub mod stats;
+pub mod validator;
 
 pub use audit::{SupplyChainAuditEntry, SupplyChainAuditLog, SupplyChainEvent};
 pub use builder::ComponentBuilder;
@@ -25,7 +27,9 @@ pub use query::ComponentQuery;
 pub use report::SupplyChainReport;
 pub use sbom::{Sbom, SbomFormat, SbomStore};
 pub use signature::{ComponentSignature, SignatureAlgorithm, SignatureStore, VerificationResult};
+pub use export::{components_to_csv, sbom_to_csv, sbom_to_summary};
 pub use stats::SbomStats;
+pub use validator::{SbomIssue, SbomValidator};
 
 #[cfg(test)]
 mod tests {
@@ -59,4 +63,6 @@ mod tests {
     mod test_builder;
     mod test_query_by_kind;
     mod test_query_open_source_only;
+    mod test_validator;
+    mod test_export;
 }
