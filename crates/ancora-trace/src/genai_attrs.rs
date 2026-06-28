@@ -198,6 +198,22 @@ pub fn tenant_run_context(span: &Span) -> Option<TenantRunContext> {
     Some(TenantRunContext { tenant_id, run_id, agent_id })
 }
 
+/// Error and retry context for a failed span.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ErrorContext {
+    pub error_kind: String,
+    pub retry_count: i64,
+}
+
+/// Extract error and retry context from a span.
+///
+/// Returns `None` if no error kind attribute is present.
+pub fn error_context(span: &Span) -> Option<ErrorContext> {
+    let error_kind = get_str(span, ANCORA_ERROR_KIND)?.to_owned();
+    let retry_count = get_int(span, ANCORA_RETRY_COUNT).unwrap_or(0);
+    Some(ErrorContext { error_kind, retry_count })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
