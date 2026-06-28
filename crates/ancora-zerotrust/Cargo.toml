@@ -1,0 +1,11 @@
+[package]
+name = "ancora-zerotrust"
+version = "0.1.0"
+edition = "2021"
+description = "Zero trust per-request identity verification, device trust, continuous authorization, and access policy for Ancora"
+keywords = ["zero-trust", "identity", "authorization", "security", "policy"]
+categories = ["data-structures"]
+license = "MIT"
+repository = "https://github.com/YASSERRMD/Ancora"
+
+[dependencies]
