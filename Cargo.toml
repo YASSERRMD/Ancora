@@ -122,6 +122,7 @@ members = [
     "crates/ancora-fleet",
     "crates/ancora-headless",
     "crates/ancora-edgesec",
+    "crates/ancora-ft",
 ]
 
 [workspace.package]
