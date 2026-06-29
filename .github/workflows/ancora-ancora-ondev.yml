@@ -1,0 +1,56 @@
+name: ancora-ondev
+
+on:
+  push:
+    paths:
+      - "crates/ancora-ondev/**"
+      - ".github/workflows/ancora-ancora-ondev.yml"
+  pull_request:
+    paths:
+      - "crates/ancora-ondev/**"
+      - ".github/workflows/ancora-ancora-ondev.yml"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "."
+
+      - name: check workspace
+        run: cargo check --workspace
+
+      - name: check ancora-ondev
+        run: cargo check -p ancora-ondev --all-features
+
+      - name: clippy
+        run: cargo clippy -p ancora-ondev --all-features -- -D warnings
+
+      - name: test
+        run: cargo test -p ancora-ondev --all-features
+
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt -p ancora-ondev --check

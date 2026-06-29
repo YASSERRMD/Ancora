@@ -1,0 +1,23 @@
+[package]
+name = "ancora-ondev"
+version = "0.1.0"
+edition = "2021"
+authors = ["YASSERRMD <arafath.yasser@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/YASSERRMD/Ancora"
+description = "On-device runtime for ARM and mobile targets"
+
+[features]
+default = ["minimal"]
+minimal = []
+arm64 = ["minimal"]
+arm32 = ["minimal"]
+android_jni = ["minimal"]
+ios_cabi = ["minimal"]
+full = ["arm64", "arm32", "android_jni", "ios_cabi"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
