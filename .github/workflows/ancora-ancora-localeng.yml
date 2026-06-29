@@ -1,0 +1,41 @@
+name: ancora-localeng
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-localeng/**'
+      - '.github/workflows/ancora-ancora-localeng.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-localeng/**'
+      - '.github/workflows/ancora-ancora-localeng.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo check -p ancora-localeng
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p ancora-localeng
+
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - run: cargo clippy -p ancora-localeng -- -D warnings
