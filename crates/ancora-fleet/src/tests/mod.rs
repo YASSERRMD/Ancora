@@ -1,0 +1,10 @@
+mod test_registration;
+mod test_inventory;
+mod test_config_push;
+mod test_model_dist;
+mod test_rollout;
+mod test_telemetry;
+mod test_policy;
+mod test_decommission;
+mod test_airgap;
+mod test_dashboard;
