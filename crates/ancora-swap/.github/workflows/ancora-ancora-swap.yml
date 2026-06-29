@@ -1,0 +1,23 @@
+name: ancora-swap
+
+on:
+  push:
+    paths:
+      - "crates/ancora-swap/**"
+      - "Cargo.toml"
+  pull_request:
+    paths:
+      - "crates/ancora-swap/**"
+      - "Cargo.toml"
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: cargo check
+        run: cargo check -p ancora-swap
+      - name: cargo test
+        run: cargo test -p ancora-swap
