@@ -1,0 +1,44 @@
+name: ancora-sync
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-sync/**'
+      - '.github/workflows/ancora-ancora-sync.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-sync/**'
+      - '.github/workflows/ancora-ancora-sync.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Check and Test ancora-sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-ancora-sync-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-ancora-sync-
+
+      - name: cargo check
+        run: cargo check -p ancora-sync
+
+      - name: cargo test
+        run: cargo test -p ancora-sync
+
+      - name: cargo clippy
+        run: cargo clippy -p ancora-sync -- -D warnings
