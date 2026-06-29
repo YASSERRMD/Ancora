@@ -14,7 +14,11 @@ pub mod drain;
 pub mod journal;
 pub mod model;
 pub mod pin;
+pub mod reclaim;
+pub mod replay;
+pub mod rollback;
 pub mod runtime;
+pub mod warmup;
 
 #[cfg(test)]
 mod tests;
