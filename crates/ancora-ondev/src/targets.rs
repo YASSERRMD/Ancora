@@ -193,6 +193,10 @@ pub struct IosCabi {
     pub module_name: String,
     /// Header path for the generated umbrella header.
     pub header_path: String,
+    /// Minimum iOS deployment target.
+    pub min_ios_version: String,
+    /// Whether to build a universal (simulator + device) XCFramework.
+    pub xcframework: bool,
 }
 
 impl IosCabi {
@@ -201,7 +205,17 @@ impl IosCabi {
         Self {
             module_name: "AncoraOndev".to_string(),
             header_path: "include/ancora_ondev.h".to_string(),
+            min_ios_version: "14.0".to_string(),
+            xcframework: false,
         }
+    }
+
+    /// Return the Swift module map content.
+    pub fn module_map(&self) -> String {
+        format!(
+            "module {} {{\n  umbrella header \"{}\"\n  export *\n}}\n",
+            self.module_name, self.header_path
+        )
     }
 }
 
