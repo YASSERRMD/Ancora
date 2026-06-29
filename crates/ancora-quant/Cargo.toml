@@ -1,0 +1,12 @@
+[package]
+name = "ancora-quant"
+version = "0.1.0"
+edition = "2021"
+authors = ["YASSERRMD <arafath.yasser@gmail.com>"]
+license = "Apache-2.0"
+description = "Quantized local model management for GGUF and ONNX models"
+repository = "https://github.com/YASSERRMD/Ancora"
+
+[dependencies]
+
+[dev-dependencies]
