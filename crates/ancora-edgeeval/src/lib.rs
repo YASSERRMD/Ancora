@@ -11,15 +11,19 @@
 //! - Edge eval report
 //! - Model recommendation by device
 
+pub mod memory;
 pub mod model;
 pub mod offline;
+pub mod power;
 pub mod quant;
 pub mod recommend;
 pub mod reliability;
 pub mod report;
 pub mod runtime;
 
+pub use memory::{MemoryBudget, smallest_fitting};
 pub use model::{CapabilitySample, SampleResult, SmallModel, SmallModelSuite, TaskCategory};
+pub use power::{ThermalEnvelope, most_efficient};
 pub use offline::{MockScorer, OfflineConfig, OfflineDataset, OfflineEvalRunner, OfflineSample};
 pub use quant::{QuantFormat, QuantMeasurement, QuantTradeoffEval};
 pub use recommend::{DeviceProfile, DeviceRecommender, ModelCandidate, Recommendation};
