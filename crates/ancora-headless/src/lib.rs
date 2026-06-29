@@ -10,4 +10,5 @@ pub mod network;
 #[cfg(test)]
 mod tests {
     mod test_boot;
+    mod test_model;
 }
