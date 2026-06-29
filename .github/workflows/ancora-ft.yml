@@ -1,0 +1,26 @@
+name: ancora-ft
+on:
+  push:
+    paths: ['crates/ancora-ft/**', '.github/workflows/ancora-ft.yml']
+  pull_request:
+    paths: ['crates/ancora-ft/**', '.github/workflows/ancora-ft.yml']
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p ancora-ft
+      - name: Assert minimum test count
+        run: |
+          count=$(cargo test -p ancora-ft 2>&1 | grep -c "^test .* ok$" || true)
+          test "$count" -ge 20
+      - name: No em dashes
+        run: '! grep -r $'\''\xe2\x80\x94'\'' crates/ancora-ft/ && echo ok'
+      - name: Docs present
+        run: |
+          test -f crates/ancora-ft/docs/local-finetune-adapter-guide.md
+          test -f crates/ancora-ft/docs/adapter-management.md
+          test -f crates/ancora-ft/docs/per-tenant-adapters.md
