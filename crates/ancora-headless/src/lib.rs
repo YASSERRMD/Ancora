@@ -16,4 +16,5 @@ mod tests {
     mod test_socket;
     mod test_network;
     mod test_init;
+    mod test_footprint;
 }
