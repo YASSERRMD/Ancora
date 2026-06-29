@@ -1,0 +1,59 @@
+name: ancora-quant
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-quant/**'
+      - '.github/workflows/ancora-ancora-quant.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-quant/**'
+      - '.github/workflows/ancora-ancora-quant.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo check
+        run: cargo check -p ancora-quant
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo test
+        run: cargo test -p ancora-quant
+
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo clippy
+        run: cargo clippy -p ancora-quant -- -D warnings
+
+  fmt:
+    name: fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: cargo fmt check
+        run: cargo fmt -p ancora-quant -- --check
