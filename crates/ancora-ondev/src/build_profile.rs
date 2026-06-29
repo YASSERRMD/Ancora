@@ -165,4 +165,24 @@ mod unit {
         assert!(snip.contains("[profile.ondev]"));
         assert!(snip.contains("opt-level = \"z\""));
     }
+
+    #[test]
+    fn minimal_profile_size_within_5mib_budget() {
+        let p = BuildProfile::minimal();
+        // The source of this crate is <1 MiB; well within the 5 MiB budget.
+        assert!(p.within_budget(512 * 1024));
+    }
+
+    #[test]
+    fn profile_no_budget_always_passes() {
+        let mut p = BuildProfile::minimal();
+        p.size_budget_bytes = 0;
+        assert!(p.within_budget(usize::MAX));
+    }
+
+    #[test]
+    fn balanced_profile_lto_is_thin() {
+        let p = BuildProfile::balanced();
+        assert_eq!(p.lto, LtoMode::Thin);
+    }
 }
