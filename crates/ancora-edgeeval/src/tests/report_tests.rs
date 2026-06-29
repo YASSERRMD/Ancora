@@ -38,3 +38,18 @@ fn test_report_render_contains_header() {
     assert!(text.contains("My Report"));
     assert!(text.contains("phi-mini"));
 }
+
+#[test]
+fn test_report_render_empty() {
+    let report = EdgeEvalReport::new("Empty");
+    let text = report.render_text();
+    assert!(text.contains("Empty"));
+    assert!(report.best_model().is_none());
+}
+
+#[test]
+fn test_report_edge_score_clamped() {
+    let s = make_summary("m", 1.0, 0.0, 0.0, 1.0);
+    let score = s.edge_score();
+    assert!(score >= 0.0 && score <= 1.0, "score={}", score);
+}
