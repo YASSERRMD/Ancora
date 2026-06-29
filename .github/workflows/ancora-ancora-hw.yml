@@ -1,0 +1,39 @@
+name: ancora-hw
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-hw/**'
+      - '.github/workflows/ancora-ancora-hw.yml'
+  pull_request:
+    paths:
+      - 'crates/ancora-hw/**'
+      - '.github/workflows/ancora-ancora-hw.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test ancora-hw
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-hw-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: cargo check
+        run: cargo check -p ancora-hw
+
+      - name: cargo test
+        run: cargo test -p ancora-hw --all-features
