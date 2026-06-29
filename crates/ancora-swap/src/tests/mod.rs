@@ -4,3 +4,4 @@ mod test_journal;
 mod test_pin;
 mod test_perf;
 mod test_pinned_model;
+mod test_new_run;
