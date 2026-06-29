@@ -6,6 +6,7 @@ pub mod cgroup;
 pub mod supervision;
 pub mod socket;
 pub mod network;
+pub mod perf;
 
 #[cfg(test)]
 mod tests {
@@ -17,4 +18,5 @@ mod tests {
     mod test_network;
     mod test_init;
     mod test_footprint;
+    mod test_perf;
 }
