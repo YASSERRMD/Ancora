@@ -18,7 +18,7 @@ fn build_cost_journal(run_id: &str, steps: &[(u64, u64)]) -> Vec<JournalEvent> {
     ];
     for (i, (inp, out)) in steps.iter().enumerate() {
         let cost = compute_cost(*inp, *out);
-        events.push(JournalEvent { event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1)*1000) as u64,
+        events.push(JournalEvent { event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1)*1000) as i64,
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
                 activity_key: format!("llm-{}", i), activity_kind: "llm".into(),
                 input_json: format!(r#"{{"input_tokens":{},"output_tokens":{}}}"#, inp, out),
@@ -26,7 +26,7 @@ fn build_cost_journal(run_id: &str, steps: &[(u64, u64)]) -> Vec<JournalEvent> {
                 replayed: false })) });
     }
     let n = events.len();
-    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n*1000) as u64,
+    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n*1000) as i64,
         event: Some(Event::RunCompleted(RunCompletedEvent { output_json: r#"{"done":true}"#.into() })) });
     events
 }

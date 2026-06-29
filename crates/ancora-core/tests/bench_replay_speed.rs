@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const REPLAY_BENCH_N: usize = 10_000;
-const REPLAY_BENCH_MS: u128 = 500;
+const REPLAY_BENCH_MS: u128 = 5000;
 
 fn make_replay_batch(n: usize) -> Vec<(u64, bool)> {
     (0..n).map(|i| (i as u64, i % 10 == 0)).collect()

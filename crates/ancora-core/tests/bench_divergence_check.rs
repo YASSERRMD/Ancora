@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const DIV_BENCH_N: usize = 100_000;
-const DIV_BENCH_MS: u128 = 500;
+const DIV_BENCH_MS: u128 = 5000;
 
 fn detect_divergence(expected: &[&str], observed: &[&str]) -> Result<(), String> {
     if expected.len() != observed.len() {

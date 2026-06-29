@@ -162,9 +162,9 @@ fn cancellation_operates_without_network() {
 #[test]
 fn cost_tracker_operates_without_network() {
     let mut tracker = CostTracker::new(0.000003, 0.000015);
-    tracker.record("n1", TokenUsage { input_tokens: 100, output_tokens: 50 });
+    tracker.record("n1", TokenUsage { tokens_in: 100, tokens_out: 50 });
     let summary = tracker.summary();
-    assert!(summary.total_usd > 0.0);
+    assert!(summary.total_cost_usd > 0.0);
 }
 
 #[test]

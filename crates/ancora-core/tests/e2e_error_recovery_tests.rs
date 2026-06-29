@@ -111,15 +111,17 @@ fn sleep_fn_called_between_every_attempt() {
 }
 
 #[test]
-fn sleep_fn_receives_attempt_number() {
+fn sleep_fn_called_between_attempts() {
     let p = policy(3, 0, 0, 0.0);
-    let mut seen_attempts: Vec<u32> = Vec::new();
+    let mut sleep_calls: usize = 0;
+    let mut op_calls: Vec<u32> = Vec::new();
     run_with_retry(
         &p,
-        |_| Err::<(), _>(transient("fail")),
-        |attempt| seen_attempts.push(attempt),
+        |attempt| { op_calls.push(attempt); Err::<(), _>(transient("fail")) },
+        |_delay_ms| { sleep_calls += 1; },
     );
-    assert_eq!(seen_attempts, vec![1, 2]);
+    assert_eq!(op_calls, vec![1u32, 2u32, 3u32], "op must be called for each attempt");
+    assert_eq!(sleep_calls, 2, "sleep must be called between attempts (n-1 times)");
 }
 
 #[test]

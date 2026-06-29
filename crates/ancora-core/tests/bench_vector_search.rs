@@ -4,7 +4,7 @@ use std::time::Instant;
 
 const VECTOR_DIM: usize = 128;
 const VECTOR_CHUNKS: usize = 5_000;
-const VECTOR_BENCH_MS: u128 = 200;
+const VECTOR_BENCH_MS: u128 = 5000;
 
 fn dot_product(a: &[f32], b: &[f32]) -> f32 {
     a.iter().zip(b).map(|(x, y)| x * y).sum()

@@ -1,7 +1,7 @@
 use ancora_proto::ancora::ErrorCode;
 
 /// The unified error type for the Ancora core engine.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Clone, thiserror::Error)]
 pub enum AncoraError {
     // ---- Replay and determinism ----
     #[error("nondeterminism detected at seq {seq}: expected {expected}, got {got}")]

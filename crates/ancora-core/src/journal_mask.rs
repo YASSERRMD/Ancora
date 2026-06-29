@@ -87,7 +87,7 @@ fn event_node_id(ev: &Event) -> Option<String> {
     match ev {
         Event::NodeEntered(e) => Some(e.node_id.clone()),
         Event::NodeExited(e) => Some(e.node_id.clone()),
-        Event::ActivityRecorded(e) => Some(e.activity_key.clone()),
+        Event::ActivityRecorded(e) => Some(e.activity_kind.clone()),
         _ => None,
     }
 }
@@ -149,7 +149,7 @@ mod tests {
         assert_eq!(masked[0].kind, "started");
         assert_eq!(masked[1].kind, "activity_recorded");
         assert_eq!(masked[2].kind, "completed");
-        assert_eq!(masked[1].node_id, Some("act-key-1".into()));
+        assert_eq!(masked[1].node_id, Some("llm_call".into()));
         assert_eq!(masked[0].node_id, None);
     }
 

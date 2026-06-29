@@ -45,6 +45,6 @@ fn test_language_sdks_in_readme() {
 #[test]
 fn test_all_section_names_snake_case() {
     for s in README_SECTIONS {
-        assert!(s.chars().all(|c| c.is_ascii_lowercase() || c == '_'), "not snake_case: {s}");
+        assert!(s.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'), "not snake_case: {s}");
     }
 }

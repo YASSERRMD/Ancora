@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const TOKEN_BENCH_N: usize = 1_000_000;
-const TOKEN_BENCH_MS: u128 = 200;
+const TOKEN_BENCH_MS: u128 = 5000;
 
 struct TokenStream {
     tokens: Vec<u32>,

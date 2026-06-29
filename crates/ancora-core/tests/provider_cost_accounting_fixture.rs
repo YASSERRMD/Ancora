@@ -79,7 +79,8 @@ fn cost_summary_nodes_sorted() {
     let mut tracker = CostTracker::new(OPENAI_IN, OPENAI_OUT);
     tracker.record("z-node", usage(100, 50));
     tracker.record("a-node", usage(200, 80));
-    let nodes: Vec<&str> = tracker.summary().nodes.iter().map(|n| n.node_id.as_str()).collect();
+    let summary = tracker.summary();
+    let nodes: Vec<&str> = summary.nodes.iter().map(|n| n.node_id.as_str()).collect();
     let mut sorted = nodes.clone();
     sorted.sort();
     assert_eq!(nodes, sorted, "CostSummary nodes must be sorted by node_id");

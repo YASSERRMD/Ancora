@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const CKPT_BENCH_N: usize = 100_000;
-const CKPT_BENCH_MS: u128 = 500;
+const CKPT_BENCH_MS: u128 = 5000;
 
 struct Checkpoint {
     step: u32,

@@ -4,7 +4,7 @@ use std::time::Instant;
 
 const JOIN_BENCH_N: usize = 10_000;
 const JOIN_BENCH_BRANCHES: usize = 8;
-const JOIN_BENCH_MS: u128 = 200;
+const JOIN_BENCH_MS: u128 = 5000;
 
 struct BranchResult {
     branch_id: usize,

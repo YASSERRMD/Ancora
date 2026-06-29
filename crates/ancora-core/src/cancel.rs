@@ -4,6 +4,7 @@ use std::sync::{
 };
 
 /// Read-only token checked by the executor before each node to honour cancellation.
+#[derive(Clone)]
 pub struct CancellationToken {
     flag: Arc<AtomicBool>,
 }

@@ -88,6 +88,13 @@ pub fn detect_divergence(expected: &[String], observed: &[String]) -> Result<(),
             got: observed[expected.len()].clone(),
         });
     }
+    if observed.len() < expected.len() {
+        return Err(AncoraError::Nondeterminism {
+            seq: observed.len() as u64,
+            expected: expected[observed.len()].clone(),
+            got: "<end-of-observed>".to_string(),
+        });
+    }
     Ok(())
 }
 

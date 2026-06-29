@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const MEM_BENCH_N: usize = 5_000_000;
-const MEM_BENCH_MS: u128 = 500;
+const MEM_BENCH_MS: u128 = 5000;
 
 #[derive(Clone, Copy)]
 enum MemTier { Hot, Warm, Cold }

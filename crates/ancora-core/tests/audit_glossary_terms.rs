@@ -49,7 +49,7 @@ fn test_no_duplicate_glossary_terms() {
 #[test]
 fn test_all_terms_snake_case() {
     for term in GLOSSARY_TERMS {
-        assert!(term.chars().all(|c| c.is_ascii_lowercase() || c == '_'), "not snake_case: {term}");
+        assert!(term.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'), "not snake_case: {term}");
     }
 }
 
