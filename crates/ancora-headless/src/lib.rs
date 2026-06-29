@@ -12,4 +12,5 @@ mod tests {
     mod test_boot;
     mod test_model;
     mod test_cgroup;
+    mod test_supervision;
 }
