@@ -115,6 +115,7 @@ members = [
     "crates/ancora-ondev",
     "crates/ancora-slm",
     "crates/ancora-quant",
+    "crates/ancora-swap",
 ]
 
 [workspace.package]
