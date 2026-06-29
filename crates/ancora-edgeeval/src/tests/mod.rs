@@ -276,3 +276,124 @@ fn test_ece_all_wrong() {
     let ece = CalibrationEval::ece(&pairs);
     assert!(ece > 0.5, "ece={}", ece);
 }
+
+// ---- on-device latency additional tests ----
+
+#[test]
+fn test_latency_mean_duration_accurate() {
+    let mut eval = crate::runtime::LatencyEvaluator::new();
+    eval.record("run_a", Duration::from_millis(100), 10);
+    eval.record("run_b", Duration::from_millis(200), 20);
+    eval.record("run_c", Duration::from_millis(300), 30);
+    let mean = eval.mean_duration();
+    assert_eq!(mean, Duration::from_millis(200));
+}
+
+#[test]
+fn test_latency_time_to_first_token() {
+    let m = crate::runtime::LatencyMeasurement {
+        label: "tok".into(),
+        duration: Duration::from_millis(500),
+        token_count: 50,
+    };
+    let ttft = m.time_to_first_token_ms();
+    assert!((ttft - 10.0).abs() < 1e-9, "ttft={}", ttft);
+}
+
+// ---- footprint additional tests ----
+
+#[test]
+fn test_footprint_mib_calculation() {
+    // 1 MiB = 1048576 bytes
+    let fp = crate::runtime::MemoryFootprint::new("m", 1_048_576, 0, 0);
+    assert!((fp.total_mib() - 1.0).abs() < 1e-6);
+}
+
+#[test]
+fn test_memory_budget_headroom() {
+    let fp = crate::runtime::MemoryFootprint::new("m", 512 * 1024 * 1024, 0, 0);
+    let budget = crate::memory::MemoryBudget::new("dev", 1024.0, 0.25); // 768 MiB available
+    let headroom = budget.headroom_mib(&fp);
+    assert!(headroom > 0.0, "headroom={}", headroom);
+}
+
+// ---- quantization tradeoff additional tests ----
+
+#[test]
+fn test_quant_tradeoff_score_positive() {
+    let baseline = crate::quant::QuantMeasurement::new(crate::quant::QuantFormat::Fp32, 1.0, 5.0, 8000.0);
+    let mut eval = crate::quant::QuantTradeoffEval::new(baseline);
+    let variant = crate::quant::QuantMeasurement::new(crate::quant::QuantFormat::Int8, 0.95, 5.5, 2000.0);
+    eval.add_variant(variant.clone());
+    let score = eval.tradeoff_score(&variant);
+    assert!(score > 0.0, "score={}", score);
+}
+
+#[test]
+fn test_quant_compression_ratio_int4() {
+    assert!((crate::quant::QuantFormat::Int4.compression_ratio() - 8.0).abs() < 1e-9);
+}
+
+// ---- slm reliability additional tests ----
+
+#[test]
+fn test_reliability_overall_score() {
+    let mut eval = crate::reliability::SlmReliabilityEval::new();
+    eval.add_result(crate::reliability::ReliabilityResult::new("x", 0.8, 0.7));
+    eval.add_result(crate::reliability::ReliabilityResult::new("y", 0.6, 0.7));
+    let score = eval.overall_score();
+    assert!((score - 0.7).abs() < 1e-9);
+}
+
+// ---- offline additional tests ----
+
+#[test]
+fn test_offline_max_samples_respected() {
+    let ds = crate::offline::OfflineDataset::builtin_smoke();
+    let config = crate::offline::OfflineConfig::new().with_max_samples(2);
+    let runner = crate::offline::OfflineEvalRunner::new(config);
+    let results = runner.run(&ds, &[]);
+    assert_eq!(results.len(), 2);
+}
+
+#[test]
+fn test_offline_config_defaults() {
+    let config = crate::offline::OfflineConfig::new();
+    assert!(config.strict_offline);
+    assert_eq!(config.seed, 42);
+    assert!(config.max_samples > 0);
+}
+
+// ---- reproducibility test ----
+
+#[test]
+fn test_results_reproducible_across_seeds() {
+    let ds = crate::offline::OfflineDataset::builtin_smoke();
+    let outputs: Vec<(&str, &str)> = ds.samples().iter().map(|s| (s.id.as_str(), s.ground_truth.as_str())).collect();
+    // Same seed must produce same results.
+    let r1 = crate::offline::OfflineEvalRunner::new(crate::offline::OfflineConfig::new().with_seed(7)).run(&ds, &outputs);
+    let r2 = crate::offline::OfflineEvalRunner::new(crate::offline::OfflineConfig::new().with_seed(7)).run(&ds, &outputs);
+    for (a, b) in r1.iter().zip(r2.iter()) {
+        assert!((a.1 - b.1).abs() < 1e-15, "non-deterministic at id={}", a.0);
+    }
+}
+
+// ---- power proxy additional tests ----
+
+#[test]
+fn test_thermal_envelope_max_tps() {
+    let proxy = crate::runtime::PowerProxy::new("dev", 2.0); // 2 mWh/1k tokens
+    let envelope = crate::power::ThermalEnvelope::new("mobile", 100.0); // 100 mW
+    let max_tps = envelope.max_tokens_per_second(&proxy);
+    assert!(max_tps > 0.0, "max_tps={}", max_tps);
+}
+
+#[test]
+fn test_power_most_efficient() {
+    let proxies = vec![
+        ("model-a".to_string(), crate::runtime::PowerProxy::new("a", 2.0)),
+        ("model-b".to_string(), crate::runtime::PowerProxy::new("b", 0.5)),
+    ];
+    let best = crate::power::most_efficient(&proxies).unwrap();
+    assert_eq!(best, "model-b"); // lower mWh/1k = more efficient
+}
