@@ -14,4 +14,5 @@ mod tests {
     mod test_cgroup;
     mod test_supervision;
     mod test_socket;
+    mod test_network;
 }
