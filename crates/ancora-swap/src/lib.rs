@@ -10,6 +10,7 @@
 /// * warmup new model before swap
 /// * memory reclaim on unload
 
+pub mod drain;
 pub mod journal;
 pub mod model;
 pub mod pin;
