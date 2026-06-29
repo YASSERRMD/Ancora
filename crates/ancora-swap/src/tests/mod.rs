@@ -8,3 +8,4 @@ mod test_new_run;
 mod test_rollback;
 mod test_warmup;
 mod test_reclaim;
+mod test_idempotency;
