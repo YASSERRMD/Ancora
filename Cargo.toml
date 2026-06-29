@@ -120,6 +120,7 @@ members = [
     "crates/ancora-hw",
     "crates/ancora-sync",
     "crates/ancora-fleet",
+    "crates/ancora-headless",
 ]
 
 [workspace.package]
