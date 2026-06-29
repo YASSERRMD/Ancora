@@ -1,0 +1,12 @@
+[package]
+name = "ancora-edgeeval"
+version = "0.1.0"
+edition = "2021"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Edge and small-model evaluation harness for Ancora"
+
+[dependencies]
+
+[dev-dependencies]
