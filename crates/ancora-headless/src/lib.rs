@@ -11,4 +11,5 @@ pub mod network;
 mod tests {
     mod test_boot;
     mod test_model;
+    mod test_cgroup;
 }
