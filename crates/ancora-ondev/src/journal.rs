@@ -175,4 +175,23 @@ mod unit {
         let parsed: serde_json::Value = serde_json::from_str(&json_str).unwrap();
         assert!(parsed.is_array());
     }
+
+    #[test]
+    fn journal_persists_across_100_entries() {
+        let mut j = Journal::open();
+        for i in 1u64..=100 {
+            let r = j.append("persist-agent", i, "2026-01-01", json!({"n": i}));
+            assert!(matches!(r, WriteResult::Ok(_)));
+        }
+        assert_eq!(j.len(), 100);
+        let entries = j.entries_for("persist-agent");
+        assert_eq!(entries.first().unwrap().seq, 1);
+        assert_eq!(entries.last().unwrap().seq, 100);
+    }
+
+    #[test]
+    fn journal_schema_sql_contains_table() {
+        assert!(SCHEMA_SQL.contains("CREATE TABLE IF NOT EXISTS journal"));
+        assert!(SCHEMA_SQL.contains("agent_id"));
+    }
 }
