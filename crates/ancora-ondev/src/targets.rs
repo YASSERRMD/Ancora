@@ -102,6 +102,37 @@ impl TargetMeta {
     }
 }
 
+/// ARM32-specific build hints (Thumb-2 ISA, VFPv3).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Arm32Config {
+    /// Enable Thumb-2 instruction set.
+    pub thumb2: bool,
+    /// Enable VFPv3-D16 floating-point.
+    pub vfpv3: bool,
+    /// Minimum ARM architecture version.
+    pub arch_version: u8,
+}
+
+impl Default for Arm32Config {
+    fn default() -> Self {
+        Self { thumb2: true, vfpv3: true, arch_version: 7 }
+    }
+}
+
+impl Arm32Config {
+    /// Return the `-C target-feature` string.
+    pub fn target_feature_string(&self) -> String {
+        let mut features = Vec::new();
+        if self.thumb2 {
+            features.push("+thumb2");
+        }
+        if self.vfpv3 {
+            features.push("+vfpv3");
+        }
+        features.join(",")
+    }
+}
+
 /// JNI bridge configuration for Android targets.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JniBridge {
