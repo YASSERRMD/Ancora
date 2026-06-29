@@ -1,5 +1,12 @@
 //! Tests for ancora-edgeeval -- all offline, no network calls.
 
+mod footprint_tests;
+mod quant_tests;
+mod reliability_tests;
+mod offline_tests;
+mod report_tests;
+mod recommend_tests;
+
 use std::time::Duration;
 
 use crate::model::{CapabilitySample, SmallModel, SmallModelSuite, TaskCategory};
