@@ -114,6 +114,7 @@ members = [
     "crates/ancora-eco-milestone",
     "crates/ancora-ondev",
     "crates/ancora-slm",
+    "crates/ancora-quant",
 ]
 
 [workspace.package]
