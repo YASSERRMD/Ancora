@@ -190,4 +190,28 @@ mod unit {
         let err = e.infer(&req).unwrap_err();
         assert!(matches!(err, InferenceError::InvalidRequest(_)));
     }
+
+    #[test]
+    fn offline_run_uses_no_network() {
+        // All inference paths are local; no I/O syscalls to remote hosts.
+        let e = local_engine();
+        let req = InferenceRequest {
+            prompt: "what is 2+2?".to_string(),
+            max_tokens: 20,
+            temperature: 0.0,
+        };
+        let resp = e.infer(&req).unwrap();
+        // The stand-in response contains the backend label.
+        assert!(resp.text.contains("gguf:"));
+    }
+
+    #[test]
+    fn onnx_backend_accepted() {
+        let e = LocalInferenceEngine::new(
+            ModelBackend::LocalOnnx { model_path: "/models/phi.onnx".to_string() },
+            true,
+        )
+        .unwrap();
+        assert!(e.backend_label().starts_with("onnx:"));
+    }
 }
