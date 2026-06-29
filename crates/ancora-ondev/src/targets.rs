@@ -158,6 +158,34 @@ impl JniBridge {
     }
 }
 
+/// Android-specific build configuration.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AndroidConfig {
+    /// NDK version string (e.g., `"r25c"`).
+    pub ndk_version: String,
+    /// Android API level.
+    pub api_level: u32,
+    /// ABI filter list.
+    pub abis: Vec<String>,
+}
+
+impl Default for AndroidConfig {
+    fn default() -> Self {
+        Self {
+            ndk_version: "r25c".to_string(),
+            api_level: 21,
+            abis: vec!["arm64-v8a".to_string()],
+        }
+    }
+}
+
+impl AndroidConfig {
+    /// Return the primary ABI.
+    pub fn primary_abi(&self) -> &str {
+        self.abis.first().map(|s| s.as_str()).unwrap_or("arm64-v8a")
+    }
+}
+
 /// iOS C-ABI export descriptor.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IosCabi {
