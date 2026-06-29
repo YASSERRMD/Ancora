@@ -5,6 +5,7 @@
 
 pub mod android;
 pub mod build_profile;
+pub mod footprint;
 pub mod ios;
 pub mod targets;
 pub mod features;
