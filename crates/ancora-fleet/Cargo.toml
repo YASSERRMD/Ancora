@@ -1,0 +1,12 @@
+[package]
+name = "ancora-fleet"
+version = "0.1.0"
+edition = "2021"
+authors = ["YASSERRMD <arafath.yasser@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/YASSERRMD/Ancora"
+description = "Edge fleet management for the Ancora agent framework"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

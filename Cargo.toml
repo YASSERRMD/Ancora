@@ -119,6 +119,7 @@ members = [
     "crates/ancora-localeng",
     "crates/ancora-hw",
     "crates/ancora-sync",
+    "crates/ancora-fleet",
 ]
 
 [workspace.package]
