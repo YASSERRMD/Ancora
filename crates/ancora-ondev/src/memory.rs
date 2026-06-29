@@ -199,4 +199,39 @@ mod unit {
         assert_eq!(a_records.len(), 1);
         assert_eq!(a_records[0].agent_id, "agent-a");
     }
+
+    #[test]
+    fn upsert_replaces_existing_record() {
+        let mut store = MemoryStore::new();
+        store.upsert(make_record("r1", "a", 1));
+        let mut updated = make_record("r1", "a", 99);
+        updated.label = "updated".to_string();
+        store.upsert(updated);
+        assert_eq!(store.len(), 1);
+        assert_eq!(store.get("r1").unwrap().label, "updated");
+    }
+
+    #[test]
+    fn cosine_similarity_orthogonal_vectors_is_zero() {
+        let mut a = vec![0.0f32; 16];
+        let mut b = vec![0.0f32; 16];
+        a[0] = 1.0;
+        b[1] = 1.0;
+        let sim = cosine_similarity(&a, &b);
+        assert!(sim < 1e-6);
+    }
+
+    #[test]
+    fn memory_works_on_device_stress() {
+        let mut store = MemoryStore::new();
+        for i in 0u64..50 {
+            store.upsert(make_record(&format!("r{}", i), "stress-agent", i));
+        }
+        assert_eq!(store.len(), 50);
+        let q = seed_embedding(25, EMBEDDING_DIM);
+        let results = store.search(&q, 5);
+        assert_eq!(results.len(), 5);
+        // Top result should be close to seed 25.
+        assert!(results[0].score > 0.99);
+    }
 }
