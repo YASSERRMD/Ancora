@@ -15,7 +15,7 @@ fn all_offline(suites: &[(&str, bool)]) -> bool {
     suites.iter().all(|(_, offline)| *offline)
 }
 
-fn non_offline_suites(suites: &[(&str, bool)]) -> Vec<&str> {
+fn non_offline_suites<'a>(suites: &[(&'a str, bool)]) -> Vec<&'a str> {
     suites.iter().filter(|(_, offline)| !offline).map(|(name, _)| *name).collect()
 }
 

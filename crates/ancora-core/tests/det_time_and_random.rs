@@ -5,7 +5,7 @@ use ancora_proto::ancora::{
     journal_event::Event, ActivityRecordedEvent, JournalEvent, RunCompletedEvent, RunStartedEvent,
 };
 
-fn build_time_journal(run_id: &str, ts_ns: u64, seed: u64) -> Vec<JournalEvent> {
+fn build_time_journal(run_id: &str, ts_ns: i64, seed: u64) -> Vec<JournalEvent> {
     vec![
         JournalEvent { event_id: format!("{}-0", run_id), run_id: run_id.into(), seq: 0, recorded_at_ns: 0,
             event: Some(Event::RunStarted(RunStartedEvent { run_id: run_id.into(), spec_bytes: vec![], spec_type: "AgentSpec".into() })) },
@@ -20,7 +20,7 @@ fn build_time_journal(run_id: &str, ts_ns: u64, seed: u64) -> Vec<JournalEvent> 
     ]
 }
 
-const FIXED_TS: u64 = 1_700_000_000_000_000_000;
+const FIXED_TS: i64 = 1_700_000_000_000_000_000;
 const FIXED_SEED: u64 = 12345;
 
 #[test] fn journaled_timestamp_is_preserved_on_replay() {
@@ -45,7 +45,7 @@ const FIXED_SEED: u64 = 12345;
 }
 
 #[test] fn live_clock_is_not_used_on_replay() {
-    let past_ts = 1_000_000_000u64;
+    let past_ts: i64 = 1_000_000_000;
     let j = build_time_journal("det-past-ts", past_ts, FIXED_SEED);
     assert_eq!(j[1].recorded_at_ns, past_ts, "replay must use journaled ts, not system clock");
 }

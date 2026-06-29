@@ -11,13 +11,13 @@ fn parallel_journal(run_id: &str, keys: &[&str]) -> Vec<JournalEvent> {
             event: Some(Event::RunStarted(RunStartedEvent { run_id: run_id.into(), spec_bytes: vec![], spec_type: "AgentSpec".into() })) },
     ];
     for (i, key) in keys.iter().enumerate() {
-        events.push(JournalEvent { event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1) * 1000) as u64,
+        events.push(JournalEvent { event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1) * 1000) as i64,
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
                 activity_key: key.to_string(), activity_kind: "parallel-branch".into(),
                 input_json: format!(r#"{{"branch":"{}"}}"#, key), result_json: format!(r#"{{"out":"{}"}}"#, key), replayed: false })) });
     }
     let n = events.len();
-    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n * 1000) as u64,
+    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n * 1000) as i64,
         event: Some(Event::RunCompleted(RunCompletedEvent { output_json: r#"{"join":"done"}"#.into() })) });
     events
 }

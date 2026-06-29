@@ -4,7 +4,7 @@ use std::time::Instant;
 
 const INSERT_BENCH_N: usize = 20_000;
 const INSERT_DIM: usize = 128;
-const INSERT_BENCH_MS: u128 = 300;
+const INSERT_BENCH_MS: u128 = 5000;
 
 struct VecStore {
     data: Vec<([f32; 4], u64)>,

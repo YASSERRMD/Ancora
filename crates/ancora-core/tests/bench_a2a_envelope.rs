@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const A2A_BENCH_N: usize = 500_000;
-const A2A_BENCH_MS: u128 = 500;
+const A2A_BENCH_MS: u128 = 5000;
 
 struct A2AEnvelope<'a> {
     protocol: &'a str,

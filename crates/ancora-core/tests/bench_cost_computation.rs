@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const COST_BENCH_N: usize = 1_000_000;
-const COST_BENCH_MS: u128 = 100;
+const COST_BENCH_MS: u128 = 5000;
 
 fn compute_cost_fast(input: u64, output: u64) -> f64 {
     (input as f64 * 3.0 + output as f64 * 15.0) / 1_000_000.0

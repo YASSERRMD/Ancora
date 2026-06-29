@@ -112,7 +112,7 @@ fn terminal_error_interrupts_storm_immediately() {
     let policy = aggressive_policy(10);
     let mut calls = 0u32;
 
-    let outcome = run_with_retry(
+    let outcome: RetryOutcome<()> = run_with_retry(
         &policy,
         |_| {
             calls += 1;

@@ -1,7 +1,7 @@
 // Documentation audit: code samples in docs compile and are syntactically valid.
 
 const CODE_SAMPLES: &[(&str, &str, &str)] = &[
-    ("rust",   "concepts/determinism.md",  r#"let status = replay_events(&journal)?;"#),
+    ("rust",   "concepts/determinism.md",  r#"let status = ancora_core::replay::replay_events(run_id, &journal)?;"#),
     ("rust",   "sdk/rust/quickstart.md",   r#"let run = ancora.run(spec).await?;"#),
     ("go",     "sdk/go/quickstart.md",     r#"run, err := ancora.Run(ctx, spec)"#),
     ("python", "sdk/python/quickstart.md", r#"run = await ancora.run(spec)"#),

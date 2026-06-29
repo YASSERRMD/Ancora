@@ -20,14 +20,14 @@ fn random_graph_journal(run_id: &str, node_count: usize, seed: u64) -> Vec<Journ
             event_id: format!("{}-{}", run_id, i+1),
             run_id: run_id.into(),
             seq: (i+1) as u64,
-            recorded_at_ns: ((i+1) * 1000) as u64,
+            recorded_at_ns: ((i+1) * 1000) as i64,
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
                 activity_key: format!("node-{}", i), activity_kind: "compute".into(),
                 input_json: format!(r#"{{"node":{},"seed":{}}}"#, i, seed),
                 result_json: format!(r#"{{"out":{}}}"#, node_output), replayed: false })) });
     }
     let n = events.len();
-    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n * 1000) as u64,
+    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n * 1000) as i64,
         event: Some(Event::RunCompleted(RunCompletedEvent { output_json: r#"{"done":true}"#.into() })) });
     events
 }

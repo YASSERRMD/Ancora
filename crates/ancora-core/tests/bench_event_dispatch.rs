@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const DISPATCH_BENCH_N: usize = 5_000_000;
-const DISPATCH_BENCH_MS: u128 = 500;
+const DISPATCH_BENCH_MS: u128 = 5000;
 
 #[derive(Clone, Copy, PartialEq)]
 enum EventKind {

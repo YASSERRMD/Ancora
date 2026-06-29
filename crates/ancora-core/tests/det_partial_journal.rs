@@ -16,7 +16,7 @@ fn partial_journal(run_id: &str, steps_so_far: usize) -> Vec<JournalEvent> {
             event: Some(Event::RunStarted(RunStartedEvent { run_id: run_id.into(), spec_bytes: vec![], spec_type: "AgentSpec".into() })) },
     ];
     for i in 0..steps_so_far {
-        events.push(JournalEvent { event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1)*1000) as u64,
+        events.push(JournalEvent { event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1)*1000) as i64,
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
                 activity_key: format!("step-{}", i), activity_kind: "compute".into(),
                 input_json: format!(r#"{{"n":{}}}"#, i), result_json: format!(r#"{{"n":{}}}"#, i+1), replayed: false })) });

@@ -25,14 +25,14 @@ fn tool_sequence_journal(run_id: &str, length: usize, seed: u64) -> Vec<JournalE
         let tool = TOOLS[(lcg_next(&mut rng) as usize) % TOOLS.len()];
         let result_val = lcg_next(&mut rng) % 1000;
         events.push(JournalEvent {
-            event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1)*1000) as u64,
+            event_id: format!("{}-{}", run_id, i+1), run_id: run_id.into(), seq: (i+1) as u64, recorded_at_ns: ((i+1)*1000) as i64,
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
                 activity_key: format!("tool:{}", tool), activity_kind: "tool-call".into(),
                 input_json: format!(r#"{{"tool":"{}","step":{}}}"#, tool, i),
                 result_json: format!(r#"{{"tool":"{}","value":{}}}"#, tool, result_val), replayed: false })) });
     }
     let n = events.len();
-    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n*1000) as u64,
+    events.push(JournalEvent { event_id: format!("{}-{}", run_id, n), run_id: run_id.into(), seq: n as u64, recorded_at_ns: (n*1000) as i64,
         event: Some(Event::RunCompleted(RunCompletedEvent { output_json: r#"{"ok":true}"#.into() })) });
     events
 }

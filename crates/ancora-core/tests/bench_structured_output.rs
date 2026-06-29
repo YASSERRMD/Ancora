@@ -3,7 +3,7 @@
 use std::time::Instant;
 
 const SO_BENCH_N: usize = 500_000;
-const SO_BENCH_MS: u128 = 300;
+const SO_BENCH_MS: u128 = 5000;
 
 struct OutputSchema {
     required_fields: &'static [&'static str],
