@@ -1,0 +1,46 @@
+name: ancora-headless
+
+on:
+  push:
+    paths:
+      - 'crates/ancora-headless/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  pull_request:
+    paths:
+      - 'crates/ancora-headless/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    name: build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-headless-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: cargo check
+        run: cargo check -p ancora-headless
+
+      - name: cargo test
+        run: cargo test -p ancora-headless
+
+      - name: cargo clippy
+        run: cargo clippy -p ancora-headless -- -D warnings
