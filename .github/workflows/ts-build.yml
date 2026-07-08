@@ -55,7 +55,7 @@ jobs:
         run: npm ci
       - name: Build native addon
         working-directory: sdk/ts
-        run: npx napi build --platform --release --target ${{ matrix.settings.target }}
+        run: npx napi build --manifest-path ../../crates/ancora-napi/Cargo.toml --output-dir . --platform --release --target ${{ matrix.settings.target }}
         env:
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
       - name: Verify .node file exists
