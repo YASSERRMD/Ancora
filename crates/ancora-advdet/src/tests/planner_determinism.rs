@@ -1,7 +1,7 @@
 use ancora_orchestrate::{fan_out, AgentTask};
 use serde_json::json;
 
-fn make_tasks(tick: u64) -> Vec<AgentTask> {
+fn make_tasks(_tick: u64) -> Vec<AgentTask> {
     let inputs = vec![json!("plan-A"), json!("plan-B"), json!("plan-C")];
     fan_out("orch-1", "planner", inputs, "root")
 }

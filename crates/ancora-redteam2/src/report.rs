@@ -41,7 +41,9 @@ impl RedTeamReport {
     }
 
     pub fn objective_progress(&self) -> f64 {
-        if self.total_objectives == 0 { return 0.0; }
+        if self.total_objectives == 0 {
+            return 0.0;
+        }
         self.achieved_objectives as f64 / self.total_objectives as f64
     }
 }

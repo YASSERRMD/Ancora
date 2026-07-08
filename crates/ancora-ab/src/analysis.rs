@@ -1,5 +1,4 @@
 /// Statistical analysis of experiment results using Welch's t-test.
-
 use crate::outcome::VariantStats;
 
 /// Result of a two-sample significance test.
@@ -28,10 +27,16 @@ impl std::fmt::Display for AnalysisError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AnalysisError::InsufficientData { variant, n } => {
-                write!(f, "variant '{variant}' has only {n} observations (need >= 2)")
+                write!(
+                    f,
+                    "variant '{variant}' has only {n} observations (need >= 2)"
+                )
             }
             AnalysisError::ZeroVariance { variant } => {
-                write!(f, "variant '{variant}' has zero variance; cannot run t-test")
+                write!(
+                    f,
+                    "variant '{variant}' has zero variance; cannot run t-test"
+                )
             }
         }
     }
@@ -85,8 +90,7 @@ pub fn welch_t_test(
 
     // Welch-Satterthwaite degrees of freedom.
     let df = se_total.powi(2)
-        / (se_c.powi(2) / (control.n as f64 - 1.0)
-            + se_t.powi(2) / (treatment.n as f64 - 1.0));
+        / (se_c.powi(2) / (control.n as f64 - 1.0) + se_t.powi(2) / (treatment.n as f64 - 1.0));
 
     // Approximate two-tailed p-value using the regularized incomplete beta function.
     let p_value = two_tailed_p(t_stat.abs(), df);
@@ -125,8 +129,7 @@ fn normal_cdf(z: f64) -> f64 {
     let t = 1.0 / (1.0 + 0.2316419 * z);
     let poly = t
         * (0.319381530
-            + t * (-0.356563782
-                + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+            + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
     1.0 - pdf_standard_normal(z) * poly
 }
 
@@ -202,14 +205,14 @@ fn ln_gamma(x: f64) -> f64 {
     // Lanczos approximation coefficients (g=7, n=9)
     const G: f64 = 7.0;
     const C: &[f64] = &[
-        0.99999999999980993,
+        0.999_999_999_999_809_9,
         676.5203681218851,
         -1259.1392167224028,
-        771.32342877765313,
-        -176.61502916214059,
+        771.323_428_777_653_1,
+        -176.615_029_162_140_6,
         12.507343278686905,
         -0.13857109526572012,
-        9.9843695780195716e-6,
+        9.984_369_578_019_572e-6,
         1.5056327351493116e-7,
     ];
     let mut x = x;

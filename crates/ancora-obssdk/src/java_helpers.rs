@@ -64,7 +64,9 @@ pub struct JavaCostAccessor {
 
 impl JavaCostAccessor {
     pub fn new() -> Self {
-        JavaCostAccessor { records: Vec::new() }
+        JavaCostAccessor {
+            records: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, cost: CostRecord) {
@@ -79,7 +81,9 @@ impl JavaCostAccessor {
         &self.records
     }
 
-    /// Java-style toString for cost summary.
+    /// Java-style toString for cost summary (name matches the Java-side
+    /// `toString()` convention this JNI-facing type mirrors).
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         format!(
             "JavaCostAccessor{{totalTokens={}, records={}}}",

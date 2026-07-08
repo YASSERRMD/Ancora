@@ -1,4 +1,4 @@
-use crate::parity_status::{ParityEntry, ParityState, all_parity_green, parity_gaps};
+use crate::parity_status::{all_parity_green, parity_gaps, ParityEntry, ParityState};
 
 #[test]
 fn parity_green_for_all_obs_features() {

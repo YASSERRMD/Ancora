@@ -1,5 +1,5 @@
-use serde::Serialize;
 use crate::soak::SoakSummary;
+use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 pub struct LoadTestReport {
@@ -39,7 +39,10 @@ impl ScenarioReport {
 impl LoadTestReport {
     pub fn new(reports: Vec<ScenarioReport>) -> Self {
         let all_passed = reports.iter().all(|r| r.passed);
-        Self { scenarios: reports, all_passed }
+        Self {
+            scenarios: reports,
+            all_passed,
+        }
     }
 
     pub fn to_json(&self) -> String {

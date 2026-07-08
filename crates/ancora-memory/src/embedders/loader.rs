@@ -1,10 +1,9 @@
+use serde_json::{json, Value};
 /// Document loaders for text, Markdown, and simple PDF text extraction.
 ///
 /// All loaders return `Vec<Document>` -- a list of documents with content
 /// and metadata.  They do NOT make network calls.
-
 use std::collections::HashMap;
-use serde_json::{json, Value};
 
 // ---- document type ------------------------------------------------------
 
@@ -20,11 +19,16 @@ pub struct Document {
 
 impl Document {
     pub fn new(source: impl Into<String>, text: impl Into<String>) -> Self {
-        Self { source: source.into(), text: text.into(), metadata: json!({}) }
+        Self {
+            source: source.into(),
+            text: text.into(),
+            metadata: json!({}),
+        }
     }
 
     pub fn with_metadata(mut self, meta: Value) -> Self {
-        self.metadata = meta; self
+        self.metadata = meta;
+        self
     }
 
     pub fn word_count(&self) -> usize {
@@ -45,7 +49,10 @@ pub fn load_text(source: impl Into<String>, content: &str) -> Document {
 
 /// Load multiple text strings as separate `Document`s.
 pub fn load_texts(pairs: &[(&str, &str)]) -> Vec<Document> {
-    pairs.iter().map(|(source, content)| load_text(*source, content)).collect()
+    pairs
+        .iter()
+        .map(|(source, content)| load_text(*source, content))
+        .collect()
 }
 
 // ---- markdown loader ---------------------------------------------------
@@ -69,10 +76,13 @@ pub fn split_markdown_sections(source: &str, content: &str) -> Vec<Document> {
     for line in content.lines() {
         if line.starts_with("## ") || line.starts_with("# ") {
             if !current_body.trim().is_empty() {
-                docs.push(Document::new(
-                    format!("{source}#{}", slug(&current_title)),
-                    current_body.trim(),
-                ).with_metadata(json!({ "section": current_title })));
+                docs.push(
+                    Document::new(
+                        format!("{source}#{}", slug(&current_title)),
+                        current_body.trim(),
+                    )
+                    .with_metadata(json!({ "section": current_title })),
+                );
             }
             current_title = line.trim_start_matches('#').trim().to_owned();
             current_body.clear();
@@ -82,10 +92,13 @@ pub fn split_markdown_sections(source: &str, content: &str) -> Vec<Document> {
         }
     }
     if !current_body.trim().is_empty() {
-        docs.push(Document::new(
-            format!("{source}#{}", slug(&current_title)),
-            current_body.trim(),
-        ).with_metadata(json!({ "section": current_title })));
+        docs.push(
+            Document::new(
+                format!("{source}#{}", slug(&current_title)),
+                current_body.trim(),
+            )
+            .with_metadata(json!({ "section": current_title })),
+        );
     }
     docs
 }
@@ -95,7 +108,9 @@ fn strip_markdown(md: &str) -> String {
     for line in md.lines() {
         let trimmed = line.trim_start_matches('#').trim();
         // Skip fenced code blocks and inline code markers.
-        if trimmed.starts_with("```") { continue; }
+        if trimmed.starts_with("```") {
+            continue;
+        }
         let clean: String = trimmed.chars().filter(|c| *c != '*' && *c != '_').collect();
         out.push_str(&clean);
         out.push('\n');
@@ -104,7 +119,10 @@ fn strip_markdown(md: &str) -> String {
 }
 
 fn slug(s: &str) -> String {
-    s.to_lowercase().chars().map(|c| if c.is_alphanumeric() { c } else { '-' }).collect()
+    s.to_lowercase()
+        .chars()
+        .map(|c| if c.is_alphanumeric() { c } else { '-' })
+        .collect()
 }
 
 // ---- pdf loader (text extraction stub) ---------------------------------
@@ -117,39 +135,51 @@ pub struct PdfLoader {
 }
 
 impl PdfLoader {
-    pub fn new() -> Self { Self { max_pages: None } }
-    pub fn with_max_pages(mut self, n: usize) -> Self { self.max_pages = Some(n); self }
+    pub fn new() -> Self {
+        Self { max_pages: None }
+    }
+    pub fn with_max_pages(mut self, n: usize) -> Self {
+        self.max_pages = Some(n);
+        self
+    }
 
     /// Extract text from a PDF given as raw bytes.
     /// In tests, pass a fake byte slice; returns a stub document.
     pub fn load_bytes(&self, source: &str, _bytes: &[u8]) -> Vec<Document> {
         // Production: extract pages; here return stub.
         let page_limit = self.max_pages.unwrap_or(usize::MAX);
-        (0..page_limit.min(1)).map(|page| {
-            Document::new(
-                format!("{source}#page-{}", page + 1),
-                "[PDF text extraction placeholder]",
-            ).with_metadata(json!({ "page": page + 1, "source": source }))
-        }).collect()
+        (0..page_limit.min(1))
+            .map(|page| {
+                Document::new(
+                    format!("{source}#page-{}", page + 1),
+                    "[PDF text extraction placeholder]",
+                )
+                .with_metadata(json!({ "page": page + 1, "source": source }))
+            })
+            .collect()
     }
 }
 
 impl Default for PdfLoader {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 // ---- metadata enrichment -----------------------------------------------
 
 /// Add or merge metadata into a list of documents.
 pub fn enrich_metadata(docs: Vec<Document>, extra: &HashMap<String, Value>) -> Vec<Document> {
-    docs.into_iter().map(|mut doc| {
-        if let Value::Object(ref mut map) = doc.metadata {
-            for (k, v) in extra {
-                map.insert(k.clone(), v.clone());
+    docs.into_iter()
+        .map(|mut doc| {
+            if let Value::Object(ref mut map) = doc.metadata {
+                for (k, v) in extra {
+                    map.insert(k.clone(), v.clone());
+                }
             }
-        }
-        doc
-    }).collect()
+            doc
+        })
+        .collect()
 }
 
 // ---- tests ---------------------------------------------------------------

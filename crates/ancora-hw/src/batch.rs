@@ -63,11 +63,10 @@ pub fn tune_batch_size(hw: &HardwareProfile, cfg: &BatchConfig) -> BatchRecommen
     let bytes_per_item = cfg.bytes_per_token * cfg.context_len as u64;
     let available_bytes = available_mib * 1024 * 1024;
 
-    let max_batch_size = if bytes_per_item == 0 {
-        1
-    } else {
-        (available_bytes / bytes_per_item).max(1) as u32
-    };
+    let max_batch_size = available_bytes
+        .checked_div(bytes_per_item)
+        .map(|v| v.max(1) as u32)
+        .unwrap_or(1);
 
     let suggested_batch_size = ((max_batch_size as f64 * 0.75) as u32).max(1);
 

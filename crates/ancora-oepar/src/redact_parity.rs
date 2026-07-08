@@ -91,8 +91,7 @@ pub fn check_redact_parity(results: &[RedactResult]) -> Vec<String> {
             if first.rules_applied != other.rules_applied {
                 issues.push(format!(
                     "rules applied differ: {:?}={:?} vs {:?}={:?}",
-                    first.language, first.rules_applied,
-                    other.language, other.rules_applied
+                    first.language, first.rules_applied, other.language, other.rules_applied
                 ));
             }
         }
@@ -106,6 +105,11 @@ pub fn assert_no_pii(result: &RedactResult) -> Vec<String> {
     pii_markers
         .iter()
         .filter(|&&m| result.redacted_text.contains(m))
-        .map(|m| format!("PII marker {:?} still present after redaction in {:?}", m, result.language))
+        .map(|m| {
+            format!(
+                "PII marker {:?} still present after redaction in {:?}",
+                m, result.language
+            )
+        })
         .collect()
 }

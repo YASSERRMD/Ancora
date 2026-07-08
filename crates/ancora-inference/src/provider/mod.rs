@@ -36,11 +36,7 @@ pub struct ProviderProfile {
 }
 
 impl ProviderProfile {
-    pub fn new(
-        name: impl Into<String>,
-        base_url: impl Into<String>,
-        auth: AuthStrategy,
-    ) -> Self {
+    pub fn new(name: impl Into<String>, base_url: impl Into<String>, auth: AuthStrategy) -> Self {
         Self {
             name: name.into(),
             base_url: base_url.into(),
@@ -74,21 +70,13 @@ impl ProviderProfile {
     }
 
     /// Register a short-name alias for a canonical model-id.
-    pub fn add_alias(
-        mut self,
-        alias: impl Into<String>,
-        canonical: impl Into<String>,
-    ) -> Self {
+    pub fn add_alias(mut self, alias: impl Into<String>, canonical: impl Into<String>) -> Self {
         self.model_aliases.insert(alias.into(), canonical.into());
         self
     }
 
     /// Add a regional base-URL override.
-    pub fn add_region(
-        mut self,
-        region: impl Into<String>,
-        url: impl Into<String>,
-    ) -> Self {
+    pub fn add_region(mut self, region: impl Into<String>, url: impl Into<String>) -> Self {
         self.regional_urls.insert(region.into(), url.into());
         self
     }
@@ -173,7 +161,10 @@ mod tests {
     #[test]
     fn base_url_for_known_region() {
         let p = build_profile();
-        assert_eq!(p.base_url_for_region(Some("eu")), "https://eu.api.acme.test");
+        assert_eq!(
+            p.base_url_for_region(Some("eu")),
+            "https://eu.api.acme.test"
+        );
     }
 
     #[test]
@@ -195,13 +186,20 @@ mod tests {
     #[test]
     fn completions_url_default_path() {
         let p = ProviderProfile::new("p", "https://api.test", AuthStrategy::None);
-        assert_eq!(p.completions_url(None), "https://api.test/v1/chat/completions");
+        assert_eq!(
+            p.completions_url(None),
+            "https://api.test/v1/chat/completions"
+        );
     }
 
     #[test]
     fn completions_url_custom_path() {
-        let p = ProviderProfile::new("az", "https://my.openai.azure.com/openai/deployments/dep", AuthStrategy::None)
-            .with_chat_path("/chat/completions?api-version=2024-02-01");
+        let p = ProviderProfile::new(
+            "az",
+            "https://my.openai.azure.com/openai/deployments/dep",
+            AuthStrategy::None,
+        )
+        .with_chat_path("/chat/completions?api-version=2024-02-01");
         assert_eq!(
             p.completions_url(None),
             "https://my.openai.azure.com/openai/deployments/dep/chat/completions?api-version=2024-02-01"
@@ -213,7 +211,13 @@ mod tests {
         let p = ProviderProfile::new("or", "https://openrouter.ai/api", AuthStrategy::None)
             .with_extra_header("HTTP-Referer", "https://myapp.test")
             .with_extra_header("X-Title", "MyApp");
-        assert_eq!(p.extra_headers.get("HTTP-Referer").map(|s| s.as_str()), Some("https://myapp.test"));
-        assert_eq!(p.extra_headers.get("X-Title").map(|s| s.as_str()), Some("MyApp"));
+        assert_eq!(
+            p.extra_headers.get("HTTP-Referer").map(|s| s.as_str()),
+            Some("https://myapp.test")
+        );
+        assert_eq!(
+            p.extra_headers.get("X-Title").map(|s| s.as_str()),
+            Some("MyApp")
+        );
     }
 }

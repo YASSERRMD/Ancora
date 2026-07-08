@@ -63,7 +63,7 @@ fn self_hosted_ha_meets_baseline() {
 #[test]
 fn catalog_baseline_metrics_stable() {
     let catalog = CatalogIndex::new()
-        .add(
+        .add_entry(
             CatalogEntry::new(
                 "M001",
                 CatalogKind::Metric,
@@ -72,7 +72,7 @@ fn catalog_baseline_metrics_stable() {
             )
             .stable(),
         )
-        .add(
+        .add_entry(
             CatalogEntry::new(
                 "M002",
                 CatalogKind::Metric,

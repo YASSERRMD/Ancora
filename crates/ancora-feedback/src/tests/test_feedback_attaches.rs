@@ -43,9 +43,33 @@ fn feedback_attaches_multiple_to_same_run() {
 #[test]
 fn feedback_step_filter_works() {
     let mut store = FeedbackStore::new();
-    store.attach(Feedback::new("f1", "run-1", Some("step-A".into()), ThumbsRating::Up, None, "alice", 0));
-    store.attach(Feedback::new("f2", "run-1", Some("step-B".into()), ThumbsRating::Down, None, "bob", 1));
-    store.attach(Feedback::new("f3", "run-1", None, ThumbsRating::Up, None, "carol", 2));
+    store.attach(Feedback::new(
+        "f1",
+        "run-1",
+        Some("step-A".into()),
+        ThumbsRating::Up,
+        None,
+        "alice",
+        0,
+    ));
+    store.attach(Feedback::new(
+        "f2",
+        "run-1",
+        Some("step-B".into()),
+        ThumbsRating::Down,
+        None,
+        "bob",
+        1,
+    ));
+    store.attach(Feedback::new(
+        "f3",
+        "run-1",
+        None,
+        ThumbsRating::Up,
+        None,
+        "carol",
+        2,
+    ));
 
     let step_a = store.for_step("run-1", "step-A");
     assert_eq!(step_a.len(), 1);

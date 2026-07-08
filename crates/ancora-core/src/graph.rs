@@ -144,8 +144,16 @@ mod tests {
     #[test]
     fn malformed_graphs_are_rejected() {
         // Empty nodes
-        let empty = Graph { id: "g1".to_string(), nodes: vec![], edges: vec![], entry_node: "a".to_string() };
-        assert!(matches!(empty.validate(), Err(AncoraError::GraphInvalid(_))));
+        let empty = Graph {
+            id: "g1".to_string(),
+            nodes: vec![],
+            edges: vec![],
+            entry_node: "a".to_string(),
+        };
+        assert!(matches!(
+            empty.validate(),
+            Err(AncoraError::GraphInvalid(_))
+        ));
 
         // Entry node missing
         let missing_entry = Graph {
@@ -154,7 +162,10 @@ mod tests {
             edges: vec![],
             entry_node: "missing".to_string(),
         };
-        assert!(matches!(missing_entry.validate(), Err(AncoraError::GraphInvalid(_))));
+        assert!(matches!(
+            missing_entry.validate(),
+            Err(AncoraError::GraphInvalid(_))
+        ));
 
         // Duplicate node ids
         let dupe = Graph {
@@ -172,7 +183,10 @@ mod tests {
             edges: vec![edge("ghost", "a")],
             entry_node: "a".to_string(),
         };
-        assert!(matches!(bad_src.validate(), Err(AncoraError::GraphInvalid(_))));
+        assert!(matches!(
+            bad_src.validate(),
+            Err(AncoraError::GraphInvalid(_))
+        ));
 
         // Edge target does not exist
         let bad_tgt = Graph {
@@ -181,7 +195,10 @@ mod tests {
             edges: vec![edge("a", "ghost")],
             entry_node: "a".to_string(),
         };
-        assert!(matches!(bad_tgt.validate(), Err(AncoraError::GraphInvalid(_))));
+        assert!(matches!(
+            bad_tgt.validate(),
+            Err(AncoraError::GraphInvalid(_))
+        ));
 
         // Valid graph passes
         let valid = Graph {

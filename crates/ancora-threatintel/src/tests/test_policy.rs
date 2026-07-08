@@ -26,13 +26,29 @@ fn policy_monitor_low_confidence() {
 #[test]
 fn policy_should_block_high_indicator() {
     let policy = ThreatPolicy::new("t1");
-    let i = Indicator::new("i1", "t1", IndicatorKind::IpAddress, "x", ThreatLevel::High, "f", 1);
+    let i = Indicator::new(
+        "i1",
+        "t1",
+        IndicatorKind::IpAddress,
+        "x",
+        ThreatLevel::High,
+        "f",
+        1,
+    );
     assert!(policy.should_block_indicator(&i));
 }
 
 #[test]
 fn policy_no_block_low_indicator() {
     let policy = ThreatPolicy::new("t1");
-    let i = Indicator::new("i1", "t1", IndicatorKind::Domain, "x", ThreatLevel::Low, "f", 1);
+    let i = Indicator::new(
+        "i1",
+        "t1",
+        IndicatorKind::Domain,
+        "x",
+        ThreatLevel::Low,
+        "f",
+        1,
+    );
     assert!(!policy.should_block_indicator(&i));
 }

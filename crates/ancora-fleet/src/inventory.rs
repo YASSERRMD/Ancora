@@ -1,7 +1,7 @@
 // Device inventory management for edge fleet
 
-use std::collections::HashMap;
 use crate::registration::DeviceId;
+use std::collections::HashMap;
 
 /// Device hardware and software inventory snapshot
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -92,10 +92,7 @@ impl FleetInventory {
 
     /// Find devices by OS
     pub fn devices_by_os(&self, os: &str) -> Vec<&DeviceInventory> {
-        self.records
-            .values()
-            .filter(|inv| inv.os == os)
-            .collect()
+        self.records.values().filter(|inv| inv.os == os).collect()
     }
 
     /// Summary: total devices, total CPU cores, total memory

@@ -67,6 +67,9 @@ fn test_tag_starts_with_v() {
 
 #[test]
 fn test_minor_version_is_6() {
-    let parts: Vec<u32> = WORKSPACE_VERSION.split('.').map(|p| p.parse().unwrap()).collect();
+    let parts: Vec<u32> = WORKSPACE_VERSION
+        .split('.')
+        .map(|p| p.parse().unwrap())
+        .collect();
     assert_eq!(parts[1], 6);
 }

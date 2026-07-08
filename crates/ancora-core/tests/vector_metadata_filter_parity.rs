@@ -8,7 +8,13 @@ use ancora_proto::ancora::{
     journal_event::Event, ActivityRecordedEvent, JournalEvent, RunCompletedEvent, RunStartedEvent,
 };
 
-fn make_filter_event(run_id: &str, store: &str, activity_key: &str, filter_json: &str, result_json: &str) -> Vec<JournalEvent> {
+fn make_filter_event(
+    run_id: &str,
+    store: &str,
+    activity_key: &str,
+    filter_json: &str,
+    result_json: &str,
+) -> Vec<JournalEvent> {
     vec![
         JournalEvent {
             event_id: format!("{}-0", run_id),
@@ -29,7 +35,10 @@ fn make_filter_event(run_id: &str, store: &str, activity_key: &str, filter_json:
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
                 activity_key: activity_key.to_string(),
                 activity_kind: "retrieval".into(),
-                input_json: format!(r#"{{"query":"metadata filter","top_k":2,"store":"{}","filter":{}}}"#, store, filter_json),
+                input_json: format!(
+                    r#"{{"query":"metadata filter","top_k":2,"store":"{}","filter":{}}}"#,
+                    store, filter_json
+                ),
                 result_json: result_json.to_string(),
                 replayed: false,
             })),
@@ -54,36 +63,68 @@ const IN_MEM_RESULT: &str = r#"[{"text":"PDF result","score":0.94,"metadata":{"s
 
 #[test]
 fn pgvector_filter_by_source_replays() {
-    let events = make_filter_event("pg-f", "pgvector", "retrieve-pgvector-filtered", PG_FILTER, IN_MEM_RESULT);
+    let events = make_filter_event(
+        "pg-f",
+        "pgvector",
+        "retrieve-pgvector-filtered",
+        PG_FILTER,
+        IN_MEM_RESULT,
+    );
     let store = MemoryStore::new();
-    for ev in &events { store.append("pg-f", ev.clone()).unwrap(); }
+    for ev in &events {
+        store.append("pg-f", ev.clone()).unwrap();
+    }
     let state = replay_events("pg-f", &store.read("pg-f").unwrap()).unwrap();
     assert_eq!(state.run.status, RunStatus::Completed);
 }
 
 #[test]
 fn qdrant_filter_by_source_replays() {
-    let events = make_filter_event("qd-f", "qdrant", "retrieve-qdrant-filtered", QD_FILTER, IN_MEM_RESULT);
+    let events = make_filter_event(
+        "qd-f",
+        "qdrant",
+        "retrieve-qdrant-filtered",
+        QD_FILTER,
+        IN_MEM_RESULT,
+    );
     let store = MemoryStore::new();
-    for ev in &events { store.append("qd-f", ev.clone()).unwrap(); }
+    for ev in &events {
+        store.append("qd-f", ev.clone()).unwrap();
+    }
     let state = replay_events("qd-f", &store.read("qd-f").unwrap()).unwrap();
     assert_eq!(state.run.status, RunStatus::Completed);
 }
 
 #[test]
 fn chroma_filter_by_source_replays() {
-    let events = make_filter_event("ch-f", "chroma", "retrieve-chroma-filtered", CH_FILTER, IN_MEM_RESULT);
+    let events = make_filter_event(
+        "ch-f",
+        "chroma",
+        "retrieve-chroma-filtered",
+        CH_FILTER,
+        IN_MEM_RESULT,
+    );
     let store = MemoryStore::new();
-    for ev in &events { store.append("ch-f", ev.clone()).unwrap(); }
+    for ev in &events {
+        store.append("ch-f", ev.clone()).unwrap();
+    }
     let state = replay_events("ch-f", &store.read("ch-f").unwrap()).unwrap();
     assert_eq!(state.run.status, RunStatus::Completed);
 }
 
 #[test]
 fn weaviate_filter_by_source_replays() {
-    let events = make_filter_event("wv-f", "weaviate", "retrieve-weaviate-filtered", WV_FILTER, IN_MEM_RESULT);
+    let events = make_filter_event(
+        "wv-f",
+        "weaviate",
+        "retrieve-weaviate-filtered",
+        WV_FILTER,
+        IN_MEM_RESULT,
+    );
     let store = MemoryStore::new();
-    for ev in &events { store.append("wv-f", ev.clone()).unwrap(); }
+    for ev in &events {
+        store.append("wv-f", ev.clone()).unwrap();
+    }
     let state = replay_events("wv-f", &store.read("wv-f").unwrap()).unwrap();
     assert_eq!(state.run.status, RunStatus::Completed);
 }

@@ -1,5 +1,4 @@
 /// Cost breakdown by tool invocation.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Default)]
@@ -39,8 +38,7 @@ impl ToolCostBreakdown {
     }
 
     pub fn top_tools_by_cost(&self) -> Vec<(String, f64)> {
-        let mut v: Vec<(String, f64)> =
-            self.costs.iter().map(|(k, v)| (k.clone(), *v)).collect();
+        let mut v: Vec<(String, f64)> = self.costs.iter().map(|(k, v)| (k.clone(), *v)).collect();
         v.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         v
     }

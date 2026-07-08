@@ -28,6 +28,8 @@ pub fn open_stream() -> (StreamSender, StreamReceiver) {
 /// consumer may have dropped the receiver before the run finished.
 pub fn emit_tokens(sender: &StreamSender, text: &str) {
     for ch in text.chars() {
-        let _ = sender.send(StreamEvent::Token { text: ch.to_string() });
+        let _ = sender.send(StreamEvent::Token {
+            text: ch.to_string(),
+        });
     }
 }

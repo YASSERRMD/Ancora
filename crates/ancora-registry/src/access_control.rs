@@ -16,9 +16,10 @@ impl AccessResult {
 }
 
 /// Policy controlling which publishers are permitted to publish to this registry.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub enum AccessPolicy {
     /// Any publisher is accepted.
+    #[default]
     Open,
     /// Only publishers whose identity appears in the allow-list are accepted.
     AllowList(HashSet<String>),
@@ -40,7 +41,9 @@ impl AccessPolicy {
                 if set.contains(publisher) {
                     AccessResult::Allowed
                 } else {
-                    AccessResult::Denied(format!("publisher '{publisher}' is not on the allow-list"))
+                    AccessResult::Denied(format!(
+                        "publisher '{publisher}' is not on the allow-list"
+                    ))
                 }
             }
             Self::DenyAll => AccessResult::Denied("registry is read-only".to_string()),
@@ -59,11 +62,5 @@ impl AccessPolicy {
         if let Self::AllowList(set) = self {
             set.remove(publisher);
         }
-    }
-}
-
-impl Default for AccessPolicy {
-    fn default() -> Self {
-        Self::Open
     }
 }

@@ -1,6 +1,5 @@
 /// Plugin help integration - formats help text that incorporates plugin
 /// commands alongside built-in CLI commands.
-
 use crate::interface::CommandSpec;
 
 /// A section in the generated help output.
@@ -81,10 +80,7 @@ pub fn build_plugin_help_section(
 }
 
 /// Combine built-in help text with plugin-contributed sections.
-pub fn compose_help(
-    builtin_help: &str,
-    plugin_sections: &[HelpSection],
-) -> String {
+pub fn compose_help(builtin_help: &str, plugin_sections: &[HelpSection]) -> String {
     let mut output = builtin_help.to_string();
     if !output.ends_with('\n') {
         output.push('\n');

@@ -54,7 +54,9 @@ fn keystream(key: &[u8], nonce: &[u8; 8], len: usize) -> Vec<u8> {
     let mut state = seed;
     let mut stream = Vec::with_capacity(len);
     while stream.len() < len {
-        state = state.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1_442_695_040_888_963_407);
+        state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1_442_695_040_888_963_407);
         stream.extend_from_slice(&state.to_le_bytes());
     }
     stream.truncate(len);
@@ -64,9 +66,17 @@ fn keystream(key: &[u8], nonce: &[u8; 8], len: usize) -> Vec<u8> {
 /// Encrypt serialised bytes with the given pre-shared key and nonce.
 pub fn encrypt(plaintext: &[u8], key: &[u8], nonce: [u8; 8]) -> EncryptedEnvelope {
     let ks = keystream(key, &nonce, plaintext.len());
-    let ciphertext: Vec<u8> = plaintext.iter().zip(ks.iter()).map(|(p, k)| p ^ k).collect();
+    let ciphertext: Vec<u8> = plaintext
+        .iter()
+        .zip(ks.iter())
+        .map(|(p, k)| p ^ k)
+        .collect();
     let tag = compute_tag(&ciphertext, &nonce);
-    EncryptedEnvelope { nonce, ciphertext, tag }
+    EncryptedEnvelope {
+        nonce,
+        ciphertext,
+        tag,
+    }
 }
 
 /// Decrypt an envelope; returns `None` if the MAC check fails.
@@ -75,11 +85,22 @@ pub fn decrypt(envelope: &EncryptedEnvelope, key: &[u8]) -> Option<Vec<u8>> {
         return None;
     }
     let ks = keystream(key, &envelope.nonce, envelope.ciphertext.len());
-    Some(envelope.ciphertext.iter().zip(ks.iter()).map(|(c, k)| c ^ k).collect())
+    Some(
+        envelope
+            .ciphertext
+            .iter()
+            .zip(ks.iter())
+            .map(|(c, k)| c ^ k)
+            .collect(),
+    )
 }
 
 /// Wrap a [`SyncRequest`] in an encrypted envelope.
-pub fn seal_request(request: &SyncRequest, key: &[u8], nonce: [u8; 8]) -> Result<EncryptedEnvelope, serde_json::Error> {
+pub fn seal_request(
+    request: &SyncRequest,
+    key: &[u8],
+    nonce: [u8; 8],
+) -> Result<EncryptedEnvelope, serde_json::Error> {
     let plaintext = serde_json::to_vec(request)?;
     Ok(encrypt(&plaintext, key, nonce))
 }
@@ -91,7 +112,11 @@ pub fn open_request(envelope: &EncryptedEnvelope, key: &[u8]) -> Option<SyncRequ
 }
 
 /// Wrap a [`SyncResponse`] in an encrypted envelope.
-pub fn seal_response(response: &SyncResponse, key: &[u8], nonce: [u8; 8]) -> Result<EncryptedEnvelope, serde_json::Error> {
+pub fn seal_response(
+    response: &SyncResponse,
+    key: &[u8],
+    nonce: [u8; 8],
+) -> Result<EncryptedEnvelope, serde_json::Error> {
     let plaintext = serde_json::to_vec(response)?;
     Ok(encrypt(&plaintext, key, nonce))
 }

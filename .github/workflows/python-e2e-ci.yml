@@ -26,12 +26,9 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install maturin and pytest
-        run: pip install maturin pytest pytest-asyncio
-
-      - name: Build and develop
+      - name: Build and install
         working-directory: sdk/python
-        run: maturin develop
+        run: pip install -e ".[test]"
 
       - name: Run unit tests
         working-directory: sdk/python

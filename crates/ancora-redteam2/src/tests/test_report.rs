@@ -31,20 +31,49 @@ fn populated_report() {
     let mut s1 = RedTeamScenario::new("sc1", "t1", "N", ScenarioKind::LateralMovement, 1);
     s1.start();
     store.insert(s1);
-    store.insert(RedTeamScenario::new("sc2", "t1", "N", ScenarioKind::DataExfiltration, 2));
+    store.insert(RedTeamScenario::new(
+        "sc2",
+        "t1",
+        "N",
+        ScenarioKind::DataExfiltration,
+        2,
+    ));
 
     let mut attacks = AttackLog::new();
-    attacks.record(AttackStep::new("s1", "sc1", "N", AttackVector::Network, AttackOutcome::Success, "", "", 1));
+    attacks.record(AttackStep::new(
+        "s1",
+        "sc1",
+        "N",
+        AttackVector::Network,
+        AttackOutcome::Success,
+        "",
+        "",
+        1,
+    ));
 
     let mut detections = DetectionLog::new();
-    detections.record(DetectionEvent::new("d1", "sc1", DetectionSource::Siem, "x", 1, true));
+    detections.record(DetectionEvent::new(
+        "d1",
+        "sc1",
+        DetectionSource::Siem,
+        "x",
+        1,
+        true,
+    ));
 
     let mut objectives = ObjectiveTracker::new();
     objectives.add(RedTeamObjective::new("o1", "sc1", "d1"));
     objectives.get_mut("o1").unwrap().achieve(10);
 
     let mut audit = RedTeamAuditLog::new();
-    audit.record(RedTeamAuditEntry::new(1, "t1", "sc1", RedTeamAction::ScenarioCreated, "op", "detail"));
+    audit.record(RedTeamAuditEntry::new(
+        1,
+        "t1",
+        "sc1",
+        RedTeamAction::ScenarioCreated,
+        "op",
+        "detail",
+    ));
 
     let r = RedTeamReport::generate(&store, &attacks, &detections, &objectives, &audit, 100);
     assert_eq!(r.total_scenarios, 2);

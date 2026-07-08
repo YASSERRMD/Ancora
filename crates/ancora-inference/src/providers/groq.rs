@@ -11,7 +11,9 @@ pub fn build_groq_profile() -> ProviderProfile {
     ProviderProfile::new(
         "groq",
         "https://api.groq.com/openai",
-        AuthStrategy::BearerToken { env_var: "GROQ_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "GROQ_API_KEY".to_owned(),
+        },
     )
     // Llama 3 family
     .add_model(
@@ -93,7 +95,10 @@ mod tests {
     #[test]
     fn groq_llama3_versatile_alias_resolves() {
         let p = build_groq_profile();
-        assert_eq!(p.resolve_model_id("llama-3.3-70b"), "llama-3.3-70b-versatile");
+        assert_eq!(
+            p.resolve_model_id("llama-3.3-70b"),
+            "llama-3.3-70b-versatile"
+        );
     }
 
     #[test]
@@ -150,7 +155,8 @@ mod tests {
     #[test]
     fn groq_streaming_uses_openai_sse_format() {
         use crate::openai::OpenAiClient;
-        let texts: Vec<String> = GROQ_STREAM_LINES.iter()
+        let texts: Vec<String> = GROQ_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -160,7 +166,9 @@ mod tests {
 
     #[test]
     fn groq_cost_summary_correct_for_llama3_70b() {
-        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        let resp = groq_client()
+            .parse_response(GROQ_FIXTURE, "llama3-70b-8192")
+            .unwrap();
         // 10 in * $0.59/M + 5 out * $0.79/M
         let expected = 10.0 * 0.59 / 1_000_000.0 + 5.0 * 0.79 / 1_000_000.0;
         let cost = resp.cost_usd.unwrap();
@@ -198,7 +206,9 @@ mod tests {
 
     #[test]
     fn groq_recorded_fixture_completes() {
-        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        let resp = groq_client()
+            .parse_response(GROQ_FIXTURE, "llama3-70b-8192")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Groq");
         assert_eq!(resp.tokens_in, 10);
         assert_eq!(resp.tokens_out, 5);
@@ -206,13 +216,17 @@ mod tests {
 
     #[test]
     fn groq_fixture_no_tool_calls() {
-        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        let resp = groq_client()
+            .parse_response(GROQ_FIXTURE, "llama3-70b-8192")
+            .unwrap();
         assert!(resp.tool_calls.is_empty());
     }
 
     #[test]
     fn groq_fixture_content_non_empty() {
-        let resp = groq_client().parse_response(GROQ_FIXTURE, "llama3-70b-8192").unwrap();
+        let resp = groq_client()
+            .parse_response(GROQ_FIXTURE, "llama3-70b-8192")
+            .unwrap();
         assert!(!resp.content.is_empty());
     }
 }

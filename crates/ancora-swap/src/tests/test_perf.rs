@@ -1,5 +1,5 @@
-use std::time::Instant;
 use crate::runtime::{make_model, SwapRuntime};
+use std::time::Instant;
 
 #[test]
 fn test_swap_latency_measured() {

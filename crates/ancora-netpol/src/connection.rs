@@ -26,11 +26,21 @@ impl ConnectionRequest {
         }
     }
 
-    pub fn tcp(tenant_id: impl Into<String>, source: impl Into<String>, host: impl Into<String>, port: u16) -> Self {
+    pub fn tcp(
+        tenant_id: impl Into<String>,
+        source: impl Into<String>,
+        host: impl Into<String>,
+        port: u16,
+    ) -> Self {
         Self::new(tenant_id, source, host, port, Protocol::Tcp)
     }
 
-    pub fn udp(tenant_id: impl Into<String>, source: impl Into<String>, host: impl Into<String>, port: u16) -> Self {
+    pub fn udp(
+        tenant_id: impl Into<String>,
+        source: impl Into<String>,
+        host: impl Into<String>,
+        port: u16,
+    ) -> Self {
         Self::new(tenant_id, source, host, port, Protocol::Udp)
     }
 }

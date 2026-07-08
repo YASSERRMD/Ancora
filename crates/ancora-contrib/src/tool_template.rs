@@ -2,7 +2,6 @@
 ///
 /// Copy this module as the starting point for a new agentic tool.
 /// Rename `MyTool` and implement `execute`.
-
 use std::collections::HashMap;
 
 /// JSON-like value that can be passed as a tool argument or returned as output.

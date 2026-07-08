@@ -1,20 +1,16 @@
 use crate::provider::{AuthStrategy, ModelMeta, ProviderProfile};
 
 /// DashScope international endpoint (Singapore).
-pub const QWEN_URL_SINGAPORE: &str =
-    "https://dashscope-intl.aliyuncs.com/compatible-mode";
+pub const QWEN_URL_SINGAPORE: &str = "https://dashscope-intl.aliyuncs.com/compatible-mode";
 
 /// DashScope Frankfurt regional endpoint (EU, GDPR-compliant processing).
-pub const QWEN_URL_FRANKFURT: &str =
-    "https://dashscope-intl-eu.aliyuncs.com/compatible-mode";
+pub const QWEN_URL_FRANKFURT: &str = "https://dashscope-intl-eu.aliyuncs.com/compatible-mode";
 
 /// DashScope Virginia regional endpoint (US East).
-pub const QWEN_URL_VIRGINIA: &str =
-    "https://dashscope-intl-us.aliyuncs.com/compatible-mode";
+pub const QWEN_URL_VIRGINIA: &str = "https://dashscope-intl-us.aliyuncs.com/compatible-mode";
 
 /// DashScope China domestic endpoint (routes through CN infrastructure).
-pub const QWEN_URL_CHINA: &str =
-    "https://dashscope.aliyuncs.com/compatible-mode";
+pub const QWEN_URL_CHINA: &str = "https://dashscope.aliyuncs.com/compatible-mode";
 
 /// Build the Alibaba Qwen (DashScope) provider profile.
 ///
@@ -25,7 +21,9 @@ pub fn build_qwen_profile() -> ProviderProfile {
     ProviderProfile::new(
         "qwen",
         QWEN_URL_SINGAPORE,
-        AuthStrategy::BearerToken { env_var: "DASHSCOPE_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "DASHSCOPE_API_KEY".to_owned(),
+        },
     )
     .add_region("sg", QWEN_URL_SINGAPORE)
     .add_region("eu", QWEN_URL_FRANKFURT)
@@ -137,7 +135,9 @@ pub fn build_qwen_self_host_profile(base_url: impl Into<String>) -> ProviderProf
     ProviderProfile::new(
         "qwen-self-host",
         base_url,
-        AuthStrategy::BearerToken { env_var: "QWEN_SELF_HOST_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "QWEN_SELF_HOST_KEY".to_owned(),
+        },
     )
     // Qwen3 32B is the largest open-weight dense model
     .add_model(
@@ -171,7 +171,9 @@ pub fn build_qwen_self_host_profile(base_url: impl Into<String>) -> ProviderProf
 pub fn supports_tools(model_id: &str) -> bool {
     let p = build_qwen_profile();
     let canonical = p.resolve_model_id(model_id);
-    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+    p.model_catalog
+        .get(canonical)
+        .is_some_and(|m| m.capabilities.tools)
 }
 
 #[cfg(test)]
@@ -201,7 +203,9 @@ mod tests {
 
     #[test]
     fn qwen_recorded_fixture_completes() {
-        let resp = qwen_client().parse_response(QWEN_FIXTURE, "qwen-plus").unwrap();
+        let resp = qwen_client()
+            .parse_response(QWEN_FIXTURE, "qwen-plus")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Qwen");
         assert_eq!(resp.tokens_in, 12);
         assert_eq!(resp.tokens_out, 6);
@@ -209,7 +213,9 @@ mod tests {
 
     #[test]
     fn qwen_fixture_no_tool_calls() {
-        let resp = qwen_client().parse_response(QWEN_FIXTURE, "qwen-plus").unwrap();
+        let resp = qwen_client()
+            .parse_response(QWEN_FIXTURE, "qwen-plus")
+            .unwrap();
         assert!(resp.tool_calls.is_empty());
     }
 
@@ -226,7 +232,9 @@ mod tests {
 
     #[test]
     fn qwen_tool_round_trip_works() {
-        let resp = qwen_client().parse_response(QWEN_TOOL_FIXTURE, "qwen-plus").unwrap();
+        let resp = qwen_client()
+            .parse_response(QWEN_TOOL_FIXTURE, "qwen-plus")
+            .unwrap();
         assert_eq!(resp.tool_calls.len(), 1);
         assert_eq!(resp.tool_calls[0].function.name, "translate");
         let args: serde_json::Value =
@@ -237,10 +245,8 @@ mod tests {
     #[test]
     fn qwen_tool_call_request_body_has_tools() {
         use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
-        let mut req = CompletionRequest::simple(
-            "qwen-plus",
-            vec![Message::text("user", "Translate: Hello")],
-        );
+        let mut req =
+            CompletionRequest::simple("qwen-plus", vec![Message::text("user", "Translate: Hello")]);
         req.tools = vec![ToolDefinition {
             kind: "function".to_owned(),
             function: FunctionDefinition {
@@ -256,7 +262,9 @@ mod tests {
 
     #[test]
     fn qwen_tool_fixture_token_counts() {
-        let resp = qwen_client().parse_response(QWEN_TOOL_FIXTURE, "qwen-plus").unwrap();
+        let resp = qwen_client()
+            .parse_response(QWEN_TOOL_FIXTURE, "qwen-plus")
+            .unwrap();
         assert_eq!(resp.tokens_in, 25);
         assert_eq!(resp.tokens_out, 12);
     }
@@ -264,7 +272,8 @@ mod tests {
     #[test]
     fn qwen_streaming_fixture_ordered() {
         use crate::openai::OpenAiClient;
-        let tokens: Vec<String> = QWEN_STREAM_LINES.iter()
+        let tokens: Vec<String> = QWEN_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -275,7 +284,8 @@ mod tests {
     #[test]
     fn qwen_streaming_combined_text() {
         use crate::openai::OpenAiClient;
-        let combined: String = QWEN_STREAM_LINES.iter()
+        let combined: String = QWEN_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text)
@@ -293,7 +303,9 @@ mod tests {
     #[test]
     fn qwen_sg_region_resolves_singapore_url() {
         let p = build_qwen_profile();
-        assert!(p.base_url_for_region(Some("sg")).contains("dashscope-intl.aliyuncs.com"));
+        assert!(p
+            .base_url_for_region(Some("sg"))
+            .contains("dashscope-intl.aliyuncs.com"));
         assert!(!p.base_url_for_region(Some("sg")).contains("-eu"));
         assert!(!p.base_url_for_region(Some("sg")).contains("-us"));
     }
@@ -322,16 +334,21 @@ mod tests {
     fn qwen_unknown_region_falls_back_to_default() {
         let p = build_qwen_profile();
         // Unknown region should fall back to the default (Singapore)
-        assert_eq!(p.base_url_for_region(Some("au")), p.base_url_for_region(None));
+        assert_eq!(
+            p.base_url_for_region(Some("au")),
+            p.base_url_for_region(None)
+        );
     }
 
     #[test]
     fn qwen_self_host_fixture_completes_offline() {
         use std::sync::Arc;
-        let client = crate::openai::OpenAiClient::new(Arc::new(
-            build_qwen_self_host_profile("http://localhost:8000"),
-        ));
-        let resp = client.parse_response(QWEN_SELF_HOST_FIXTURE, "qwen3-32b").unwrap();
+        let client = crate::openai::OpenAiClient::new(Arc::new(build_qwen_self_host_profile(
+            "http://localhost:8000",
+        )));
+        let resp = client
+            .parse_response(QWEN_SELF_HOST_FIXTURE, "qwen3-32b")
+            .unwrap();
         assert_eq!(resp.content, "Hello from self-hosted Qwen");
         assert_eq!(resp.tokens_in, 8);
         assert_eq!(resp.tokens_out, 7);
@@ -340,10 +357,12 @@ mod tests {
     #[test]
     fn qwen_self_host_has_zero_cost() {
         use std::sync::Arc;
-        let client = crate::openai::OpenAiClient::new(Arc::new(
-            build_qwen_self_host_profile("http://localhost:8000"),
-        ));
-        let resp = client.parse_response(QWEN_SELF_HOST_FIXTURE, "qwen3-32b").unwrap();
+        let client = crate::openai::OpenAiClient::new(Arc::new(build_qwen_self_host_profile(
+            "http://localhost:8000",
+        )));
+        let resp = client
+            .parse_response(QWEN_SELF_HOST_FIXTURE, "qwen3-32b")
+            .unwrap();
         let cost = resp.cost_usd.unwrap_or(0.0);
         assert_eq!(cost, 0.0);
     }

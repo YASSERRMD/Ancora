@@ -80,7 +80,11 @@ fn provider_binding_survives_rebind() {
     let mut router = ModelRouter::new(ANTHROPIC);
     router.bind("node-a", OPENAI);
     router.bind("node-a", DEEPSEEK);
-    assert_eq!(router.resolve("node-a", None), DEEPSEEK, "last bind must win");
+    assert_eq!(
+        router.resolve("node-a", None),
+        DEEPSEEK,
+        "last bind must win"
+    );
 }
 
 #[test]
@@ -94,7 +98,11 @@ fn all_five_providers_resolve_to_different_models() {
         router.resolve("node-deepseek", None),
     ];
     let unique: std::collections::HashSet<&str> = models.iter().copied().collect();
-    assert_eq!(unique.len(), 5, "all five providers must map to distinct model strings");
+    assert_eq!(
+        unique.len(),
+        5,
+        "all five providers must map to distinct model strings"
+    );
 }
 
 #[test]

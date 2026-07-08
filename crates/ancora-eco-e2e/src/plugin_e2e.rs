@@ -1,4 +1,4 @@
-/// Plugin end-to-end utilities: template authoring and lifecycle management.
+//! Plugin end-to-end utilities: template authoring and lifecycle management.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PluginTemplate {
@@ -19,9 +19,7 @@ impl PluginTemplate {
     }
 
     pub fn is_valid(&self) -> bool {
-        !self.name.is_empty()
-            && !self.version.is_empty()
-            && !self.entry_point.is_empty()
+        !self.name.is_empty() && !self.version.is_empty() && !self.entry_point.is_empty()
     }
 }
 

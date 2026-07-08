@@ -8,7 +8,10 @@ pub struct WorkingMemory {
 
 impl WorkingMemory {
     pub fn new(capacity: usize) -> Self {
-        Self { capacity, buffer: VecDeque::with_capacity(capacity) }
+        Self {
+            capacity,
+            buffer: VecDeque::with_capacity(capacity),
+        }
     }
 
     pub fn push(&mut self, item: String) {
@@ -19,7 +22,12 @@ impl WorkingMemory {
     }
 
     pub fn peek_recent(&self, n: usize) -> Vec<&str> {
-        self.buffer.iter().rev().take(n).map(|s| s.as_str()).collect()
+        self.buffer
+            .iter()
+            .rev()
+            .take(n)
+            .map(|s| s.as_str())
+            .collect()
     }
 
     pub fn clear(&mut self) {

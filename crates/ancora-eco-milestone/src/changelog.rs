@@ -24,18 +24,58 @@ impl ChangelogEntry {
         category: ChangeCategory,
         message: &'static str,
     ) -> Self {
-        Self { version, date, category, message }
+        Self {
+            version,
+            date,
+            category,
+            message,
+        }
     }
 }
 
 pub fn changelog_entries() -> Vec<ChangelogEntry> {
     vec![
-        ChangelogEntry::new("0.6.0", "2026-06-29", ChangeCategory::Added, "Ecosystem milestone: plugin catalog, registry, sample apps, ITK"),
-        ChangelogEntry::new("0.6.0", "2026-06-29", ChangeCategory::Added, "Plugin hot-reload support"),
-        ChangelogEntry::new("0.6.0", "2026-06-29", ChangeCategory::Added, "gRPC streaming transport"),
-        ChangelogEntry::new("0.6.0", "2026-06-29", ChangeCategory::Changed, "PluginCtx::invoke renamed to PluginCtx::call"),
-        ChangelogEntry::new("0.6.0", "2026-06-29", ChangeCategory::Fixed, "Catalog search pagination off-by-one"),
-        ChangelogEntry::new("0.6.0", "2026-06-29", ChangeCategory::Performance, "Registry fetch latency reduced by 40%"),
-        ChangelogEntry::new("0.6.0", "2026-06-29", ChangeCategory::Security, "Plugin sandbox escapes via symlinks patched"),
+        ChangelogEntry::new(
+            "0.6.0",
+            "2026-06-29",
+            ChangeCategory::Added,
+            "Ecosystem milestone: plugin catalog, registry, sample apps, ITK",
+        ),
+        ChangelogEntry::new(
+            "0.6.0",
+            "2026-06-29",
+            ChangeCategory::Added,
+            "Plugin hot-reload support",
+        ),
+        ChangelogEntry::new(
+            "0.6.0",
+            "2026-06-29",
+            ChangeCategory::Added,
+            "gRPC streaming transport",
+        ),
+        ChangelogEntry::new(
+            "0.6.0",
+            "2026-06-29",
+            ChangeCategory::Changed,
+            "PluginCtx::invoke renamed to PluginCtx::call",
+        ),
+        ChangelogEntry::new(
+            "0.6.0",
+            "2026-06-29",
+            ChangeCategory::Fixed,
+            "Catalog search pagination off-by-one",
+        ),
+        ChangelogEntry::new(
+            "0.6.0",
+            "2026-06-29",
+            ChangeCategory::Performance,
+            "Registry fetch latency reduced by 40%",
+        ),
+        ChangelogEntry::new(
+            "0.6.0",
+            "2026-06-29",
+            ChangeCategory::Security,
+            "Plugin sandbox escapes via symlinks patched",
+        ),
     ]
 }

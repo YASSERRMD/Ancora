@@ -22,7 +22,10 @@ fn openrouter_default_is_llama3() {
 
 #[test]
 fn openrouter_mistral_binding_resolves() {
-    assert_eq!(openrouter_router().resolve("mistral-node", None), OR_MISTRAL);
+    assert_eq!(
+        openrouter_router().resolve("mistral-node", None),
+        OR_MISTRAL
+    );
 }
 
 #[test]
@@ -43,7 +46,10 @@ fn openrouter_unbound_falls_back_to_default() {
 #[test]
 fn openrouter_model_strings_have_prefix() {
     for m in [OR_LLAMA3, OR_MISTRAL, OR_CLAUDE, OR_GEMINI] {
-        assert!(m.starts_with("openrouter/"), "Expected openrouter/ prefix in {m}");
+        assert!(
+            m.starts_with("openrouter/"),
+            "Expected openrouter/ prefix in {m}"
+        );
     }
 }
 

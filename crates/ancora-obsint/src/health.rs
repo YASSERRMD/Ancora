@@ -1,5 +1,4 @@
 /// Exporter health checks: polls each backend and reports readiness status.
-
 use crate::selection::ExporterBackend;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -100,12 +99,18 @@ impl HealthChecker {
         if latency_ms >= self.unhealthy_threshold_ms {
             ExporterHealthReport::unhealthy(
                 backend,
-                format!("latency {}ms exceeds unhealthy threshold {}ms", latency_ms, self.unhealthy_threshold_ms),
+                format!(
+                    "latency {}ms exceeds unhealthy threshold {}ms",
+                    latency_ms, self.unhealthy_threshold_ms
+                ),
             )
         } else if latency_ms >= self.degraded_threshold_ms {
             ExporterHealthReport::degraded(
                 backend,
-                format!("latency {}ms exceeds degraded threshold {}ms", latency_ms, self.degraded_threshold_ms),
+                format!(
+                    "latency {}ms exceeds degraded threshold {}ms",
+                    latency_ms, self.degraded_threshold_ms
+                ),
                 latency_ms,
             )
         } else {

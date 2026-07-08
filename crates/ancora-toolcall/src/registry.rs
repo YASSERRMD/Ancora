@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::schema::ToolDef;
 use crate::error::ToolError;
+use crate::schema::ToolDef;
+use std::collections::HashMap;
 
 pub struct ToolRegistry {
     tools: HashMap<String, ToolDef>,
@@ -8,7 +8,9 @@ pub struct ToolRegistry {
 
 impl ToolRegistry {
     pub fn new() -> Self {
-        Self { tools: HashMap::new() }
+        Self {
+            tools: HashMap::new(),
+        }
     }
 
     pub fn register(&mut self, def: ToolDef) {
@@ -28,7 +30,9 @@ impl ToolRegistry {
     }
 
     pub fn validate_call(&self, tool_name: &str) -> Result<&ToolDef, ToolError> {
-        self.get(tool_name).ok_or_else(|| ToolError::UnknownTool { name: tool_name.to_string() })
+        self.get(tool_name).ok_or_else(|| ToolError::UnknownTool {
+            name: tool_name.to_string(),
+        })
     }
 }
 

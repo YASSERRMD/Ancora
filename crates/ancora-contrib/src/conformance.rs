@@ -1,7 +1,7 @@
-/// ancora-contrib: conformance harness
-///
-/// Provides a lightweight, offline conformance test framework that any
-/// contribution can use to verify it meets the SDK contract.
+//! ancora-contrib: conformance harness
+//!
+//! Provides a lightweight, offline conformance test framework that any
+//! contribution can use to verify it meets the SDK contract.
 
 /// A single conformance check.
 pub struct Check {
@@ -118,7 +118,10 @@ pub struct ConformanceSuite {
 
 impl ConformanceSuite {
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), checks: Vec::new() }
+        Self {
+            name: name.into(),
+            checks: Vec::new(),
+        }
     }
 
     /// Register a check.
@@ -133,7 +136,10 @@ impl ConformanceSuite {
             .iter()
             .map(|c| (c.name.clone(), (c.run)()))
             .collect();
-        SuiteReport { suite_name: self.name.clone(), results }
+        SuiteReport {
+            suite_name: self.name.clone(),
+            results,
+        }
     }
 }
 
@@ -198,7 +204,10 @@ where
                 };
                 let req = GenerateRequest {
                     model,
-                    messages: vec![Message { role: Role::User, content: "hello".to_string() }],
+                    messages: vec![Message {
+                        role: Role::User,
+                        content: "hello".to_string(),
+                    }],
                     max_tokens: Some(16),
                     temperature: Some(0.0),
                 };
@@ -245,8 +254,7 @@ where
             "score_in_range",
             "grade() score must be in [0.0, 1.0]",
             move || {
-                let input = GradeInput::new("What is 2+2?", "4")
-                    .with_reference("4");
+                let input = GradeInput::new("What is 2+2?", "4").with_reference("4");
                 match g.grade(&input) {
                     Ok(result) => {
                         if result.score >= 0.0 && result.score <= 1.0 {

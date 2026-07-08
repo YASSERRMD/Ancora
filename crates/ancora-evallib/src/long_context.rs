@@ -59,12 +59,16 @@ pub struct LocalContextRetriever;
 impl LocalContextRetriever {
     /// Extract the first section that contains a keyword from the question.
     pub fn extract(&self, doc: &LongDocument, question: &str) -> Option<String> {
-        let keywords: Vec<&str> = question.split_whitespace()
+        let keywords: Vec<&str> = question
+            .split_whitespace()
             .filter(|w| w.len() > 3)
             .collect();
         for section in &doc.sections {
             let section_lower = section.to_lowercase();
-            if keywords.iter().any(|kw| section_lower.contains(&kw.to_lowercase())) {
+            if keywords
+                .iter()
+                .any(|kw| section_lower.contains(&kw.to_lowercase()))
+            {
                 return Some(section.clone());
             }
         }
@@ -81,7 +85,12 @@ impl LongContextSuite {
     /// Build the default catalog with simulated long documents.
     pub fn default_catalog() -> Self {
         let filler: Vec<String> = (0..20)
-            .map(|i| format!("Section {}: This is filler content to simulate a large document.", i))
+            .map(|i| {
+                format!(
+                    "Section {}: This is filler content to simulate a large document.",
+                    i
+                )
+            })
             .collect();
 
         let mut sections_a = filler.clone();

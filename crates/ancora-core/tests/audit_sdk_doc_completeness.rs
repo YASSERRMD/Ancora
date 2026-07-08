@@ -43,7 +43,10 @@ fn test_all_sdk_page_paths_formatted_correctly() {
     for sdk in SDKS {
         for page in SDK_REQUIRED_PAGES {
             let path = sdk_page(sdk, page);
-            assert!(path.starts_with("sdk/"), "path should start with sdk/: {path}");
+            assert!(
+                path.starts_with("sdk/"),
+                "path should start with sdk/: {path}"
+            );
             assert!(path.ends_with(".md"), "path should end with .md: {path}");
         }
     }

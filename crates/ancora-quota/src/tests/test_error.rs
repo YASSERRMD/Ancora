@@ -4,14 +4,21 @@ mod tests {
 
     #[test]
     fn hard_limit_is_blocking() {
-        let err = QuotaError::HardLimitExceeded { tenant: "t".into(), retry_after_secs: 30 };
+        let err = QuotaError::HardLimitExceeded {
+            tenant: "t".into(),
+            retry_after_secs: 30,
+        };
         assert!(err.is_blocking());
         assert_eq!(err.retry_after_secs(), Some(30));
     }
 
     #[test]
     fn soft_limit_is_non_blocking() {
-        let err = QuotaError::SoftLimitWarning { tenant: "t".into(), metric: "requests".into(), pct: 85.0 };
+        let err = QuotaError::SoftLimitWarning {
+            tenant: "t".into(),
+            metric: "requests".into(),
+            pct: 85.0,
+        };
         assert!(!err.is_blocking());
         assert_eq!(err.retry_after_secs(), None);
     }

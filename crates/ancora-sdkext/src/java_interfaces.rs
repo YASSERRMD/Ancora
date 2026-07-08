@@ -3,7 +3,6 @@
 /// Java extensions reach Ancora via a JNI bridge layer.  This module documents
 /// and validates the JNI contract from the Rust side, and provides an adapter
 /// that presents a Java extension as a Rust `ToolExtension`.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
@@ -94,10 +93,7 @@ pub fn canonical_java_interface() -> JavaInterfaceDescriptor {
                 name: "execute".to_string(),
                 params: vec![(
                     "args".to_string(),
-                    JavaType::Map(
-                        Box::new(JavaType::String),
-                        Box::new(JavaType::Object),
-                    ),
+                    JavaType::Map(Box::new(JavaType::String), Box::new(JavaType::Object)),
                 )],
                 return_type: JavaType::Object,
             },
@@ -114,12 +110,13 @@ pub fn canonical_java_interface() -> JavaInterfaceDescriptor {
 // Java extension adapter
 // ---------------------------------------------------------------------------
 
+type ExecuteFn = Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>;
+
 /// Adapter that wraps a Java extension (via JNI) and presents it as a Rust
 /// `ToolExtension`.
 pub struct JavaExtensionAdapter {
     meta: ToolMeta,
-    execute_fn:
-        Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
+    execute_fn: ExecuteFn,
 }
 
 impl JavaExtensionAdapter {
@@ -167,9 +164,7 @@ pub fn rust_value_to_java_type(value: &Value) -> JavaType {
         Value::Float(_) => JavaType::Double,
         Value::Bool(_) => JavaType::Boolean,
         Value::Array(_) => JavaType::List(Box::new(JavaType::Object)),
-        Value::Map(_) => {
-            JavaType::Map(Box::new(JavaType::String), Box::new(JavaType::Object))
-        }
+        Value::Map(_) => JavaType::Map(Box::new(JavaType::String), Box::new(JavaType::Object)),
         Value::Null => JavaType::Object,
     }
 }

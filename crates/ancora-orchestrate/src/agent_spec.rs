@@ -52,7 +52,12 @@ pub struct AgentTask {
 
 impl AgentTask {
     pub fn new(task_id: &str, agent_id: &str, input: Value) -> Self {
-        Self { task_id: task_id.to_string(), agent_id: agent_id.to_string(), input, parent_task_id: None }
+        Self {
+            task_id: task_id.to_string(),
+            agent_id: agent_id.to_string(),
+            input,
+            parent_task_id: None,
+        }
     }
 
     pub fn with_parent(mut self, parent: &str) -> Self {

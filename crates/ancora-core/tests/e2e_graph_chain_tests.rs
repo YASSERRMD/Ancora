@@ -35,11 +35,14 @@ fn agent_node(id: &str) -> Node {
 
 fn linear_chain_graph(node_ids: &[&str]) -> Graph {
     let nodes: Vec<Node> = node_ids.iter().map(|id| agent_node(id)).collect();
-    let edges: Vec<Edge> = node_ids.windows(2).map(|w| Edge {
-        from: w[0].to_owned(),
-        to: w[1].to_owned(),
-        condition: None,
-    }).collect();
+    let edges: Vec<Edge> = node_ids
+        .windows(2)
+        .map(|w| Edge {
+            from: w[0].to_owned(),
+            to: w[1].to_owned(),
+            condition: None,
+        })
+        .collect();
     Graph {
         id: "chain-graph".into(),
         nodes,
@@ -106,7 +109,9 @@ fn chain_journal(run_id: &str, node_ids: &[&str]) -> Vec<JournalEvent> {
         run_id: run_id.to_owned(),
         seq,
         recorded_at_ns: (seq * 1_000_000) as i64,
-        event: Some(Event::RunCompleted(RunCompletedEvent { output_json: "{}".into() })),
+        event: Some(Event::RunCompleted(RunCompletedEvent {
+            output_json: "{}".into(),
+        })),
     });
 
     events
@@ -170,8 +175,16 @@ fn branching_graph_with_two_successors_validates() {
         id: "branch-graph".into(),
         nodes: vec![agent_node("root"), agent_node("left"), agent_node("right")],
         edges: vec![
-            Edge { from: "root".into(), to: "left".into(), condition: Some("branch=left".into()) },
-            Edge { from: "root".into(), to: "right".into(), condition: Some("branch=right".into()) },
+            Edge {
+                from: "root".into(),
+                to: "left".into(),
+                condition: Some("branch=left".into()),
+            },
+            Edge {
+                from: "root".into(),
+                to: "right".into(),
+                condition: Some("branch=right".into()),
+            },
         ],
         entry_node: "root".into(),
     };

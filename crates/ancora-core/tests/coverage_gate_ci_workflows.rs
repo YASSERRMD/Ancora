@@ -22,7 +22,10 @@ fn test_five_phase_ci_workflows_exist() {
 #[test]
 fn test_all_workflow_names_end_with_yml() {
     for name in EXPECTED_CI_WORKFLOWS {
-        assert!(name.ends_with(".yml"), "workflow file should end with .yml: {name}");
+        assert!(
+            name.ends_with(".yml"),
+            "workflow file should end with .yml: {name}"
+        );
     }
 }
 

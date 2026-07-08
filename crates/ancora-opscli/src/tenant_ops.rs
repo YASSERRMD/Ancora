@@ -2,7 +2,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum TenantState { Active, Suspended }
+pub enum TenantState {
+    Active,
+    Suspended,
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TenantEntry {
@@ -18,7 +21,13 @@ pub struct TenantOps {
 impl TenantOps {
     pub fn create(&mut self, tenant_id: impl Into<String>) {
         let id: String = tenant_id.into();
-        self.tenants.insert(id.clone(), TenantEntry { tenant_id: id, state: TenantState::Active });
+        self.tenants.insert(
+            id.clone(),
+            TenantEntry {
+                tenant_id: id,
+                state: TenantState::Active,
+            },
+        );
     }
 
     pub fn suspend(&mut self, tenant_id: &str) -> bool {

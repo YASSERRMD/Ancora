@@ -7,7 +7,6 @@
 /// Requires the `milvus` feature: `ancora-memory = { features = ["milvus"] }`.
 ///
 /// Integration tests require `MILVUS_URL` in the environment.
-
 use serde_json::{json, Value};
 
 // ---- connection config ---------------------------------------------------
@@ -27,15 +26,22 @@ pub struct MilvusConfig {
 
 impl MilvusConfig {
     pub fn new(url: impl Into<String>) -> Self {
-        Self { url: url.into(), api_key: None, database: "default".to_owned(), timeout_secs: 30 }
+        Self {
+            url: url.into(),
+            api_key: None,
+            database: "default".to_owned(),
+            timeout_secs: 30,
+        }
     }
 
     pub fn with_api_key(mut self, key: impl Into<String>) -> Self {
-        self.api_key = Some(key.into()); self
+        self.api_key = Some(key.into());
+        self
     }
 
     pub fn with_database(mut self, db: impl Into<String>) -> Self {
-        self.database = db.into(); self
+        self.database = db.into();
+        self
     }
 
     /// Returns `Authorization: Bearer <key>` header value, if set.
@@ -44,31 +50,73 @@ impl MilvusConfig {
     }
 
     /// Returns a config pointed at `http://localhost:19530` with the default database.
-    pub fn local() -> Self { Self::new("http://localhost:19530") }
+    pub fn local() -> Self {
+        Self::new("http://localhost:19530")
+    }
 }
 
 // ---- URL builders --------------------------------------------------------
 
-pub fn collections_url(base: &str) -> String { format!("{base}/v2/vectordb/collections") }
-pub fn collection_load_url(base: &str) -> String { format!("{base}/v2/vectordb/collections/load") }
-pub fn collection_release_url(base: &str) -> String { format!("{base}/v2/vectordb/collections/release") }
-pub fn collection_describe_url(base: &str) -> String { format!("{base}/v2/vectordb/collections/describe") }
-pub fn collection_stats_url(base: &str) -> String { format!("{base}/v2/vectordb/collections/get_stats") }
-pub fn collection_drop_url(base: &str) -> String { format!("{base}/v2/vectordb/collections/drop") }
-pub fn entities_insert_url(base: &str) -> String { format!("{base}/v2/vectordb/entities/insert") }
-pub fn entities_upsert_url(base: &str) -> String { format!("{base}/v2/vectordb/entities/upsert") }
-pub fn entities_delete_url(base: &str) -> String { format!("{base}/v2/vectordb/entities/delete") }
-pub fn entities_query_url(base: &str) -> String { format!("{base}/v2/vectordb/entities/query") }
-pub fn entities_search_url(base: &str) -> String { format!("{base}/v2/vectordb/entities/search") }
-pub fn entities_hybrid_url(base: &str) -> String { format!("{base}/v2/vectordb/entities/hybrid_search") }
-pub fn partitions_url(base: &str) -> String { format!("{base}/v2/vectordb/partitions") }
-pub fn partition_load_url(base: &str) -> String { format!("{base}/v2/vectordb/partitions/load") }
-pub fn partition_release_url(base: &str) -> String { format!("{base}/v2/vectordb/partitions/release") }
-pub fn indexes_url(base: &str) -> String { format!("{base}/v2/vectordb/indexes") }
-pub fn index_drop_url(base: &str) -> String { format!("{base}/v2/vectordb/indexes/drop") }
-pub fn aliases_url(base: &str) -> String { format!("{base}/v2/vectordb/aliases") }
-pub fn alias_drop_url(base: &str) -> String { format!("{base}/v2/vectordb/aliases/drop") }
-pub fn health_url(base: &str) -> String { format!("{base}/healthz") }
+pub fn collections_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/collections")
+}
+pub fn collection_load_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/collections/load")
+}
+pub fn collection_release_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/collections/release")
+}
+pub fn collection_describe_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/collections/describe")
+}
+pub fn collection_stats_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/collections/get_stats")
+}
+pub fn collection_drop_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/collections/drop")
+}
+pub fn entities_insert_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/entities/insert")
+}
+pub fn entities_upsert_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/entities/upsert")
+}
+pub fn entities_delete_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/entities/delete")
+}
+pub fn entities_query_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/entities/query")
+}
+pub fn entities_search_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/entities/search")
+}
+pub fn entities_hybrid_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/entities/hybrid_search")
+}
+pub fn partitions_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/partitions")
+}
+pub fn partition_load_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/partitions/load")
+}
+pub fn partition_release_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/partitions/release")
+}
+pub fn indexes_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/indexes")
+}
+pub fn index_drop_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/indexes/drop")
+}
+pub fn aliases_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/aliases")
+}
+pub fn alias_drop_url(base: &str) -> String {
+    format!("{base}/v2/vectordb/aliases/drop")
+}
+pub fn health_url(base: &str) -> String {
+    format!("{base}/healthz")
+}
 
 // ---- field-type constants ------------------------------------------------
 
@@ -141,11 +189,7 @@ pub fn collection_schema(
 }
 
 /// Build a create-collection request body.
-pub fn create_collection_body(
-    collection: &str,
-    dims: usize,
-    metric: &str,
-) -> Value {
+pub fn create_collection_body(collection: &str, dims: usize, metric: &str) -> Value {
     collection_schema(collection, dims, metric, &[])
 }
 
@@ -223,10 +267,7 @@ pub fn drop_collection_body(collection: &str) -> Value {
 // ---- insert / upsert -----------------------------------------------------
 
 /// Build an insert request body from a list of `(embedding, payload_json)` pairs.
-pub fn insert_entities_body(
-    collection: &str,
-    entities: &[(Vec<f32>, Value)],
-) -> Value {
+pub fn insert_entities_body(collection: &str, entities: &[(Vec<f32>, Value)]) -> Value {
     let data: Vec<Value> = entities
         .iter()
         .map(|(embedding, payload)| json!({ "embedding": embedding, "payload": payload.to_string() }))
@@ -382,7 +423,13 @@ pub fn delete_by_expr_body(collection: &str, filter_expr: &str) -> Value {
 }
 
 pub fn delete_by_ids_body(collection: &str, ids: &[i64]) -> Value {
-    let expr = format!("id in [{}]", ids.iter().map(|id| id.to_string()).collect::<Vec<_>>().join(","));
+    let expr = format!(
+        "id in [{}]",
+        ids.iter()
+            .map(|id| id.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    );
     json!({ "collectionName": collection, "filter": expr })
 }
 
@@ -502,7 +549,11 @@ pub fn expr_lt(field: &str, value: i64) -> String {
 
 /// `field in [v1, v2, ...]` expression for integers.
 pub fn expr_in_ints(field: &str, values: &[i64]) -> String {
-    let list = values.iter().map(|v| v.to_string()).collect::<Vec<_>>().join(", ");
+    let list = values
+        .iter()
+        .map(|v| v.to_string())
+        .collect::<Vec<_>>()
+        .join(", ");
     format!("{field} in [{list}]")
 }
 
@@ -549,7 +600,8 @@ pub fn parse_search_results(body: &Value) -> Vec<(i64, f32, Value)> {
         .map(|hit| {
             let id = hit["id"].as_i64().unwrap_or(0);
             let score = hit["distance"].as_f64().unwrap_or(0.0) as f32;
-            let payload = hit["payload"].as_str()
+            let payload = hit["payload"]
+                .as_str()
                 .and_then(|s| serde_json::from_str(s).ok())
                 .unwrap_or(json!({}));
             (id, score, payload)
@@ -565,7 +617,8 @@ pub fn parse_query_results(body: &Value) -> Vec<(i64, Value)> {
         .iter()
         .map(|row| {
             let id = row["id"].as_i64().unwrap_or(0);
-            let payload = row["payload"].as_str()
+            let payload = row["payload"]
+                .as_str()
                 .and_then(|s| serde_json::from_str(s).ok())
                 .unwrap_or(json!({}));
             (id, payload)
@@ -685,7 +738,7 @@ pub fn alter_alias_body(collection: &str, alias: &str) -> Value {
 /// Milvus recommends nlist in the range [sqrt(N), 4*sqrt(N)].
 pub fn recommended_nlist(expected_rows: u64) -> u32 {
     let sqrt = (expected_rows as f64).sqrt() as u32;
-    sqrt.max(1).min(65536)
+    sqrt.clamp(1, 65536)
 }
 
 /// Returns a rough capacity guideline string for a collection.
@@ -693,18 +746,13 @@ pub fn sizing_guidance(dims: usize, expected_rows: u64) -> String {
     let bytes_per_vector = dims * 4; // f32
     let raw_mb = (expected_rows as usize * bytes_per_vector) / (1024 * 1024);
     let nlist = recommended_nlist(expected_rows);
-    format!(
-        "dims={dims} rows={expected_rows} raw_vector_mb={raw_mb} recommended_nlist={nlist}"
-    )
+    format!("dims={dims} rows={expected_rows} raw_vector_mb={raw_mb} recommended_nlist={nlist}")
 }
 
 // ---- upsert request body ------------------------------------------------
 
 /// Build an upsert request body (insert-or-replace semantics).
-pub fn upsert_entities_body(
-    collection: &str,
-    entities: &[(i64, Vec<f32>, Value)],
-) -> Value {
+pub fn upsert_entities_body(collection: &str, entities: &[(i64, Vec<f32>, Value)]) -> Value {
     let data: Vec<Value> = entities
         .iter()
         .map(|(id, embedding, payload)| {
@@ -747,8 +795,14 @@ mod milvus_tests {
     #[test]
     fn url_builders_produce_expected_paths() {
         let base = "http://localhost:19530";
-        assert_eq!(collections_url(base), "http://localhost:19530/v2/vectordb/collections");
-        assert_eq!(entities_search_url(base), "http://localhost:19530/v2/vectordb/entities/search");
+        assert_eq!(
+            collections_url(base),
+            "http://localhost:19530/v2/vectordb/collections"
+        );
+        assert_eq!(
+            entities_search_url(base),
+            "http://localhost:19530/v2/vectordb/entities/search"
+        );
         assert_eq!(health_url(base), "http://localhost:19530/healthz");
     }
 
@@ -791,7 +845,10 @@ mod milvus_tests {
 
     #[test]
     fn batch_insert_body_passes_entities_through() {
-        let data = vec![json!({"embedding": [0.1f32]}), json!({"embedding": [0.2f32]})];
+        let data = vec![
+            json!({"embedding": [0.1f32]}),
+            json!({"embedding": [0.2f32]}),
+        ];
         let body = batch_insert_body("docs", data);
         assert_eq!(body["data"].as_array().unwrap().len(), 2);
     }
@@ -806,7 +863,12 @@ mod milvus_tests {
     #[test]
     fn search_with_filter_body_sets_filter() {
         let body = search_with_filter_body(
-            "docs", &[0.1f32], 3, metric_type::L2, "score > 5", &["payload"]
+            "docs",
+            &[0.1f32],
+            3,
+            metric_type::L2,
+            "score > 5",
+            &["payload"],
         );
         assert_eq!(body["filter"], "score > 5");
     }
@@ -821,13 +883,20 @@ mod milvus_tests {
     fn search_partition_body_names_partition() {
         let body = search_partition_body("docs", "tenant_a", &[0.1f32], 10, metric_type::COSINE);
         let parts = body["partitionNames"].as_array().unwrap();
-        assert!(parts.iter().any(|p| p == "tenant_a"), "partitionNames must include tenant_a");
+        assert!(
+            parts.iter().any(|p| p == "tenant_a"),
+            "partitionNames must include tenant_a"
+        );
     }
 
     #[test]
     fn search_with_consistency_sets_level() {
         let body = search_with_consistency_body(
-            "docs", &[0.1f32], 5, metric_type::COSINE, consistency::STRONG
+            "docs",
+            &[0.1f32],
+            5,
+            metric_type::COSINE,
+            consistency::STRONG,
         );
         assert_eq!(body["consistencyLevel"], consistency::STRONG);
     }

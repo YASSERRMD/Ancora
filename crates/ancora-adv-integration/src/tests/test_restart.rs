@@ -1,5 +1,5 @@
-use ancora_lh::{BackgroundRun, Checkpoint};
 use ancora_coord::CoordJournal;
+use ancora_lh::{BackgroundRun, Checkpoint};
 
 #[test]
 fn combined_runs_survive_restart() {

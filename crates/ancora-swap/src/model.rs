@@ -3,12 +3,13 @@
 /// A `ModelHandle` represents a loaded model that can be referenced by
 /// in-flight runs. Handles are reference-counted so memory is only reclaimed
 /// once all runs that pinned a particular version have finished.
-
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::Arc;
 
 /// Unique, monotonically-increasing model version identifier.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+)]
 pub struct ModelVersion(pub u64);
 
 impl ModelVersion {
@@ -88,7 +89,9 @@ impl ModelHandle {
             return None;
         }
         self.0.pin_count.fetch_add(1, Ordering::SeqCst);
-        Some(ModelPin { handle: self.clone() })
+        Some(ModelPin {
+            handle: self.clone(),
+        })
     }
 
     /// Current number of active pins.

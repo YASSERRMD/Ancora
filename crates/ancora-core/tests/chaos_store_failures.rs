@@ -53,7 +53,9 @@ struct SimpleActivity {
 }
 
 impl ancora_core::activity::Activity for SimpleActivity {
-    fn key(&self) -> String { self.key.clone() }
+    fn key(&self) -> String {
+        self.key.clone()
+    }
     fn execute(&self) -> Result<String, AncoraError> {
         self.counter.fetch_add(1, Ordering::SeqCst);
         Ok(r#"{"ok":true}"#.into())
@@ -67,7 +69,10 @@ fn record_activity(
     key: &str,
 ) -> Result<String, AncoraError> {
     use ancora_core::idempotency::{write_once, WriteActivity};
-    let act = SimpleActivity { key: key.into(), counter: Arc::clone(counter) };
+    let act = SimpleActivity {
+        key: key.into(),
+        counter: Arc::clone(counter),
+    };
     let wa = WriteActivity::new(&act).unwrap();
     write_once(run_id, wa, store)
 }
@@ -87,7 +92,10 @@ fn store_failure_on_append_returns_error_without_corruption() {
 
     // Existing events are intact (none were written during the failure).
     let events = store.read(run_id).unwrap();
-    assert!(events.is_empty(), "no event should be stored after append failure");
+    assert!(
+        events.is_empty(),
+        "no event should be stored after append failure"
+    );
 }
 
 #[test]
@@ -158,5 +166,8 @@ fn read_always_succeeds_even_during_append_failures() {
 
     // Read must always succeed regardless of append failures.
     let events = store.read(run_id).unwrap();
-    assert!(events.is_empty(), "no events stored when all appends failed");
+    assert!(
+        events.is_empty(),
+        "no events stored when all appends failed"
+    );
 }

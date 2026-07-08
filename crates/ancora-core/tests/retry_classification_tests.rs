@@ -14,7 +14,10 @@ fn default_policy(max: u32) -> RetryPolicy {
 
 #[test]
 fn model_http_error_is_retryable() {
-    let err = AncoraError::ModelHttp { status: 503, body: "overloaded".into() };
+    let err = AncoraError::ModelHttp {
+        status: 503,
+        body: "overloaded".into(),
+    };
     assert_eq!(classify(&err), ErrorClass::Retryable);
 }
 
@@ -38,7 +41,10 @@ fn storage_error_is_retryable() {
 
 #[test]
 fn tool_failed_is_retryable() {
-    let err = AncoraError::ToolFailed { name: "search".into(), message: "timeout".into() };
+    let err = AncoraError::ToolFailed {
+        name: "search".into(),
+        message: "timeout".into(),
+    };
     assert_eq!(classify(&err), ErrorClass::Retryable);
 }
 
@@ -128,7 +134,10 @@ fn exhausted_after_max_attempts() {
         |_| Err::<(), _>(AncoraError::ModelUnreachable("always fail".into())),
         |_| {},
     );
-    assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 3, .. }));
+    assert!(matches!(
+        outcome,
+        RetryOutcome::Exhausted { attempts: 3, .. }
+    ));
 }
 
 #[test]
@@ -140,5 +149,8 @@ fn sleep_fn_called_between_retries() {
         |_| Err::<(), _>(AncoraError::ModelUnreachable("fail".into())),
         |_| sleeps += 1,
     );
-    assert_eq!(sleeps, 2, "sleep must be called between attempts 1-2 and 2-3");
+    assert_eq!(
+        sleeps, 2,
+        "sleep must be called between attempts 1-2 and 2-3"
+    );
 }

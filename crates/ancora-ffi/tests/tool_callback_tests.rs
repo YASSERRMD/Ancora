@@ -8,7 +8,7 @@ use ancora_ffi::tool_ops::{
 
 fn make_rt() -> *mut ancora_ffi::handles::AncorRuntime {
     let mut rt = std::ptr::null_mut();
-    ancora_runtime_new(&mut rt);
+    unsafe { ancora_runtime_new(&mut rt) };
     rt
 }
 
@@ -31,53 +31,57 @@ unsafe extern "C" fn echo_cb(
 fn register_tool_count_is_one() {
     let rt = make_rt();
     let name = cstr("echo");
-    let code = ancora_tool_register(rt, name.as_ptr(), echo_cb);
+    let code = unsafe { ancora_tool_register(rt, name.as_ptr(), echo_cb) };
     assert_eq!(code, AncorErrorCode::Ok);
-    assert_eq!(ancora_tool_count(rt), 1);
-    ancora_free_runtime(rt);
+    assert_eq!(unsafe { ancora_tool_count(rt) }, 1);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
 fn tool_exists_returns_one_after_register() {
     let rt = make_rt();
     let name = cstr("echo");
-    ancora_tool_register(rt, name.as_ptr(), echo_cb);
-    assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 1);
-    ancora_free_runtime(rt);
+    unsafe { ancora_tool_register(rt, name.as_ptr(), echo_cb) };
+    assert_eq!(unsafe { ancora_tool_exists(rt, name.as_ptr()) }, 1);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
 fn tool_exists_returns_zero_for_unknown() {
     let rt = make_rt();
     let name = cstr("unknown");
-    assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 0);
-    ancora_free_runtime(rt);
+    assert_eq!(unsafe { ancora_tool_exists(rt, name.as_ptr()) }, 0);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
 fn unregister_tool_count_drops_to_zero() {
     let rt = make_rt();
     let name = cstr("echo");
-    ancora_tool_register(rt, name.as_ptr(), echo_cb);
-    assert_eq!(ancora_tool_count(rt), 1);
-    ancora_tool_unregister(rt, name.as_ptr());
-    assert_eq!(ancora_tool_count(rt), 0);
-    ancora_free_runtime(rt);
+    unsafe { ancora_tool_register(rt, name.as_ptr(), echo_cb) };
+    assert_eq!(unsafe { ancora_tool_count(rt) }, 1);
+    unsafe { ancora_tool_unregister(rt, name.as_ptr()) };
+    assert_eq!(unsafe { ancora_tool_count(rt) }, 0);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
 fn invoke_echo_tool_returns_input() {
     let rt = make_rt();
     let name = cstr("echo");
-    ancora_tool_register(rt, name.as_ptr(), echo_cb);
+    unsafe { ancora_tool_register(rt, name.as_ptr(), echo_cb) };
     let input = b"hello";
-    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
-    let code = ancora_tool_invoke(rt, name.as_ptr(), input.as_ptr(), input.len(), &mut out);
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    let code =
+        unsafe { ancora_tool_invoke(rt, name.as_ptr(), input.as_ptr(), input.len(), &mut out) };
     assert_eq!(code, AncorErrorCode::Ok);
     let slice = unsafe { std::slice::from_raw_parts(out.ptr, out.len) };
     assert_eq!(slice, b"hello");
-    ancora_buffer_free(out);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(out) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -85,24 +89,28 @@ fn invoke_unknown_tool_returns_internal_error() {
     let rt = make_rt();
     let name = cstr("nope");
     let input = b"x";
-    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
-    let code = ancora_tool_invoke(rt, name.as_ptr(), input.as_ptr(), input.len(), &mut out);
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    let code =
+        unsafe { ancora_tool_invoke(rt, name.as_ptr(), input.as_ptr(), input.len(), &mut out) };
     assert_eq!(code, AncorErrorCode::Internal);
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
 fn register_with_null_rt_returns_null_ptr() {
     let name = cstr("echo");
-    let code = ancora_tool_register(std::ptr::null_mut(), name.as_ptr(), echo_cb);
+    let code = unsafe { ancora_tool_register(std::ptr::null_mut(), name.as_ptr(), echo_cb) };
     assert_eq!(code, AncorErrorCode::NullPtr);
 }
 
 #[test]
 fn tool_count_zero_on_fresh_runtime() {
     let rt = make_rt();
-    assert_eq!(ancora_tool_count(rt), 0);
-    ancora_free_runtime(rt);
+    assert_eq!(unsafe { ancora_tool_count(rt) }, 0);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -110,18 +118,18 @@ fn register_two_tools_count_is_two() {
     let rt = make_rt();
     let n1 = cstr("echo");
     let n2 = cstr("ping");
-    ancora_tool_register(rt, n1.as_ptr(), echo_cb);
-    ancora_tool_register(rt, n2.as_ptr(), echo_cb);
-    assert_eq!(ancora_tool_count(rt), 2);
-    ancora_free_runtime(rt);
+    unsafe { ancora_tool_register(rt, n1.as_ptr(), echo_cb) };
+    unsafe { ancora_tool_register(rt, n2.as_ptr(), echo_cb) };
+    assert_eq!(unsafe { ancora_tool_count(rt) }, 2);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
 fn unregister_removes_tool_from_exists() {
     let rt = make_rt();
     let name = cstr("echo");
-    ancora_tool_register(rt, name.as_ptr(), echo_cb);
-    ancora_tool_unregister(rt, name.as_ptr());
-    assert_eq!(ancora_tool_exists(rt, name.as_ptr()), 0);
-    ancora_free_runtime(rt);
+    unsafe { ancora_tool_register(rt, name.as_ptr(), echo_cb) };
+    unsafe { ancora_tool_unregister(rt, name.as_ptr()) };
+    assert_eq!(unsafe { ancora_tool_exists(rt, name.as_ptr()) }, 0);
+    unsafe { ancora_free_runtime(rt) };
 }

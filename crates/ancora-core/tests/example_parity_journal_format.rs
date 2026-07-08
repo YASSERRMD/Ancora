@@ -1,13 +1,7 @@
 // Example parity: journal format is the same proto/JSON across all language outputs.
 
 const JOURNAL_FORMAT_VERSION: &str = "1";
-const JOURNAL_REQUIRED_FIELDS: &[&str] = &[
-    "event_id",
-    "seq",
-    "run_id",
-    "recorded_at_ns",
-    "kind",
-];
+const JOURNAL_REQUIRED_FIELDS: &[&str] = &["event_id", "seq", "run_id", "recorded_at_ns", "kind"];
 
 struct JournalSample {
     lang: &'static str,
@@ -15,12 +9,30 @@ struct JournalSample {
 }
 
 const JOURNAL_SAMPLES: &[JournalSample] = &[
-    JournalSample { lang: "rust",   json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"# },
-    JournalSample { lang: "go",     json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"# },
-    JournalSample { lang: "python", json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"# },
-    JournalSample { lang: "ts",     json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"# },
-    JournalSample { lang: "dotnet", json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"# },
-    JournalSample { lang: "java",   json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"# },
+    JournalSample {
+        lang: "rust",
+        json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"#,
+    },
+    JournalSample {
+        lang: "go",
+        json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"#,
+    },
+    JournalSample {
+        lang: "python",
+        json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"#,
+    },
+    JournalSample {
+        lang: "ts",
+        json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"#,
+    },
+    JournalSample {
+        lang: "dotnet",
+        json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"#,
+    },
+    JournalSample {
+        lang: "java",
+        json: r#"{"event_id":"e1","seq":0,"run_id":"r1","recorded_at_ns":1700000000000000000,"kind":"started"}"#,
+    },
 ];
 
 fn has_all_required_fields(json: &str) -> bool {
@@ -30,7 +42,11 @@ fn has_all_required_fields(json: &str) -> bool {
 #[test]
 fn test_all_journal_samples_have_required_fields() {
     for s in JOURNAL_SAMPLES {
-        assert!(has_all_required_fields(s.json), "lang {} journal missing required fields", s.lang);
+        assert!(
+            has_all_required_fields(s.json),
+            "lang {} journal missing required fields",
+            s.lang
+        );
     }
 }
 

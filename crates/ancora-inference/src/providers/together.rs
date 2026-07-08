@@ -8,7 +8,9 @@ pub fn build_together_profile() -> ProviderProfile {
     ProviderProfile::new(
         "together",
         "https://api.together.xyz",
-        AuthStrategy::BearerToken { env_var: "TOGETHER_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "TOGETHER_API_KEY".to_owned(),
+        },
     )
     // Llama 3 family
     .add_model(
@@ -52,7 +54,10 @@ pub fn build_together_profile() -> ProviderProfile {
             .with_streaming(),
     )
     // Aliases
-    .add_alias("llama3.1-70b", "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+    .add_alias(
+        "llama3.1-70b",
+        "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+    )
     .add_alias("llama3.1-8b", "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo")
     .add_alias("llama3-70b", "meta-llama/Llama-3-70b-chat-hf")
     .add_alias("mixtral", "mistralai/Mixtral-8x7B-Instruct-v0.1")
@@ -68,6 +73,7 @@ const TOGETHER_FIXTURE: &str = r#"{"id":"chatcmpl-together-01","choices":[{"mess
 const TOGETHER_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-together-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-01","type":"function","function":{"name":"get_weather","arguments":"{\"location\":\"London\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":15,"completion_tokens":10}}"#;
 
 #[cfg(test)]
+#[allow(dead_code)]
 const TOGETHER_STREAM_LINES: &[&str] = &[
     r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
     r#"data: {"choices":[{"delta":{"content":" Together"},"finish_reason":"stop"}]}"#,
@@ -85,7 +91,10 @@ mod tests {
 
     #[test]
     fn together_base_url_is_correct() {
-        assert_eq!(build_together_profile().base_url, "https://api.together.xyz");
+        assert_eq!(
+            build_together_profile().base_url,
+            "https://api.together.xyz"
+        );
     }
 
     #[test]
@@ -115,14 +124,18 @@ mod tests {
     #[test]
     fn together_llama3_70b_has_tools() {
         let p = build_together_profile();
-        let meta = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();
+        let meta = p
+            .model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .unwrap();
         assert!(meta.capabilities.tools);
     }
 
     #[test]
     fn together_mixtral_has_no_tools() {
         let p = build_together_profile();
-        let meta = p.model_meta("mistralai/Mixtral-8x7B-Instruct-v0.1").unwrap();
+        let meta = p
+            .model_meta("mistralai/Mixtral-8x7B-Instruct-v0.1")
+            .unwrap();
         assert!(!meta.capabilities.tools);
     }
 
@@ -147,7 +160,10 @@ mod tests {
     #[test]
     fn together_cost_summary_correct_for_llama3_70b() {
         let resp = together_client()
-            .parse_response(TOGETHER_FIXTURE, "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .parse_response(
+                TOGETHER_FIXTURE,
+                "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            )
             .unwrap();
         // 8 in * $0.88/M + 4 out * $0.88/M
         let expected = (8.0 + 4.0) * 0.88 / 1_000_000.0;
@@ -158,15 +174,21 @@ mod tests {
     #[test]
     fn together_llama_has_pricing() {
         let p = build_together_profile();
-        let m = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();
+        let m = p
+            .model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .unwrap();
         assert!(m.pricing.is_some());
     }
 
     #[test]
     fn together_llama_8b_cheaper_than_70b() {
         let p = build_together_profile();
-        let large = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();
-        let small = p.model_meta("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo").unwrap();
+        let large = p
+            .model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .unwrap();
+        let small = p
+            .model_meta("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo")
+            .unwrap();
         let lp = large.pricing.as_ref().unwrap();
         let sp = small.pricing.as_ref().unwrap();
         assert!(sp.input_per_million < lp.input_per_million);
@@ -175,7 +197,9 @@ mod tests {
     #[test]
     fn together_llama31_large_context() {
         let p = build_together_profile();
-        let m = p.model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo").unwrap();
+        let m = p
+            .model_meta("meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .unwrap();
         assert_eq!(m.context_window, 128_000);
     }
 
@@ -185,10 +209,8 @@ mod tests {
         use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
         use std::sync::Arc;
         let client = OpenAiClient::new(Arc::new(build_together_profile()));
-        let mut req = CompletionRequest::simple(
-            "llama3.1-70b",
-            vec![Message::text("user", "What is 2+2?")],
-        );
+        let mut req =
+            CompletionRequest::simple("llama3.1-70b", vec![Message::text("user", "What is 2+2?")]);
         req.tools = vec![ToolDefinition {
             kind: "function".to_owned(),
             function: FunctionDefinition {
@@ -210,7 +232,10 @@ mod tests {
     #[test]
     fn together_recorded_fixture_completes() {
         let resp = together_client()
-            .parse_response(TOGETHER_FIXTURE, "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .parse_response(
+                TOGETHER_FIXTURE,
+                "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            )
             .unwrap();
         assert_eq!(resp.content, "Hello from Together");
         assert_eq!(resp.tokens_in, 8);
@@ -235,7 +260,10 @@ mod tests {
     #[test]
     fn together_fixture_no_tool_calls() {
         let resp = together_client()
-            .parse_response(TOGETHER_FIXTURE, "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo")
+            .parse_response(
+                TOGETHER_FIXTURE,
+                "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            )
             .unwrap();
         assert!(resp.tool_calls.is_empty());
     }
@@ -246,11 +274,11 @@ mod tests {
         use crate::types::{CompletionRequest, Message};
         use std::sync::Arc;
         let client = OpenAiClient::new(Arc::new(build_together_profile()));
-        let req = CompletionRequest::simple(
-            "llama3.1-70b",
-            vec![Message::text("user", "Hi")],
-        );
+        let req = CompletionRequest::simple("llama3.1-70b", vec![Message::text("user", "Hi")]);
         let body = client.build_request_body(&req, false).unwrap();
-        assert_eq!(body["model"], "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo");
+        assert_eq!(
+            body["model"],
+            "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"
+        );
     }
 }

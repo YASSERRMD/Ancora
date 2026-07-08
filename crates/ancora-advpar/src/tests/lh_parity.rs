@@ -31,7 +31,10 @@ fn lh_parity_checkpoint_data() {
 
 #[test]
 fn lh_parity_deadline_exceeded() {
-    let d = Deadline { run_id: "r".into(), deadline_tick: 100 };
+    let d = Deadline {
+        run_id: "r".into(),
+        deadline_tick: 100,
+    };
     assert!(d.check(101).is_err());
     assert!(d.check(100).is_ok());
 }

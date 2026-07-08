@@ -1,4 +1,4 @@
-use crate::guardrail::{InputGuardrail, GuardrailOutcome};
+use crate::guardrail::{GuardrailOutcome, InputGuardrail};
 
 /// A custom guardrail registered with a user-provided closure.
 pub struct CustomInputGuardrail {
@@ -8,7 +8,10 @@ pub struct CustomInputGuardrail {
 
 impl CustomInputGuardrail {
     pub fn new(name: &str, f: impl Fn(&str) -> GuardrailOutcome + Send + Sync + 'static) -> Self {
-        Self { name: name.to_string(), check_fn: Box::new(f) }
+        Self {
+            name: name.to_string(),
+            check_fn: Box::new(f),
+        }
     }
 }
 

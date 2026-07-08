@@ -3,7 +3,6 @@
 /// Provides a unified `HealthStatus` type and a `HealthChecker` trait
 /// so any engine can be checked for liveness and readiness without
 /// coupling to a specific transport implementation.
-
 use crate::model::EngineKind;
 use std::time::{Duration, Instant};
 

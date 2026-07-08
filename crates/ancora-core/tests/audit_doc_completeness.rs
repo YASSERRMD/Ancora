@@ -41,7 +41,10 @@ const MKDOCS_NAV_ENTRIES: &[&str] = &[
 #[test]
 fn test_all_required_concept_docs_in_nav() {
     for doc in REQUIRED_CONCEPT_DOCS {
-        assert!(MKDOCS_NAV_ENTRIES.contains(doc), "concept doc missing from nav: {doc}");
+        assert!(
+            MKDOCS_NAV_ENTRIES.contains(doc),
+            "concept doc missing from nav: {doc}"
+        );
     }
 }
 
@@ -53,7 +56,10 @@ fn test_16_concept_docs_required() {
 #[test]
 fn test_nav_has_no_unknown_concept_docs() {
     for entry in MKDOCS_NAV_ENTRIES {
-        assert!(REQUIRED_CONCEPT_DOCS.contains(entry), "unknown nav entry: {entry}");
+        assert!(
+            REQUIRED_CONCEPT_DOCS.contains(entry),
+            "unknown nav entry: {entry}"
+        );
     }
 }
 
@@ -69,5 +75,7 @@ fn test_vector_stores_in_concepts() {
 
 #[test]
 fn test_all_concept_docs_under_concepts_dir() {
-    for doc in REQUIRED_CONCEPT_DOCS { assert!(doc.starts_with("concepts/"), "not in concepts/: {doc}"); }
+    for doc in REQUIRED_CONCEPT_DOCS {
+        assert!(doc.starts_with("concepts/"), "not in concepts/: {doc}");
+    }
 }

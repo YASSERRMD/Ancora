@@ -37,7 +37,10 @@ fn subprocess_plugin_responds_to_requests() {
     .expect("spawn ok");
 
     let resp = inst
-        .send(PluginRequest { method: "compute".into(), payload: b"data".to_vec() })
+        .send(PluginRequest {
+            method: "compute".into(),
+            payload: b"data".to_vec(),
+        })
         .expect("send ok");
 
     assert_eq!(resp.status, ResponseStatus::Ok);
@@ -68,8 +71,14 @@ fn subprocess_stops_accepting_requests_after_termination() {
     .expect("spawn ok");
 
     inst.terminate();
-    let result = inst.send(PluginRequest { method: "op".into(), payload: vec![] });
-    assert!(result.is_err(), "terminated subprocess must reject requests");
+    let result = inst.send(PluginRequest {
+        method: "op".into(),
+        payload: vec![],
+    });
+    assert!(
+        result.is_err(),
+        "terminated subprocess must reject requests"
+    );
 }
 
 #[test]

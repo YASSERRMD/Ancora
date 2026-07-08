@@ -2,7 +2,6 @@
 ///
 /// Maintains a rolling quality history for each model that passes
 /// through the evaluation pipeline.
-
 use crate::rolling_metric::RollingMetric;
 use std::collections::HashMap;
 

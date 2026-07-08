@@ -1,5 +1,4 @@
 /// A/B experiment module for running and concluding controlled experiments.
-
 use std::collections::HashMap;
 
 /// A variant in an A/B experiment.
@@ -11,7 +10,10 @@ pub struct Variant {
 
 impl Variant {
     pub fn new(id: impl Into<String>, description: impl Into<String>) -> Self {
-        Self { id: id.into(), description: description.into() }
+        Self {
+            id: id.into(),
+            description: description.into(),
+        }
     }
 }
 
@@ -27,7 +29,10 @@ impl ExperimentMetrics {
     }
 
     pub fn record(&mut self, variant_id: &str, value: f64) {
-        self.data.entry(variant_id.to_string()).or_default().push(value);
+        self.data
+            .entry(variant_id.to_string())
+            .or_default()
+            .push(value);
     }
 
     pub fn mean(&self, variant_id: &str) -> Option<f64> {

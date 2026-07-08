@@ -2,7 +2,6 @@
 ///
 /// Only attributes on the allowlist may be exported without redaction.
 /// Any attribute not on the list is subject to the classification policy.
-
 use std::collections::HashSet;
 
 /// A set of attribute name prefixes and exact names that are safe to export.

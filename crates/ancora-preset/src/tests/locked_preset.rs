@@ -9,7 +9,10 @@ fn government_preset_is_locked() {
 #[test]
 fn research_preset_not_locked_by_default() {
     let preset = research_assistant();
-    assert!(!preset.locked, "research preset should not be locked by default");
+    assert!(
+        !preset.locked,
+        "research preset should not be locked by default"
+    );
 }
 
 #[test]

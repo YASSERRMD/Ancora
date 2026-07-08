@@ -1,7 +1,7 @@
 //! Polyglot trace stitching - joins spans from different language SDKs into a single trace.
 
-use std::collections::HashMap;
 use crate::trace_parity::{Language, Span};
+use std::collections::HashMap;
 
 /// A polyglot trace spans multiple languages stitched by a shared trace-id.
 #[derive(Debug, Clone)]
@@ -53,10 +53,7 @@ impl PolyglotTrace {
                     if ids.contains(p.as_str()) {
                         None
                     } else {
-                        Some(format!(
-                            "span {:?} has unknown parent {:?}",
-                            s.span_id, p
-                        ))
+                        Some(format!("span {:?} has unknown parent {:?}", s.span_id, p))
                     }
                 })
             })

@@ -59,7 +59,11 @@ pub struct SecureBootAttestation {
 
 impl SecureBootAttestation {
     /// Create a new attestation by running the boot hook over the provided measurements.
-    pub fn attest(device_id: impl Into<String>, measurements: Vec<BootMeasurement>, tick: u64) -> Self {
+    pub fn attest(
+        device_id: impl Into<String>,
+        measurements: Vec<BootMeasurement>,
+        tick: u64,
+    ) -> Self {
         let all_valid = measurements.iter().all(|m| m.is_valid());
         let status = if measurements.is_empty() {
             BootStatus::Unknown
@@ -91,10 +95,12 @@ impl SecureBootAttestation {
     }
 }
 
+type HookFn = Box<dyn Fn(&[BootMeasurement]) -> bool + Send + Sync>;
+
 /// A hook that can be registered to run a pre-boot integrity check.
 pub struct SecureBootHook {
     pub hook_name: String,
-    hook_fn: Box<dyn Fn(&[BootMeasurement]) -> bool + Send + Sync>,
+    hook_fn: HookFn,
 }
 
 impl SecureBootHook {

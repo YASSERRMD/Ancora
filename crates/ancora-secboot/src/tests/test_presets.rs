@@ -1,4 +1,4 @@
-use crate::{permissive_boot_policy, strict_boot_policy, kernel_only_policy};
+use crate::{kernel_only_policy, permissive_boot_policy, strict_boot_policy};
 #[test]
 fn strict_policy_requires_firmware_bootloader_kernel() {
     let p = strict_boot_policy("t1");

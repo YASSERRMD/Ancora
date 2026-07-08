@@ -37,7 +37,13 @@ impl InstallRegistry {
 
     /// Install a recipe into the registry under the given target.
     pub fn install(&mut self, recipe: &Recipe, target: InstallTarget) -> &InstalledRecipe {
-        let key = format!("{}::{}", recipe.id, match &target { InstallTarget::Directory(d) => d });
+        let key = format!(
+            "{}::{}",
+            recipe.id,
+            match &target {
+                InstallTarget::Directory(d) => d,
+            }
+        );
         let status = if self.entries.contains_key(&key) {
             InstallStatus::AlreadyPresent
         } else {

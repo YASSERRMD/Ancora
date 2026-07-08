@@ -38,17 +38,14 @@ impl InteropSuite {
     }
 
     /// Add a check to the suite.
-    pub fn add(mut self, check: InteropCheck) -> Self {
+    pub fn add_check(mut self, check: InteropCheck) -> Self {
         self.checks.push(check);
         self
     }
 
     /// Run all checks and return a list of failures.
     pub fn run_all(&self) -> Vec<InteropError> {
-        self.checks
-            .iter()
-            .filter_map(|c| (c.run)().err())
-            .collect()
+        self.checks.iter().filter_map(|c| (c.run)().err()).collect()
     }
 
     /// Returns `true` if all checks pass.
@@ -90,7 +87,7 @@ mod tests {
 
     #[test]
     fn suite_with_passing_checks() {
-        let suite = InteropSuite::new().add(InteropCheck {
+        let suite = InteropSuite::new().add_check(InteropCheck {
             name: "always-pass",
             description: "Always passes",
             run: || Ok(()),
@@ -100,7 +97,7 @@ mod tests {
 
     #[test]
     fn suite_with_failing_check() {
-        let suite = InteropSuite::new().add(InteropCheck {
+        let suite = InteropSuite::new().add_check(InteropCheck {
             name: "always-fail",
             description: "Always fails",
             run: || {

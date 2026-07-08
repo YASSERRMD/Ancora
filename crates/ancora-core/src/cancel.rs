@@ -32,7 +32,9 @@ impl CancellationHandle {
 pub fn cancellation_pair() -> (CancellationToken, CancellationHandle) {
     let flag = Arc::new(AtomicBool::new(false));
     (
-        CancellationToken { flag: Arc::clone(&flag) },
+        CancellationToken {
+            flag: Arc::clone(&flag),
+        },
         CancellationHandle { flag },
     )
 }

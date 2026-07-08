@@ -62,18 +62,29 @@ pub struct Message {
 impl Message {
     /// Convenience constructor for a plain-text message.
     pub fn text(role: impl Into<String>, content: impl Into<String>) -> Self {
-        Self { role: role.into(), content: content.into(), content_parts: vec![] }
+        Self {
+            role: role.into(),
+            content: content.into(),
+            content_parts: vec![],
+        }
     }
 
     /// Convenience constructor for a vision message with an image URL.
-    pub fn with_image(role: impl Into<String>, text: impl Into<String>, url: impl Into<String>) -> Self {
+    pub fn with_image(
+        role: impl Into<String>,
+        text: impl Into<String>,
+        url: impl Into<String>,
+    ) -> Self {
         Self {
             role: role.into(),
             content: String::new(),
             content_parts: vec![
                 ContentPart::Text { text: text.into() },
                 ContentPart::ImageUrl {
-                    image_url: ImageUrl { url: url.into(), detail: None },
+                    image_url: ImageUrl {
+                        url: url.into(),
+                        detail: None,
+                    },
                 },
             ],
         }

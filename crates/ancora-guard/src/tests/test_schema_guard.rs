@@ -1,10 +1,13 @@
+use crate::guardrail::{GuardrailOutcome, OutputGuardrail};
 use crate::schema_guard::SchemaOutputGuardrail;
-use crate::guardrail::{OutputGuardrail, GuardrailOutcome};
 
 #[test]
 fn valid_json_object_passes() {
     let g = SchemaOutputGuardrail;
-    assert_eq!(g.check_output(r#"{"key": "value"}"#), GuardrailOutcome::Pass);
+    assert_eq!(
+        g.check_output(r#"{"key": "value"}"#),
+        GuardrailOutcome::Pass
+    );
 }
 
 #[test]

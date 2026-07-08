@@ -17,7 +17,11 @@ pub struct SalienceScorer {
 
 impl SalienceScorer {
     pub fn default_weights() -> Self {
-        Self { importance_weight: 2.0, recency_weight: 1.0, frequency_weight: 0.5 }
+        Self {
+            importance_weight: 2.0,
+            recency_weight: 1.0,
+            frequency_weight: 0.5,
+        }
     }
 
     pub fn score(&self, item: &SalienceItem) -> f64 {

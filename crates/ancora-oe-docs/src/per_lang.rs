@@ -38,7 +38,9 @@ pub fn setup_guidance(lang: &SdkLanguage) -> &'static str {
     match lang {
         SdkLanguage::Rust => "Initialize a TracerProvider with an OTLP exporter in main.rs.",
         SdkLanguage::Python => "Call configure() with OTLPExporter before creating agents.",
-        SdkLanguage::TypeScript => "Instantiate NodeSDK with OTLPTraceExporter before importing agents.",
+        SdkLanguage::TypeScript => {
+            "Instantiate NodeSDK with OTLPTraceExporter before importing agents."
+        }
         SdkLanguage::Go => "Use otel.SetTracerProvider with an OTLP gRPC exporter.",
         SdkLanguage::Java => "Use OpenTelemetrySdk.builder() with an OTLP exporter at startup.",
     }

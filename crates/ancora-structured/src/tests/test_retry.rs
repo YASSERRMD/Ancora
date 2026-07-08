@@ -1,9 +1,8 @@
-use crate::schema::{FieldSchema, JsonType, OutputSchema};
 use crate::retry::{RetryConfig, StructuredRetry};
+use crate::schema::{FieldSchema, JsonType, OutputSchema};
 
 fn schema() -> OutputSchema {
-    OutputSchema::new("task")
-        .add_field(FieldSchema::new("title", JsonType::String, true))
+    OutputSchema::new("task").add_field(FieldSchema::new("title", JsonType::String, true))
 }
 
 #[test]

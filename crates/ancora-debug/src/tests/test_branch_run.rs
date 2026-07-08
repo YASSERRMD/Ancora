@@ -1,5 +1,4 @@
 /// test_branch_run.rs - Verify that branching creates a valid alternate run.
-
 use crate::branch::{Branch, BranchError, BranchRegistry};
 use crate::loader::{load_journal, EntryKind, JournalEntry, RunId, Seq};
 
@@ -7,7 +6,10 @@ fn sc(run: &str, seq: u64, from: &str, to: &str) -> JournalEntry {
     JournalEntry::new(
         RunId::new(run),
         seq,
-        EntryKind::StateChange { from: from.into(), to: to.into() },
+        EntryKind::StateChange {
+            from: from.into(),
+            to: to.into(),
+        },
     )
 }
 

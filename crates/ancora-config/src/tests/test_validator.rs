@@ -28,7 +28,9 @@ mod tests {
         let mut cfg = AncoraCfg::default();
         cfg.worker.concurrency = 0;
         let err = validate(&cfg).unwrap_err();
-        assert!(matches!(err, ConfigError::Validation { field, .. } if field == "worker.concurrency"));
+        assert!(
+            matches!(err, ConfigError::Validation { field, .. } if field == "worker.concurrency")
+        );
     }
 
     #[test]
@@ -36,6 +38,8 @@ mod tests {
         let mut cfg = AncoraCfg::default();
         cfg.core.max_concurrent_runs = 0;
         let err = validate(&cfg).unwrap_err();
-        assert!(matches!(err, ConfigError::Validation { field, .. } if field == "core.max_concurrent_runs"));
+        assert!(
+            matches!(err, ConfigError::Validation { field, .. } if field == "core.max_concurrent_runs")
+        );
     }
 }

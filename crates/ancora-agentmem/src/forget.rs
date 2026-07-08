@@ -1,5 +1,5 @@
-use crate::store::MemoryStore;
 use crate::entry::MemoryKind;
+use crate::store::MemoryStore;
 
 /// Prunes entries below a score threshold or older than a cutoff.
 pub fn prune_by_age(store: &mut MemoryStore, cutoff_secs: u64, now: u64) -> usize {

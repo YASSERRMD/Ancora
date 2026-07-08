@@ -1,8 +1,8 @@
-/// Adapters for mapping CrewAI role definitions into Ancora crew models.
-///
-/// CrewAI organises agents as a named crew where each member has a role,
-/// goal, and backstory. This module maps those concepts to Ancora's agent
-/// primitive without requiring the Python CrewAI runtime.
+//! Adapters for mapping CrewAI role definitions into Ancora crew models.
+//!
+//! CrewAI organises agents as a named crew where each member has a role,
+//! goal, and backstory. This module maps those concepts to Ancora's agent
+//! primitive without requiring the Python CrewAI runtime.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CrewAIAgent {
@@ -55,9 +55,7 @@ impl std::fmt::Display for CrewMappingError {
 }
 
 /// Convert a CrewAI definition into an Ancora crew plan.
-pub fn map_crewai_to_ancora(
-    crew: CrewAIDefinition,
-) -> Result<AncoraCrewPlan, CrewMappingError> {
+pub fn map_crewai_to_ancora(crew: CrewAIDefinition) -> Result<AncoraCrewPlan, CrewMappingError> {
     if crew.agents.is_empty() {
         return Err(CrewMappingError::EmptyCrew);
     }

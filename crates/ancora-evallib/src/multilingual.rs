@@ -57,17 +57,6 @@ impl LocalMultilingualResponder {
         LocalMultilingualResponder { table }
     }
 
-    pub fn default() -> Self {
-        Self::new(vec![
-            ("en".into(), "hello".into(), "hello".into()),
-            ("es".into(), "hola".into(), "hola".into()),
-            ("fr".into(), "bonjour".into(), "bonjour".into()),
-            ("de".into(), "hallo".into(), "hallo".into()),
-            ("ja".into(), "konnichiwa".into(), "konnichiwa".into()),
-            ("ar".into(), "marhaba".into(), "marhaba".into()),
-        ])
-    }
-
     /// Produce a response for the given language and prompt, or None.
     pub fn respond(&self, lang: &LanguageCode, prompt: &str) -> Option<String> {
         let prompt_lower = prompt.to_lowercase();
@@ -77,6 +66,19 @@ impl LocalMultilingualResponder {
             }
         }
         None
+    }
+}
+
+impl Default for LocalMultilingualResponder {
+    fn default() -> Self {
+        Self::new(vec![
+            ("en".into(), "hello".into(), "hello".into()),
+            ("es".into(), "hola".into(), "hola".into()),
+            ("fr".into(), "bonjour".into(), "bonjour".into()),
+            ("de".into(), "hallo".into(), "hallo".into()),
+            ("ja".into(), "konnichiwa".into(), "konnichiwa".into()),
+            ("ar".into(), "marhaba".into(), "marhaba".into()),
+        ])
     }
 }
 
@@ -93,37 +95,21 @@ impl MultilingualSuite {
 
     pub fn default_catalog() -> Self {
         let cases = vec![
-            MultilingualCase::new(
-                "ml-001",
-                LanguageCode::new("en"),
-                "Say hello",
-                "hello",
-            ),
-            MultilingualCase::new(
-                "ml-002",
-                LanguageCode::new("es"),
-                "Di hola",
-                "hola",
-            ),
-            MultilingualCase::new(
-                "ml-003",
-                LanguageCode::new("fr"),
-                "Dis bonjour",
-                "bonjour",
-            ),
-            MultilingualCase::new(
-                "ml-004",
-                LanguageCode::new("de"),
-                "Sag hallo",
-                "hallo",
-            ),
+            MultilingualCase::new("ml-001", LanguageCode::new("en"), "Say hello", "hello"),
+            MultilingualCase::new("ml-002", LanguageCode::new("es"), "Di hola", "hola"),
+            MultilingualCase::new("ml-003", LanguageCode::new("fr"), "Dis bonjour", "bonjour"),
+            MultilingualCase::new("ml-004", LanguageCode::new("de"), "Sag hallo", "hallo"),
         ];
         Self::new(cases, LocalMultilingualResponder::default())
     }
 
     pub fn evaluate(&self, case: &MultilingualCase) -> MultilingualOutcome {
         match self.responder.respond(&case.language, &case.prompt) {
-            Some(resp) if resp.to_lowercase().contains(&case.expected_fragment.to_lowercase()) => {
+            Some(resp)
+                if resp
+                    .to_lowercase()
+                    .contains(&case.expected_fragment.to_lowercase()) =>
+            {
                 MultilingualOutcome::Correct
             }
             _ => MultilingualOutcome::IncorrectOrMissing,

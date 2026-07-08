@@ -5,7 +5,15 @@ mod tests {
     const KEY: &[u8] = b"test-signing-key";
 
     fn make_event(kind: AuditEventKind, tenant: &str) -> AuditEvent {
-        AuditEvent::new(1000, kind, tenant, "admin@ancora.dev", "resource-1", "allowed", KEY)
+        AuditEvent::new(
+            1000,
+            kind,
+            tenant,
+            "admin@ancora.dev",
+            "resource-1",
+            "allowed",
+            KEY,
+        )
     }
 
     #[test]

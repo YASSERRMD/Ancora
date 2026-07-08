@@ -1,5 +1,4 @@
 /// palette - Node palette: catalog of available agent, tool, and verifier node types.
-
 use std::collections::HashMap;
 
 /// Category of a palette entry.
@@ -73,19 +72,26 @@ impl Palette {
         let mut p = Palette::new();
 
         // Agents
-        p.register(PaletteEntry::new(
-            "agent.llm",
-            "LLM Agent",
-            NodeCategory::Agent,
-            "A language-model agent that processes prompts.",
-        ).with_default("model", "default").with_default("temperature", "0.7"));
+        p.register(
+            PaletteEntry::new(
+                "agent.llm",
+                "LLM Agent",
+                NodeCategory::Agent,
+                "A language-model agent that processes prompts.",
+            )
+            .with_default("model", "default")
+            .with_default("temperature", "0.7"),
+        );
 
-        p.register(PaletteEntry::new(
-            "agent.retrieval",
-            "Retrieval Agent",
-            NodeCategory::Agent,
-            "An agent that retrieves documents from a store.",
-        ).with_default("top_k", "5"));
+        p.register(
+            PaletteEntry::new(
+                "agent.retrieval",
+                "Retrieval Agent",
+                NodeCategory::Agent,
+                "An agent that retrieves documents from a store.",
+            )
+            .with_default("top_k", "5"),
+        );
 
         p.register(PaletteEntry::new(
             "agent.classifier",
@@ -95,19 +101,25 @@ impl Palette {
         ));
 
         // Tools
-        p.register(PaletteEntry::new(
-            "tool.web_search",
-            "Web Search",
-            NodeCategory::Tool,
-            "Executes a web search and returns snippets.",
-        ).with_default("max_results", "10"));
+        p.register(
+            PaletteEntry::new(
+                "tool.web_search",
+                "Web Search",
+                NodeCategory::Tool,
+                "Executes a web search and returns snippets.",
+            )
+            .with_default("max_results", "10"),
+        );
 
-        p.register(PaletteEntry::new(
-            "tool.code_exec",
-            "Code Executor",
-            NodeCategory::Tool,
-            "Runs a sandboxed code snippet.",
-        ).with_default("language", "python"));
+        p.register(
+            PaletteEntry::new(
+                "tool.code_exec",
+                "Code Executor",
+                NodeCategory::Tool,
+                "Runs a sandboxed code snippet.",
+            )
+            .with_default("language", "python"),
+        );
 
         p.register(PaletteEntry::new(
             "tool.file_reader",
@@ -124,12 +136,15 @@ impl Palette {
             "Validates output against a JSON schema.",
         ));
 
-        p.register(PaletteEntry::new(
-            "verifier.hallucination",
-            "Hallucination Detector",
-            NodeCategory::Verifier,
-            "Checks for unsupported factual claims.",
-        ).with_default("threshold", "0.5"));
+        p.register(
+            PaletteEntry::new(
+                "verifier.hallucination",
+                "Hallucination Detector",
+                NodeCategory::Verifier,
+                "Checks for unsupported factual claims.",
+            )
+            .with_default("threshold", "0.5"),
+        );
 
         p.register(PaletteEntry::new(
             "verifier.toxicity",
@@ -153,12 +168,15 @@ impl Palette {
             "Waits for multiple upstream nodes and merges results.",
         ));
 
-        p.register(PaletteEntry::new(
-            "control.loop",
-            "Loop",
-            NodeCategory::Control,
-            "Repeats a subgraph until a condition is met.",
-        ).with_default("max_iterations", "10"));
+        p.register(
+            PaletteEntry::new(
+                "control.loop",
+                "Loop",
+                NodeCategory::Control,
+                "Repeats a subgraph until a condition is met.",
+            )
+            .with_default("max_iterations", "10"),
+        );
 
         p
     }

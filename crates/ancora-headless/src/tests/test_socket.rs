@@ -1,4 +1,6 @@
-use crate::socket::{ApiMethod, SocketApiHandler, SocketConfig, SocketRequest, DEFAULT_SOCKET_PATH};
+use crate::socket::{
+    ApiMethod, SocketApiHandler, SocketConfig, SocketRequest, DEFAULT_SOCKET_PATH,
+};
 
 #[test]
 fn test_socket_api_serves_ping() {

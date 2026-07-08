@@ -172,11 +172,8 @@ fn test_all_examples_in_registry() {
     register_rust_extension(&registry, Arc::new(AddTool)).unwrap();
     register_go_extension(&registry, Arc::new(GoEchoToolAdapter::new())).unwrap();
     register_go_extension(&registry, Arc::new(GoWordCountAdapter::new())).unwrap();
-    register_python_extension(
-        &registry,
-        Arc::new(PyToolWrapper::new(make_py_echo_tool())),
-    )
-    .unwrap();
+    register_python_extension(&registry, Arc::new(PyToolWrapper::new(make_py_echo_tool())))
+        .unwrap();
 
     assert!(registry.len() >= 5);
 

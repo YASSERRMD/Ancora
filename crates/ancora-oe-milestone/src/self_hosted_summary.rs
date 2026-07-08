@@ -47,12 +47,7 @@ impl SelfHostedSummary {
         self
     }
 
-    pub fn with_retention(
-        mut self,
-        metrics: u32,
-        traces: u32,
-        logs: u32,
-    ) -> Self {
+    pub fn with_retention(mut self, metrics: u32, traces: u32, logs: u32) -> Self {
         self.metrics_retention_days = metrics;
         self.traces_retention_days = traces;
         self.logs_retention_days = logs;
@@ -60,9 +55,7 @@ impl SelfHostedSummary {
     }
 
     pub fn is_production_grade(&self) -> bool {
-        self.tls_enabled
-            && self.auth_provider.is_some()
-            && self.topology != Topology::SingleNode
+        self.tls_enabled && self.auth_provider.is_some() && self.topology != Topology::SingleNode
     }
 
     pub fn render(&self) -> String {

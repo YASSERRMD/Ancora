@@ -21,6 +21,9 @@ fn builder_with_details_verifies() {
         .severity(Severity::Warning)
         .detail("reason", "insufficient-permission")
         .build();
-    assert_eq!(entry.details.get("reason").unwrap(), "insufficient-permission");
+    assert_eq!(
+        entry.details.get("reason").unwrap(),
+        "insufficient-permission"
+    );
     assert!(entry.verify());
 }

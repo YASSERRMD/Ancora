@@ -1,7 +1,7 @@
-/// Toxicity detection for agent outputs.
-///
-/// Uses a keyword-based approach with severity scoring to classify
-/// content as non-toxic, mildly toxic, or highly toxic.
+//! Toxicity detection for agent outputs.
+//!
+//! Uses a keyword-based approach with severity scoring to classify
+//! content as non-toxic, mildly toxic, or highly toxic.
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ToxicityLevel {
@@ -33,15 +33,9 @@ pub struct ToxicityDetector {
 impl ToxicityDetector {
     pub fn new() -> Self {
         Self {
-            severe_terms: vec![
-                "kill", "murder", "abuse", "attack", "threat",
-            ],
-            moderate_terms: vec![
-                "hate", "racist", "violent", "bully",
-            ],
-            mild_terms: vec![
-                "idiot", "stupid", "dumb", "fool", "annoying",
-            ],
+            severe_terms: vec!["kill", "murder", "abuse", "attack", "threat"],
+            moderate_terms: vec!["hate", "racist", "violent", "bully"],
+            mild_terms: vec!["idiot", "stupid", "dumb", "fool", "annoying"],
         }
     }
 

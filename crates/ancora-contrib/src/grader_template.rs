@@ -1,7 +1,7 @@
-/// ancora-contrib: grader template
-///
-/// Copy this module as the starting point for a new output-quality grader.
-/// Rename `MyGrader` and implement `grade`.
+//! ancora-contrib: grader template
+//!
+//! Copy this module as the starting point for a new output-quality grader.
+//! Rename `MyGrader` and implement `grade`.
 
 /// The inputs fed to a grader for evaluation.
 #[derive(Debug, Clone)]
@@ -51,7 +51,11 @@ pub struct GradeResult {
 impl GradeResult {
     pub fn new(score: f32, rationale: impl Into<String>) -> Self {
         let passed = score >= 0.5;
-        Self { score, rationale: rationale.into(), passed }
+        Self {
+            score,
+            rationale: rationale.into(),
+            passed,
+        }
     }
 }
 

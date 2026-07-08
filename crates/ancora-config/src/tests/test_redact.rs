@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::{redact::redacted_dump, schema::{AncoraCfg, WorkerCfg}};
+    use crate::{
+        redact::redacted_dump,
+        schema::{AncoraCfg, WorkerCfg},
+    };
 
     #[test]
     fn dump_redacts_api_key_ref() {

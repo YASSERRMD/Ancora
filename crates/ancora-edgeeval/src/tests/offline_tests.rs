@@ -12,7 +12,7 @@ fn test_mock_scorer_exact_match() {
 fn test_mock_scorer_mismatch_partial() {
     let scorer = MockScorer::new(42);
     let score = scorer.score("London", "Paris");
-    assert!(score >= 0.0 && score <= 1.0);
+    assert!((0.0..=1.0).contains(&score));
 }
 
 #[test]

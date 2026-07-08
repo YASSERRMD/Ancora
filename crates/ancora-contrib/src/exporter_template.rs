@@ -1,7 +1,7 @@
-/// ancora-contrib: exporter template
-///
-/// Copy this module as the starting point for a new telemetry/trace exporter.
-/// Rename `MyExporter` and implement `export`.
+//! ancora-contrib: exporter template
+//!
+//! Copy this module as the starting point for a new telemetry/trace exporter.
+//! Rename `MyExporter` and implement `export`.
 
 /// A single span representing a unit of work in an agent run.
 #[derive(Debug, Clone)]
@@ -126,7 +126,10 @@ pub struct MyExporter {
 
 impl MyExporter {
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), exported: std::sync::Mutex::new(Vec::new()) }
+        Self {
+            name: name.into(),
+            exported: std::sync::Mutex::new(Vec::new()),
+        }
     }
 
     /// Return a snapshot of all exported spans (for tests).

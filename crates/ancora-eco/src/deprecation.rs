@@ -42,10 +42,7 @@ impl DeprecationWarning {
     pub fn format(&self) -> String {
         format!(
             "DEPRECATED: `{}` is deprecated since {} and will be removed in {}. {}",
-            self.api_name,
-            self.marker.since,
-            self.marker.removed_in,
-            self.marker.message
+            self.api_name, self.marker.since, self.marker.removed_in, self.marker.message
         )
     }
 }

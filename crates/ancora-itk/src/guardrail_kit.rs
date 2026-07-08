@@ -1,4 +1,4 @@
-/// Conformance kit for guardrail extensions.
+//! Conformance kit for guardrail extensions.
 
 /// Decision made by a guardrail.
 #[derive(Debug, Clone, PartialEq)]

@@ -27,10 +27,26 @@ impl TenantTier {
     /// Returns the default resource quota for the tier.
     pub fn default_quota(&self) -> ResourceQuota {
         match self {
-            TenantTier::Free => ResourceQuota { max_agents: 1, max_requests_per_minute: 10, max_storage_gb: 1 },
-            TenantTier::Starter => ResourceQuota { max_agents: 5, max_requests_per_minute: 100, max_storage_gb: 10 },
-            TenantTier::Business => ResourceQuota { max_agents: 50, max_requests_per_minute: 1_000, max_storage_gb: 100 },
-            TenantTier::Enterprise => ResourceQuota { max_agents: u32::MAX, max_requests_per_minute: u32::MAX, max_storage_gb: u32::MAX },
+            TenantTier::Free => ResourceQuota {
+                max_agents: 1,
+                max_requests_per_minute: 10,
+                max_storage_gb: 1,
+            },
+            TenantTier::Starter => ResourceQuota {
+                max_agents: 5,
+                max_requests_per_minute: 100,
+                max_storage_gb: 10,
+            },
+            TenantTier::Business => ResourceQuota {
+                max_agents: 50,
+                max_requests_per_minute: 1_000,
+                max_storage_gb: 100,
+            },
+            TenantTier::Enterprise => ResourceQuota {
+                max_agents: u32::MAX,
+                max_requests_per_minute: u32::MAX,
+                max_storage_gb: u32::MAX,
+            },
         }
     }
 }
@@ -125,13 +141,19 @@ pub struct TenantOnboardTemplate {
 impl TenantOnboardTemplate {
     pub fn render(config: TenantOnboardConfig) -> Result<Self, TenantError> {
         if config.tenant_id.is_empty() {
-            return Err(TenantError::InvalidConfig("tenant_id is required".to_string()));
+            return Err(TenantError::InvalidConfig(
+                "tenant_id is required".to_string(),
+            ));
         }
         if config.admin_email.is_empty() {
-            return Err(TenantError::InvalidConfig("admin_email is required".to_string()));
+            return Err(TenantError::InvalidConfig(
+                "admin_email is required".to_string(),
+            ));
         }
         if !config.admin_email.contains('@') {
-            return Err(TenantError::InvalidConfig("admin_email must be a valid email".to_string()));
+            return Err(TenantError::InvalidConfig(
+                "admin_email must be a valid email".to_string(),
+            ));
         }
 
         let rendered = format!(
@@ -185,7 +207,11 @@ impl TenantOnboardTemplate {
             },
         ];
 
-        Ok(Self { config, rendered, steps })
+        Ok(Self {
+            config,
+            rendered,
+            steps,
+        })
     }
 
     pub fn contains(&self, field: &str) -> bool {

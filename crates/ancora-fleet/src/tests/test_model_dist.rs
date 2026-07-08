@@ -29,7 +29,9 @@ fn test_model_dist_missing_checksum_fails() {
 fn test_model_dist_to_fleet() {
     let mut svc = ModelDistributionService::new();
     let artifact = ModelArtifact::new("tiny-llm", "1.0", 256, "valid-checksum");
-    let ids: Vec<DeviceId> = (0..6).map(|i| DeviceId::new(format!("dev-{}", i))).collect();
+    let ids: Vec<DeviceId> = (0..6)
+        .map(|i| DeviceId::new(format!("dev-{}", i)))
+        .collect();
 
     let records = svc.distribute_to_fleet(&ids, &artifact);
     assert_eq!(records.len(), 6);

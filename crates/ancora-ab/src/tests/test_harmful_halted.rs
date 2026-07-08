@@ -10,7 +10,12 @@ fn harmful_variant_triggers_guardrail() {
     }
     // Treatment error rate ~0.25 (5x the control - above 2x threshold)
     for i in 0..10 {
-        store.record(Observation::new("exp-g", format!("t{i}"), "treatment", 0.25));
+        store.record(Observation::new(
+            "exp-g",
+            format!("t{i}"),
+            "treatment",
+            0.25,
+        ));
     }
 
     let guardrail = Guardrail::new(
@@ -34,10 +39,20 @@ fn harmful_variant_triggers_guardrail() {
 fn safe_variant_does_not_trigger() {
     let mut store = OutcomeStore::new();
     for i in 0..10 {
-        store.record(Observation::new("exp-safe", format!("c{i}"), "control", 0.10));
+        store.record(Observation::new(
+            "exp-safe",
+            format!("c{i}"),
+            "control",
+            0.10,
+        ));
     }
     for i in 0..10 {
-        store.record(Observation::new("exp-safe", format!("t{i}"), "treatment", 0.12));
+        store.record(Observation::new(
+            "exp-safe",
+            format!("t{i}"),
+            "treatment",
+            0.12,
+        ));
     }
 
     let guardrail = Guardrail::new(
@@ -57,7 +72,12 @@ fn safe_variant_does_not_trigger() {
 fn absolute_floor_guardrail_triggers() {
     let mut store = OutcomeStore::new();
     for i in 0..5 {
-        store.record(Observation::new("exp-floor", format!("t{i}"), "treatment", 0.3));
+        store.record(Observation::new(
+            "exp-floor",
+            format!("t{i}"),
+            "treatment",
+            0.3,
+        ));
     }
 
     let guardrail = Guardrail::new(

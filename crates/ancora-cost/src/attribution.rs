@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// Cost attribution record for a single run step.
@@ -26,12 +25,20 @@ impl CostAttributor {
 
     /// Total cost by model.
     pub fn total_by_model(&self, model: &str) -> f64 {
-        self.records.iter().filter(|r| r.model == model).map(|r| r.cost_usd).sum()
+        self.records
+            .iter()
+            .filter(|r| r.model == model)
+            .map(|r| r.cost_usd)
+            .sum()
     }
 
     /// Total cost by provider.
     pub fn total_by_provider(&self, provider: &str) -> f64 {
-        self.records.iter().filter(|r| r.provider == provider).map(|r| r.cost_usd).sum()
+        self.records
+            .iter()
+            .filter(|r| r.provider == provider)
+            .map(|r| r.cost_usd)
+            .sum()
     }
 
     /// Total cost by tool.
@@ -45,7 +52,11 @@ impl CostAttributor {
 
     /// Total cost by tenant.
     pub fn total_by_tenant(&self, tenant: &str) -> f64 {
-        self.records.iter().filter(|r| r.tenant_id == tenant).map(|r| r.cost_usd).sum()
+        self.records
+            .iter()
+            .filter(|r| r.tenant_id == tenant)
+            .map(|r| r.cost_usd)
+            .sum()
     }
 
     pub fn all_records(&self) -> &[CostRecord] {

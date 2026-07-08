@@ -16,7 +16,9 @@ impl fmt::Display for SecretError {
             SecretError::NotFound(p) => write!(f, "secret not found: {}", p),
             SecretError::AlreadyExists(p) => write!(f, "secret already exists: {}", p),
             SecretError::InvalidPath(msg) => write!(f, "invalid path: {}", msg),
-            SecretError::VersionNotFound { path, version } => write!(f, "version {} not found at path {}", version, path),
+            SecretError::VersionNotFound { path, version } => {
+                write!(f, "version {} not found at path {}", version, path)
+            }
             SecretError::Expired(p) => write!(f, "secret expired: {}", p),
             SecretError::AccessDenied(p) => write!(f, "access denied to secret: {}", p),
         }

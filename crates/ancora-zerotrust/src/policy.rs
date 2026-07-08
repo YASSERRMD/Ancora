@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::device::TrustLevel;
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AuthzDecision {
@@ -28,13 +28,21 @@ impl ZeroTrustPolicy {
         }
     }
 
-    pub fn require_device(mut self) -> Self { self.require_device_trust = true; self }
-    pub fn min_trust(mut self, t: TrustLevel) -> Self { self.min_device_trust = t; self }
+    pub fn require_device(mut self) -> Self {
+        self.require_device_trust = true;
+        self
+    }
+    pub fn min_trust(mut self, t: TrustLevel) -> Self {
+        self.min_device_trust = t;
+        self
+    }
     pub fn mfa_for_group(mut self, group: impl Into<String>) -> Self {
-        self.require_mfa_for_groups.insert(group.into()); self
+        self.require_mfa_for_groups.insert(group.into());
+        self
     }
     pub fn deny_resource(mut self, resource: impl Into<String>) -> Self {
-        self.denied_resources.insert(resource.into()); self
+        self.denied_resources.insert(resource.into());
+        self
     }
 
     pub fn resource_denied(&self, resource: &str) -> bool {
@@ -42,6 +50,8 @@ impl ZeroTrustPolicy {
     }
 
     pub fn needs_mfa_for(&self, groups: &[String]) -> bool {
-        groups.iter().any(|g| self.require_mfa_for_groups.contains(g))
+        groups
+            .iter()
+            .any(|g| self.require_mfa_for_groups.contains(g))
     }
 }

@@ -62,7 +62,9 @@ fn qdrant_activity_key_contains_qdrant() {
     let events = build_qdrant_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.activity_key.contains("qdrant"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -70,7 +72,9 @@ fn qdrant_input_json_has_collection() {
     let events = build_qdrant_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.input_json.contains("collection"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -79,7 +83,9 @@ fn qdrant_result_has_two_chunks() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v.as_array().unwrap().len(), 2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

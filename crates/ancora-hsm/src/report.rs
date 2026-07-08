@@ -1,7 +1,7 @@
-use crate::mock::SoftHsm;
-use crate::slot::SlotManager;
-use crate::session::SessionManager;
 use crate::audit::HsmAuditLog;
+use crate::mock::SoftHsm;
+use crate::session::SessionManager;
+use crate::slot::SlotManager;
 
 pub struct HsmReport {
     pub total_slots: usize,
@@ -14,7 +14,13 @@ pub struct HsmReport {
 }
 
 impl HsmReport {
-    pub fn generate(hsm: &SoftHsm, slots: &SlotManager, sessions: &SessionManager, audit: &HsmAuditLog, tick: u64) -> Self {
+    pub fn generate(
+        hsm: &SoftHsm,
+        slots: &SlotManager,
+        sessions: &SessionManager,
+        audit: &HsmAuditLog,
+        tick: u64,
+    ) -> Self {
         Self {
             total_slots: slots.count(),
             slots_with_token: slots.slots_with_token().len(),

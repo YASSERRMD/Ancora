@@ -82,17 +82,29 @@ impl EnterpriseIncident {
         self
     }
 
-    pub fn investigate(&mut self) { self.status = IncidentStatus::Investigating; }
-    pub fn contain(&mut self) { self.status = IncidentStatus::Contained; }
+    pub fn investigate(&mut self) {
+        self.status = IncidentStatus::Investigating;
+    }
+    pub fn contain(&mut self) {
+        self.status = IncidentStatus::Contained;
+    }
     pub fn resolve(&mut self, tick: u64) {
         self.status = IncidentStatus::Resolved;
         self.resolved_tick = Some(tick);
     }
-    pub fn close(&mut self) { self.status = IncidentStatus::Closed; }
+    pub fn close(&mut self) {
+        self.status = IncidentStatus::Closed;
+    }
 
-    pub fn is_open(&self) -> bool { self.status == IncidentStatus::Open }
-    pub fn is_resolved(&self) -> bool { self.status == IncidentStatus::Resolved || self.status == IncidentStatus::Closed }
-    pub fn is_critical(&self) -> bool { self.severity == IncidentSeverity::Critical }
+    pub fn is_open(&self) -> bool {
+        self.status == IncidentStatus::Open
+    }
+    pub fn is_resolved(&self) -> bool {
+        self.status == IncidentStatus::Resolved || self.status == IncidentStatus::Closed
+    }
+    pub fn is_critical(&self) -> bool {
+        self.severity == IncidentSeverity::Critical
+    }
 
     pub fn time_to_resolve(&self, current_tick: u64) -> u64 {
         let end = self.resolved_tick.unwrap_or(current_tick);
@@ -104,18 +116,43 @@ pub struct IncidentLog {
     incidents: Vec<EnterpriseIncident>,
 }
 
-impl IncidentLog {
-    pub fn new() -> Self { Self { incidents: Vec::new() } }
-    pub fn record(&mut self, i: EnterpriseIncident) { self.incidents.push(i); }
-    pub fn count(&self) -> usize { self.incidents.len() }
-    pub fn open(&self) -> Vec<&EnterpriseIncident> { self.incidents.iter().filter(|i| i.is_open()).collect() }
-    pub fn critical(&self) -> Vec<&EnterpriseIncident> { self.incidents.iter().filter(|i| i.is_critical()).collect() }
-    pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a EnterpriseIncident> {
-        self.incidents.iter().filter(|i| i.tenant_id == tenant_id).collect()
+impl Default for IncidentLog {
+    fn default() -> Self {
+        Self::new()
     }
-    pub fn resolved(&self) -> Vec<&EnterpriseIncident> { self.incidents.iter().filter(|i| i.is_resolved()).collect() }
+}
+
+impl IncidentLog {
+    pub fn new() -> Self {
+        Self {
+            incidents: Vec::new(),
+        }
+    }
+    pub fn record(&mut self, i: EnterpriseIncident) {
+        self.incidents.push(i);
+    }
+    pub fn count(&self) -> usize {
+        self.incidents.len()
+    }
+    pub fn open(&self) -> Vec<&EnterpriseIncident> {
+        self.incidents.iter().filter(|i| i.is_open()).collect()
+    }
+    pub fn critical(&self) -> Vec<&EnterpriseIncident> {
+        self.incidents.iter().filter(|i| i.is_critical()).collect()
+    }
+    pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a EnterpriseIncident> {
+        self.incidents
+            .iter()
+            .filter(|i| i.tenant_id == tenant_id)
+            .collect()
+    }
+    pub fn resolved(&self) -> Vec<&EnterpriseIncident> {
+        self.incidents.iter().filter(|i| i.is_resolved()).collect()
+    }
     pub fn get_mut(&mut self, id: &str) -> Option<&mut EnterpriseIncident> {
         self.incidents.iter_mut().find(|i| i.id == id)
     }
-    pub fn all(&self) -> impl Iterator<Item = &EnterpriseIncident> { self.incidents.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &EnterpriseIncident> {
+        self.incidents.iter()
+    }
 }

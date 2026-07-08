@@ -3,7 +3,6 @@
 /// Each struct wraps a simulated Python extension through the `PyExtensionAdapter`.
 /// In production the adapter calls into the PyO3 runtime; here closures stand in
 /// so tests can run without a Python interpreter.
-
 use std::collections::HashMap;
 
 use crate::py_classes::{PyExtensionAdapter, PyExtensionManifest};
@@ -25,9 +24,7 @@ pub fn make_py_echo_tool() -> PyExtensionAdapter {
         let msg = args
             .get("message")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| {
-                ExtensionError::InvalidArgument("'message' is required".to_string())
-            })?;
+            .ok_or_else(|| ExtensionError::InvalidArgument("'message' is required".to_string()))?;
         Ok(Value::string(format!("[python] {msg}")))
     })
 }
@@ -54,16 +51,15 @@ pub fn make_py_sentiment_tool() -> PyExtensionAdapter {
 
         // Naively simulate sentiment by checking for common positive/negative words.
         let lower = text.to_lowercase();
-        let label = if lower.contains("great")
-            || lower.contains("good")
-            || lower.contains("excellent")
-        {
-            "positive"
-        } else if lower.contains("bad") || lower.contains("terrible") || lower.contains("poor") {
-            "negative"
-        } else {
-            "neutral"
-        };
+        let label =
+            if lower.contains("great") || lower.contains("good") || lower.contains("excellent") {
+                "positive"
+            } else if lower.contains("bad") || lower.contains("terrible") || lower.contains("poor")
+            {
+                "negative"
+            } else {
+                "neutral"
+            };
 
         let mut result = HashMap::new();
         result.insert("label".to_string(), Value::string(label));

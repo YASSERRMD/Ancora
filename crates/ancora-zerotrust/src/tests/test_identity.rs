@@ -33,7 +33,6 @@ fn add_group() {
 
 #[test]
 fn with_metadata() {
-    let i = Identity::new("i1", "t1", IdentityKind::Workload, 1)
-        .with_metadata("env", "prod");
+    let i = Identity::new("i1", "t1", IdentityKind::Workload, 1).with_metadata("env", "prod");
     assert_eq!(i.metadata.get("env").map(|s| s.as_str()), Some("prod"));
 }

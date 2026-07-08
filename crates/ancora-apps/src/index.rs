@@ -1,7 +1,7 @@
-/// App gallery index.
-///
-/// Lists all available sample applications with metadata so that
-/// tooling can discover and launch them programmatically.
+//! App gallery index.
+//!
+//! Lists all available sample applications with metadata so that
+//! tooling can discover and launch them programmatically.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum AppCategory {
@@ -113,12 +113,18 @@ pub fn gallery() -> Vec<AppEntry> {
 
 /// Return only apps that work in air-gapped environments.
 pub fn air_gapped_apps() -> Vec<AppEntry> {
-    gallery().into_iter().filter(|a| a.air_gapped_capable).collect()
+    gallery()
+        .into_iter()
+        .filter(|a| a.air_gapped_capable)
+        .collect()
 }
 
 /// Return only apps that work fully offline.
 pub fn offline_apps() -> Vec<AppEntry> {
-    gallery().into_iter().filter(|a| a.offline_capable).collect()
+    gallery()
+        .into_iter()
+        .filter(|a| a.offline_capable)
+        .collect()
 }
 
 #[cfg(test)]

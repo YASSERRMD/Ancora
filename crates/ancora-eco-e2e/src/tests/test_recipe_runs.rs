@@ -2,9 +2,24 @@ use crate::recipe_e2e::{Recipe, RecipeRunner, RecipeStep, StepResult};
 
 fn build_recipe() -> Recipe {
     let mut recipe = Recipe::new("data-pipeline", "1.0.0");
-    recipe.add_step(RecipeStep::new("ingest", "ingest-plugin", "run", vec!["--input", "data.csv"]));
-    recipe.add_step(RecipeStep::new("transform", "transform-plugin", "apply", vec!["--schema", "v2"]));
-    recipe.add_step(RecipeStep::new("output", "output-plugin", "emit", vec!["--dest", "s3://bucket"]));
+    recipe.add_step(RecipeStep::new(
+        "ingest",
+        "ingest-plugin",
+        "run",
+        vec!["--input", "data.csv"],
+    ));
+    recipe.add_step(RecipeStep::new(
+        "transform",
+        "transform-plugin",
+        "apply",
+        vec!["--schema", "v2"],
+    ));
+    recipe.add_step(RecipeStep::new(
+        "output",
+        "output-plugin",
+        "emit",
+        vec!["--dest", "s3://bucket"],
+    ));
     recipe
 }
 

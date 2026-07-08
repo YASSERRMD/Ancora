@@ -1,7 +1,7 @@
-/// Residency and data-handling declaration for marketplace extensions.
-///
-/// Extensions that process user data must declare where that data is stored
-/// and processed. Install policies can restrict extensions based on residency.
+//! Residency and data-handling declaration for marketplace extensions.
+//!
+//! Extensions that process user data must declare where that data is stored
+//! and processed. Install policies can restrict extensions based on residency.
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Region {
@@ -100,7 +100,11 @@ pub fn enforce_residency(
         return Ok(());
     }
 
-    for region in decl.storage_regions.iter().chain(decl.processing_regions.iter()) {
+    for region in decl
+        .storage_regions
+        .iter()
+        .chain(decl.processing_regions.iter())
+    {
         if !allowed_regions.contains(region) {
             return Err(ResidencyError::RegionNotAllowed(region.clone()));
         }
@@ -129,6 +133,9 @@ mod tests {
 
     #[test]
     fn missing_declaration_rejected() {
-        assert_eq!(enforce_residency(None, &[]), Err(ResidencyError::DeclarationMissing));
+        assert_eq!(
+            enforce_residency(None, &[]),
+            Err(ResidencyError::DeclarationMissing)
+        );
     }
 }

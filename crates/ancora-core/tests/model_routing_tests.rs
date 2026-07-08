@@ -20,10 +20,7 @@ fn explicit_binding_overrides_default_and_node_model() {
 #[test]
 fn node_model_id_used_when_no_binding_exists() {
     let router = ModelRouter::new("default");
-    assert_eq!(
-        router.resolve("node-b", Some("node-model")),
-        "node-model"
-    );
+    assert_eq!(router.resolve("node-b", Some("node-model")), "node-model");
 }
 
 #[test]
@@ -100,7 +97,7 @@ fn large_graph_routing_resolves_all_nodes() {
     let n = 50;
     let mut router = ModelRouter::new("default");
     for i in 0..n {
-        router.bind(&format!("node-{}", i), &format!("model-{}", i % 3));
+        router.bind(format!("node-{}", i), format!("model-{}", i % 3));
     }
     for i in 0..n {
         let resolved = router.resolve(&format!("node-{}", i), None);

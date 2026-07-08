@@ -56,14 +56,17 @@ impl Hub {
 
         for mut entry in request.entries {
             // Idempotency: skip if already stored.
-            let already_stored = self.entries.iter().any(|e| {
-                e.device_id == entry.device_id && e.seq == entry.seq
-            });
+            let already_stored = self
+                .entries
+                .iter()
+                .any(|e| e.device_id == entry.device_id && e.seq == entry.seq);
             if already_stored {
                 // Return the hub seq we assigned previously.
-                if let Some(stored) = self.entries.iter().find(|e| {
-                    e.device_id == entry.device_id && e.seq == entry.seq
-                }) {
+                if let Some(stored) = self
+                    .entries
+                    .iter()
+                    .find(|e| e.device_id == entry.device_id && e.seq == entry.seq)
+                {
                     if let crate::model::SyncMarker::Synced { hub_seq } = stored.marker {
                         acked_seqs.push(hub_seq);
                     }
@@ -73,7 +76,11 @@ impl Hub {
 
             // Conflict check: is there already an entry for this key from a
             // *different* device?
-            if self.entries.iter().any(|e| e.key == entry.key && e.device_id != entry.device_id) {
+            if self
+                .entries
+                .iter()
+                .any(|e| e.key == entry.key && e.device_id != entry.device_id)
+            {
                 has_conflicts = true;
             }
 

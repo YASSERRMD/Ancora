@@ -19,9 +19,24 @@ fn redaction_decision_recorded() {
 #[test]
 fn multiple_decisions_all_audited() {
     let mut log = RedactionAuditLog::new();
-    log.record("prompt.text", RedactionReason::DropPrefix, "span_policy", false);
-    log.record("api.key", RedactionReason::ClassificationThreshold, "span_policy", true);
-    log.record("ip_address", RedactionReason::PiiDetected, "pii_scrub", true);
+    log.record(
+        "prompt.text",
+        RedactionReason::DropPrefix,
+        "span_policy",
+        false,
+    );
+    log.record(
+        "api.key",
+        RedactionReason::ClassificationThreshold,
+        "span_policy",
+        true,
+    );
+    log.record(
+        "ip_address",
+        RedactionReason::PiiDetected,
+        "pii_scrub",
+        true,
+    );
     assert_eq!(log.len(), 3);
 }
 
@@ -51,7 +66,12 @@ fn filter_by_reason_returns_correct_subset() {
 #[test]
 fn get_by_seq_works() {
     let mut log = RedactionAuditLog::new();
-    let seq = log.record("x", RedactionReason::ClassificationThreshold, "eval_policy", true);
+    let seq = log.record(
+        "x",
+        RedactionReason::ClassificationThreshold,
+        "eval_policy",
+        true,
+    );
     let entry = log.get(seq).unwrap();
     assert_eq!(entry.attr_name, "x");
 }

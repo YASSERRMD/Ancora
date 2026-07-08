@@ -83,23 +83,36 @@ impl Incident {
         self.assignee = Some(assignee.into());
     }
 
-    pub fn triage(&mut self) { self.status = IncidentStatus::Triaged; }
-    pub fn investigate(&mut self) { self.status = IncidentStatus::Investigating; }
-    pub fn mitigate(&mut self) { self.status = IncidentStatus::Mitigating; }
+    pub fn triage(&mut self) {
+        self.status = IncidentStatus::Triaged;
+    }
+    pub fn investigate(&mut self) {
+        self.status = IncidentStatus::Investigating;
+    }
+    pub fn mitigate(&mut self) {
+        self.status = IncidentStatus::Mitigating;
+    }
 
     pub fn resolve(&mut self, tick: u64) {
         self.status = IncidentStatus::Resolved;
         self.resolved_tick = Some(tick);
     }
 
-    pub fn close(&mut self) { self.status = IncidentStatus::Closed; }
+    pub fn close(&mut self) {
+        self.status = IncidentStatus::Closed;
+    }
 
     pub fn is_active(&self) -> bool {
-        !matches!(self.status, IncidentStatus::Resolved | IncidentStatus::Closed)
+        !matches!(
+            self.status,
+            IncidentStatus::Resolved | IncidentStatus::Closed
+        )
     }
 
     pub fn duration(&self, current_tick: u64) -> u64 {
-        self.resolved_tick.unwrap_or(current_tick).saturating_sub(self.detected_tick)
+        self.resolved_tick
+            .unwrap_or(current_tick)
+            .saturating_sub(self.detected_tick)
     }
 
     pub fn with_metadata(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {

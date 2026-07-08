@@ -1,5 +1,4 @@
 /// Tests: redaction policy applied per policy rules.
-
 use crate::genai_attrs::{GEN_AI_COMPLETION, GEN_AI_PROMPT, GEN_AI_REQUEST_MODEL};
 use crate::redact::{RedactPolicy, REDACTED_SENTINEL};
 use crate::span::Span;

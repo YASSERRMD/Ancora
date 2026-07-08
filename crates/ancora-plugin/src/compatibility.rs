@@ -1,5 +1,4 @@
 /// Plugin version compatibility check.
-
 use crate::manifest::{ManifestError, PluginManifest, SemVer};
 
 /// Error returned when a compatibility check fails.
@@ -22,7 +21,11 @@ impl From<ManifestError> for CompatError {
 impl std::fmt::Display for CompatError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CompatError::IncompatibleSdk { sdk_version, min_required, max_allowed } => write!(
+            CompatError::IncompatibleSdk {
+                sdk_version,
+                min_required,
+                max_allowed,
+            } => write!(
                 f,
                 "SDK {sdk_version} is outside plugin range [{min_required}, {max_allowed}]"
             ),
@@ -34,7 +37,11 @@ impl std::fmt::Display for CompatError {
 impl std::error::Error for CompatError {}
 
 /// The current SDK version provided by this crate.
-pub const CURRENT_SDK_VERSION: SemVer = SemVer { major: 1, minor: 0, patch: 0 };
+pub const CURRENT_SDK_VERSION: SemVer = SemVer {
+    major: 1,
+    minor: 0,
+    patch: 0,
+};
 
 /// Check that a plugin manifest is compatible with the given SDK version.
 ///

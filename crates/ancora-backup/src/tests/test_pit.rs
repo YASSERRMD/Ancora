@@ -5,7 +5,13 @@ mod tests {
     fn journal_with_entries(n: u64) -> Journal {
         let mut j = Journal::new();
         for i in 1..=n {
-            j.append(JournalEntry { seq: i, run_id: "r".into(), tenant_id: "t".into(), kind: "step".into(), payload: "{}".into() });
+            j.append(JournalEntry {
+                seq: i,
+                run_id: "r".into(),
+                tenant_id: "t".into(),
+                kind: "step".into(),
+                payload: "{}".into(),
+            });
         }
         j
     }

@@ -9,19 +9,19 @@
 //! - [`journal`]: journaled and replayable adapter selection
 //! - [`perf`]: adapter performance notes
 
-pub mod model;
-pub mod runtime;
-pub mod integrity;
-pub mod registry;
 pub mod export;
+pub mod integrity;
 pub mod journal;
+pub mod model;
 pub mod perf;
+pub mod registry;
+pub mod runtime;
 
 // Re-export commonly used types.
+pub use journal::{SelectionEvent, SelectionJournal};
 pub use model::{
-    AdapterDescriptor, AdapterFormat, AdapterId, AdapterIntegrity, BaseModel,
-    LoadedAdapter, LoraHyperparams,
+    AdapterDescriptor, AdapterFormat, AdapterId, AdapterIntegrity, BaseModel, LoadedAdapter,
+    LoraHyperparams,
 };
-pub use runtime::{FtError, FtResult};
 pub use registry::AdapterRegistry;
-pub use journal::{SelectionJournal, SelectionEvent};
+pub use runtime::{FtError, FtResult};

@@ -37,7 +37,10 @@ fn semantic_kernel_bridge_works() {
     let names: Vec<&str> = specs.iter().map(|s| s.qualified_name.as_str()).collect();
     assert!(names.contains(&"MathPlugin.add"));
     assert!(names.contains(&"MathPlugin.multiply"));
-    let add_spec = specs.iter().find(|s| s.qualified_name == "MathPlugin.add").unwrap();
+    let add_spec = specs
+        .iter()
+        .find(|s| s.qualified_name == "MathPlugin.add")
+        .unwrap();
     assert_eq!(add_spec.param_defaults.get("a").unwrap(), "0");
 }
 
@@ -47,7 +50,10 @@ fn sk_empty_plugin_returns_error() {
         plugin_name: "Empty".into(),
         functions: vec![],
     };
-    assert!(matches!(import_sk_plugin(plugin), Err(SKBridgeError::EmptyPlugin)));
+    assert!(matches!(
+        import_sk_plugin(plugin),
+        Err(SKBridgeError::EmptyPlugin)
+    ));
 }
 
 #[test]
@@ -67,7 +73,10 @@ fn sk_duplicate_function_returns_error() {
             },
         ],
     };
-    assert!(matches!(import_sk_plugin(plugin), Err(SKBridgeError::DuplicateFunction(_))));
+    assert!(matches!(
+        import_sk_plugin(plugin),
+        Err(SKBridgeError::DuplicateFunction(_))
+    ));
 }
 
 #[test]

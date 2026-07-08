@@ -1,5 +1,5 @@
-use crate::policy_violation::{PolicyViolationDetector, ViolationKind};
 use crate::classifier::SafetyClassifier;
+use crate::policy_violation::{PolicyViolationDetector, ViolationKind};
 
 #[test]
 fn confidential_keyword_triggers_policy() {

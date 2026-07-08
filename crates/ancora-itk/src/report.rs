@@ -1,4 +1,4 @@
-/// Pass/fail report produced by the kit runner.
+//! Pass/fail report produced by the kit runner.
 
 /// Overall status of a kit run.
 #[derive(Debug, Clone, PartialEq)]

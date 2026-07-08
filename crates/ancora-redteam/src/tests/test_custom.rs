@@ -1,4 +1,4 @@
-use crate::{AttackCategory, ScenarioBuilder, ScenarioDataset};
+use crate::{AttackCategory, ScenarioBuilder};
 
 #[test]
 fn custom_builder_injection() {
@@ -7,7 +7,11 @@ fn custom_builder_injection() {
         .add_injection("hello world", false)
         .build();
     assert_eq!(dataset.len(), 2);
-    let blocked: Vec<_> = dataset.scenarios.iter().filter(|s| s.expected_blocked).collect();
+    let blocked: Vec<_> = dataset
+        .scenarios
+        .iter()
+        .filter(|s| s.expected_blocked)
+        .collect();
     assert_eq!(blocked.len(), 1);
 }
 

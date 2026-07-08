@@ -68,7 +68,9 @@ pub struct PyCostAccessor {
 
 impl PyCostAccessor {
     pub fn new() -> Self {
-        PyCostAccessor { records: Vec::new() }
+        PyCostAccessor {
+            records: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, cost: CostRecord) {

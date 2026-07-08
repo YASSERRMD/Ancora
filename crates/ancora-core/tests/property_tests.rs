@@ -15,17 +15,25 @@ fn make_event(seq: u64, run_id: &str, ev: Event) -> JournalEvent {
 }
 
 fn started_event(seq: u64, run_id: &str) -> JournalEvent {
-    make_event(seq, run_id, Event::RunStarted(RunStartedEvent {
-        run_id: run_id.to_owned(),
-        spec_bytes: vec![],
-        spec_type: "AgentSpec".into(),
-    }))
+    make_event(
+        seq,
+        run_id,
+        Event::RunStarted(RunStartedEvent {
+            run_id: run_id.to_owned(),
+            spec_bytes: vec![],
+            spec_type: "AgentSpec".into(),
+        }),
+    )
 }
 
 fn completed_event(seq: u64, run_id: &str) -> JournalEvent {
-    make_event(seq, run_id, Event::RunCompleted(RunCompletedEvent {
-        output_json: String::new(),
-    }))
+    make_event(
+        seq,
+        run_id,
+        Event::RunCompleted(RunCompletedEvent {
+            output_json: String::new(),
+        }),
+    )
 }
 
 proptest! {

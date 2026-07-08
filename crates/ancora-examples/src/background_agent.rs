@@ -1,6 +1,6 @@
 use ancora_lh::{
-    BackgroundRun, ScheduledWakeup, CheckpointCadence, Checkpoint,
-    ProgressStore, SignalQueue, ExternalSignal, Deadline, Throttle, RunDashboard,
+    BackgroundRun, Checkpoint, CheckpointCadence, Deadline, ExternalSignal, ProgressStore,
+    RunDashboard, ScheduledWakeup, SignalQueue, Throttle,
 };
 
 pub fn run_background_agent_example() {

@@ -1,3 +1,8 @@
+pub mod capability;
+pub mod health;
+pub mod llama_embedded;
+pub mod llama_server;
+pub mod lmstudio;
 /// ancora-localeng: deep integration with local inference engines.
 ///
 /// Supported engines:
@@ -12,19 +17,13 @@
 ///
 /// All engines are backed by a pluggable transport trait so tests
 /// run fully offline against mocks.
-
 pub mod model;
-pub mod llama_server;
-pub mod llama_embedded;
 pub mod ollama;
-pub mod vllm;
-pub mod sglang;
-pub mod lmstudio;
-pub mod tgi;
 pub mod onnx;
-pub mod capability;
-pub mod health;
 pub mod runtime;
+pub mod sglang;
+pub mod tgi;
+pub mod vllm;
 
 #[cfg(test)]
 mod tests;

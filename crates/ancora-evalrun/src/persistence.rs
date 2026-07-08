@@ -1,10 +1,9 @@
+use crate::aggregate::AggregateMetrics;
+use crate::executor::RunId;
 /// Eval run persistence - serialize and deserialize eval run records.
 ///
 /// Uses a simple newline-delimited JSON-like text format (no external deps).
-
 use std::fmt;
-use crate::executor::RunId;
-use crate::aggregate::AggregateMetrics;
 
 /// A persisted record of a completed eval run.
 #[derive(Debug, Clone)]
@@ -60,7 +59,11 @@ impl EvalRunStore {
 
     /// Serialize the store to a simple text format.
     pub fn serialize(&self) -> String {
-        self.records.iter().map(|r| r.to_string()).collect::<Vec<_>>().join("\n")
+        self.records
+            .iter()
+            .map(|r| r.to_string())
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 
     /// Deserialize records from text (round-trip: only the string representation).

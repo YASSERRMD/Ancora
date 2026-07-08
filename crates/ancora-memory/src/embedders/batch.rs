@@ -4,8 +4,7 @@
 /// chunks of `batch_size`, processing them sequentially with optional delay
 /// between batches to avoid rate-limit exhaustion.  All operations are
 /// synchronous and offline-safe.
-
-use crate::embedders::embedder::{Embedding, EmbedError, EmbedResult, Embedder};
+use crate::embedders::embedder::{EmbedError, EmbedResult, Embedder, Embedding};
 
 // ---- batch config -------------------------------------------------------
 
@@ -21,15 +20,27 @@ pub struct BatchConfig {
 
 impl BatchConfig {
     pub fn new(batch_size: usize) -> Self {
-        Self { batch_size: batch_size.max(1), max_retries: 3, skip_on_error: false }
+        Self {
+            batch_size: batch_size.max(1),
+            max_retries: 3,
+            skip_on_error: false,
+        }
     }
 
-    pub fn with_retries(mut self, n: u32) -> Self { self.max_retries = n; self }
-    pub fn skip_errors(mut self) -> Self { self.skip_on_error = true; self }
+    pub fn with_retries(mut self, n: u32) -> Self {
+        self.max_retries = n;
+        self
+    }
+    pub fn skip_errors(mut self) -> Self {
+        self.skip_on_error = true;
+        self
+    }
 }
 
 impl Default for BatchConfig {
-    fn default() -> Self { Self::new(96) }
+    fn default() -> Self {
+        Self::new(96)
+    }
 }
 
 // ---- batch result -------------------------------------------------------
@@ -49,7 +60,9 @@ impl BatchResult {
     }
 
     pub fn success_rate(&self) -> f32 {
-        if self.total == 0 { return 1.0; }
+        if self.total == 0 {
+            return 1.0;
+        }
         (self.total - self.error_count) as f32 / self.total as f32
     }
 }
@@ -63,7 +76,9 @@ pub struct BatchEmbedder<E: Embedder> {
 }
 
 impl<E: Embedder> BatchEmbedder<E> {
-    pub fn new(inner: E, config: BatchConfig) -> Self { Self { inner, config } }
+    pub fn new(inner: E, config: BatchConfig) -> Self {
+        Self { inner, config }
+    }
 
     pub fn embed_all(&self, texts: &[&str]) -> BatchResult {
         let total = texts.len();
@@ -92,12 +107,20 @@ impl<E: Embedder> BatchEmbedder<E> {
                         error_count += 1;
                     }
                     let _ = e; // error info already counted
-                    return BatchResult { embeddings, error_count, total };
+                    return BatchResult {
+                        embeddings,
+                        error_count,
+                        total,
+                    };
                 }
             }
         }
 
-        BatchResult { embeddings, error_count, total }
+        BatchResult {
+            embeddings,
+            error_count,
+            total,
+        }
     }
 
     fn embed_chunk_with_retry(&self, chunk: &[&str]) -> EmbedResult<Vec<Embedding>> {
@@ -127,7 +150,11 @@ pub fn merge_batch_results(results: Vec<BatchResult>) -> BatchResult {
     let total: usize = results.iter().map(|r| r.total).sum();
     let error_count: usize = results.iter().map(|r| r.error_count).sum();
     let embeddings = results.into_iter().flat_map(|r| r.embeddings).collect();
-    BatchResult { embeddings, error_count, total }
+    BatchResult {
+        embeddings,
+        error_count,
+        total,
+    }
 }
 
 // ---- tests ---------------------------------------------------------------
@@ -135,9 +162,11 @@ pub fn merge_batch_results(results: Vec<BatchResult>) -> BatchResult {
 #[cfg(test)]
 mod batch_tests {
     use super::*;
-    use crate::embedders::embedder::{Embedding, EmbedResult, Embedder};
+    use crate::embedders::embedder::{EmbedResult, Embedder, Embedding};
 
-    struct Echo { dims: usize }
+    struct Echo {
+        dims: usize,
+    }
 
     impl Embedder for Echo {
         fn embed(&self, text: &str) -> EmbedResult<Embedding> {
@@ -145,8 +174,12 @@ mod batch_tests {
             v[text.len() % self.dims] = 1.0;
             Ok(v)
         }
-        fn model_name(&self) -> &str { "echo" }
-        fn dims(&self) -> usize { self.dims }
+        fn model_name(&self) -> &str {
+            "echo"
+        }
+        fn dims(&self) -> usize {
+            self.dims
+        }
     }
 
     #[test]
@@ -183,13 +216,21 @@ mod batch_tests {
     fn chunk_embeddings_splits_correctly() {
         let embs: Vec<Embedding> = (0..10).map(|_| vec![0.0f32]).collect();
         let chunks = chunk_embeddings(embs, 3);
-        assert_eq!(chunks.len(), 4);  // ceil(10/3) = 4
+        assert_eq!(chunks.len(), 4); // ceil(10/3) = 4
     }
 
     #[test]
     fn merge_batch_results_totals_sum() {
-        let r1 = BatchResult { embeddings: vec![Some(vec![0.1f32])], error_count: 0, total: 1 };
-        let r2 = BatchResult { embeddings: vec![None], error_count: 1, total: 1 };
+        let r1 = BatchResult {
+            embeddings: vec![Some(vec![0.1f32])],
+            error_count: 0,
+            total: 1,
+        };
+        let r2 = BatchResult {
+            embeddings: vec![None],
+            error_count: 1,
+            total: 1,
+        };
         let merged = merge_batch_results(vec![r1, r2]);
         assert_eq!(merged.total, 2);
         assert_eq!(merged.error_count, 1);

@@ -32,7 +32,8 @@ impl GraderRegistry {
     where
         G: Grader + Send + Sync + 'static,
     {
-        self.graders.insert(name.into(), BoxedGrader(Box::new(grader)));
+        self.graders
+            .insert(name.into(), BoxedGrader(Box::new(grader)));
     }
 
     /// Look up a grader by name.
@@ -48,7 +49,12 @@ impl GraderRegistry {
     }
 
     /// Grade using the named grader. Returns an error string if not found.
-    pub fn grade(&self, grader_name: &str, candidate: &str, expected: &str) -> Result<Score, String> {
+    pub fn grade(
+        &self,
+        grader_name: &str,
+        candidate: &str,
+        expected: &str,
+    ) -> Result<Score, String> {
         match self.graders.get(grader_name) {
             Some(g) => Ok(g.grade(candidate, expected)),
             None => Err(format!("Grader '{}' not found in registry", grader_name)),

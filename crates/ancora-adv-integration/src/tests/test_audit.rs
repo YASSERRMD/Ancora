@@ -10,14 +10,20 @@ fn combined_audit_complete() {
 
     // Toolsynth audit
     let mut synth_audit = SynthAudit::default();
-    synth_audit.record(1, AuditEvent::Synthesized {
-        tool_name: "search_docs".into(),
-        goal: "search documents".into(),
-    });
-    synth_audit.record(2, AuditEvent::Approved {
-        tool_name: "search_docs".into(),
-        approver: "admin".into(),
-    });
+    synth_audit.record(
+        1,
+        AuditEvent::Synthesized {
+            tool_name: "search_docs".into(),
+            goal: "search documents".into(),
+        },
+    );
+    synth_audit.record(
+        2,
+        AuditEvent::Approved {
+            tool_name: "search_docs".into(),
+            approver: "admin".into(),
+        },
+    );
     assert_eq!(synth_audit.entries().len(), 2);
 
     // Guard journal
@@ -34,7 +40,13 @@ fn combined_audit_complete() {
 
     // Reason journal
     let mut reason_j = ReasoningJournal::default();
-    reason_j.record(3, ReasoningEvent::StepAdded { index: 0, claim: "audit claim".into() });
+    reason_j.record(
+        3,
+        ReasoningEvent::StepAdded {
+            index: 0,
+            claim: "audit claim".into(),
+        },
+    );
     assert!(!reason_j.events().is_empty());
 
     // Consolidation journal

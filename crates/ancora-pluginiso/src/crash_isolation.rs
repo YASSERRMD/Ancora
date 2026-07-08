@@ -1,9 +1,9 @@
-/// Plugin crash isolation.
-///
-/// Determines how the host handles a plugin crash or panic.  When isolation is
-/// enabled the host process continues running; the failed plugin is marked as
-/// faulted and new invocations return an error until the plugin is restarted or
-/// removed.
+//! Plugin crash isolation.
+//!
+//! Determines how the host handles a plugin crash or panic.  When isolation is
+//! enabled the host process continues running; the failed plugin is marked as
+//! faulted and new invocations return an error until the plugin is restarted or
+//! removed.
 
 /// Crash isolation strategy for a plugin.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -46,7 +46,9 @@ impl CrashIsolationHandle {
     /// Record a crash.  Returns `true` when the host should propagate the
     /// crash (i.e., the mode is `Propagate`).
     pub fn record_crash(&mut self, reason: impl Into<String>) -> bool {
-        self.health = PluginHealth::Faulted { reason: reason.into() };
+        self.health = PluginHealth::Faulted {
+            reason: reason.into(),
+        };
         self.mode == CrashIsolationMode::Propagate
     }
 

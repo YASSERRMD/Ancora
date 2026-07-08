@@ -1,4 +1,4 @@
-use crate::boot::{BootPhase, BootSequencer, next_phase, BOOT_SEQUENCE};
+use crate::boot::{next_phase, BootPhase, BootSequencer, BOOT_SEQUENCE};
 
 #[test]
 fn test_service_starts_at_boot_all_pass() {

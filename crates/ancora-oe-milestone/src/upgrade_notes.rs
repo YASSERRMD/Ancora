@@ -35,7 +35,11 @@ impl UpgradeNote {
     pub fn render(&self) -> String {
         let mut out = format!(
             "{} {} -> {}: {}\n  {}\n",
-            if self.breaking { "[BREAKING]" } else { "[non-breaking]" },
+            if self.breaking {
+                "[BREAKING]"
+            } else {
+                "[non-breaking]"
+            },
             self.from_version,
             self.to_version,
             self.title,
@@ -76,7 +80,13 @@ mod tests {
 
     #[test]
     fn non_breaking_note() {
-        let n = UpgradeNote::new("0.5.0", "0.6.0", false, "Added histogram support", "New API.");
+        let n = UpgradeNote::new(
+            "0.5.0",
+            "0.6.0",
+            false,
+            "Added histogram support",
+            "New API.",
+        );
         assert!(!n.breaking);
         assert!(n.render().contains("[non-breaking]"));
     }

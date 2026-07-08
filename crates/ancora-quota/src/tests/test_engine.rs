@@ -3,7 +3,13 @@ mod tests {
     use crate::{QuotaEngine, QuotaSchema};
 
     fn tight_schema() -> QuotaSchema {
-        QuotaSchema { max_requests: 2, max_tokens: 50, max_cost_usd: 0.5, window_secs: 60, soft_limit_fraction: 0.9 }
+        QuotaSchema {
+            max_requests: 2,
+            max_tokens: 50,
+            max_cost_usd: 0.5,
+            window_secs: 60,
+            soft_limit_fraction: 0.9,
+        }
     }
 
     #[test]

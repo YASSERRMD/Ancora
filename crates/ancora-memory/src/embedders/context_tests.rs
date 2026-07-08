@@ -1,4 +1,4 @@
-/// Extended context assembly tests -- all offline.
+//! Extended context assembly tests -- all offline.
 
 #[cfg(test)]
 mod context_ext_tests {
@@ -80,7 +80,10 @@ mod context_ext_tests {
         let a2 = ContextAssembler::new(100_000).with_tokens_per_word(2.0);
         let ctx1 = a1.assemble(&["hello world"]);
         let ctx2 = a2.assemble(&["hello world"]);
-        assert!(ctx2.estimated_tokens > ctx1.estimated_tokens, "higher factor should cost more");
+        assert!(
+            ctx2.estimated_tokens > ctx1.estimated_tokens,
+            "higher factor should cost more"
+        );
     }
 
     #[test]

@@ -11,13 +11,26 @@ const EDGE_SUPPORTED_SDKS: &[&str] = &["rust", "ts", "go"];
 struct EdgeExample {
     sdk: &'static str,
     target: &'static str,
+    #[allow(dead_code)]
     local_model_only: bool,
 }
 
 const EDGE_EXAMPLES: &[EdgeExample] = &[
-    EdgeExample { sdk: "rust", target: "wasm32-unknown-unknown", local_model_only: true },
-    EdgeExample { sdk: "ts",   target: "wasm32-unknown-unknown", local_model_only: false },
-    EdgeExample { sdk: "go",   target: "wasm32-unknown-unknown", local_model_only: false },
+    EdgeExample {
+        sdk: "rust",
+        target: "wasm32-unknown-unknown",
+        local_model_only: true,
+    },
+    EdgeExample {
+        sdk: "ts",
+        target: "wasm32-unknown-unknown",
+        local_model_only: false,
+    },
+    EdgeExample {
+        sdk: "go",
+        target: "wasm32-unknown-unknown",
+        local_model_only: false,
+    },
 ];
 
 #[test]
@@ -39,13 +52,22 @@ fn test_rust_edge_uses_wasm_target() {
 #[test]
 fn test_supported_sdks_include_rust_ts_go() {
     for sdk in ["rust", "ts", "go"] {
-        assert!(EDGE_SUPPORTED_SDKS.contains(&sdk), "edge deployment doesn't support {sdk}");
+        assert!(
+            EDGE_SUPPORTED_SDKS.contains(&sdk),
+            "edge deployment doesn't support {sdk}"
+        );
     }
 }
 
 #[test]
 fn test_all_edge_examples_use_wasm_target() {
-    for e in EDGE_EXAMPLES { assert!(e.target.contains("wasm"), "sdk {} target is not wasm", e.sdk); }
+    for e in EDGE_EXAMPLES {
+        assert!(
+            e.target.contains("wasm"),
+            "sdk {} target is not wasm",
+            e.sdk
+        );
+    }
 }
 
 #[test]

@@ -27,7 +27,10 @@ fn test_twelve_faq_questions() {
 #[test]
 fn test_all_questions_end_with_question_mark() {
     for q in FAQ_QUESTIONS {
-        assert!(is_valid_question(q), "FAQ question does not end with ?: {q}");
+        assert!(
+            is_valid_question(q),
+            "FAQ question does not end with ?: {q}"
+        );
     }
 }
 
@@ -38,15 +41,21 @@ fn test_local_models_faq_present() {
 
 #[test]
 fn test_offline_testing_faq_present() {
-    assert!(FAQ_QUESTIONS.iter().any(|q| q.to_lowercase().contains("offline")));
+    assert!(FAQ_QUESTIONS
+        .iter()
+        .any(|q| q.to_lowercase().contains("offline")));
 }
 
 #[test]
 fn test_cost_faq_present() {
-    assert!(FAQ_QUESTIONS.iter().any(|q| q.to_lowercase().contains("cost")));
+    assert!(FAQ_QUESTIONS
+        .iter()
+        .any(|q| q.to_lowercase().contains("cost")));
 }
 
 #[test]
 fn test_no_empty_question() {
-    for q in FAQ_QUESTIONS { assert!(!q.trim().is_empty()); }
+    for q in FAQ_QUESTIONS {
+        assert!(!q.trim().is_empty());
+    }
 }

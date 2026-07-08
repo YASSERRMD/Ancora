@@ -1,5 +1,4 @@
 /// Studio module: renders a run end-to-end for display in the observability studio.
-
 use crate::trace_e2e::Trace;
 
 /// A rendered view of a run for studio display.

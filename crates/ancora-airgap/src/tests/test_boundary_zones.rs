@@ -22,8 +22,18 @@ fn zone_with_metadata() {
 #[test]
 fn boundary_count() {
     let mut b = AirGapBoundary::new();
-    b.add_zone(AirGapZone::new("z1", "Z1", ZoneClassification::Public, "t1"));
-    b.add_zone(AirGapZone::new("z2", "Z2", ZoneClassification::TopSecret, "t1"));
+    b.add_zone(AirGapZone::new(
+        "z1",
+        "Z1",
+        ZoneClassification::Public,
+        "t1",
+    ));
+    b.add_zone(AirGapZone::new(
+        "z2",
+        "Z2",
+        ZoneClassification::TopSecret,
+        "t1",
+    ));
     assert_eq!(b.count(), 2);
     assert_eq!(b.restricted_zones().len(), 1);
 }

@@ -18,7 +18,10 @@ impl ProviderFailover {
         for p in &providers_in_priority_order {
             statuses.insert(p.clone(), ProviderStatus::Active);
         }
-        Self { statuses, priority: providers_in_priority_order }
+        Self {
+            statuses,
+            priority: providers_in_priority_order,
+        }
     }
 
     pub fn mark_failed(&mut self, provider: &str) {

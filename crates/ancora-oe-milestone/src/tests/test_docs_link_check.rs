@@ -6,7 +6,7 @@ use crate::feature_matrix::{Availability, FeatureMatrix, FeatureRow};
 #[test]
 fn all_catalog_entries_have_ids() {
     let catalog = CatalogIndex::new()
-        .add(
+        .add_entry(
             CatalogEntry::new(
                 "M001",
                 CatalogKind::Metric,
@@ -15,13 +15,13 @@ fn all_catalog_entries_have_ids() {
             )
             .stable(),
         )
-        .add(CatalogEntry::new(
+        .add_entry(CatalogEntry::new(
             "E001",
             CatalogKind::Eval,
             "factual-accuracy",
             "Factual accuracy score",
         ))
-        .add(CatalogEntry::new(
+        .add_entry(CatalogEntry::new(
             "D001",
             CatalogKind::Dashboard,
             "obs-overview",
@@ -59,7 +59,7 @@ fn feature_matrix_all_rows_have_names() {
 
 #[test]
 fn catalog_render_is_non_empty() {
-    let catalog = CatalogIndex::new().add(CatalogEntry::new(
+    let catalog = CatalogIndex::new().add_entry(CatalogEntry::new(
         "T001",
         CatalogKind::Trace,
         "agent.span",

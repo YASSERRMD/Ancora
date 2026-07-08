@@ -3,7 +3,13 @@ mod tests {
     use crate::provenance::{ProvenanceKind, ProvenanceRecord, ProvenanceStore};
 
     fn make_record(component_id: &str) -> ProvenanceRecord {
-        ProvenanceRecord::new(component_id, ProvenanceKind::BuildSystem, "ci.example.com", "build-1", 800)
+        ProvenanceRecord::new(
+            component_id,
+            ProvenanceKind::BuildSystem,
+            "ci.example.com",
+            "build-1",
+            800,
+        )
     }
 
     #[test]

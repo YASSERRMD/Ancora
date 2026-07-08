@@ -5,8 +5,7 @@
 /// - `ScoreReranker` -- identity reranker that preserves original scores
 /// - `RecipRankFusion` -- score fusion via Reciprocal Rank Fusion (RRF)
 /// - `CosineReranker` -- rerank by cosine similarity against a query embedding
-
-use crate::embedders::embedder::{Embedding, EmbedResult, Reranker, cosine_similarity};
+use crate::embedders::embedder::{cosine_similarity, EmbedResult, Embedding, Reranker};
 
 // ---- scored passage -----------------------------------------------------
 
@@ -19,7 +18,11 @@ pub struct ScoredPassage {
 
 impl ScoredPassage {
     pub fn new(index: usize, text: impl Into<String>, score: f32) -> Self {
-        Self { index, text: text.into(), score }
+        Self {
+            index,
+            text: text.into(),
+            score,
+        }
     }
 }
 
@@ -32,7 +35,9 @@ impl Reranker for IdentityReranker {
     fn rerank(&self, _query: &str, passages: &[&str]) -> EmbedResult<Vec<f32>> {
         Ok((0..passages.len()).map(|i| 1.0 / (i + 1) as f32).collect())
     }
-    fn model_name(&self) -> &str { "identity" }
+    fn model_name(&self) -> &str {
+        "identity"
+    }
 }
 
 // ---- RecipRankFusion ----------------------------------------------------
@@ -69,11 +74,15 @@ pub struct CosineReranker {
 
 impl CosineReranker {
     pub fn new(query_embedding: Embedding, passage_embeddings: Vec<Embedding>) -> Self {
-        Self { query_embedding, passage_embeddings }
+        Self {
+            query_embedding,
+            passage_embeddings,
+        }
     }
 
     pub fn scores(&self) -> Vec<f32> {
-        self.passage_embeddings.iter()
+        self.passage_embeddings
+            .iter()
             .map(|emb| cosine_similarity(&self.query_embedding, emb))
             .collect()
     }
@@ -93,21 +102,32 @@ impl Reranker for CosineReranker {
         scores.truncate(n);
         Ok(scores)
     }
-    fn model_name(&self) -> &str { "cosine-reranker" }
+    fn model_name(&self) -> &str {
+        "cosine-reranker"
+    }
 }
 
 // ---- sort helpers -------------------------------------------------------
 
 /// Sort passages by score descending.
 pub fn sort_by_score(mut passages: Vec<ScoredPassage>) -> Vec<ScoredPassage> {
-    passages.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    passages.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     passages
 }
 
 /// Apply reranker scores to passages and return sorted list.
 pub fn apply_rerank_scores(passages: Vec<ScoredPassage>, scores: Vec<f32>) -> Vec<ScoredPassage> {
-    passages.into_iter().zip(scores.into_iter())
-        .map(|(mut p, score)| { p.score = score; p })
+    passages
+        .into_iter()
+        .zip(scores)
+        .map(|(mut p, score)| {
+            p.score = score;
+            p
+        })
         .collect::<Vec<_>>()
         .into_iter()
         .collect::<Vec<_>>()
@@ -149,7 +169,7 @@ mod rerank_tests {
     #[test]
     fn rrf_single_list_preserves_order() {
         let list = vec![5, 3, 1];
-        let result = reciprocal_rank_fusion(&[list.clone()], 60.0);
+        let result = reciprocal_rank_fusion(std::slice::from_ref(&list), 60.0);
         let order: Vec<usize> = result.into_iter().map(|(i, _)| i).collect();
         assert_eq!(order[0], 5, "top-ranked in list should be first");
     }
@@ -157,10 +177,7 @@ mod rerank_tests {
     #[test]
     fn cosine_reranker_returns_scores_for_each_passage() {
         let q_emb = vec![1.0f32, 0.0, 0.0];
-        let p_embs = vec![
-            vec![1.0f32, 0.0, 0.0],
-            vec![0.0f32, 1.0, 0.0],
-        ];
+        let p_embs = vec![vec![1.0f32, 0.0, 0.0], vec![0.0f32, 1.0, 0.0]];
         let r = CosineReranker::new(q_emb, p_embs);
         let scores = r.rerank("q", &["a", "b"]).unwrap();
         assert_eq!(scores.len(), 2);
@@ -170,11 +187,7 @@ mod rerank_tests {
     #[test]
     fn cosine_reranker_top_k_limits_results() {
         let q_emb = vec![1.0f32, 0.0];
-        let p_embs = vec![
-            vec![1.0f32, 0.0],
-            vec![0.0f32, 1.0],
-            vec![0.5f32, 0.5],
-        ];
+        let p_embs = vec![vec![1.0f32, 0.0], vec![0.0f32, 1.0], vec![0.5f32, 0.5]];
         let r = CosineReranker::new(q_emb, p_embs);
         let top = r.top_k(2);
         assert_eq!(top.len(), 2);
@@ -194,7 +207,10 @@ mod rerank_tests {
 
     #[test]
     fn apply_rerank_scores_updates_scores() {
-        let passages = vec![ScoredPassage::new(0, "a", 0.5), ScoredPassage::new(1, "b", 0.5)];
+        let passages = vec![
+            ScoredPassage::new(0, "a", 0.5),
+            ScoredPassage::new(1, "b", 0.5),
+        ];
         let new_scores = vec![0.9f32, 0.2f32];
         let updated = apply_rerank_scores(passages, new_scores);
         assert!((updated[0].score - 0.9f32).abs() < 1e-5);

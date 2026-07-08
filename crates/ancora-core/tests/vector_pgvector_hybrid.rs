@@ -62,7 +62,9 @@ fn pgvector_hybrid_activity_kind_is_hybrid_retrieval() {
     let events = build_pg_hybrid_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert_eq!(a.activity_kind, "hybrid-retrieval");
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -70,7 +72,9 @@ fn pgvector_hybrid_input_has_alpha() {
     let events = build_pg_hybrid_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.input_json.contains("alpha"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -78,7 +82,9 @@ fn pgvector_hybrid_result_has_rrf_score() {
     let events = build_pg_hybrid_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("rrf_score"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -87,7 +93,9 @@ fn pgvector_hybrid_result_has_two_chunks() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v.as_array().unwrap().len(), 2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

@@ -34,5 +34,8 @@ fn negotiation_fails_on_major_mismatch() {
     let core = CoreApiVersion {
         version: SemVer::new(2, 0, 0),
     };
-    assert_eq!(negotiate(&manifest, &core), NegotiationResult::MajorMismatch);
+    assert_eq!(
+        negotiate(&manifest, &core),
+        NegotiationResult::MajorMismatch
+    );
 }

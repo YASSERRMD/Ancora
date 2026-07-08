@@ -35,7 +35,11 @@ pub struct PromptOptions {
 
 impl Default for PromptOptions {
     fn default() -> Self {
-        Self { style: PromptStyle::Plain, request_json: false, max_chars: None }
+        Self {
+            style: PromptStyle::Plain,
+            request_json: false,
+            max_chars: None,
+        }
     }
 }
 
@@ -181,7 +185,10 @@ fn truncate_left(s: &str, max_chars: usize) -> String {
 /// This keeps the prompt short and directive, which helps small models follow
 /// the structure.
 pub fn slm_system_prompt(task_description: &str, steps: &[&str]) -> String {
-    let mut out = format!("You are a helpful assistant. Task: {}\n\n", task_description);
+    let mut out = format!(
+        "You are a helpful assistant. Task: {}\n\n",
+        task_description
+    );
     if !steps.is_empty() {
         out.push_str("Follow these steps in order:\n");
         for (i, step) in steps.iter().enumerate() {

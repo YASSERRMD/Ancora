@@ -9,7 +9,10 @@ pub struct MigrationRunner {
 
 impl MigrationRunner {
     pub fn new(registry: MigrationRegistry) -> Self {
-        Self { registry, tracker: MigrationTracker::new() }
+        Self {
+            registry,
+            tracker: MigrationTracker::new(),
+        }
     }
 
     pub fn migrate_to(&mut self, target: u32, now: u64) -> Result<u32, MigrateError> {
@@ -21,8 +24,12 @@ impl MigrationRunner {
 
         let mut applied = 0u32;
         for v in pending {
-            let m = self.registry.get(v).ok_or(MigrateError::NotFound { version: v })?;
-            m.apply().map_err(|reason| MigrateError::MigrationFailed { version: v, reason })?;
+            let m = self
+                .registry
+                .get(v)
+                .ok_or(MigrateError::NotFound { version: v })?;
+            m.apply()
+                .map_err(|reason| MigrateError::MigrationFailed { version: v, reason })?;
             self.tracker.mark_applied(v, now);
             applied += 1;
         }
@@ -39,8 +46,12 @@ impl MigrationRunner {
 
         let mut rolled = 0u32;
         for v in to_rollback {
-            let m = self.registry.get(v).ok_or(MigrateError::NotFound { version: v })?;
-            m.rollback().map_err(|reason| MigrateError::RollbackFailed { version: v, reason })?;
+            let m = self
+                .registry
+                .get(v)
+                .ok_or(MigrateError::NotFound { version: v })?;
+            m.rollback()
+                .map_err(|reason| MigrateError::RollbackFailed { version: v, reason })?;
             self.tracker.mark_rolled_back(v, now);
             rolled += 1;
         }

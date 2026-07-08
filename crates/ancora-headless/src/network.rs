@@ -1,14 +1,15 @@
-/// No external network policy for the headless agent.
-///
-/// Defines and enforces a policy that blocks all external network egress
-/// by default, allowing only local socket communication.
+//! No external network policy for the headless agent.
+//!
+//! Defines and enforces a policy that blocks all external network egress
+//! by default, allowing only local socket communication.
 
 use std::collections::HashSet;
 
 /// The network egress policy for the headless agent.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum EgressPolicy {
     /// All external traffic is blocked. Only loopback/socket allowed.
+    #[default]
     DenyAll,
     /// Only specified hosts/CIDRs are allowed.
     AllowList(Vec<String>),
@@ -23,12 +24,6 @@ impl std::fmt::Display for EgressPolicy {
             EgressPolicy::AllowList(hosts) => write!(f, "allow-list({})", hosts.join(",")),
             EgressPolicy::AllowAll => write!(f, "allow-all"),
         }
-    }
-}
-
-impl Default for EgressPolicy {
-    fn default() -> Self {
-        EgressPolicy::DenyAll
     }
 }
 
@@ -121,7 +116,12 @@ impl std::fmt::Display for Protocol {
 }
 
 /// Evaluates a network access attempt against the given policy.
-pub fn evaluate_access(config: &NetworkConfig, dest: &str, port: u16, proto: Protocol) -> AccessAttempt {
+pub fn evaluate_access(
+    config: &NetworkConfig,
+    dest: &str,
+    port: u16,
+    proto: Protocol,
+) -> AccessAttempt {
     let allowed = match &proto {
         Protocol::Unix => config.socket_allowed(dest),
         Protocol::Tcp | Protocol::Udp => {
@@ -132,7 +132,12 @@ pub fn evaluate_access(config: &NetworkConfig, dest: &str, port: u16, proto: Pro
             }
         }
     };
-    AccessAttempt { destination: dest.to_string(), port, protocol: proto, allowed }
+    AccessAttempt {
+        destination: dest.to_string(),
+        port,
+        protocol: proto,
+        allowed,
+    }
 }
 
 /// An audit log of network access decisions.
@@ -142,7 +147,9 @@ pub struct NetworkAuditLog {
 
 impl NetworkAuditLog {
     pub fn new() -> Self {
-        NetworkAuditLog { entries: Vec::new() }
+        NetworkAuditLog {
+            entries: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, attempt: AccessAttempt) {

@@ -1,4 +1,6 @@
-use crate::{ComplianceControl, ComplianceReport, ControlRegistry, ControlStatus, Framework, report_to_csv};
+use crate::{
+    report_to_csv, ComplianceControl, ComplianceReport, ControlRegistry, ControlStatus, Framework,
+};
 #[test]
 fn report_csv_has_header_and_data() {
     let mut reg = ControlRegistry::new();

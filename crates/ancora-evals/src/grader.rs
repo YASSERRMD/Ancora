@@ -14,7 +14,10 @@ impl Score {
             "Score must be in [0.0, 1.0], got {}",
             value
         );
-        Self { value, rationale: None }
+        Self {
+            value,
+            rationale: None,
+        }
     }
 
     pub fn with_rationale(mut self, rationale: impl Into<String>) -> Self {

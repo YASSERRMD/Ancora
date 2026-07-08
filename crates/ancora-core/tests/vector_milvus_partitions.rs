@@ -66,7 +66,9 @@ fn milvus_partitions_input_has_partitions_array() {
         assert_eq!(parts.len(), 2);
         assert_eq!(parts[0], "en");
         assert_eq!(parts[1], "zh");
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -74,7 +76,9 @@ fn milvus_partitions_result_includes_partition_field() {
     let events = build_milvus_partitions_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("partition"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -83,7 +87,9 @@ fn milvus_partitions_result_has_two_chunks() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v.as_array().unwrap().len(), 2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -91,7 +97,9 @@ fn milvus_partitions_metric_is_l2() {
     let events = build_milvus_partitions_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.input_json.contains("L2"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

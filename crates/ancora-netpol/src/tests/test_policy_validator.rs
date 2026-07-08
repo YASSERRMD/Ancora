@@ -17,6 +17,13 @@ fn validator_reports_duplicate_id() {
 #[test]
 fn valid_policy_has_no_issues() {
     let mut policy = NetworkPolicy::deny_by_default("t1");
-    policy.add_rule(RuleBuilder::new("r1").host("api.com").port(443).tcp().allow().build());
+    policy.add_rule(
+        RuleBuilder::new("r1")
+            .host("api.com")
+            .port(443)
+            .tcp()
+            .allow()
+            .build(),
+    );
     assert!(PolicyValidator::is_valid(&policy));
 }

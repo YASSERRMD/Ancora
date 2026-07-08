@@ -1,6 +1,6 @@
-use std::collections::VecDeque;
 use crate::connection::ConnectionRequest;
 use crate::evaluator::PolicyDecision;
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct EvaluationRecord {
@@ -38,19 +38,33 @@ pub struct NetpolAuditLog {
 }
 
 impl NetpolAuditLog {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
-    pub fn record(&mut self, entry: EvaluationRecord) { self.records.push_back(entry); }
+    pub fn record(&mut self, entry: EvaluationRecord) {
+        self.records.push_back(entry);
+    }
 
-    pub fn count(&self) -> usize { self.records.len() }
+    pub fn count(&self) -> usize {
+        self.records.len()
+    }
 
     pub fn denied_for(&self, tenant_id: &str) -> Vec<&EvaluationRecord> {
-        self.records.iter().filter(|r| r.tenant_id == tenant_id && !r.allowed).collect()
+        self.records
+            .iter()
+            .filter(|r| r.tenant_id == tenant_id && !r.allowed)
+            .collect()
     }
 
     pub fn allowed_for(&self, tenant_id: &str) -> Vec<&EvaluationRecord> {
-        self.records.iter().filter(|r| r.tenant_id == tenant_id && r.allowed).collect()
+        self.records
+            .iter()
+            .filter(|r| r.tenant_id == tenant_id && r.allowed)
+            .collect()
     }
 
-    pub fn all(&self) -> impl Iterator<Item = &EvaluationRecord> { self.records.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &EvaluationRecord> {
+        self.records.iter()
+    }
 }

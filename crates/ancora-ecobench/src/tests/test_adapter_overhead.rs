@@ -1,6 +1,8 @@
 //! Tests: adapter overhead within target thresholds.
 
-use crate::adapter_overhead::{adapt_tools, AncoraToolDef, within_target, ADAPT_PER_TOOL_TARGET_US};
+use crate::adapter_overhead::{
+    adapt_tools, within_target, AncoraToolDef, ADAPT_PER_TOOL_TARGET_US,
+};
 
 #[test]
 fn adapter_overhead_within_target_single_tool() {

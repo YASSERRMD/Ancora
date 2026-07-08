@@ -5,7 +5,6 @@
 use std::cmp::Ordering;
 
 use crate::registry::{ModelEntry, ModelRegistry};
-use crate::quant_level::QuantTier;
 
 /// Policy for choosing among models that fit the RAM budget.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -41,35 +40,28 @@ pub fn select_model<'a>(
     }
 
     let best = match policy {
-        SelectionPolicy::LargestFit => candidates
-            .into_iter()
-            .max_by(|(_, a), (_, b)| {
-                a.param_count_billions()
-                    .partial_cmp(&b.param_count_billions())
-                    .unwrap_or(Ordering::Equal)
-            }),
+        SelectionPolicy::LargestFit => candidates.into_iter().max_by(|(_, a), (_, b)| {
+            a.param_count_billions()
+                .partial_cmp(&b.param_count_billions())
+                .unwrap_or(Ordering::Equal)
+        }),
         SelectionPolicy::SmallestFit => candidates
             .into_iter()
-            .min_by(|(_, a), (_, b)| {
-                a.estimated_ram_bytes()
-                    .cmp(&b.estimated_ram_bytes())
-            }),
-        SelectionPolicy::MostCompressed => candidates
-            .into_iter()
-            .min_by(|(_, a), (_, b)| {
-                // Smaller estimated RAM per billion params = more compressed.
-                let ratio_a = if a.param_count_billions() > 0.0 {
-                    a.estimated_ram_bytes() as f64 / a.param_count_billions() as f64
-                } else {
-                    f64::MAX
-                };
-                let ratio_b = if b.param_count_billions() > 0.0 {
-                    b.estimated_ram_bytes() as f64 / b.param_count_billions() as f64
-                } else {
-                    f64::MAX
-                };
-                ratio_a.partial_cmp(&ratio_b).unwrap_or(Ordering::Equal)
-            }),
+            .min_by(|(_, a), (_, b)| a.estimated_ram_bytes().cmp(&b.estimated_ram_bytes())),
+        SelectionPolicy::MostCompressed => candidates.into_iter().min_by(|(_, a), (_, b)| {
+            // Smaller estimated RAM per billion params = more compressed.
+            let ratio_a = if a.param_count_billions() > 0.0 {
+                a.estimated_ram_bytes() as f64 / a.param_count_billions() as f64
+            } else {
+                f64::MAX
+            };
+            let ratio_b = if b.param_count_billions() > 0.0 {
+                b.estimated_ram_bytes() as f64 / b.param_count_billions() as f64
+            } else {
+                f64::MAX
+            };
+            ratio_a.partial_cmp(&ratio_b).unwrap_or(Ordering::Equal)
+        }),
     };
 
     best.map(|(id, entry)| SelectionResult {

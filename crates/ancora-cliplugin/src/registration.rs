@@ -1,9 +1,10 @@
 /// Plugin command registration - maintains the registry of commands and their
 /// owning plugins so the CLI dispatcher can resolve invocations.
-
 use std::collections::HashMap;
 
-use crate::interface::{CliPlugin, CommandSpec, ExecContext, ExecOutput, PluginError, PluginResult};
+use crate::interface::{
+    CliPlugin, CommandSpec, ExecContext, ExecOutput, PluginError, PluginResult,
+};
 
 /// A handle to a registered plugin, including its resolved command index.
 struct PluginEntry {
@@ -59,11 +60,10 @@ impl PluginRegistry {
 
     /// Dispatch a command invocation to the owning plugin.
     pub fn dispatch(&self, command: &str, ctx: ExecContext) -> PluginResult<ExecOutput> {
-        let entry_idx = self
-            .command_map
-            .get(command)
-            .copied()
-            .ok_or_else(|| PluginError::ExecutionFailed(format!("unknown command: {}", command)))?;
+        let entry_idx =
+            self.command_map.get(command).copied().ok_or_else(|| {
+                PluginError::ExecutionFailed(format!("unknown command: {}", command))
+            })?;
 
         let entry = &self.entries[entry_idx];
         let canonical = entry

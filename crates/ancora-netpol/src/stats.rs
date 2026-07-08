@@ -13,7 +13,11 @@ impl NetpolStats {
         let total = all.len();
         let denied = all.iter().filter(|r| !r.allowed).count();
         let allowed = total - denied;
-        Self { total, allowed, denied }
+        Self {
+            total,
+            allowed,
+            denied,
+        }
     }
 
     pub fn global(log: &NetpolAuditLog) -> Self {
@@ -21,14 +25,26 @@ impl NetpolStats {
         let total = all.len();
         let denied = all.iter().filter(|r| !r.allowed).count();
         let allowed = total - denied;
-        Self { total, allowed, denied }
+        Self {
+            total,
+            allowed,
+            denied,
+        }
     }
 
     pub fn deny_rate(&self) -> f64 {
-        if self.total == 0 { 0.0 } else { self.denied as f64 / self.total as f64 }
+        if self.total == 0 {
+            0.0
+        } else {
+            self.denied as f64 / self.total as f64
+        }
     }
 
     pub fn allow_rate(&self) -> f64 {
-        if self.total == 0 { 0.0 } else { self.allowed as f64 / self.total as f64 }
+        if self.total == 0 {
+            0.0
+        } else {
+            self.allowed as f64 / self.total as f64
+        }
     }
 }

@@ -13,7 +13,9 @@ pub struct DowngradePolicy {
 }
 
 impl DowngradePolicy {
-    pub fn new(min_level: SensitivityLevel) -> Self { Self { min_level } }
+    pub fn new(min_level: SensitivityLevel) -> Self {
+        Self { min_level }
+    }
 
     pub fn apply(&self, record: &mut DataRecord, target: SensitivityLevel) -> DowngradeResult {
         if target.is_above(&record.level) {

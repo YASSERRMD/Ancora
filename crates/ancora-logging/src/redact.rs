@@ -1,7 +1,13 @@
 const REDACTED: &str = "[REDACTED]";
 
 const SECRET_FIELD_NAMES: &[&str] = &[
-    "api_key", "token", "password", "secret", "credential", "private_key", "auth",
+    "api_key",
+    "token",
+    "password",
+    "secret",
+    "credential",
+    "private_key",
+    "auth",
 ];
 
 /// Redact secrets from a JSON string representation.

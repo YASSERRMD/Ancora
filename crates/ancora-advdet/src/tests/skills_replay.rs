@@ -34,8 +34,16 @@ fn skills_journal_records_for_skill_stable() {
     record_invocations(&mut j1);
     record_invocations(&mut j2);
 
-    let sum1: Vec<u64> = j1.records_for_skill("summarize").iter().map(|r| r.tick).collect();
-    let sum2: Vec<u64> = j2.records_for_skill("summarize").iter().map(|r| r.tick).collect();
+    let sum1: Vec<u64> = j1
+        .records_for_skill("summarize")
+        .iter()
+        .map(|r| r.tick)
+        .collect();
+    let sum2: Vec<u64> = j2
+        .records_for_skill("summarize")
+        .iter()
+        .map(|r| r.tick)
+        .collect();
     assert_eq!(sum1, sum2);
 }
 

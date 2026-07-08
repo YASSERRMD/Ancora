@@ -1,5 +1,4 @@
 /// Memory extension point - persist and retrieve agent memory.
-
 use std::collections::HashMap;
 
 /// A single memory entry.
@@ -74,7 +73,10 @@ pub struct HashMapMemory {
 
 impl HashMapMemory {
     pub fn new(id: impl Into<String>) -> Self {
-        Self { id: id.into(), store: HashMap::new() }
+        Self {
+            id: id.into(),
+            store: HashMap::new(),
+        }
     }
 }
 
@@ -118,7 +120,7 @@ impl MemoryPlugin for HashMapMemory {
             .cloned()
             .collect();
 
-        results.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+        results.sort_by_key(|b| std::cmp::Reverse(b.updated_at));
 
         if let Some(limit) = query.limit {
             results.truncate(limit);

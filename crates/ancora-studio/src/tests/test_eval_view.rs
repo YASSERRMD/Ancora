@@ -1,4 +1,4 @@
-use crate::eval_view::{EvalView, EvalResult, EvalOutcome};
+use crate::eval_view::{EvalOutcome, EvalResult, EvalView};
 
 fn make_result(name: &str, run_id: &str, outcome: EvalOutcome) -> EvalResult {
     EvalResult {
@@ -42,9 +42,11 @@ fn test_eval_skip_excluded_from_pass_rate() {
 
 #[test]
 fn test_eval_partial_score() {
-    let view = EvalView::new(vec![
-        make_result("a", "r1", EvalOutcome::Partial { score: 0.75 }),
-    ]);
+    let view = EvalView::new(vec![make_result(
+        "a",
+        "r1",
+        EvalOutcome::Partial { score: 0.75 },
+    )]);
     let avg = view.average_score().unwrap();
     assert!((avg - 0.75).abs() < 1e-9);
 }

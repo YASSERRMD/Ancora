@@ -3,7 +3,10 @@ use crate::registry::TenantRegistry;
 #[derive(Debug, PartialEq, Eq)]
 pub enum IsolationResult {
     Isolated,
-    CrossTenantViolation { subject_tenant: String, resource_tenant: String },
+    CrossTenantViolation {
+        subject_tenant: String,
+        resource_tenant: String,
+    },
 }
 
 pub struct IsolationChecker;
@@ -35,9 +38,13 @@ impl IsolationChecker {
     ) -> Result<(), String> {
         match Self::check(_registry, subject_tenant_id, resource_tenant_id) {
             IsolationResult::Isolated => Ok(()),
-            IsolationResult::CrossTenantViolation { subject_tenant, resource_tenant } => {
-                Err(format!("cross-tenant access denied: {} attempted to access resource in {}", subject_tenant, resource_tenant))
-            }
+            IsolationResult::CrossTenantViolation {
+                subject_tenant,
+                resource_tenant,
+            } => Err(format!(
+                "cross-tenant access denied: {} attempted to access resource in {}",
+                subject_tenant, resource_tenant
+            )),
         }
     }
 }

@@ -1,5 +1,5 @@
-use crate::toxicity::{ToxicityDetector, ToxicityLevel};
 use crate::classifier::SafetyClassifier;
+use crate::toxicity::{ToxicityDetector, ToxicityLevel};
 
 #[test]
 fn mild_insult_is_flagged_mild() {

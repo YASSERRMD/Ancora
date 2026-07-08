@@ -1,9 +1,8 @@
 /// test_invalid_rejected - Test that invalid connections and specs are rejected.
-
 use crate::edges::{EdgeError, EdgeStore, EdgeType};
-use crate::import::{import_spec, ImportError, GraphSpec, SpecEdge, SpecNode};
+use crate::import::{import_spec, GraphSpec, ImportError, SpecEdge, SpecNode};
 use crate::scaffold::Id;
-use crate::validation::{validate_spec, Severity};
+use crate::validation::validate_spec;
 use std::collections::HashMap;
 
 fn node(id: &str, kind: &str) -> SpecNode {
@@ -31,7 +30,13 @@ fn edge(id: &str, src: &str, tgt: &str) -> SpecEdge {
 fn self_loop_edge_rejected() {
     let mut store = EdgeStore::new();
     let err = store
-        .add_edge(Id::new("a"), "agent.llm", Id::new("a"), "agent.llm", EdgeType::DataFlow)
+        .add_edge(
+            Id::new("a"),
+            "agent.llm",
+            Id::new("a"),
+            "agent.llm",
+            EdgeType::DataFlow,
+        )
         .unwrap_err();
     assert!(matches!(err, EdgeError::SelfLoop(_)));
 }
@@ -57,10 +62,22 @@ fn invalid_connection_type_rejected() {
 fn duplicate_edge_rejected() {
     let mut store = EdgeStore::new();
     store
-        .add_edge(Id::new("a"), "agent.llm", Id::new("b"), "tool.web_search", EdgeType::DataFlow)
+        .add_edge(
+            Id::new("a"),
+            "agent.llm",
+            Id::new("b"),
+            "tool.web_search",
+            EdgeType::DataFlow,
+        )
         .unwrap();
     let err = store
-        .add_edge(Id::new("a"), "agent.llm", Id::new("b"), "tool.web_search", EdgeType::DataFlow)
+        .add_edge(
+            Id::new("a"),
+            "agent.llm",
+            Id::new("b"),
+            "tool.web_search",
+            EdgeType::DataFlow,
+        )
         .unwrap_err();
     assert_eq!(err, EdgeError::DuplicateEdge);
 }
@@ -134,7 +151,7 @@ fn isolated_node_produces_warning_not_error() {
     spec.nodes.push(node("n1", "agent.llm"));
     spec.nodes.push(node("n2", "verifier.toxicity")); // isolated: no edges
     spec.edges.push(edge("e1", "n1", "n1")); // self loop - this adds an error too
-    // Actually let's make a clean test: two nodes, one edge missing
+                                             // Actually let's make a clean test: two nodes, one edge missing
     let mut spec2 = GraphSpec::new("isolated2");
     spec2.nodes.push(node("a", "agent.llm"));
     spec2.nodes.push(node("b", "agent.classifier")); // isolated
@@ -152,8 +169,6 @@ fn isolated_node_produces_warning_not_error() {
     // No edges -> both are isolated
     let report = validate_spec(&spec3);
     // Should have warnings for isolation but no errors (empty name passes, no bad edges).
-    let has_isolation_warning = report
-        .warnings()
-        .any(|d| d.message.contains("isolated"));
+    let has_isolation_warning = report.warnings().any(|d| d.message.contains("isolated"));
     assert!(has_isolation_warning);
 }

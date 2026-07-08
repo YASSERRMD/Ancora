@@ -68,7 +68,10 @@ impl ServiceAccountRegistry {
         ttl_ticks: u64,
         current_tick: u64,
     ) -> Result<Token, ServiceAccountError> {
-        let account = self.accounts.get(account_id).ok_or(ServiceAccountError::NotFound)?;
+        let account = self
+            .accounts
+            .get(account_id)
+            .ok_or(ServiceAccountError::NotFound)?;
         if !account.enabled {
             return Err(ServiceAccountError::Disabled);
         }

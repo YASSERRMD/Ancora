@@ -1,7 +1,7 @@
-/// Conformance badge integration for marketplace extensions.
-///
-/// Badges signal that an extension has passed a specific quality gate.
-/// They are awarded by the registry and embedded in extension metadata.
+//! Conformance badge integration for marketplace extensions.
+//!
+//! Badges signal that an extension has passed a specific quality gate.
+//! They are awarded by the registry and embedded in extension metadata.
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum BadgeKind {

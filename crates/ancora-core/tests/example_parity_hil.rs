@@ -12,17 +12,49 @@ struct HilExample {
 }
 
 const HIL_EXAMPLES: &[HilExample] = &[
-    HilExample { lang: "rust",       prompt: HIL_PROMPT, options: HIL_OPTIONS, decision: HIL_DECISION_JSON },
-    HilExample { lang: "go",         prompt: HIL_PROMPT, options: HIL_OPTIONS, decision: HIL_DECISION_JSON },
-    HilExample { lang: "python",     prompt: HIL_PROMPT, options: HIL_OPTIONS, decision: HIL_DECISION_JSON },
-    HilExample { lang: "typescript", prompt: HIL_PROMPT, options: HIL_OPTIONS, decision: HIL_DECISION_JSON },
-    HilExample { lang: "dotnet",     prompt: HIL_PROMPT, options: HIL_OPTIONS, decision: HIL_DECISION_JSON },
-    HilExample { lang: "java",       prompt: HIL_PROMPT, options: HIL_OPTIONS, decision: HIL_DECISION_JSON },
+    HilExample {
+        lang: "rust",
+        prompt: HIL_PROMPT,
+        options: HIL_OPTIONS,
+        decision: HIL_DECISION_JSON,
+    },
+    HilExample {
+        lang: "go",
+        prompt: HIL_PROMPT,
+        options: HIL_OPTIONS,
+        decision: HIL_DECISION_JSON,
+    },
+    HilExample {
+        lang: "python",
+        prompt: HIL_PROMPT,
+        options: HIL_OPTIONS,
+        decision: HIL_DECISION_JSON,
+    },
+    HilExample {
+        lang: "typescript",
+        prompt: HIL_PROMPT,
+        options: HIL_OPTIONS,
+        decision: HIL_DECISION_JSON,
+    },
+    HilExample {
+        lang: "dotnet",
+        prompt: HIL_PROMPT,
+        options: HIL_OPTIONS,
+        decision: HIL_DECISION_JSON,
+    },
+    HilExample {
+        lang: "java",
+        prompt: HIL_PROMPT,
+        options: HIL_OPTIONS,
+        decision: HIL_DECISION_JSON,
+    },
 ];
 
 #[test]
 fn test_all_hil_examples_use_same_prompt() {
-    for e in HIL_EXAMPLES { assert_eq!(e.prompt, HIL_PROMPT, "lang {} prompt differs", e.lang); }
+    for e in HIL_EXAMPLES {
+        assert_eq!(e.prompt, HIL_PROMPT, "lang {} prompt differs", e.lang);
+    }
 }
 
 #[test]
@@ -34,7 +66,13 @@ fn test_all_hil_examples_use_same_options() {
 
 #[test]
 fn test_all_hil_decisions_contain_approved_true() {
-    for e in HIL_EXAMPLES { assert!(e.decision.contains("true"), "lang {} decision lacks approved:true", e.lang); }
+    for e in HIL_EXAMPLES {
+        assert!(
+            e.decision.contains("true"),
+            "lang {} decision lacks approved:true",
+            e.lang
+        );
+    }
 }
 
 #[test]

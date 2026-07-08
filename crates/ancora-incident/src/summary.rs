@@ -12,14 +12,34 @@ pub struct IncidentSummary {
 
 impl IncidentSummary {
     pub fn generate(incidents: &[&Incident], tenant_id: &str) -> Self {
-        let tenant: Vec<&&Incident> = incidents.iter().filter(|i| i.tenant_id == tenant_id).collect();
+        let tenant: Vec<&&Incident> = incidents
+            .iter()
+            .filter(|i| i.tenant_id == tenant_id)
+            .collect();
         let total = tenant.len();
-        let critical_count = tenant.iter().filter(|i| i.severity == Severity::Critical).count();
-        let high_count = tenant.iter().filter(|i| i.severity == Severity::High).count();
+        let critical_count = tenant
+            .iter()
+            .filter(|i| i.severity == Severity::Critical)
+            .count();
+        let high_count = tenant
+            .iter()
+            .filter(|i| i.severity == Severity::High)
+            .count();
         let active_count = tenant.iter().filter(|i| i.is_active()).count();
         let unassigned_count = tenant.iter().filter(|i| i.assignee.is_none()).count();
-        let resolved_count = tenant.iter().filter(|i| matches!(i.status, IncidentStatus::Resolved | IncidentStatus::Closed)).count();
-        Self { tenant_id: tenant_id.to_string(), total, critical_count, high_count, active_count, unassigned_count, resolved_count }
+        let resolved_count = tenant
+            .iter()
+            .filter(|i| matches!(i.status, IncidentStatus::Resolved | IncidentStatus::Closed))
+            .count();
+        Self {
+            tenant_id: tenant_id.to_string(),
+            total,
+            critical_count,
+            high_count,
+            active_count,
+            unassigned_count,
+            resolved_count,
+        }
     }
 
     pub fn is_healthy(&self) -> bool {

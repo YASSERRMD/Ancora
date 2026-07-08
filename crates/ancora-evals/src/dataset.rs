@@ -12,7 +12,11 @@ pub struct Example {
 }
 
 impl Example {
-    pub fn new(id: impl Into<String>, input: impl Into<String>, expected: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        input: impl Into<String>,
+        expected: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             input: input.into(),
@@ -97,7 +101,11 @@ impl Dataset {
 
     /// Load a dataset from a simple CSV-like text format:
     /// Each line: `id,input,expected`
-    pub fn from_csv(name: impl Into<String>, version: impl Into<String>, csv: &str) -> Result<Self, String> {
+    pub fn from_csv(
+        name: impl Into<String>,
+        version: impl Into<String>,
+        csv: &str,
+    ) -> Result<Self, String> {
         let mut dataset = Dataset::new(name, version);
         for (line_no, line) in csv.lines().enumerate() {
             let line = line.trim();
@@ -106,9 +114,17 @@ impl Dataset {
             }
             let parts: Vec<&str> = line.splitn(3, ',').collect();
             if parts.len() < 3 {
-                return Err(format!("Line {}: expected 3 fields, got {}", line_no + 1, parts.len()));
+                return Err(format!(
+                    "Line {}: expected 3 fields, got {}",
+                    line_no + 1,
+                    parts.len()
+                ));
             }
-            dataset.add(Example::new(parts[0].trim(), parts[1].trim(), parts[2].trim()));
+            dataset.add(Example::new(
+                parts[0].trim(),
+                parts[1].trim(),
+                parts[2].trim(),
+            ));
         }
         Ok(dataset)
     }

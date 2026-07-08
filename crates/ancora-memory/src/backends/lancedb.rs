@@ -11,7 +11,6 @@
 /// test suite that verifies the logic without any I/O.
 ///
 /// Requires the `lancedb` feature: `ancora-memory = { features = ["lancedb"] }`.
-
 use serde_json::{json, Value};
 
 // ---- connection config ---------------------------------------------------
@@ -47,10 +46,18 @@ impl LanceDbPath {
         !self.is_local()
     }
 
-    pub fn local(path: impl Into<String>) -> Self { Self::Local(path.into()) }
-    pub fn s3(path: impl Into<String>) -> Self { Self::S3(path.into()) }
-    pub fn gcs(path: impl Into<String>) -> Self { Self::Gcs(path.into()) }
-    pub fn azure(path: impl Into<String>) -> Self { Self::Azure(path.into()) }
+    pub fn local(path: impl Into<String>) -> Self {
+        Self::Local(path.into())
+    }
+    pub fn s3(path: impl Into<String>) -> Self {
+        Self::S3(path.into())
+    }
+    pub fn gcs(path: impl Into<String>) -> Self {
+        Self::Gcs(path.into())
+    }
+    pub fn azure(path: impl Into<String>) -> Self {
+        Self::Azure(path.into())
+    }
 }
 
 /// Configuration for a LanceDB database directory.
@@ -66,7 +73,11 @@ pub struct LanceDbConfig {
 
 impl LanceDbConfig {
     pub fn new(path: LanceDbPath) -> Self {
-        Self { path, aws_region: None, read_only: false }
+        Self {
+            path,
+            aws_region: None,
+            read_only: false,
+        }
     }
 
     pub fn local(dir: impl Into<String>) -> Self {
@@ -74,11 +85,16 @@ impl LanceDbConfig {
     }
 
     pub fn s3(bucket_path: impl Into<String>, region: impl Into<String>) -> Self {
-        Self { path: LanceDbPath::s3(bucket_path), aws_region: Some(region.into()), read_only: false }
+        Self {
+            path: LanceDbPath::s3(bucket_path),
+            aws_region: Some(region.into()),
+            read_only: false,
+        }
     }
 
     pub fn read_only(mut self) -> Self {
-        self.read_only = true; self
+        self.read_only = true;
+        self
     }
 }
 
@@ -105,19 +121,21 @@ pub struct ColumnDef {
 
 impl ColumnDef {
     pub fn new(name: impl Into<String>, data_type: impl Into<String>) -> Self {
-        Self { name: name.into(), data_type: data_type.into(), nullable: true }
+        Self {
+            name: name.into(),
+            data_type: data_type.into(),
+            nullable: true,
+        }
     }
 
     pub fn required(mut self) -> Self {
-        self.nullable = false; self
+        self.nullable = false;
+        self
     }
 }
 
 /// Build a table schema descriptor (for documentation / codegen, not direct Arrow use).
-pub fn table_schema(
-    vector_dims: usize,
-    extra_columns: &[ColumnDef],
-) -> Value {
+pub fn table_schema(vector_dims: usize, extra_columns: &[ColumnDef]) -> Value {
     let mut columns = vec![
         json!({ "name": "id", "type": column_type::INT64, "nullable": false }),
         json!({ "name": "embedding", "type": format!("fixed_size_list<float32>[{vector_dims}]"), "nullable": false }),
@@ -184,23 +202,28 @@ impl VectorQuery {
     }
 
     pub fn metric(mut self, m: impl Into<String>) -> Self {
-        self.metric = m.into(); self
+        self.metric = m.into();
+        self
     }
 
     pub fn filter(mut self, sql: impl Into<String>) -> Self {
-        self.filter = Some(sql.into()); self
+        self.filter = Some(sql.into());
+        self
     }
 
     pub fn ef(mut self, ef: u32) -> Self {
-        self.ef = Some(ef); self
+        self.ef = Some(ef);
+        self
     }
 
     pub fn refine(mut self, factor: u32) -> Self {
-        self.refine_factor = Some(factor); self
+        self.refine_factor = Some(factor);
+        self
     }
 
     pub fn select(mut self, columns: &[&str]) -> Self {
-        self.select_columns = columns.iter().map(|s| s.to_string()).collect(); self
+        self.select_columns = columns.iter().map(|s| s.to_string()).collect();
+        self
     }
 
     pub fn to_json(&self) -> Value {
@@ -260,7 +283,11 @@ pub fn sql_or(a: &str, b: &str) -> String {
 }
 
 pub fn sql_in_ints(col: &str, vals: &[i64]) -> String {
-    let list = vals.iter().map(|v| v.to_string()).collect::<Vec<_>>().join(", ");
+    let list = vals
+        .iter()
+        .map(|v| v.to_string())
+        .collect::<Vec<_>>()
+        .join(", ");
     format!("{col} IN ({list})")
 }
 
@@ -275,11 +302,15 @@ pub struct FullTextIndex {
 
 impl FullTextIndex {
     pub fn new(column: impl Into<String>) -> Self {
-        Self { column: column.into(), with_position: false }
+        Self {
+            column: column.into(),
+            with_position: false,
+        }
     }
 
     pub fn with_position(mut self) -> Self {
-        self.with_position = true; self
+        self.with_position = true;
+        self
     }
 
     pub fn to_json(&self) -> Value {
@@ -303,11 +334,16 @@ pub struct AnnIndex {
 
 impl AnnIndex {
     pub fn new(num_partitions: u32, num_sub_vectors: u32) -> Self {
-        Self { num_partitions, num_sub_vectors, metric: "cosine".to_owned() }
+        Self {
+            num_partitions,
+            num_sub_vectors,
+            metric: "cosine".to_owned(),
+        }
     }
 
     pub fn metric(mut self, m: impl Into<String>) -> Self {
-        self.metric = m.into(); self
+        self.metric = m.into();
+        self
     }
 
     pub fn to_json(&self) -> Value {
@@ -351,11 +387,13 @@ impl HybridQuery {
     }
 
     pub fn reranker(mut self, r: impl Into<String>) -> Self {
-        self.reranker = r.into(); self
+        self.reranker = r.into();
+        self
     }
 
     pub fn filter(mut self, sql: impl Into<String>) -> Self {
-        self.filter = Some(sql.into()); self
+        self.filter = Some(sql.into());
+        self
     }
 
     pub fn to_json(&self) -> Value {
@@ -384,7 +422,10 @@ pub struct VersionCheckout {
 
 impl VersionCheckout {
     pub fn new(table: impl Into<String>, version: u64) -> Self {
-        Self { table: table.into(), version }
+        Self {
+            table: table.into(),
+            version,
+        }
     }
 
     pub fn to_json(&self) -> Value {
@@ -452,10 +493,15 @@ pub fn parse_version(body: &Value) -> u64 {
 
 /// Parse object-storage path detection from a config.
 pub fn detect_storage_type(uri: &str) -> &'static str {
-    if uri.starts_with("s3://") { "s3" }
-    else if uri.starts_with("gs://") { "gcs" }
-    else if uri.starts_with("az://") { "azure" }
-    else { "local" }
+    if uri.starts_with("s3://") {
+        "s3"
+    } else if uri.starts_with("gs://") {
+        "gcs"
+    } else if uri.starts_with("az://") {
+        "azure"
+    } else {
+        "local"
+    }
 }
 
 // ---- edge single-binary default -----------------------------------------
@@ -587,8 +633,14 @@ mod lancedb_tests {
     fn table_schema_includes_embedding_and_payload() {
         let schema = table_schema(128, &[]);
         let cols = schema["columns"].as_array().unwrap();
-        assert!(cols.iter().any(|c| c["name"] == "embedding"), "missing embedding");
-        assert!(cols.iter().any(|c| c["name"] == "payload"), "missing payload");
+        assert!(
+            cols.iter().any(|c| c["name"] == "embedding"),
+            "missing embedding"
+        );
+        assert!(
+            cols.iter().any(|c| c["name"] == "payload"),
+            "missing payload"
+        );
     }
 
     #[test]
@@ -596,7 +648,10 @@ mod lancedb_tests {
         let extra = ColumnDef::new("year", column_type::INT64).required();
         let schema = table_schema(128, &[extra]);
         let cols = schema["columns"].as_array().unwrap();
-        assert!(cols.iter().any(|c| c["name"] == "year"), "missing year column");
+        assert!(
+            cols.iter().any(|c| c["name"] == "year"),
+            "missing year column"
+        );
     }
 
     #[test]
@@ -631,7 +686,12 @@ mod lancedb_tests {
 
     #[test]
     fn row_with_columns_merges_extra_fields() {
-        let r = row_with_columns(1, vec![0.1f32], serde_json::json!({}), serde_json::json!({"year": 2024}));
+        let r = row_with_columns(
+            1,
+            vec![0.1f32],
+            serde_json::json!({}),
+            serde_json::json!({"year": 2024}),
+        );
         assert_eq!(r["year"], 2024);
     }
 

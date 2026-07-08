@@ -11,29 +11,59 @@ struct MultiAgentExample {
 }
 
 const MULTI_AGENT_EXAMPLES: &[MultiAgentExample] = &[
-    MultiAgentExample { lang: "rust",       branch_count: PARALLEL_BRANCH_COUNT, result_count: PARALLEL_EXPECTED_RESULTS, join_key: "results" },
-    MultiAgentExample { lang: "go",         branch_count: PARALLEL_BRANCH_COUNT, result_count: PARALLEL_EXPECTED_RESULTS, join_key: "results" },
-    MultiAgentExample { lang: "python",     branch_count: PARALLEL_BRANCH_COUNT, result_count: PARALLEL_EXPECTED_RESULTS, join_key: "results" },
-    MultiAgentExample { lang: "typescript", branch_count: PARALLEL_BRANCH_COUNT, result_count: PARALLEL_EXPECTED_RESULTS, join_key: "results" },
+    MultiAgentExample {
+        lang: "rust",
+        branch_count: PARALLEL_BRANCH_COUNT,
+        result_count: PARALLEL_EXPECTED_RESULTS,
+        join_key: "results",
+    },
+    MultiAgentExample {
+        lang: "go",
+        branch_count: PARALLEL_BRANCH_COUNT,
+        result_count: PARALLEL_EXPECTED_RESULTS,
+        join_key: "results",
+    },
+    MultiAgentExample {
+        lang: "python",
+        branch_count: PARALLEL_BRANCH_COUNT,
+        result_count: PARALLEL_EXPECTED_RESULTS,
+        join_key: "results",
+    },
+    MultiAgentExample {
+        lang: "typescript",
+        branch_count: PARALLEL_BRANCH_COUNT,
+        result_count: PARALLEL_EXPECTED_RESULTS,
+        join_key: "results",
+    },
 ];
 
 #[test]
 fn test_all_examples_fan_out_to_same_branch_count() {
     for e in MULTI_AGENT_EXAMPLES {
-        assert_eq!(e.branch_count, PARALLEL_BRANCH_COUNT, "lang {} branch_count differs", e.lang);
+        assert_eq!(
+            e.branch_count, PARALLEL_BRANCH_COUNT,
+            "lang {} branch_count differs",
+            e.lang
+        );
     }
 }
 
 #[test]
 fn test_all_examples_collect_same_result_count() {
     for e in MULTI_AGENT_EXAMPLES {
-        assert_eq!(e.result_count, PARALLEL_EXPECTED_RESULTS, "lang {} result_count differs", e.lang);
+        assert_eq!(
+            e.result_count, PARALLEL_EXPECTED_RESULTS,
+            "lang {} result_count differs",
+            e.lang
+        );
     }
 }
 
 #[test]
 fn test_join_key_same_across_examples() {
-    for e in MULTI_AGENT_EXAMPLES { assert_eq!(e.join_key, "results"); }
+    for e in MULTI_AGENT_EXAMPLES {
+        assert_eq!(e.join_key, "results");
+    }
 }
 
 #[test]

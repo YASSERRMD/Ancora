@@ -14,7 +14,10 @@ pub fn invocation_url(profile: &ProviderProfile, model_id: &str) -> String {
 
 /// Build the Bedrock streaming invocation URL for a given model ID.
 pub fn stream_url(profile: &ProviderProfile, model_id: &str) -> String {
-    format!("{}/model/{}/invoke-with-response-stream", profile.base_url, model_id)
+    format!(
+        "{}/model/{}/invoke-with-response-stream",
+        profile.base_url, model_id
+    )
 }
 
 /// Extract the AWS region from the Bedrock base URL.
@@ -50,7 +53,11 @@ impl AwsCredentials {
         let secret_access_key = std::env::var("AWS_SECRET_ACCESS_KEY")
             .map_err(|_| InferenceError::MissingCredential("AWS_SECRET_ACCESS_KEY".to_owned()))?;
         let session_token = std::env::var("AWS_SESSION_TOKEN").ok();
-        Ok(Self { access_key_id, secret_access_key, session_token })
+        Ok(Self {
+            access_key_id,
+            secret_access_key,
+            session_token,
+        })
     }
 }
 
@@ -72,7 +79,10 @@ pub fn sigv4_headers_stub(
 ) -> Vec<(String, String)> {
     let mut headers = vec![
         ("x-amz-date".to_owned(), date_iso8601.to_owned()),
-        ("x-amz-content-sha256".to_owned(), "UNSIGNED-PAYLOAD".to_owned()),
+        (
+            "x-amz-content-sha256".to_owned(),
+            "UNSIGNED-PAYLOAD".to_owned(),
+        ),
         // In production: HMAC-SHA256 of canonical request + string-to-sign
         (
             "authorization".to_owned(),
@@ -185,7 +195,10 @@ mod tests {
             session_token: None,
         };
         let headers = sigv4_headers_stub(&creds, "us-east-1", "20240101T120000Z");
-        let auth = headers.iter().find(|(k, _)| k == "authorization").map(|(_, v)| v.as_str());
+        let auth = headers
+            .iter()
+            .find(|(k, _)| k == "authorization")
+            .map(|(_, v)| v.as_str());
         assert!(auth.is_some());
         assert!(auth.unwrap().starts_with("AWS4-HMAC-SHA256"));
     }

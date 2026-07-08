@@ -5,17 +5,16 @@
 ///
 /// Set WEAVIATE_URL to run against a real Weaviate instance.
 /// Without the env var the example prints request shapes and exits cleanly.
-
 use ancora_memory::backends::weaviate::{
-    WeaviateConfig, create_class_body, create_class_with_properties_body,
-    create_object_body, batch_objects_body, graphql_near_vector_query,
-    graphql_hybrid_query, graphql_generative_query, where_filter_text,
-    schema_url, objects_url, graphql_url, batch_objects_url, data_type,
-    parse_graphql_get,
+    batch_objects_body, batch_objects_url, create_class_with_properties_body, create_object_body,
+    data_type, graphql_generative_query, graphql_hybrid_query, graphql_near_vector_query,
+    graphql_url, objects_url, parse_graphql_get, schema_url, where_filter_text, WeaviateConfig,
 };
+// Only used by the #[cfg(test)] module below; unused outside test builds.
+#[cfg_attr(not(test), allow(unused_imports))]
+use ancora_memory::backends::weaviate::create_class_body;
 
 const CLASS: &str = "Document";
-const DIMS: usize = 384;
 
 fn main() {
     println!("=== Weaviate RAG example ===\n");
@@ -25,7 +24,9 @@ fn main() {
 
     // 1. Schema
     let schema = create_class_with_properties_body(
-        CLASS, "A document for RAG", "none",
+        CLASS,
+        "A document for RAG",
+        "none",
         &[
             ("title", data_type::TEXT, "Document title"),
             ("body", data_type::TEXT, "Document body"),
@@ -39,15 +40,23 @@ fn main() {
     let obj = create_object_body(
         CLASS,
         &serde_json::json!({"title": "Weaviate RAG guide", "body": "...", "year": 2024}),
-        Some(&vec![0.1f32; 8]), // first 8 dims
+        Some(&[0.1f32; 8]), // first 8 dims
     );
     println!("-- POST {} --", objects_url(&cfg.url));
     println!("{}\n", serde_json::to_string_pretty(&obj).unwrap());
 
     // 3. Batch upsert
     let objs = vec![
-        (CLASS.to_owned(), serde_json::json!({"title": "doc1"}), Some(vec![0.1f32; 8])),
-        (CLASS.to_owned(), serde_json::json!({"title": "doc2"}), Some(vec![0.2f32; 8])),
+        (
+            CLASS.to_owned(),
+            serde_json::json!({"title": "doc1"}),
+            Some(vec![0.1f32; 8]),
+        ),
+        (
+            CLASS.to_owned(),
+            serde_json::json!({"title": "doc2"}),
+            Some(vec![0.2f32; 8]),
+        ),
     ];
     let batch = batch_objects_body(&objs);
     println!("-- POST {} --", batch_objects_url(&cfg.url));
@@ -64,7 +73,13 @@ fn main() {
     println!("{}\n", serde_json::to_string_pretty(&hybrid).unwrap());
 
     // 6. Generative search
-    let gen = graphql_generative_query(CLASS, &[0.1f32; 8], 3, "Summarize {title}: {body}", &["title", "body"]);
+    let gen = graphql_generative_query(
+        CLASS,
+        &[0.1f32; 8],
+        3,
+        "Summarize {title}: {body}",
+        &["title", "body"],
+    );
     println!("-- POST {} (generative) --", graphql_url(&cfg.url));
     println!("{}\n", serde_json::to_string_pretty(&gen).unwrap());
 

@@ -16,12 +16,18 @@ pub struct Negotiation {
 
 impl Negotiation {
     pub fn new(max_rounds: u32) -> Self {
-        Self { max_rounds, current_round: 0, proposals: Vec::new() }
+        Self {
+            max_rounds,
+            current_round: 0,
+            proposals: Vec::new(),
+        }
     }
 
     pub fn submit(&mut self, proposal: Proposal) -> Result<(), CoordError> {
         if self.current_round >= self.max_rounds {
-            return Err(CoordError::MaxRoundsExceeded { rounds: self.current_round });
+            return Err(CoordError::MaxRoundsExceeded {
+                rounds: self.current_round,
+            });
         }
         self.proposals.push(proposal);
         self.current_round += 1;
@@ -29,7 +35,9 @@ impl Negotiation {
     }
 
     pub fn consensus(&self) -> Option<i64> {
-        if self.proposals.is_empty() { return None; }
+        if self.proposals.is_empty() {
+            return None;
+        }
         let sum: i64 = self.proposals.iter().map(|p| p.value).sum();
         Some(sum / self.proposals.len() as i64)
     }

@@ -8,7 +8,9 @@ pub enum IntegrityDecision {
 }
 
 impl IntegrityDecision {
-    pub fn is_pass(&self) -> bool { matches!(self, IntegrityDecision::Pass) }
+    pub fn is_pass(&self) -> bool {
+        matches!(self, IntegrityDecision::Pass)
+    }
 }
 
 pub struct IntegrityEvaluator;
@@ -20,7 +22,11 @@ impl IntegrityEvaluator {
         }
         let present_kinds = chain.present_kinds();
         if !policy.required_kinds_met(&present_kinds) {
-            let missing: Vec<_> = policy.require_kinds.difference(&present_kinds).cloned().collect();
+            let missing: Vec<_> = policy
+                .require_kinds
+                .difference(&present_kinds)
+                .cloned()
+                .collect();
             return IntegrityDecision::Fail(format!("missing required kinds: {:?}", missing));
         }
         for step in chain.steps() {

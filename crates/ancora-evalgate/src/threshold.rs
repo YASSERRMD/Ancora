@@ -1,8 +1,8 @@
-/// Threshold policy per metric.
-///
-/// A `ThresholdPolicy` defines how much a metric may regress before a gate
-/// blocks the PR, expressed either as an absolute delta or a relative
-/// fraction of the baseline value.
+//! Threshold policy per metric.
+//!
+//! A `ThresholdPolicy` defines how much a metric may regress before a gate
+//! blocks the PR, expressed either as an absolute delta or a relative
+//! fraction of the baseline value.
 
 /// Direction of a metric - whether higher or lower is better.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

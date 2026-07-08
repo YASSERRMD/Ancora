@@ -9,7 +9,9 @@ pub fn build_cohere_profile() -> ProviderProfile {
     ProviderProfile::new(
         "cohere",
         "https://api.cohere.ai",
-        AuthStrategy::BearerToken { env_var: "CO_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "CO_API_KEY".to_owned(),
+        },
     )
     .with_chat_path("/v1/chat")
     .add_model(

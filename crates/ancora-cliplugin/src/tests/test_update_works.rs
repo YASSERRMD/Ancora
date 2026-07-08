@@ -12,7 +12,11 @@ fn test_version_parse() {
 
 #[test]
 fn test_version_display() {
-    let v = Version { major: 2, minor: 0, patch: 1 };
+    let v = Version {
+        major: 2,
+        minor: 0,
+        patch: 1,
+    };
     assert_eq!(v.to_string_repr(), "2.0.1");
 }
 
@@ -35,7 +39,9 @@ fn test_update_available_when_behind() {
         notes: None,
     });
 
-    let status = registry.check("my.plugin", "1.0.0").expect("should find entry");
+    let status = registry
+        .check("my.plugin", "1.0.0")
+        .expect("should find entry");
     assert!(
         matches!(status, UpdateStatus::UpdateAvailable(_)),
         "should report update available"
@@ -52,7 +58,9 @@ fn test_up_to_date_when_equal() {
         notes: None,
     });
 
-    let status = registry.check("my.plugin", "1.5.0").expect("should find entry");
+    let status = registry
+        .check("my.plugin", "1.5.0")
+        .expect("should find entry");
     assert!(
         matches!(status, UpdateStatus::UpToDate { .. }),
         "should report up to date"
@@ -69,7 +77,9 @@ fn test_ahead_of_registry_when_newer() {
         notes: None,
     });
 
-    let status = registry.check("my.plugin", "2.0.0").expect("should find entry");
+    let status = registry
+        .check("my.plugin", "2.0.0")
+        .expect("should find entry");
     assert!(
         matches!(status, UpdateStatus::AheadOfRegistry { .. }),
         "should report ahead of registry"

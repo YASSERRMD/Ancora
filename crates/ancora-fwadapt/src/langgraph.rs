@@ -3,7 +3,6 @@
 /// LangGraph models computation as a directed graph of nodes. This module
 /// provides a lightweight representation and a mapper that converts it into
 /// an ordered Ancora stage list.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -130,13 +129,28 @@ mod tests {
     fn linear_graph_maps_correctly() {
         let g = LangGraphDefinition {
             nodes: vec![
-                LangGraphNode { id: "a".into(), label: "Start".into() },
-                LangGraphNode { id: "b".into(), label: "Middle".into() },
-                LangGraphNode { id: "c".into(), label: "End".into() },
+                LangGraphNode {
+                    id: "a".into(),
+                    label: "Start".into(),
+                },
+                LangGraphNode {
+                    id: "b".into(),
+                    label: "Middle".into(),
+                },
+                LangGraphNode {
+                    id: "c".into(),
+                    label: "End".into(),
+                },
             ],
             edges: vec![
-                LangGraphEdge { from: "a".into(), to: "b".into() },
-                LangGraphEdge { from: "b".into(), to: "c".into() },
+                LangGraphEdge {
+                    from: "a".into(),
+                    to: "b".into(),
+                },
+                LangGraphEdge {
+                    from: "b".into(),
+                    to: "c".into(),
+                },
             ],
             entry: "a".into(),
         };

@@ -1,11 +1,11 @@
-/// Stable, one-way hashing for telemetry correlation IDs.
-///
-/// Allows correlating telemetry records across a session without ever
-/// exporting the raw value. The hash is deterministic so that replaying
-/// the same events produces the same correlation IDs.
-///
-/// We use FNV-1a (64-bit) - a zero-dependency, non-cryptographic hash
-/// that is sufficient for correlation (not for security).
+//! Stable, one-way hashing for telemetry correlation IDs.
+//!
+//! Allows correlating telemetry records across a session without ever
+//! exporting the raw value. The hash is deterministic so that replaying
+//! the same events produces the same correlation IDs.
+//!
+//! We use FNV-1a (64-bit) - a zero-dependency, non-cryptographic hash
+//! that is sufficient for correlation (not for security).
 
 /// FNV-1a 64-bit basis and prime.
 const FNV_OFFSET: u64 = 14695981039346656037;

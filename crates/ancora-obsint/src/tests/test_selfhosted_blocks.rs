@@ -34,7 +34,9 @@ fn test_self_hosted_policy_multiple_prefixes() {
         "http://loki.internal".to_string(),
     ]);
     assert!(policy.check_endpoint("http://tempo.internal/push").is_ok());
-    assert!(policy.check_endpoint("http://loki.internal/loki/api/v1/push").is_ok());
+    assert!(policy
+        .check_endpoint("http://loki.internal/loki/api/v1/push")
+        .is_ok());
     assert!(policy.check_endpoint("https://cloud.datadog.com").is_err());
 }
 
@@ -52,8 +54,7 @@ fn test_is_export_permitted_self_hosted_blocks() {
 
 #[test]
 fn test_selfhosted_config_validate_ok() {
-    let policy =
-        ResidencyPolicy::self_hosted(vec!["http://internal".to_string()]);
+    let policy = ResidencyPolicy::self_hosted(vec!["http://internal".to_string()]);
     let cfg = SelfHostedConfig::new(policy)
         .with_tempo("http://internal/tempo")
         .with_loki("http://internal/loki");
@@ -62,10 +63,8 @@ fn test_selfhosted_config_validate_ok() {
 
 #[test]
 fn test_selfhosted_config_validate_blocks_external_endpoint() {
-    let policy =
-        ResidencyPolicy::self_hosted(vec!["http://internal".to_string()]);
-    let cfg = SelfHostedConfig::new(policy)
-        .with_otlp("https://cloud.provider.io/otlp");
+    let policy = ResidencyPolicy::self_hosted(vec!["http://internal".to_string()]);
+    let cfg = SelfHostedConfig::new(policy).with_otlp("https://cloud.provider.io/otlp");
     assert!(cfg.validate().is_err());
 }
 

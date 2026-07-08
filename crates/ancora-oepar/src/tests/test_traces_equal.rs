@@ -1,4 +1,4 @@
-use crate::trace_parity::{Language, reference_trace, compare_traces};
+use crate::trace_parity::{compare_traces, reference_trace, Language};
 
 #[test]
 fn test_traces_equal_rust_vs_python() {
@@ -48,7 +48,10 @@ fn test_trace_ids_consistent() {
     for lang in langs {
         let trace = reference_trace(lang);
         for span in &trace.spans {
-            assert_eq!(span.trace_id, trace.trace_id, "span trace_id must match trace id");
+            assert_eq!(
+                span.trace_id, trace.trace_id,
+                "span trace_id must match trace id"
+            );
         }
     }
 }

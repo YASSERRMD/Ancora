@@ -95,10 +95,14 @@ impl SaasTemplate {
     /// Renders the SaaS template from the given config.
     pub fn render(config: SaasConfig) -> Result<Self, TemplateError> {
         if config.product_name.is_empty() {
-            return Err(TemplateError::InvalidConfig("product_name must not be empty".to_string()));
+            return Err(TemplateError::InvalidConfig(
+                "product_name must not be empty".to_string(),
+            ));
         }
         if config.replicas == 0 {
-            return Err(TemplateError::InvalidConfig("replicas must be at least 1".to_string()));
+            return Err(TemplateError::InvalidConfig(
+                "replicas must be at least 1".to_string(),
+            ));
         }
 
         let yaml = format!(

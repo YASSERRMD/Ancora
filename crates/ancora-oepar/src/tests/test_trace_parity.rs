@@ -1,4 +1,4 @@
-use crate::trace_parity::{Language, compare_traces, reference_trace};
+use crate::trace_parity::{compare_traces, reference_trace, Language};
 
 #[test]
 fn test_reference_traces_have_two_spans() {
@@ -11,13 +11,20 @@ fn test_rust_python_trace_parity() {
     let rust_trace = reference_trace(Language::Rust);
     let python_trace = reference_trace(Language::Python);
     let result = compare_traces(&rust_trace, &python_trace);
-    assert!(result.is_equal, "rust vs python trace differs: {:?}", result.differences);
+    assert!(
+        result.is_equal,
+        "rust vs python trace differs: {:?}",
+        result.differences
+    );
 }
 
 #[test]
 fn test_all_six_languages_parity() {
     let languages = Language::all();
-    let traces: Vec<_> = languages.iter().map(|l| reference_trace(l.clone())).collect();
+    let traces: Vec<_> = languages
+        .iter()
+        .map(|l| reference_trace(l.clone()))
+        .collect();
     let reference = &traces[0];
     for other in traces.iter().skip(1) {
         let result = compare_traces(reference, other);

@@ -15,7 +15,10 @@ fn only_allowlisted_attrs_exported() {
     assert!(keys.contains(&"span.name"));
     assert!(keys.contains(&"http.status_code"));
     assert!(!keys.contains(&"user.email"), "email must be filtered out");
-    assert!(!keys.contains(&"prompt.text"), "prompt must be filtered out");
+    assert!(
+        !keys.contains(&"prompt.text"),
+        "prompt must be filtered out"
+    );
 }
 
 #[test]

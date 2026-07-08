@@ -26,13 +26,16 @@ impl AuthStrategy {
     pub fn as_header(&self) -> Result<Option<(String, String)>, String> {
         match self {
             Self::BearerToken { env_var } => {
-                let token = std::env::var(env_var)
-                    .map_err(|_| format!("env var {env_var} not set"))?;
-                Ok(Some(("Authorization".to_owned(), format!("Bearer {token}"))))
+                let token =
+                    std::env::var(env_var).map_err(|_| format!("env var {env_var} not set"))?;
+                Ok(Some((
+                    "Authorization".to_owned(),
+                    format!("Bearer {token}"),
+                )))
             }
             Self::HeaderKey { header, env_var } => {
-                let val = std::env::var(env_var)
-                    .map_err(|_| format!("env var {env_var} not set"))?;
+                let val =
+                    std::env::var(env_var).map_err(|_| format!("env var {env_var} not set"))?;
                 Ok(Some((header.clone(), val)))
             }
             Self::QueryParam { .. } | Self::None => Ok(None),
@@ -56,7 +59,9 @@ mod tests {
 
     #[test]
     fn bearer_token_as_header_missing_env_returns_err() {
-        let auth = AuthStrategy::BearerToken { env_var: "NONEXISTENT_TEST_KEY_106".to_owned() };
+        let auth = AuthStrategy::BearerToken {
+            env_var: "NONEXISTENT_TEST_KEY_106".to_owned(),
+        };
         assert!(auth.as_header().is_err());
     }
 
@@ -98,7 +103,9 @@ mod tests {
     #[test]
     fn bearer_token_attaches_correct_header_value() {
         unsafe { std::env::set_var("ANCORA_TEST_BEARER_106", "tok-abc") };
-        let auth = AuthStrategy::BearerToken { env_var: "ANCORA_TEST_BEARER_106".to_owned() };
+        let auth = AuthStrategy::BearerToken {
+            env_var: "ANCORA_TEST_BEARER_106".to_owned(),
+        };
         let (name, val) = auth.as_header().unwrap().unwrap();
         assert_eq!(name, "Authorization");
         assert_eq!(val, "Bearer tok-abc");
@@ -108,7 +115,9 @@ mod tests {
     #[test]
     fn resolve_returns_token_value() {
         unsafe { std::env::set_var("ANCORA_TEST_RESOLVE_106", "resolved-secret") };
-        let auth = AuthStrategy::BearerToken { env_var: "ANCORA_TEST_RESOLVE_106".to_owned() };
+        let auth = AuthStrategy::BearerToken {
+            env_var: "ANCORA_TEST_RESOLVE_106".to_owned(),
+        };
         assert_eq!(auth.resolve().as_deref(), Some("resolved-secret"));
         unsafe { std::env::remove_var("ANCORA_TEST_RESOLVE_106") };
     }

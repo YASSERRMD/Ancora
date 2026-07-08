@@ -24,12 +24,18 @@ const TOKEN: &str = "super-secret-xyz";
 struct NopTool;
 
 impl Tool for NopTool {
-    fn name(&self) -> &str { "nop" }
-    fn description(&self) -> &str { "does nothing" }
+    fn name(&self) -> &str {
+        "nop"
+    }
+    fn description(&self) -> &str {
+        "does nothing"
+    }
     fn input_schema(&self) -> serde_json::Value {
         serde_json::json!({ "type": "object", "required": [] })
     }
-    fn effect(&self) -> ToolEffect { ToolEffect::ReadOnly }
+    fn effect(&self) -> ToolEffect {
+        ToolEffect::ReadOnly
+    }
     fn call(&self, _input: &serde_json::Value) -> Result<serde_json::Value, ToolError> {
         Ok(serde_json::json!({}))
     }
@@ -51,11 +57,7 @@ async fn spawn_protected() -> (std::net::SocketAddr, oneshot::Sender<()>) {
     (bound, tx)
 }
 
-async fn http_post(
-    addr: std::net::SocketAddr,
-    body: &str,
-    auth_header: Option<&str>,
-) -> String {
+async fn http_post(addr: std::net::SocketAddr, body: &str, auth_header: Option<&str>) -> String {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     let mut stream = tokio::net::TcpStream::connect(addr).await.unwrap();
     let auth_line = auth_header
@@ -83,7 +85,11 @@ async fn no_auth_header_returns_401() {
     let (addr, tx) = spawn_protected().await;
     let body = r#"{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}"#;
     let resp = http_post(addr, body, None).await;
-    assert_eq!(status(&resp), 401, "missing header must be 401, got: {resp}");
+    assert_eq!(
+        status(&resp),
+        401,
+        "missing header must be 401, got: {resp}"
+    );
     let _ = tx.send(());
 }
 
@@ -129,9 +135,14 @@ async fn correct_token_returns_200() {
 #[tokio::test]
 async fn tools_call_also_requires_auth() {
     let (addr, tx) = spawn_protected().await;
-    let body = r#"{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"nop","arguments":{}}}"#;
+    let body =
+        r#"{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"nop","arguments":{}}}"#;
     let resp = http_post(addr, body, None).await;
-    assert_eq!(status(&resp), 401, "tools/call without token must be 401, got: {resp}");
+    assert_eq!(
+        status(&resp),
+        401,
+        "tools/call without token must be 401, got: {resp}"
+    );
     let _ = tx.send(());
 }
 

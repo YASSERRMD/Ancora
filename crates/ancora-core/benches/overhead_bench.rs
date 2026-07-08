@@ -4,7 +4,7 @@ use ancora_core::{
     activity::Activity,
     error::AncoraError,
     idempotency::{write_once, WriteActivity},
-    journal::{JournalStore, MemoryStore},
+    journal::MemoryStore,
     output::{repair_prompt, validate_output},
     replay::replay_events,
     routing::ModelRouter,
@@ -19,7 +19,9 @@ struct NoopActivity {
 }
 
 impl Activity for NoopActivity {
-    fn key(&self) -> String { self.key.clone() }
+    fn key(&self) -> String {
+        self.key.clone()
+    }
     fn execute(&self) -> Result<String, AncoraError> {
         Ok(r#"{"result":"ok"}"#.into())
     }
@@ -58,7 +60,9 @@ fn activity_journal(run_id: &str, n: usize) -> Vec<JournalEvent> {
         run_id: run_id.to_owned(),
         seq: last as u64,
         recorded_at_ns: 0,
-        event: Some(Event::RunCompleted(RunCompletedEvent { output_json: String::new() })),
+        event: Some(Event::RunCompleted(RunCompletedEvent {
+            output_json: String::new(),
+        })),
     });
     events
 }
@@ -70,7 +74,9 @@ fn bench_activity_record(c: &mut Criterion) {
             b.iter(|| {
                 let store = MemoryStore::new();
                 for i in 0..n {
-                    let act = NoopActivity { key: format!("act-{}", i) };
+                    let act = NoopActivity {
+                        key: format!("act-{}", i),
+                    };
                     let wa = WriteActivity::new(&act).unwrap();
                     black_box(write_once("bench-run", wa, &store).unwrap());
                 }
@@ -124,7 +130,12 @@ fn bench_output_validate(c: &mut Criterion) {
 
 fn bench_repair_prompt(c: &mut Criterion) {
     c.bench_function("repair_prompt", |b| {
-        b.iter(|| black_box(repair_prompt(black_box("bad output"), black_box("not JSON"))))
+        b.iter(|| {
+            black_box(repair_prompt(
+                black_box("bad output"),
+                black_box("not JSON"),
+            ))
+        })
     });
 }
 

@@ -6,7 +6,10 @@ pub struct LatencySampler {
 
 impl LatencySampler {
     pub fn new(label: &str) -> Self {
-        Self { label: label.to_string(), samples: vec![] }
+        Self {
+            label: label.to_string(),
+            samples: vec![],
+        }
     }
 
     pub fn record(&mut self, latency_ms: u64) {
@@ -42,7 +45,13 @@ impl LatencySampler {
         Some(sorted[idx.min(sorted.len() - 1)])
     }
 
-    pub fn p50(&self) -> Option<u64> { self.percentile(50.0) }
-    pub fn p95(&self) -> Option<u64> { self.percentile(95.0) }
-    pub fn p99(&self) -> Option<u64> { self.percentile(99.0) }
+    pub fn p50(&self) -> Option<u64> {
+        self.percentile(50.0)
+    }
+    pub fn p95(&self) -> Option<u64> {
+        self.percentile(95.0)
+    }
+    pub fn p99(&self) -> Option<u64> {
+        self.percentile(99.0)
+    }
 }

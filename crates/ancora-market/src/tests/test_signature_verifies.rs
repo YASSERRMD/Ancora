@@ -1,4 +1,4 @@
-use crate::identity::{AuthorIdentity, IdentityError, sign_payload, verify_signature};
+use crate::identity::{sign_payload, verify_signature, AuthorIdentity, IdentityError};
 
 #[test]
 fn verified_author_signature_accepted() {

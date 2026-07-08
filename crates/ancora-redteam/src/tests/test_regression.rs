@@ -1,5 +1,5 @@
-use ancora_guard::{GuardrailJournal, GuardrailOutcome, GuardrailPolicy, InjectionInputGuardrail};
 use crate::{known_attack_regression_set, GuardrailScorer};
+use ancora_guard::{GuardrailJournal, GuardrailOutcome, GuardrailPolicy, InjectionInputGuardrail};
 
 fn injection_check(payload: &str) -> bool {
     let mut p = GuardrailPolicy::new();
@@ -23,7 +23,8 @@ fn regression_all_expected_blocked() {
 #[test]
 fn regression_injection_attacks_blocked() {
     let set = known_attack_regression_set();
-    let injection: Vec<_> = set.iter()
+    let injection: Vec<_> = set
+        .iter()
         .filter(|s| s.category == crate::AttackCategory::Injection)
         .collect();
     assert!(!injection.is_empty());
@@ -31,7 +32,8 @@ fn regression_injection_attacks_blocked() {
         assert!(
             injection_check(&scenario.payload),
             "regression scenario {} not blocked: '{}'",
-            scenario.id, scenario.payload
+            scenario.id,
+            scenario.payload
         );
     }
 }
@@ -39,12 +41,17 @@ fn regression_injection_attacks_blocked() {
 #[test]
 fn regression_known_attacks_pass_scorer() {
     let set = known_attack_regression_set();
-    let injectable: Vec<_> = set.iter()
+    let injectable: Vec<_> = set
+        .iter()
         .filter(|s| s.category == crate::AttackCategory::Injection)
         .cloned()
         .collect();
-    let report = GuardrailScorer::score(&injectable, |p| injection_check(p));
-    assert_eq!(report.false_negatives(), 0, "regression: injection not all caught");
+    let report = GuardrailScorer::score(&injectable, injection_check);
+    assert_eq!(
+        report.false_negatives(),
+        0,
+        "regression: injection not all caught"
+    );
 }
 
 #[test]

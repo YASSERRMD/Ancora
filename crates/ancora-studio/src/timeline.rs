@@ -1,4 +1,4 @@
-/// Timeline view - visualises each step of a run as a horizontal swimlane.
+//! Timeline view - visualises each step of a run as a horizontal swimlane.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum StepKind {

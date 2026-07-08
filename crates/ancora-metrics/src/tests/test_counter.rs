@@ -16,7 +16,9 @@ mod tests {
     #[test]
     fn error_rate_computed() {
         let mut c = RunCounters::default();
-        for _ in 0..9 { c.record_success("t1"); }
+        for _ in 0..9 {
+            c.record_success("t1");
+        }
         c.record_failure("t1");
         let rate = c.error_rate("t1");
         assert!((rate - 0.1).abs() < 1e-9);

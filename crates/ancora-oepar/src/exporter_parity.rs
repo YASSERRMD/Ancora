@@ -85,22 +85,22 @@ pub fn check_exporter_parity(payloads: &[ExportedPayload]) -> Vec<String> {
             if first.format != other.format {
                 issues.push(format!(
                     "format mismatch: {:?}={:?} vs {:?}={:?}",
-                    first.language, first.format.as_str(),
-                    other.language, other.format.as_str()
+                    first.language,
+                    first.format.as_str(),
+                    other.language,
+                    other.format.as_str()
                 ));
             }
             if first.span_count != other.span_count {
                 issues.push(format!(
                     "span_count mismatch: {:?}={} vs {:?}={}",
-                    first.language, first.span_count,
-                    other.language, other.span_count
+                    first.language, first.span_count, other.language, other.span_count
                 ));
             }
             if first.metric_count != other.metric_count {
                 issues.push(format!(
                     "metric_count mismatch: {:?}={} vs {:?}={}",
-                    first.language, first.metric_count,
-                    other.language, other.metric_count
+                    first.language, first.metric_count, other.language, other.metric_count
                 ));
             }
             // Check required headers are present.

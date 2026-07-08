@@ -14,11 +14,20 @@ fn dashboard_json_is_valid_object() {
 
     assert!(json.starts_with('{'), "JSON should start with {{");
     assert!(json.ends_with('}'), "JSON should end with }}");
-    assert!(json.contains("\"total_cost_usd\""), "JSON missing total_cost_usd");
+    assert!(
+        json.contains("\"total_cost_usd\""),
+        "JSON missing total_cost_usd"
+    );
     assert!(json.contains("\"period\""), "JSON missing period");
     assert!(json.contains("\"top_models\""), "JSON missing top_models");
-    assert!(json.contains("\"top_providers\""), "JSON missing top_providers");
-    assert!(json.contains("\"cache_hit_rate\""), "JSON missing cache_hit_rate");
+    assert!(
+        json.contains("\"top_providers\""),
+        "JSON missing top_providers"
+    );
+    assert!(
+        json.contains("\"cache_hit_rate\""),
+        "JSON missing cache_hit_rate"
+    );
 }
 
 #[test]

@@ -14,7 +14,9 @@ fn test_airgapped_fleet_via_offline_bundles() {
     manager.add_bundle(bundle);
     assert_eq!(manager.bundle_count(), 1);
 
-    let ids: Vec<DeviceId> = (0..3).map(|i| DeviceId::new(format!("dev-{}", i))).collect();
+    let ids: Vec<DeviceId> = (0..3)
+        .map(|i| DeviceId::new(format!("dev-{}", i)))
+        .collect();
     let records = manager.apply_to_fleet(&ids, "bundle-v1");
 
     assert_eq!(records.len(), 3);
@@ -29,7 +31,9 @@ fn test_bundle_verification_fails_on_corrupt_data() {
     bundle.add_file("data.bin", vec![1, 2, 3]);
 
     // Manually corrupt the manifest checksum
-    bundle.manifest.insert("data.bin".into(), "bad-checksum".into());
+    bundle
+        .manifest
+        .insert("data.bin".into(), "bad-checksum".into());
     assert!(!bundle.verify());
 }
 

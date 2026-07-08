@@ -9,7 +9,12 @@ use serde_json::json;
 
 #[test]
 fn example_run_orchestrate_fan_out() {
-    let tasks = fan_out("orch", "worker", vec![json!("item-1"), json!("item-2")], "root");
+    let tasks = fan_out(
+        "orch",
+        "worker",
+        vec![json!("item-1"), json!("item-2")],
+        "root",
+    );
     assert_eq!(tasks.len(), 2);
     assert!(tasks[0].task_id.contains("fanout-0"));
 }
@@ -35,11 +40,8 @@ fn example_run_guard_policy() {
 
 #[test]
 fn example_run_reasoning_pipeline() {
-    let steps = StepDecomposer::decompose(vec![
-        "claim-1".into(),
-        "claim-2".into(),
-        "claim-3".into(),
-    ]);
+    let steps =
+        StepDecomposer::decompose(vec!["claim-1".into(), "claim-2".into(), "claim-3".into()]);
     assert_eq!(steps.len(), 3);
 }
 

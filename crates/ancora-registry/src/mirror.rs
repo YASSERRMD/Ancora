@@ -75,7 +75,11 @@ impl MirrorStore {
     pub fn to_snapshot(&self) -> MirrorSnapshot {
         let mut snap = MirrorSnapshot::default();
         for ((name, version), payload) in &self.data {
-            snap.add(MirrorEntry::new(name.clone(), version.clone(), payload.clone()));
+            snap.add(MirrorEntry::new(
+                name.clone(),
+                version.clone(),
+                payload.clone(),
+            ));
         }
         snap
     }

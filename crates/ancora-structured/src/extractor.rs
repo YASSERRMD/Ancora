@@ -1,5 +1,5 @@
-use serde_json::Value;
 use crate::error::StructuredError;
+use serde_json::Value;
 
 /// Extracts structured JSON from a model response string.
 /// Tries direct parse first, then looks for the first JSON object in the string.
@@ -31,14 +31,29 @@ impl JsonExtractor {
         let mut in_string = false;
         let mut escape = false;
         for (i, &b) in bytes.iter().enumerate().skip(start) {
-            if escape { escape = false; continue; }
-            if b == b'\\' && in_string { escape = true; continue; }
-            if b == b'"' { in_string = !in_string; continue; }
-            if in_string { continue; }
-            if b == b'{' { depth += 1; }
+            if escape {
+                escape = false;
+                continue;
+            }
+            if b == b'\\' && in_string {
+                escape = true;
+                continue;
+            }
+            if b == b'"' {
+                in_string = !in_string;
+                continue;
+            }
+            if in_string {
+                continue;
+            }
+            if b == b'{' {
+                depth += 1;
+            }
             if b == b'}' {
                 depth -= 1;
-                if depth == 0 { return Some(i); }
+                if depth == 0 {
+                    return Some(i);
+                }
             }
         }
         None

@@ -1,4 +1,4 @@
-use crate::{Framework, presets};
+use crate::{presets, Framework};
 #[test]
 fn iso27001_preset_returns_five_controls() {
     let controls = presets::iso27001_controls();

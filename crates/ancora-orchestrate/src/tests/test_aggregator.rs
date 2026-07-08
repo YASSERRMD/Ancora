@@ -2,7 +2,12 @@ use crate::result_aggregator::{AgentResult, ResultAggregator};
 use serde_json::json;
 
 fn result(task_id: &str, success: bool) -> AgentResult {
-    AgentResult { task_id: task_id.to_string(), agent_id: "a".to_string(), output: json!("ok"), success }
+    AgentResult {
+        task_id: task_id.to_string(),
+        agent_id: "a".to_string(),
+        output: json!("ok"),
+        success,
+    }
 }
 
 #[test]

@@ -28,9 +28,19 @@ impl AutoAssessor {
                 let old = ctrl.status.clone();
                 ctrl.set_status(ControlStatus::Compliant, tick);
                 audit.record(AssessmentRecord::new(
-                    tick, tenant_id, id.clone(), framework.clone(), old, ControlStatus::Compliant, assessor,
+                    tick,
+                    tenant_id,
+                    id.clone(),
+                    framework.clone(),
+                    old,
+                    ControlStatus::Compliant,
+                    assessor,
                 ));
-                results.push(AssessmentResult { control_id: id, new_status: ControlStatus::Compliant, tick });
+                results.push(AssessmentResult {
+                    control_id: id,
+                    new_status: ControlStatus::Compliant,
+                    tick,
+                });
             }
         }
         results
@@ -40,6 +50,8 @@ impl AutoAssessor {
         registry: &mut ControlRegistry,
         controls: Vec<crate::control::ComplianceControl>,
     ) {
-        for c in controls { registry.register(c); }
+        for c in controls {
+            registry.register(c);
+        }
     }
 }

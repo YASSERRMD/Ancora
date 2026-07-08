@@ -1,7 +1,14 @@
 use crate::{IntrospectStatus, Token, TokenIntrospector, TokenKind};
 
 fn make_token(raw: &str, subject: &str, tenant: &str, exp: u64) -> Token {
-    Token::new(raw, TokenKind::Bearer, subject, tenant, exp, vec!["openid".into()])
+    Token::new(
+        raw,
+        TokenKind::Bearer,
+        subject,
+        tenant,
+        exp,
+        vec!["openid".into()],
+    )
 }
 
 #[test]

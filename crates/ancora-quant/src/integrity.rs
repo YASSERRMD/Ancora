@@ -65,11 +65,23 @@ impl fmt::Display for IntegrityError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             IntegrityError::Io(e) => write!(f, "io error: {}", e),
-            IntegrityError::ChecksumMismatch { algorithm, expected, actual } => {
-                write!(f, "{} mismatch: expected {} got {}", algorithm, expected, actual)
+            IntegrityError::ChecksumMismatch {
+                algorithm,
+                expected,
+                actual,
+            } => {
+                write!(
+                    f,
+                    "{} mismatch: expected {} got {}",
+                    algorithm, expected, actual
+                )
             }
             IntegrityError::SizeMismatch { expected, actual } => {
-                write!(f, "size mismatch: expected {} bytes got {}", expected, actual)
+                write!(
+                    f,
+                    "size mismatch: expected {} bytes got {}",
+                    expected, actual
+                )
             }
             IntegrityError::InvalidChecksum(msg) => write!(f, "invalid checksum: {}", msg),
         }

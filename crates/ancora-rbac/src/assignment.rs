@@ -41,7 +41,8 @@ impl AssignmentStore {
     }
 
     pub fn get(&self, subject: &str, tenant_id: &str) -> Option<&RoleAssignment> {
-        self.assignments.get(&(subject.to_string(), tenant_id.to_string()))
+        self.assignments
+            .get(&(subject.to_string(), tenant_id.to_string()))
     }
 
     pub fn revoke(&mut self, subject: &str, tenant_id: &str) -> bool {

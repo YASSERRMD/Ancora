@@ -8,7 +8,11 @@ pub struct RegistryLink {
 
 impl RegistryLink {
     pub const fn new(label: &'static str, url: &'static str, description: &'static str) -> Self {
-        Self { label, url, description }
+        Self {
+            label,
+            url,
+            description,
+        }
     }
 
     pub fn is_docs_link(&self) -> bool {

@@ -62,12 +62,7 @@ pub struct QuantMeasurement {
 }
 
 impl QuantMeasurement {
-    pub fn new(
-        format: QuantFormat,
-        quality_score: f64,
-        perplexity: f64,
-        memory_mib: f64,
-    ) -> Self {
+    pub fn new(format: QuantFormat, quality_score: f64, perplexity: f64, memory_mib: f64) -> Self {
         Self {
             format,
             quality_score: quality_score.clamp(0.0, 1.0),
@@ -121,9 +116,11 @@ impl QuantTradeoffEval {
 
     /// Find the best variant by tradeoff score.
     pub fn best_variant(&self) -> Option<&QuantMeasurement> {
-        self.variants
-            .iter()
-            .max_by(|a, b| self.tradeoff_score(a).partial_cmp(&self.tradeoff_score(b)).unwrap_or(std::cmp::Ordering::Equal))
+        self.variants.iter().max_by(|a, b| {
+            self.tradeoff_score(a)
+                .partial_cmp(&self.tradeoff_score(b))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
     }
 
     /// All variants.

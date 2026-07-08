@@ -1,4 +1,4 @@
-use crate::feedback_e2e::{feedback_to_eval_entries, FeedbackItem, FeedbackEvalDataset};
+use crate::feedback_e2e::{feedback_to_eval_entries, FeedbackItem};
 use std::collections::HashMap;
 
 fn make_inputs_outputs() -> (HashMap<String, String>, HashMap<String, String>) {

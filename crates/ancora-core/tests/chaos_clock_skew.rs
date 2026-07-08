@@ -2,6 +2,7 @@
 
 struct Event {
     seq: u64,
+    #[allow(dead_code)]
     recorded_at_ns: u64,
     kind: &'static str,
 }
@@ -16,16 +17,28 @@ fn validate_timestamp_not_required_monotonic(events: &[Event]) -> bool {
     true
 }
 
-fn replay_in_seq_order(events: &mut Vec<Event>) -> Vec<&str> {
+fn replay_in_seq_order(events: &mut [Event]) -> Vec<&str> {
     events.sort_by_key(|e| e.seq);
     events.iter().map(|e| e.kind).collect()
 }
 
 fn events_with_skew() -> Vec<Event> {
     vec![
-        Event { seq: 0, recorded_at_ns: 1_000_000_000, kind: "started" },
-        Event { seq: 1, recorded_at_ns: 999_000_000, kind: "activity" },   // skewed back
-        Event { seq: 2, recorded_at_ns: 1_100_000_000, kind: "completed" },
+        Event {
+            seq: 0,
+            recorded_at_ns: 1_000_000_000,
+            kind: "started",
+        },
+        Event {
+            seq: 1,
+            recorded_at_ns: 999_000_000,
+            kind: "activity",
+        }, // skewed back
+        Event {
+            seq: 2,
+            recorded_at_ns: 1_100_000_000,
+            kind: "completed",
+        },
     ]
 }
 
@@ -52,9 +65,21 @@ fn test_timestamp_skew_is_accepted() {
 #[test]
 fn test_large_negative_skew_still_replays_correctly() {
     let mut evs = vec![
-        Event { seq: 0, recorded_at_ns: 9_000_000_000, kind: "started" },
-        Event { seq: 1, recorded_at_ns: 1, kind: "activity" },
-        Event { seq: 2, recorded_at_ns: 9_000_000_001, kind: "completed" },
+        Event {
+            seq: 0,
+            recorded_at_ns: 9_000_000_000,
+            kind: "started",
+        },
+        Event {
+            seq: 1,
+            recorded_at_ns: 1,
+            kind: "activity",
+        },
+        Event {
+            seq: 2,
+            recorded_at_ns: 9_000_000_001,
+            kind: "completed",
+        },
     ];
     let kinds = replay_in_seq_order(&mut evs);
     assert_eq!(kinds[0], "started");
@@ -64,8 +89,16 @@ fn test_large_negative_skew_still_replays_correctly() {
 #[test]
 fn test_equal_timestamps_different_seqs_ordered_by_seq() {
     let mut evs = vec![
-        Event { seq: 2, recorded_at_ns: 100, kind: "b" },
-        Event { seq: 1, recorded_at_ns: 100, kind: "a" },
+        Event {
+            seq: 2,
+            recorded_at_ns: 100,
+            kind: "b",
+        },
+        Event {
+            seq: 1,
+            recorded_at_ns: 100,
+            kind: "a",
+        },
     ];
     let kinds = replay_in_seq_order(&mut evs);
     assert_eq!(kinds, vec!["a", "b"]);
@@ -73,7 +106,11 @@ fn test_equal_timestamps_different_seqs_ordered_by_seq() {
 
 #[test]
 fn test_single_event_replay_is_valid() {
-    let mut evs = vec![Event { seq: 0, recorded_at_ns: 42, kind: "started" }];
+    let mut evs = vec![Event {
+        seq: 0,
+        recorded_at_ns: 42,
+        kind: "started",
+    }];
     let kinds = replay_in_seq_order(&mut evs);
     assert_eq!(kinds, vec!["started"]);
 }

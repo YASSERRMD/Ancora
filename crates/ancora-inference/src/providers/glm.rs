@@ -9,7 +9,9 @@ pub fn build_glm_profile() -> ProviderProfile {
     ProviderProfile::new(
         "glm",
         "https://open.bigmodel.cn/api/paas/v4",
-        AuthStrategy::BearerToken { env_var: "ZHIPU_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "ZHIPU_API_KEY".to_owned(),
+        },
     )
     .with_chat_path("/chat/completions")
     // GLM-5 -- flagship model; tools, structured output, 128k context
@@ -67,7 +69,9 @@ pub fn build_glm_self_host_profile(base_url: impl Into<String>) -> ProviderProfi
     ProviderProfile::new(
         "glm-self-host",
         base_url,
-        AuthStrategy::BearerToken { env_var: "GLM_SELF_HOST_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "GLM_SELF_HOST_KEY".to_owned(),
+        },
     )
     // GLM-4-9B: 9B parameter open-weight model (MIT license)
     .add_model(
@@ -92,19 +96,15 @@ pub fn build_glm_self_host_profile(base_url: impl Into<String>) -> ProviderProfi
 /// requirements (4-bit quant: ~5GB). The server exposes an OpenAI-compatible
 /// endpoint. Use this profile for edge or embedded deployments.
 pub fn build_glm_llamacpp_profile(base_url: impl Into<String>) -> ProviderProfile {
-    ProviderProfile::new(
-        "glm-llamacpp",
-        base_url,
-        AuthStrategy::None,
-    )
-    // llama.cpp serves one model at a time; model_id is the GGUF name
-    .add_model(
-        ModelMeta::new("glm-4-9b-chat-q4_k_m", 4_096)
-            .with_pricing(0.0, 0.0)
-            .with_streaming(),
-    )
-    .add_alias("glm4", "glm-4-9b-chat-q4_k_m")
-    .add_alias("glm", "glm-4-9b-chat-q4_k_m")
+    ProviderProfile::new("glm-llamacpp", base_url, AuthStrategy::None)
+        // llama.cpp serves one model at a time; model_id is the GGUF name
+        .add_model(
+            ModelMeta::new("glm-4-9b-chat-q4_k_m", 4_096)
+                .with_pricing(0.0, 0.0)
+                .with_streaming(),
+        )
+        .add_alias("glm4", "glm-4-9b-chat-q4_k_m")
+        .add_alias("glm", "glm-4-9b-chat-q4_k_m")
 }
 
 /// Normalize a GLM HTTP error to `InferenceError`.
@@ -118,7 +118,9 @@ pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError 
 pub fn compute_cost(model_id: &str, tokens_in: u64, tokens_out: u64) -> Option<f64> {
     let p = build_glm_profile();
     let canonical = p.resolve_model_id(model_id);
-    p.model_catalog.get(canonical)?.compute_cost(tokens_in, tokens_out, 0)
+    p.model_catalog
+        .get(canonical)?
+        .compute_cost(tokens_in, tokens_out, 0)
 }
 
 /// Return the context-window size in tokens for a given model-id (resolves aliases).
@@ -134,10 +136,9 @@ pub fn context_window(model_id: &str) -> Option<u32> {
 /// into every request body. Use this when you need structured extraction and the
 /// caller cannot set `response_format` on the `CompletionRequest` directly.
 pub fn build_glm_json_profile() -> ProviderProfile {
-    build_glm_profile()
-        .with_request_transform(|body| {
-            body["response_format"] = serde_json::json!({"type": "json_object"});
-        })
+    build_glm_profile().with_request_transform(|body| {
+        body["response_format"] = serde_json::json!({"type": "json_object"});
+    })
 }
 
 /// Validate that a string is a JSON object (not array, not scalar).
@@ -163,7 +164,9 @@ pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
 pub fn supports_tools(model_id: &str) -> bool {
     let p = build_glm_profile();
     let canonical = p.resolve_model_id(model_id);
-    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+    p.model_catalog
+        .get(canonical)
+        .is_some_and(|m| m.capabilities.tools)
 }
 
 #[cfg(test)]
@@ -224,7 +227,9 @@ mod tests {
 
     #[test]
     fn glm_tool_round_trip_works() {
-        let resp = glm_client().parse_response(GLM_TOOL_FIXTURE, "glm-5").unwrap();
+        let resp = glm_client()
+            .parse_response(GLM_TOOL_FIXTURE, "glm-5")
+            .unwrap();
         assert_eq!(resp.tool_calls.len(), 1);
         assert_eq!(resp.tool_calls[0].function.name, "extract_entities");
         let args: serde_json::Value =
@@ -237,7 +242,10 @@ mod tests {
         use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
         let mut req = CompletionRequest::simple(
             "glm-5",
-            vec![Message::text("user", "Extract companies from: Apple Inc was founded by Steve Jobs")],
+            vec![Message::text(
+                "user",
+                "Extract companies from: Apple Inc was founded by Steve Jobs",
+            )],
         );
         req.tools = vec![ToolDefinition {
             kind: "function".to_owned(),
@@ -265,7 +273,8 @@ mod tests {
     #[test]
     fn glm_streaming_fixture_ordered() {
         use crate::openai::OpenAiClient;
-        let tokens: Vec<String> = GLM_STREAM_LINES.iter()
+        let tokens: Vec<String> = GLM_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -276,7 +285,8 @@ mod tests {
     #[test]
     fn glm_streaming_combined_text() {
         use crate::openai::OpenAiClient;
-        let combined: String = GLM_STREAM_LINES.iter()
+        let combined: String = GLM_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text)
@@ -295,7 +305,9 @@ mod tests {
     fn glm_structured_output_validates_as_json_object() {
         use std::sync::Arc;
         let json_client = crate::openai::OpenAiClient::new(Arc::new(build_glm_json_profile()));
-        let resp = json_client.parse_response(GLM_JSON_FIXTURE, "glm-5").unwrap();
+        let resp = json_client
+            .parse_response(GLM_JSON_FIXTURE, "glm-5")
+            .unwrap();
         // The content should be a JSON object string
         assert!(is_json_object(&resp.content));
     }
@@ -315,7 +327,9 @@ mod tests {
 
     #[test]
     fn glm_json_fixture_has_expected_keys() {
-        let resp = glm_client().parse_response(GLM_JSON_FIXTURE, "glm-5").unwrap();
+        let resp = glm_client()
+            .parse_response(GLM_JSON_FIXTURE, "glm-5")
+            .unwrap();
         let obj: serde_json::Value = serde_json::from_str(&resp.content).unwrap();
         assert_eq!(obj["company"], "Apple Inc");
         assert_eq!(obj["founder"], "Steve Jobs");
@@ -374,10 +388,12 @@ mod tests {
     #[test]
     fn glm_self_host_fixture_completes_offline() {
         use std::sync::Arc;
-        let client = crate::openai::OpenAiClient::new(Arc::new(
-            build_glm_self_host_profile("http://localhost:8000"),
-        ));
-        let resp = client.parse_response(GLM_SELF_HOST_FIXTURE, "glm-4-9b-chat").unwrap();
+        let client = crate::openai::OpenAiClient::new(Arc::new(build_glm_self_host_profile(
+            "http://localhost:8000",
+        )));
+        let resp = client
+            .parse_response(GLM_SELF_HOST_FIXTURE, "glm-4-9b-chat")
+            .unwrap();
         assert_eq!(resp.content, "Hello from vLLM GLM");
         assert_eq!(resp.tokens_in, 10);
         assert_eq!(resp.tokens_out, 6);
@@ -386,10 +402,12 @@ mod tests {
     #[test]
     fn glm_self_host_has_zero_cost() {
         use std::sync::Arc;
-        let client = crate::openai::OpenAiClient::new(Arc::new(
-            build_glm_self_host_profile("http://localhost:8000"),
-        ));
-        let resp = client.parse_response(GLM_SELF_HOST_FIXTURE, "glm-4-9b-chat").unwrap();
+        let client = crate::openai::OpenAiClient::new(Arc::new(build_glm_self_host_profile(
+            "http://localhost:8000",
+        )));
+        let resp = client
+            .parse_response(GLM_SELF_HOST_FIXTURE, "glm-4-9b-chat")
+            .unwrap();
         let cost = resp.cost_usd.unwrap_or(0.0);
         assert_eq!(cost, 0.0);
     }
@@ -404,10 +422,12 @@ mod tests {
     #[test]
     fn glm_llamacpp_fixture_completes_offline() {
         use std::sync::Arc;
-        let client = crate::openai::OpenAiClient::new(Arc::new(
-            build_glm_llamacpp_profile("http://localhost:8080"),
-        ));
-        let resp = client.parse_response(GLM_LLAMACPP_FIXTURE, "glm-4-9b-chat-q4_k_m").unwrap();
+        let client = crate::openai::OpenAiClient::new(Arc::new(build_glm_llamacpp_profile(
+            "http://localhost:8080",
+        )));
+        let resp = client
+            .parse_response(GLM_LLAMACPP_FIXTURE, "glm-4-9b-chat-q4_k_m")
+            .unwrap();
         assert_eq!(resp.content, "Hello from llama.cpp GLM");
         assert_eq!(resp.tokens_in, 9);
         assert_eq!(resp.tokens_out, 7);

@@ -61,5 +61,8 @@ fn is_ready_returns_only_missing_ids() {
 #[test]
 fn milestone_display() {
     assert_eq!(Milestone::StableRelease.to_string(), "stable-release");
-    assert_eq!(Milestone::MarketplaceListing.to_string(), "marketplace-listing");
+    assert_eq!(
+        Milestone::MarketplaceListing.to_string(),
+        "marketplace-listing"
+    );
 }

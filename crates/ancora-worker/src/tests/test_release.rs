@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use crate::release::{release_failure, release_success};
     use ancora_controlplane::model::{RunPriority, RunState};
     use ancora_controlplane::store::ControlPlaneStore;
-    use crate::release::{release_failure, release_success};
 
     #[test]
     fn release_success_marks_completed() {

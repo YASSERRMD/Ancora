@@ -1,13 +1,12 @@
+use crate::airgap_e2e::{AirgapBundle, AirgapRegistry, BundledPlugin};
+use crate::builder_e2e::{Node, PluginGraph};
+use crate::catalog_e2e::{CatalogTool, ToolCatalog};
 /// Verifies that all ecosystem operations work without any network calls.
 /// All constructs are in-memory; no I/O, no sockets.
-
 use crate::plugin_e2e::{Plugin, PluginTemplate};
-use crate::registry_e2e::{LocalRegistry, RegistryEntry};
-use crate::catalog_e2e::{CatalogTool, ToolCatalog};
-use crate::builder_e2e::{Node, PluginGraph};
 use crate::recipe_e2e::{Recipe, RecipeRunner, RecipeStep};
+use crate::registry_e2e::{LocalRegistry, RegistryEntry};
 use crate::trust_e2e::{PluginManifest, TrustGate, TrustLevel, TrustPolicy};
-use crate::airgap_e2e::{AirgapBundle, AirgapRegistry, BundledPlugin};
 
 #[test]
 fn test_all_offline_plugin_roundtrip() {
@@ -23,7 +22,8 @@ fn test_all_offline_plugin_roundtrip() {
 #[test]
 fn test_all_offline_registry_roundtrip() {
     let mut reg = LocalRegistry::new();
-    reg.publish(RegistryEntry::new("p", "1.0.0", "org")).unwrap();
+    reg.publish(RegistryEntry::new("p", "1.0.0", "org"))
+        .unwrap();
     assert!(reg.latest("p").is_some());
 }
 
@@ -64,7 +64,9 @@ fn test_all_offline_trust_roundtrip() {
 #[test]
 fn test_all_offline_airgap_roundtrip() {
     let mut bundle = AirgapBundle::new();
-    bundle.add(BundledPlugin::new("p", "1.0.0", b"data".to_vec())).unwrap();
+    bundle
+        .add(BundledPlugin::new("p", "1.0.0", b"data".to_vec()))
+        .unwrap();
     let mut reg = AirgapRegistry::new(bundle);
     reg.install("p", "1.0.0").unwrap();
     assert!(reg.is_installed("p", "1.0.0"));

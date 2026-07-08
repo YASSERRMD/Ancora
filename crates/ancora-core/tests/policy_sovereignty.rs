@@ -11,13 +11,18 @@ struct SovereigntyPolicy {
 }
 
 impl SovereigntyPolicy {
-    fn new(local_only: bool) -> Self { Self { local_only } }
+    fn new(local_only: bool) -> Self {
+        Self { local_only }
+    }
 
     fn check_call(&self, target: &CallTarget) -> Result<(), String> {
         if self.local_only {
             match target {
                 CallTarget::Local => Ok(()),
-                CallTarget::Remote(host) => Err(format!("remote call to '{}' blocked in local-only mode", host)),
+                CallTarget::Remote(host) => Err(format!(
+                    "remote call to '{}' blocked in local-only mode",
+                    host
+                )),
             }
         } else {
             Ok(())
@@ -42,7 +47,9 @@ fn test_remote_call_blocked_in_local_only_mode() {
 #[test]
 fn test_remote_call_allowed_in_non_local_only_mode() {
     let p = SovereigntyPolicy::new(false);
-    assert!(p.check_call(&CallTarget::Remote("api.anthropic.com".to_string())).is_ok());
+    assert!(p
+        .check_call(&CallTarget::Remote("api.anthropic.com".to_string()))
+        .is_ok());
 }
 
 #[test]
@@ -56,13 +63,17 @@ fn test_local_call_always_allowed() {
 #[test]
 fn test_error_message_contains_host() {
     let p = SovereigntyPolicy::new(true);
-    let err = p.check_call(&CallTarget::Remote("llm.china.example".to_string())).unwrap_err();
+    let err = p
+        .check_call(&CallTarget::Remote("llm.china.example".to_string()))
+        .unwrap_err();
     assert!(err.contains("llm.china.example"));
 }
 
 #[test]
 fn test_error_message_mentions_local_only_mode() {
     let p = SovereigntyPolicy::new(true);
-    let err = p.check_call(&CallTarget::Remote("anywhere".to_string())).unwrap_err();
+    let err = p
+        .check_call(&CallTarget::Remote("anywhere".to_string()))
+        .unwrap_err();
     assert!(err.contains("local-only"));
 }

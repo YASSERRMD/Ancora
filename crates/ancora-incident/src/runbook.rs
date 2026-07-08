@@ -34,7 +34,11 @@ pub struct RunbookStep {
 }
 
 impl RunbookStep {
-    pub fn new(id: impl Into<String>, title: impl Into<String>, description: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        title: impl Into<String>,
+        description: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             title: title.into(),
@@ -50,9 +54,15 @@ impl RunbookStep {
         self.completed_tick = Some(tick);
     }
 
-    pub fn skip(&mut self) { self.status = StepStatus::Skipped; }
-    pub fn fail(&mut self) { self.status = StepStatus::Failed; }
-    pub fn start(&mut self) { self.status = StepStatus::InProgress; }
+    pub fn skip(&mut self) {
+        self.status = StepStatus::Skipped;
+    }
+    pub fn fail(&mut self) {
+        self.status = StepStatus::Failed;
+    }
+    pub fn start(&mut self) {
+        self.status = StepStatus::InProgress;
+    }
 
     pub fn is_done(&self) -> bool {
         matches!(self.status, StepStatus::Completed | StepStatus::Skipped)
@@ -69,7 +79,11 @@ pub struct Runbook {
 }
 
 impl Runbook {
-    pub fn new(id: impl Into<String>, name: impl Into<String>, incident_id: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        incident_id: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             name: name.into(),
@@ -79,16 +93,23 @@ impl Runbook {
         }
     }
 
-    pub fn add_step(&mut self, step: RunbookStep) { self.steps.push(step); }
+    pub fn add_step(&mut self, step: RunbookStep) {
+        self.steps.push(step);
+    }
 
-    pub fn step_count(&self) -> usize { self.steps.len() }
+    pub fn step_count(&self) -> usize {
+        self.steps.len()
+    }
 
     pub fn completed_count(&self) -> usize {
         self.steps.iter().filter(|s| s.is_done()).count()
     }
 
     pub fn pending_count(&self) -> usize {
-        self.steps.iter().filter(|s| s.status == StepStatus::Pending).count()
+        self.steps
+            .iter()
+            .filter(|s| s.status == StepStatus::Pending)
+            .count()
     }
 
     pub fn is_complete(&self) -> bool {
@@ -96,7 +117,9 @@ impl Runbook {
     }
 
     pub fn progress(&self) -> f64 {
-        if self.steps.is_empty() { return 0.0; }
+        if self.steps.is_empty() {
+            return 0.0;
+        }
         self.completed_count() as f64 / self.step_count() as f64
     }
 

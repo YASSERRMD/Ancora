@@ -48,13 +48,16 @@ pub struct ConcurrencyLimit {
 /// 1. Memory-based limit (how many requests fit in available RAM).
 /// 2. Core-based limit (fraction of logical cores).
 /// 3. Thermally-scaled limit.
-pub fn compute_concurrency_limit(hw: &HardwareProfile, cfg: &ConcurrencyConfig) -> ConcurrencyLimit {
+pub fn compute_concurrency_limit(
+    hw: &HardwareProfile,
+    cfg: &ConcurrencyConfig,
+) -> ConcurrencyLimit {
     // Memory-based limit.
-    let mem_limit = if cfg.mem_per_request_mib == 0 {
-        cfg.max_concurrency
-    } else {
-        (hw.total_ram_mib / cfg.mem_per_request_mib).max(1) as u32
-    };
+    let mem_limit = hw
+        .total_ram_mib
+        .checked_div(cfg.mem_per_request_mib)
+        .map(|v| v.max(1) as u32)
+        .unwrap_or(cfg.max_concurrency);
 
     // Core-based limit.
     let core_limit = ((hw.cpu_logical_cores as f64 * cfg.core_fraction) as u32).max(1);

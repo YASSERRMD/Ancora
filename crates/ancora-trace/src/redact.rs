@@ -3,7 +3,6 @@
 /// Prompt content and model responses may contain PII or secrets.
 /// This module provides a policy-driven mechanism to redact or mask
 /// attribute values before they are exported.
-
 use crate::span::{AttributeValue, Span};
 
 /// A named redaction policy controlling which attributes are masked.
@@ -70,7 +69,9 @@ impl RedactPolicy {
 
     /// Returns true if the attribute key should be fully redacted.
     pub fn should_redact(&self, key: &str) -> bool {
-        self.redact_keys.iter().any(|rk| key.starts_with(rk.as_str()))
+        self.redact_keys
+            .iter()
+            .any(|rk| key.starts_with(rk.as_str()))
     }
 
     /// Returns the truncation limit for the given key, if any.

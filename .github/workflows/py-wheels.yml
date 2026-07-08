@@ -26,11 +26,11 @@ jobs:
       - uses: PyO3/maturin-action@v1
         with:
           command: build
+          working-directory: sdk/python
           args: >-
             --release
-            --manifest-path sdk/python/pyproject.toml
             --interpreter python${{ matrix.python }}
-            --out dist/
+            --out ../../dist/
           manylinux: auto
       - uses: actions/upload-artifact@v4
         with:
@@ -56,11 +56,11 @@ jobs:
         with:
           command: build
           target: ${{ matrix.target }}
+          working-directory: sdk/python
           args: >-
             --release
-            --manifest-path sdk/python/pyproject.toml
             --interpreter python${{ matrix.python }}
-            --out dist/
+            --out ../../dist/
       - uses: actions/upload-artifact@v4
         with:
           name: py-wheel-macos-${{ matrix.python }}-${{ matrix.target }}
@@ -81,11 +81,11 @@ jobs:
       - uses: PyO3/maturin-action@v1
         with:
           command: build
+          working-directory: sdk/python
           args: >-
             --release
-            --manifest-path sdk/python/pyproject.toml
             --interpreter python${{ matrix.python }}
-            --out dist/
+            --out ../../dist/
       - uses: actions/upload-artifact@v4
         with:
           name: py-wheel-windows-${{ matrix.python }}
@@ -99,9 +99,9 @@ jobs:
       - uses: PyO3/maturin-action@v1
         with:
           command: sdist
+          working-directory: sdk/python
           args: >-
-            --manifest-path sdk/python/pyproject.toml
-            --out dist/
+            --out ../../dist/
       - uses: actions/upload-artifact@v4
         with:
           name: py-sdist

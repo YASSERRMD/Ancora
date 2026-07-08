@@ -9,7 +9,9 @@ struct AuditLog {
 
 impl AuditLog {
     fn new() -> Self {
-        Self { entries: Vec::new() }
+        Self {
+            entries: Vec::new(),
+        }
     }
 
     fn record(&mut self, feedback: &Feedback) {
@@ -20,7 +22,9 @@ impl AuditLog {
     }
 
     fn contains(&self, feedback_id: &str) -> bool {
-        self.entries.iter().any(|e| e.contains(&format!("feedback={}", feedback_id)))
+        self.entries
+            .iter()
+            .any(|e| e.contains(&format!("feedback={}", feedback_id)))
     }
 }
 
@@ -31,7 +35,15 @@ fn feedback_audited() {
 
     let records = vec![
         Feedback::new("f1", "run-1", None, ThumbsRating::Up, None, "alice", 0),
-        Feedback::new("f2", "run-1", None, ThumbsRating::Down, Some("incorrect".into()), "bob", 1),
+        Feedback::new(
+            "f2",
+            "run-1",
+            None,
+            ThumbsRating::Down,
+            Some("incorrect".into()),
+            "bob",
+            1,
+        ),
         Feedback::new("f3", "run-2", None, ThumbsRating::Up, None, "carol", 2),
     ];
 
@@ -54,7 +66,15 @@ fn feedback_audited() {
 #[test]
 fn audit_log_entries_include_author() {
     let mut audit = AuditLog::new();
-    let fb = Feedback::new("f99", "run-99", None, ThumbsRating::Down, None, "mallory", 0);
+    let fb = Feedback::new(
+        "f99",
+        "run-99",
+        None,
+        ThumbsRating::Down,
+        None,
+        "mallory",
+        0,
+    );
     audit.record(&fb);
     assert!(audit.entries[0].contains("author=mallory"));
 }

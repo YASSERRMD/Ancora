@@ -42,7 +42,10 @@ impl ScenarioDataset {
     }
 
     pub fn by_category(&self, cat: &AttackCategory) -> Vec<&AdversarialScenario> {
-        self.scenarios.iter().filter(|s| &s.category == cat).collect()
+        self.scenarios
+            .iter()
+            .filter(|s| &s.category == cat)
+            .collect()
     }
 
     pub fn len(&self) -> usize {

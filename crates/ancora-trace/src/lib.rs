@@ -9,7 +9,6 @@
 /// - `genai_attrs` - GenAI semantic-convention attribute helpers
 /// - `export`      - OTLP-compatible span export (mock and stub)
 /// - `journal`     - Journal-to-span bridge
-
 pub mod export;
 pub mod genai_attrs;
 pub mod journal;

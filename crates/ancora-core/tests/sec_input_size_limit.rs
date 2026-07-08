@@ -5,7 +5,11 @@ const MAX_TOOL_RESULT_BYTES: usize = 65_536; // 64 KiB
 
 fn check_input_size(payload: &[u8]) -> Result<(), String> {
     if payload.len() > MAX_INPUT_BYTES {
-        Err(format!("input too large: {} bytes (max {})", payload.len(), MAX_INPUT_BYTES))
+        Err(format!(
+            "input too large: {} bytes (max {})",
+            payload.len(),
+            MAX_INPUT_BYTES
+        ))
     } else {
         Ok(())
     }
@@ -13,7 +17,11 @@ fn check_input_size(payload: &[u8]) -> Result<(), String> {
 
 fn check_tool_result_size(payload: &[u8]) -> Result<(), String> {
     if payload.len() > MAX_TOOL_RESULT_BYTES {
-        Err(format!("tool result too large: {} bytes (max {})", payload.len(), MAX_TOOL_RESULT_BYTES))
+        Err(format!(
+            "tool result too large: {} bytes (max {})",
+            payload.len(),
+            MAX_TOOL_RESULT_BYTES
+        ))
     } else {
         Ok(())
     }

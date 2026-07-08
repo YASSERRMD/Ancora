@@ -7,7 +7,11 @@ fn test_trajectory_perfect_match() {
     let expected = "search\nread_file\nwrite_file";
     let candidate = "search\nread_file\nwrite_file";
     let score = g.grade(candidate, expected);
-    assert!((score.value - 1.0).abs() < f64::EPSILON, "score: {}", score.value);
+    assert!(
+        (score.value - 1.0).abs() < f64::EPSILON,
+        "score: {}",
+        score.value
+    );
 }
 
 #[test]
@@ -17,7 +21,11 @@ fn test_trajectory_subsequence_match() {
     // Candidate has extra steps but expected tools appear in order
     let candidate = "search\nread_file\nwrite_file";
     let score = g.grade(candidate, expected);
-    assert!((score.value - 1.0).abs() < f64::EPSILON, "subsequence should score 1.0, got {}", score.value);
+    assert!(
+        (score.value - 1.0).abs() < f64::EPSILON,
+        "subsequence should score 1.0, got {}",
+        score.value
+    );
 }
 
 #[test]
@@ -26,7 +34,11 @@ fn test_trajectory_partial_match() {
     let expected = "search\nread_file\nwrite_file";
     let candidate = "search";
     let score = g.grade(candidate, expected);
-    assert!(score.value > 0.0 && score.value < 1.0, "score: {}", score.value);
+    assert!(
+        score.value > 0.0 && score.value < 1.0,
+        "score: {}",
+        score.value
+    );
 }
 
 #[test]

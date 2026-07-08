@@ -16,10 +16,20 @@ fn exposure_is_recorded_and_retrievable() {
 fn multiple_exposures_tracked_per_variant() {
     let mut log = ExposureLog::new();
     for i in 0..5 {
-        log.record(Exposure::with_timestamp("exp-2", format!("u-{i}"), "treatment", 0));
+        log.record(Exposure::with_timestamp(
+            "exp-2",
+            format!("u-{i}"),
+            "treatment",
+            0,
+        ));
     }
     for i in 5..8 {
-        log.record(Exposure::with_timestamp("exp-2", format!("u-{i}"), "control", 0));
+        log.record(Exposure::with_timestamp(
+            "exp-2",
+            format!("u-{i}"),
+            "control",
+            0,
+        ));
     }
 
     let treatment_count = log.for_variant("exp-2", "treatment").count();

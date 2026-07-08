@@ -1,5 +1,4 @@
 /// Catalog end-to-end: tool catalog with install, remove, and lookup.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]

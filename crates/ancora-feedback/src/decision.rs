@@ -40,10 +40,7 @@ impl DecisionStore {
 
     /// Find the latest decision for a run.
     pub fn latest_for_run(&self, run_id: &str) -> Option<&ReviewDecision> {
-        self.decisions
-            .iter()
-            .rev()
-            .find(|d| d.run_id == run_id)
+        self.decisions.iter().rev().find(|d| d.run_id == run_id)
     }
 
     /// Return all decisions.
@@ -53,7 +50,10 @@ impl DecisionStore {
 
     /// Count decisions by outcome.
     pub fn count_by_outcome(&self, outcome: &DecisionOutcome) -> usize {
-        self.decisions.iter().filter(|d| &d.outcome == outcome).count()
+        self.decisions
+            .iter()
+            .filter(|d| &d.outcome == outcome)
+            .count()
     }
 }
 

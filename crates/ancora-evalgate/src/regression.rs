@@ -2,7 +2,6 @@
 ///
 /// Compares a candidate metric value against a baseline and the threshold
 /// policy to produce a typed `RegressionResult`.
-
 use crate::threshold::{MetricDirection, ThresholdPolicy};
 
 /// The outcome of a single metric comparison.

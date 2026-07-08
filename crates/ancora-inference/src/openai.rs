@@ -7,8 +7,8 @@ use crate::client::ModelClient;
 use crate::error::InferenceError;
 use crate::provider::ProviderProfile;
 use crate::types::{
-    CompletionRequest, CompletionResponse, ContentPart, FunctionCall, Message,
-    TokenEvent, ToolCall, ToolDefinition,
+    CompletionRequest, CompletionResponse, ContentPart, FunctionCall, Message, TokenEvent,
+    ToolCall, ToolDefinition,
 };
 
 // ---- Wire types -----------------------------------------------------------
@@ -52,7 +52,7 @@ struct WireFunctionDef {
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct WireChatRequest {
+pub(crate) struct WireChatRequest {
     model: String,
     messages: Vec<WireMessage>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -137,21 +137,25 @@ fn encode_message(msg: &Message) -> WireMessage {
             content: Some(serde_json::json!(msg.content)),
         }
     } else {
-        let parts: Vec<WireContentPart> = msg.content_parts.iter().map(|p| match p {
-            ContentPart::Text { text } => WireContentPart {
-                kind: "text".to_owned(),
-                text: Some(text.clone()),
-                image_url: None,
-            },
-            ContentPart::ImageUrl { image_url } => WireContentPart {
-                kind: "image_url".to_owned(),
-                text: None,
-                image_url: Some(WireImageUrl {
-                    url: image_url.url.clone(),
-                    detail: image_url.detail.clone(),
-                }),
-            },
-        }).collect();
+        let parts: Vec<WireContentPart> = msg
+            .content_parts
+            .iter()
+            .map(|p| match p {
+                ContentPart::Text { text } => WireContentPart {
+                    kind: "text".to_owned(),
+                    text: Some(text.clone()),
+                    image_url: None,
+                },
+                ContentPart::ImageUrl { image_url } => WireContentPart {
+                    kind: "image_url".to_owned(),
+                    text: None,
+                    image_url: Some(WireImageUrl {
+                        url: image_url.url.clone(),
+                        detail: image_url.detail.clone(),
+                    }),
+                },
+            })
+            .collect();
         WireMessage {
             role: msg.role.clone(),
             content: Some(serde_json::json!(parts)),
@@ -180,7 +184,10 @@ pub struct OpenAiClient {
 
 impl OpenAiClient {
     pub fn new(profile: Arc<ProviderProfile>) -> Self {
-        Self { profile, region: None }
+        Self {
+            profile,
+            region: None,
+        }
     }
 
     pub fn with_region(mut self, region: impl Into<String>) -> Self {
@@ -188,6 +195,7 @@ impl OpenAiClient {
         self
     }
 
+    #[allow(dead_code)]
     fn effective_base_url(&self) -> &str {
         self.profile.base_url_for_region(self.region.as_deref())
     }
@@ -196,7 +204,11 @@ impl OpenAiClient {
         self.profile.completions_url(self.region.as_deref())
     }
 
-    pub(crate) fn build_wire_request(&self, request: &CompletionRequest, stream: bool) -> WireChatRequest {
+    pub(crate) fn build_wire_request(
+        &self,
+        request: &CompletionRequest,
+        stream: bool,
+    ) -> WireChatRequest {
         let model_id = self.profile.resolve_model_id(&request.model_id).to_owned();
         WireChatRequest {
             model: model_id,
@@ -235,8 +247,7 @@ impl OpenAiClient {
 
     fn post(&self, body: &serde_json::Value) -> Result<String, InferenceError> {
         let url = self.completions_url();
-        let json =
-            serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let json = serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let req = self.apply_auth(ureq::post(&url))?;
         req.set("Content-Type", "application/json")
             .send_string(&json)
@@ -251,8 +262,7 @@ impl OpenAiClient {
         on_token: &mut dyn FnMut(TokenEvent),
     ) -> Result<(), InferenceError> {
         let url = self.completions_url();
-        let json =
-            serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let json = serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let req = self.apply_auth(ureq::post(&url))?;
         let resp = req
             .set("Content-Type", "application/json")
@@ -273,7 +283,10 @@ impl OpenAiClient {
     pub fn parse_sse_line(line: &str) -> Option<TokenEvent> {
         let data = line.strip_prefix("data: ")?;
         if data.trim() == "[DONE]" {
-            return Some(TokenEvent { text: String::new(), finished: true });
+            return Some(TokenEvent {
+                text: String::new(),
+                finished: true,
+            });
         }
         let chunk: WireStreamChunk = serde_json::from_str(data).ok()?;
         let choice = chunk.choices.into_iter().next()?;
@@ -287,15 +300,20 @@ impl OpenAiClient {
         body: &str,
         model_id: &str,
     ) -> Result<CompletionResponse, InferenceError> {
-        let mut value: serde_json::Value = serde_json::from_str(body)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let mut value: serde_json::Value =
+            serde_json::from_str(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         self.profile.response_transforms.apply(&mut value);
-        let wire: WireChatResponse = serde_json::from_value(value)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
-        let msg = wire.choices.into_iter().next().map(|c| c.message).unwrap_or(WireResponseMessage {
-            content: None,
-            tool_calls: vec![],
-        });
+        let wire: WireChatResponse =
+            serde_json::from_value(value).map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let msg = wire
+            .choices
+            .into_iter()
+            .next()
+            .map(|c| c.message)
+            .unwrap_or(WireResponseMessage {
+                content: None,
+                tool_calls: vec![],
+            });
         let content = msg.content.unwrap_or_default();
         let tool_calls = msg
             .tool_calls
@@ -303,7 +321,10 @@ impl OpenAiClient {
             .map(|tc| ToolCall {
                 id: tc.id,
                 kind: tc.kind,
-                function: FunctionCall { name: tc.function.name, arguments: tc.function.arguments },
+                function: FunctionCall {
+                    name: tc.function.name,
+                    arguments: tc.function.arguments,
+                },
             })
             .collect();
         let tokens_in = wire.usage.prompt_tokens;
@@ -312,7 +333,13 @@ impl OpenAiClient {
             .profile
             .model_meta(model_id)
             .and_then(|m| m.compute_cost(tokens_in, tokens_out, 0));
-        Ok(CompletionResponse { content, tokens_in, tokens_out, cost_usd, tool_calls })
+        Ok(CompletionResponse {
+            content,
+            tokens_in,
+            tokens_out,
+            cost_usd,
+            tool_calls,
+        })
     }
 }
 
@@ -336,7 +363,13 @@ impl ModelClient for OpenAiClient {
             }
             on_token(event);
         })?;
-        Ok(CompletionResponse { content, tokens_in: 0, tokens_out: 0, cost_usd: None, tool_calls: vec![] })
+        Ok(CompletionResponse {
+            content,
+            tokens_in: 0,
+            tokens_out: 0,
+            cost_usd: None,
+            tool_calls: vec![],
+        })
     }
 }
 
@@ -349,7 +382,8 @@ const FIXTURE_CHAT: &str = r#"{"id":"chatcmpl-abc","choices":[{"message":{"role"
 const FIXTURE_TOOL_CALL: &str = r#"{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"call_1","type":"function","function":{"name":"get_weather","arguments":"{\"city\":\"Paris\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":20,"completion_tokens":8}}"#;
 
 #[cfg(test)]
-const FIXTURE_STREAM_LINE1: &str = r#"data: {"choices":[{"delta":{"content":"He"},"finish_reason":null}]}"#;
+const FIXTURE_STREAM_LINE1: &str =
+    r#"data: {"choices":[{"delta":{"content":"He"},"finish_reason":null}]}"#;
 #[cfg(test)]
 const FIXTURE_STREAM_DONE: &str = "data: [DONE]";
 
@@ -429,13 +463,12 @@ mod tests {
     fn pricing_metadata_feeds_cost_accounting() {
         let profile = Arc::new(
             ProviderProfile::new("pricing-test", "http://localhost", AuthStrategy::None)
-                .add_model(
-                    ModelMeta::new("expensive-model", 32_000)
-                        .with_pricing(30.0, 60.0),
-                ),
+                .add_model(ModelMeta::new("expensive-model", 32_000).with_pricing(30.0, 60.0)),
         );
         let client = OpenAiClient::new(profile);
-        let resp = client.parse_response(FIXTURE_CHAT, "expensive-model").unwrap();
+        let resp = client
+            .parse_response(FIXTURE_CHAT, "expensive-model")
+            .unwrap();
         let expected = 10.0 * 30.0 / 1_000_000.0 + 4.0 * 60.0 / 1_000_000.0;
         let cost = resp.cost_usd.expect("cost should be Some for priced model");
         assert!((cost - expected).abs() < 1e-12);
@@ -455,7 +488,9 @@ mod tests {
     #[test]
     fn tool_call_mapping_round_trip() {
         let client = test_client();
-        let resp = client.parse_response(FIXTURE_TOOL_CALL, "test-model").unwrap();
+        let resp = client
+            .parse_response(FIXTURE_TOOL_CALL, "test-model")
+            .unwrap();
         assert_eq!(resp.tool_calls.len(), 1);
         let tc = &resp.tool_calls[0];
         assert_eq!(tc.id, "call_1");

@@ -3,7 +3,6 @@
 /// "Re-run from a point" means: take a branch at seq N, add edited entries,
 /// then replay the resulting journal from seq 0.  The first N entries should
 /// match the original; entries after N reflect the new inputs.
-
 use crate::branch::Branch;
 use crate::loader::{load_journal, EntryKind, JournalEntry, RunId, Seq};
 use crate::replay::Replayer;
@@ -12,7 +11,10 @@ fn sc(run: &str, seq: u64, from: &str, to: &str) -> JournalEntry {
     JournalEntry::new(
         RunId::new(run),
         seq,
-        EntryKind::StateChange { from: from.into(), to: to.into() },
+        EntryKind::StateChange {
+            from: from.into(),
+            to: to.into(),
+        },
     )
 }
 
@@ -31,8 +33,10 @@ fn rerun_prefix_matches_original() {
     let j = original();
     // Branch at seq 1 - rerun from seq 2 onward.
     let mut b = Branch::new("rerun", &j, Seq(1)).unwrap();
-    b.append(sc("orig", 99, "planning", "alt-executing")).unwrap();
-    b.append(sc("orig", 99, "alt-executing", "alt-done")).unwrap();
+    b.append(sc("orig", 99, "planning", "alt-executing"))
+        .unwrap();
+    b.append(sc("orig", 99, "alt-executing", "alt-done"))
+        .unwrap();
 
     let new_j = b.to_journal(RunId::new("rerun-run")).unwrap();
     let mut r = Replayer::new(&new_j);
@@ -80,7 +84,8 @@ fn rerun_from_start_replays_entire_alternate() {
     let j = original();
     let mut b = Branch::new("rerun4", &j, Seq(0)).unwrap();
     b.append(sc("orig", 99, "boot", "skipped-idle")).unwrap();
-    b.append(sc("orig", 99, "skipped-idle", "done-fast")).unwrap();
+    b.append(sc("orig", 99, "skipped-idle", "done-fast"))
+        .unwrap();
 
     let new_j = b.to_journal(RunId::new("rerun4-run")).unwrap();
     let mut r = Replayer::new(&new_j);

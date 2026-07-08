@@ -1,10 +1,9 @@
 use std::sync::Arc;
 
 use ancora_proto::ancora::{
-    content_block::Block,
-    journal_event::Event as JournalEventVariant,
-    ActivityRecordedEvent, AgentSpec, ContentBlock, JournalEvent, Message as ProtoMessage, Role,
-    TextContent, ToolCallContent, ToolResultContent,
+    content_block::Block, journal_event::Event as JournalEventVariant, ActivityRecordedEvent,
+    AgentSpec, ContentBlock, JournalEvent, Message as ProtoMessage, Role, TextContent,
+    ToolCallContent, ToolResultContent,
 };
 
 use crate::error::AncoraError;
@@ -105,7 +104,8 @@ impl Agent {
         dispatcher: &dyn ToolDispatcher,
     ) -> Result<String, AncoraError> {
         if !self.spec.instructions.is_empty() {
-            self.messages.push(text_message(Role::System, &self.spec.instructions));
+            self.messages
+                .push(text_message(Role::System, &self.spec.instructions));
         }
         self.messages.push(text_message(Role::User, input));
 
@@ -139,22 +139,26 @@ impl Agent {
     ) -> Result<(), AncoraError> {
         let seq = self.journal_seq;
         self.journal_seq += 1;
-        self.store.append(
-            &self.run.id,
-            JournalEvent {
-                event_id: key.clone(),
-                run_id: self.run.id.clone(),
-                seq,
-                recorded_at_ns: 0,
-                event: Some(JournalEventVariant::ActivityRecorded(ActivityRecordedEvent {
-                    activity_key: key,
-                    activity_kind: kind.to_string(),
-                    input_json: String::new(),
-                    result_json: result_json.to_string(),
-                    replayed: false,
-                })),
-            },
-        ).map(|_| ())
+        self.store
+            .append(
+                &self.run.id,
+                JournalEvent {
+                    event_id: key.clone(),
+                    run_id: self.run.id.clone(),
+                    seq,
+                    recorded_at_ns: 0,
+                    event: Some(JournalEventVariant::ActivityRecorded(
+                        ActivityRecordedEvent {
+                            activity_key: key,
+                            activity_kind: kind.to_string(),
+                            input_json: String::new(),
+                            result_json: result_json.to_string(),
+                            replayed: false,
+                        },
+                    )),
+                },
+            )
+            .map(|_| ())
     }
 }
 
@@ -163,7 +167,9 @@ fn text_message(role: Role, text: &str) -> ProtoMessage {
         id: String::new(),
         role: role as i32,
         content: vec![ContentBlock {
-            block: Some(Block::Text(TextContent { text: text.to_string() })),
+            block: Some(Block::Text(TextContent {
+                text: text.to_string(),
+            })),
         }],
         created_at_ns: 0,
         usage: None,
@@ -215,7 +221,9 @@ mod tests {
             id: String::new(),
             role: Role::Assistant as i32,
             content: vec![ContentBlock {
-                block: Some(Block::Text(TextContent { text: text.to_string() })),
+                block: Some(Block::Text(TextContent {
+                    text: text.to_string(),
+                })),
             }],
             created_at_ns: 0,
             usage: None,

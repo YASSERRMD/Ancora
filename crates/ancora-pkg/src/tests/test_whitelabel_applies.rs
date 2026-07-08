@@ -1,4 +1,6 @@
-use crate::whitelabel::{BrandIdentity, ColorScheme, WhitelabelConfig, WhitelabelError, WhitelabelTemplate};
+use crate::whitelabel::{
+    BrandIdentity, ColorScheme, WhitelabelConfig, WhitelabelError, WhitelabelTemplate,
+};
 
 #[test]
 fn test_whitelabel_basic_apply() {

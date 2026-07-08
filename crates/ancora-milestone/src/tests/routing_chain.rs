@@ -19,6 +19,9 @@ fn routing_chain_zero_cost_gives_best_score() {
 fn routing_chain_scores_in_range() {
     for cost in [0u64, 100, 500, 900, 1000] {
         let s = RoutingMetric::score(1.0, cost, 1000);
-        assert!(s >= 0.0 && s <= 1.0, "score {s} out of range for cost={cost}");
+        assert!(
+            (0.0..=1.0).contains(&s),
+            "score {s} out of range for cost={cost}"
+        );
     }
 }

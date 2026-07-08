@@ -1,6 +1,6 @@
-use crate::store::JournalStore;
-use crate::replication::replicate;
 use crate::error::DrError;
+use crate::replication::replicate;
+use crate::store::JournalStore;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Role {
@@ -31,7 +31,10 @@ impl FailoverController {
     ) -> Result<(), DrError> {
         let lag = crate::replication::replication_lag(primary, secondary);
         if lag > max_allowed_lag {
-            return Err(DrError::LagTooHigh { lag, max_allowed_lag });
+            return Err(DrError::LagTooHigh {
+                lag,
+                max_allowed_lag,
+            });
         }
         // Fence primary to prevent further writes (split-brain prevention)
         primary.fence();

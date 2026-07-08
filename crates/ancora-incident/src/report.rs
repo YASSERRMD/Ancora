@@ -1,8 +1,8 @@
+use crate::audit::IncidentAuditLog;
+use crate::escalation::EscalationRecord;
 use crate::incident::Incident;
 use crate::runbook::Runbook;
 use crate::timeline::IncidentTimeline;
-use crate::audit::IncidentAuditLog;
-use crate::escalation::EscalationRecord;
 
 pub struct IncidentReport {
     pub incident_id: String,
@@ -38,13 +38,18 @@ impl IncidentReport {
             runbook_steps_total: steps_total,
             runbook_steps_done: steps_done,
             audit_entries: audit.for_incident(&incident.id).len(),
-            escalation_count: escalations.iter().filter(|e| e.incident_id == incident.id).count(),
+            escalation_count: escalations
+                .iter()
+                .filter(|e| e.incident_id == incident.id)
+                .count(),
             duration_ticks: incident.duration(current_tick),
         }
     }
 
     pub fn runbook_progress(&self) -> f64 {
-        if self.runbook_steps_total == 0 { return 0.0; }
+        if self.runbook_steps_total == 0 {
+            return 0.0;
+        }
         self.runbook_steps_done as f64 / self.runbook_steps_total as f64
     }
 }

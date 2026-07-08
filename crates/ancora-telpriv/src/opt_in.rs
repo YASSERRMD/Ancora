@@ -1,8 +1,8 @@
-/// Opt-in controls for sensitive telemetry capture.
-///
-/// Certain telemetry (prompt text, completion text, user identifiers) is
-/// never captured unless the operator has explicitly opted in. This module
-/// provides the registry of opt-in flags and a guard that checks them.
+//! Opt-in controls for sensitive telemetry capture.
+//!
+//! Certain telemetry (prompt text, completion text, user identifiers) is
+//! never captured unless the operator has explicitly opted in. This module
+//! provides the registry of opt-in flags and a guard that checks them.
 
 /// The set of opt-in features available.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

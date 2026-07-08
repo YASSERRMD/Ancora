@@ -8,7 +8,12 @@ use ancora_proto::ancora::{
     journal_event::Event, ActivityRecordedEvent, JournalEvent, RunCompletedEvent, RunStartedEvent,
 };
 
-fn build_migration_journal(run_id: &str, source: &str, dest: &str, chunks_migrated: u32) -> Vec<JournalEvent> {
+fn build_migration_journal(
+    run_id: &str,
+    source: &str,
+    dest: &str,
+    chunks_migrated: u32,
+) -> Vec<JournalEvent> {
     vec![
         JournalEvent {
             event_id: format!("{}-0", run_id),
@@ -79,7 +84,9 @@ fn migration_activity_kind_is_migration() {
     let events = build_migration_journal("r", "sqlite", "pgvector", 5);
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert_eq!(a.activity_kind, "migration");
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -88,7 +95,9 @@ fn migration_result_reads_and_writes_equal() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v["chunks_read"], v["chunks_written"]);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -97,7 +106,9 @@ fn migration_result_has_zero_errors() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v["errors"], 0);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -108,7 +119,9 @@ fn migration_result_source_and_dest_match_input() {
         let res: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(inp["source_store"], res["source"]);
         assert_eq!(inp["dest_store"], res["dest"]);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

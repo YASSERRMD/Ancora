@@ -1,6 +1,6 @@
+use crate::audit::ZtAuditLog;
 use crate::identity::{Identity, IdentityKind};
 use crate::session::SessionStore;
-use crate::audit::ZtAuditLog;
 use crate::summary::ZeroTrustSummary;
 
 #[test]

@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::signature::{ComponentSignature, SignatureAlgorithm, SignatureStore, VerificationResult};
+    use crate::signature::{
+        ComponentSignature, SignatureAlgorithm, SignatureStore, VerificationResult,
+    };
 
     fn make_sig(component_id: &str, signature: &str) -> ComponentSignature {
         ComponentSignature::new(
@@ -39,6 +41,9 @@ mod tests {
     fn test_verify_returns_valid_for_correct_sig() {
         let mut store = SignatureStore::new();
         store.register(make_sig("comp-5", "correct-sig"));
-        assert!(matches!(store.verify("comp-5", "correct-sig"), VerificationResult::Valid));
+        assert!(matches!(
+            store.verify("comp-5", "correct-sig"),
+            VerificationResult::Valid
+        ));
     }
 }

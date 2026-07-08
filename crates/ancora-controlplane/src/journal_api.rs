@@ -1,6 +1,6 @@
+use crate::auth::{AuthError, TokenAuth};
 use crate::model::JournalEntry;
 use crate::store::ControlPlaneStore;
-use crate::auth::{AuthError, TokenAuth};
 
 pub struct JournalApi<'a> {
     store: &'a mut ControlPlaneStore,

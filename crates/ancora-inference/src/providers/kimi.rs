@@ -13,7 +13,9 @@ pub fn build_kimi_profile() -> ProviderProfile {
     ProviderProfile::new(
         "kimi",
         KIMI_URL_INTERNATIONAL,
-        AuthStrategy::BearerToken { env_var: "MOONSHOT_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "MOONSHOT_API_KEY".to_owned(),
+        },
     )
     .add_region("intl", KIMI_URL_INTERNATIONAL)
     .add_region("cn", KIMI_URL_DOMESTIC)
@@ -77,7 +79,9 @@ pub fn build_kimi_gateway_profile(gateway_url: impl Into<String>) -> ProviderPro
     ProviderProfile::new(
         "kimi-gateway",
         gateway_url,
-        AuthStrategy::BearerToken { env_var: "KIMI_GATEWAY_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "KIMI_GATEWAY_KEY".to_owned(),
+        },
     )
     .add_model(
         ModelMeta::new("kimi-k2", 131_072)
@@ -92,7 +96,9 @@ pub fn build_kimi_gateway_profile(gateway_url: impl Into<String>) -> ProviderPro
 pub fn supports_tools(model_id: &str) -> bool {
     let p = build_kimi_profile();
     let canonical = p.resolve_model_id(model_id);
-    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+    p.model_catalog
+        .get(canonical)
+        .is_some_and(|m| m.capabilities.tools)
 }
 
 /// Build the Kimi domestic (China) provider profile.
@@ -103,7 +109,9 @@ pub fn build_kimi_domestic_profile() -> ProviderProfile {
     ProviderProfile::new(
         "kimi-cn",
         KIMI_URL_DOMESTIC,
-        AuthStrategy::BearerToken { env_var: "MOONSHOT_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "MOONSHOT_API_KEY".to_owned(),
+        },
     )
     .add_model(
         ModelMeta::new("kimi-k2", 131_072)
@@ -142,7 +150,9 @@ mod tests {
 
     #[test]
     fn kimi_recorded_fixture_completes() {
-        let resp = kimi_client().parse_response(KIMI_FIXTURE, "kimi-k2").unwrap();
+        let resp = kimi_client()
+            .parse_response(KIMI_FIXTURE, "kimi-k2")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Kimi K2");
         assert_eq!(resp.tokens_in, 11);
         assert_eq!(resp.tokens_out, 8);
@@ -167,7 +177,9 @@ mod tests {
 
     #[test]
     fn kimi_tool_round_trip_works() {
-        let resp = kimi_client().parse_response(KIMI_TOOL_FIXTURE, "kimi-k2").unwrap();
+        let resp = kimi_client()
+            .parse_response(KIMI_TOOL_FIXTURE, "kimi-k2")
+            .unwrap();
         assert_eq!(resp.tool_calls.len(), 1);
         assert_eq!(resp.tool_calls[0].function.name, "search");
         let args: serde_json::Value =
@@ -189,7 +201,12 @@ mod tests {
     fn kimi_long_context_assembly_correct() {
         use crate::types::{CompletionRequest, Message};
         let many: Vec<Message> = (0..200)
-            .map(|i| Message::text(if i % 2 == 0 { "user" } else { "assistant" }, &format!("msg {i}")))
+            .map(|i| {
+                Message::text(
+                    if i % 2 == 0 { "user" } else { "assistant" },
+                    format!("msg {i}"),
+                )
+            })
             .collect();
         let req = CompletionRequest::simple("moonshot-v1-long", many.clone());
         let body = kimi_client().build_request_body(&req, false).unwrap();
@@ -207,7 +224,8 @@ mod tests {
     #[test]
     fn kimi_streaming_fixture_ordered() {
         use crate::openai::OpenAiClient;
-        let texts: Vec<String> = KIMI_STREAM_LINES.iter()
+        let texts: Vec<String> = KIMI_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -218,9 +236,9 @@ mod tests {
     #[test]
     fn kimi_gateway_fixture_completes_offline() {
         use std::sync::Arc;
-        let client = crate::openai::OpenAiClient::new(Arc::new(
-            build_kimi_gateway_profile("http://localhost:4000"),
-        ));
+        let client = crate::openai::OpenAiClient::new(Arc::new(build_kimi_gateway_profile(
+            "http://localhost:4000",
+        )));
         let resp = client.parse_response(KIMI_FIXTURE, "kimi-k2").unwrap();
         assert_eq!(resp.content, "Hello from Kimi K2");
     }

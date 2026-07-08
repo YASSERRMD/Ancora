@@ -7,9 +7,23 @@ use crate::reference::{ReferenceBuilder, Stats};
 fn baseline() -> crate::reference::ReferenceDistribution {
     let mut b = ReferenceBuilder::new();
     b.add("q", "ok", 100, 50, &[], "openai");
-    b.add("q", "yes that is correct and I agree", 100, 50, &[], "openai");
+    b.add(
+        "q",
+        "yes that is correct and I agree",
+        100,
+        50,
+        &[],
+        "openai",
+    );
     b.add("q", "no", 100, 50, &[], "openai");
-    b.add("q", "certainly! here is a longer reply for you to read", 100, 50, &[], "openai");
+    b.add(
+        "q",
+        "certainly! here is a longer reply for you to read",
+        100,
+        50,
+        &[],
+        "openai",
+    );
     b.build().unwrap()
 }
 

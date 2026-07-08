@@ -1,5 +1,4 @@
 /// Cost breakdown by capability: planner, reflection, routing, etc.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -26,7 +25,7 @@ impl Capability {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_raw(s: &str) -> Self {
         match s {
             "planner" => Capability::Planner,
             "reflection" => Capability::Reflection,

@@ -1,5 +1,5 @@
+use crate::secret::{Secret, SecretKind, SecretStatus};
 use std::fmt;
-use crate::secret::{Secret, SecretStatus, SecretKind};
 
 impl fmt::Display for SecretStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -26,7 +26,14 @@ impl fmt::Display for SecretKind {
 
 impl fmt::Display for Secret {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Secret[tenant={} path={} kind={} version={} versions={}]",
-            self.tenant_id, self.path, self.kind, self.active_version, self.version_count())
+        write!(
+            f,
+            "Secret[tenant={} path={} kind={} version={} versions={}]",
+            self.tenant_id,
+            self.path,
+            self.kind,
+            self.active_version,
+            self.version_count()
+        )
     }
 }

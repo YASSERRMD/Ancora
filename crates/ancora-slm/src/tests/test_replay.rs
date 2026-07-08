@@ -34,7 +34,10 @@ fn test_replay_model_fn_returns_recorded_response() {
     let mut store = ReplayStore::new();
     store.record("What is Rust?", "A systems programming language.");
     let replay = ReplayModelFn::new(store, "default");
-    assert_eq!(replay.call("What is Rust?"), "A systems programming language.");
+    assert_eq!(
+        replay.call("What is Rust?"),
+        "A systems programming language."
+    );
 }
 
 #[test]

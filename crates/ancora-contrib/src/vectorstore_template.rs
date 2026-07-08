@@ -1,8 +1,8 @@
-/// ancora-contrib: vector-store adapter template
-///
-/// Copy this module as the starting point for a new vector-store plugin.
-/// Replace `MyVectorStore` and `"my-vectorstore"` with your own identifier,
-/// then implement the four required trait methods.
+//! ancora-contrib: vector-store adapter template
+//!
+//! Copy this module as the starting point for a new vector-store plugin.
+//! Replace `MyVectorStore` and `"my-vectorstore"` with your own identifier,
+//! then implement the four required trait methods.
 
 /// A document fragment stored in the vector store.
 #[derive(Debug, Clone, PartialEq)]
@@ -76,8 +76,11 @@ pub trait VectorStoreAdapter: Send + Sync {
     fn upsert(&mut self, doc: Document) -> Result<String, VectorStoreError>;
 
     /// Retrieve the top-`k` most similar documents to `query_embedding`.
-    fn search(&self, query_embedding: &[f32], k: usize)
-        -> Result<Vec<SearchResult>, VectorStoreError>;
+    fn search(
+        &self,
+        query_embedding: &[f32],
+        k: usize,
+    ) -> Result<Vec<SearchResult>, VectorStoreError>;
 
     /// Delete a document by id.
     fn delete(&mut self, id: &str) -> Result<(), VectorStoreError>;
@@ -96,7 +99,10 @@ pub struct MyVectorStore {
 
 impl MyVectorStore {
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), docs: Vec::new() }
+        Self {
+            name: name.into(),
+            docs: Vec::new(),
+        }
     }
 
     fn cosine(a: &[f32], b: &[f32]) -> f32 {
@@ -106,7 +112,11 @@ impl MyVectorStore {
         let dot: f32 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
         let na: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
         let nb: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
-        if na == 0.0 || nb == 0.0 { 0.0 } else { dot / (na * nb) }
+        if na == 0.0 || nb == 0.0 {
+            0.0
+        } else {
+            dot / (na * nb)
+        }
     }
 }
 
@@ -140,7 +150,11 @@ impl VectorStoreAdapter for MyVectorStore {
                 document: d.clone(),
             })
             .collect();
-        scored.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+        scored.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         scored.truncate(k);
         Ok(scored)
     }

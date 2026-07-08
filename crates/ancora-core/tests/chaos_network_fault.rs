@@ -14,7 +14,9 @@ struct FaultInjector {
 }
 
 impl FaultInjector {
-    fn new(faults: Vec<FaultKind>) -> Self { Self { faults, cursor: 0 } }
+    fn new(faults: Vec<FaultKind>) -> Self {
+        Self { faults, cursor: 0 }
+    }
     fn next_fault(&mut self) -> &FaultKind {
         let idx = self.cursor % self.faults.len();
         self.cursor += 1;
@@ -73,7 +75,11 @@ fn test_fault_sequence_cycles() {
 
 #[test]
 fn test_recovery_after_fault() {
-    let mut inj = FaultInjector::new(vec![FaultKind::Timeout, FaultKind::Timeout, FaultKind::None]);
+    let mut inj = FaultInjector::new(vec![
+        FaultKind::Timeout,
+        FaultKind::Timeout,
+        FaultKind::None,
+    ]);
     let _ = call_with_fault(&mut inj);
     let _ = call_with_fault(&mut inj);
     let r = call_with_fault(&mut inj);

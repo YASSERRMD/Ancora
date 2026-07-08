@@ -19,10 +19,10 @@ fn prefetch_enqueue_and_process() {
 #[test]
 fn prefetch_cached_model_not_requeued() {
     let mut cache = PrefetchCache::new(8 * GB, EvictionPolicy::Lru);
-    cache.enqueue("m", 1 * GB);
+    cache.enqueue("m", GB);
     cache.process_next();
     // Enqueue again -- should be a no-op since already cached.
-    cache.enqueue("m", 1 * GB);
+    cache.enqueue("m", GB);
     assert_eq!(cache.queue_depth(), 0);
 }
 
@@ -45,7 +45,7 @@ fn prefetch_eviction_on_full_cache() {
 #[test]
 fn prefetch_touch_increases_access_count() {
     let mut cache = PrefetchCache::new(8 * GB, EvictionPolicy::Lfu);
-    cache.enqueue("m", 1 * GB);
+    cache.enqueue("m", GB);
     cache.process_next();
     cache.touch("m");
     cache.touch("m");
@@ -57,7 +57,7 @@ fn prefetch_touch_increases_access_count() {
 #[test]
 fn prefetch_manual_eviction() {
     let mut cache = PrefetchCache::new(8 * GB, EvictionPolicy::Lru);
-    cache.enqueue("x", 1 * GB);
+    cache.enqueue("x", GB);
     cache.process_next();
     assert_eq!(cache.state("x"), CacheState::Cached);
     assert!(cache.evict("x"));
@@ -67,7 +67,7 @@ fn prefetch_manual_eviction() {
 #[test]
 fn prefetch_set_priority_affects_state() {
     let mut cache = PrefetchCache::new(8 * GB, EvictionPolicy::LowestPriority);
-    cache.enqueue("low-pri", 1 * GB);
+    cache.enqueue("low-pri", GB);
     cache.process_next();
     cache.set_priority("low-pri", 10);
     // Just verify no panic and state remains.

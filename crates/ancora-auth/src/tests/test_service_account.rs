@@ -13,7 +13,9 @@ fn make_registry() -> ServiceAccountRegistry {
 #[test]
 fn service_account_auth_success() {
     let reg = make_registry();
-    let token = reg.authenticate("svc-1", "hash-abc", 1000, 0).expect("auth ok");
+    let token = reg
+        .authenticate("svc-1", "hash-abc", 1000, 0)
+        .expect("auth ok");
     assert_eq!(token.subject, "svc-1");
     assert_eq!(token.tenant_id, "tenant-x");
     assert!(matches!(token.kind, TokenKind::ServiceAccount));
@@ -23,13 +25,17 @@ fn service_account_auth_success() {
 #[test]
 fn service_account_wrong_key_rejected() {
     let reg = make_registry();
-    let err = reg.authenticate("svc-1", "wrong-hash", 1000, 0).unwrap_err();
+    let err = reg
+        .authenticate("svc-1", "wrong-hash", 1000, 0)
+        .unwrap_err();
     assert_eq!(err, ServiceAccountError::InvalidKey);
 }
 
 #[test]
 fn service_account_not_found_rejected() {
     let reg = make_registry();
-    let err = reg.authenticate("unknown", "hash-abc", 1000, 0).unwrap_err();
+    let err = reg
+        .authenticate("unknown", "hash-abc", 1000, 0)
+        .unwrap_err();
     assert_eq!(err, ServiceAccountError::NotFound);
 }

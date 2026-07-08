@@ -38,9 +38,11 @@ fn failed_count_correct() {
 
 #[test]
 fn to_json_contains_scenario_name() {
-    let reports = vec![
-        ScenarioReport::from_summary("my-scenario", true, &summary(0, 50)),
-    ];
+    let reports = vec![ScenarioReport::from_summary(
+        "my-scenario",
+        true,
+        &summary(0, 50),
+    )];
     let report = LoadTestReport::new(reports);
     let json = report.to_json();
     assert!(json.contains("my-scenario"));

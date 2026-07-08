@@ -1,5 +1,4 @@
 /// test_step_through.rs - Verify that the replayer reaches every entry.
-
 use crate::loader::{load_journal, EntryKind, JournalEntry, RunId, Seq};
 use crate::replay::{Replayer, StepResult};
 
@@ -24,11 +23,8 @@ fn step_through_visits_every_entry() {
     let j = build_journal(7);
     let mut r = Replayer::new(&j);
     let mut visited = Vec::new();
-    loop {
-        match r.step_forward() {
-            StepResult::Stepped(e) => visited.push(e.seq.0),
-            StepResult::AtBoundary => break,
-        }
+    while let StepResult::Stepped(e) = r.step_forward() {
+        visited.push(e.seq.0);
     }
     assert_eq!(visited, vec![0, 1, 2, 3, 4, 5, 6]);
 }

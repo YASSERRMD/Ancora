@@ -59,7 +59,10 @@ fn divergence_error_includes_expected_and_got_values() {
     let observed = vec!["got-key".to_string()];
     let err = detect_divergence(&expected, &observed).unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("expected-key"), "error must mention expected key");
+    assert!(
+        msg.contains("expected-key"),
+        "error must mention expected key"
+    );
     assert!(msg.contains("got-key"), "error must mention observed key");
 }
 

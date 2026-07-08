@@ -1,6 +1,5 @@
 /// Tests for engine health and readiness checking.
-
-use crate::health::{HealthChecker, HealthState, HealthStatus, MockHealthChecker, wait_ready};
+use crate::health::{wait_ready, HealthChecker, HealthState, HealthStatus, MockHealthChecker};
 use crate::model::EngineKind;
 use std::time::Duration;
 
@@ -17,7 +16,11 @@ fn unhealthy_status_not_ready() {
     let status = HealthStatus::unhealthy(EngineKind::Vllm, "connection refused");
     assert!(!status.is_ready());
     assert_eq!(status.state, HealthState::Unhealthy);
-    assert!(status.message.as_deref().unwrap().contains("connection refused"));
+    assert!(status
+        .message
+        .as_deref()
+        .unwrap()
+        .contains("connection refused"));
 }
 
 #[test]

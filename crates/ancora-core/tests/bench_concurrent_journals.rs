@@ -44,7 +44,12 @@ fn test_bench_50k_concurrent_journal_ops_under_300ms() {
         }
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < CONC_BENCH_MS, "took {}ms budget {}ms", elapsed, CONC_BENCH_MS);
+    assert!(
+        elapsed < CONC_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        CONC_BENCH_MS
+    );
     let writes = journal.write_count.load(Ordering::Relaxed);
     let reads = journal.read_count.load(Ordering::Relaxed);
     assert_eq!(writes + reads, CONC_BENCH_N as u64);

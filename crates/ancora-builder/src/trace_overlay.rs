@@ -1,5 +1,4 @@
 /// trace_overlay - Trace overlay: renders run step results on top of the graph.
-
 use crate::runner::{RunResult, RunStep, StepStatus};
 use crate::scaffold::{Id, Position};
 use std::collections::HashMap;
@@ -83,7 +82,9 @@ impl TraceOverlay {
 
         for step in &result.steps {
             let node_overlay = node_overlay_from_step(step);
-            overlay.node_overlays.insert(step.node_id.clone(), node_overlay);
+            overlay
+                .node_overlays
+                .insert(step.node_id.clone(), node_overlay);
         }
 
         overlay
@@ -173,7 +174,9 @@ impl LiveTraceOverlay {
     /// Apply a single completed step to the overlay.
     pub fn apply_step(&mut self, step: &RunStep) {
         let overlay = node_overlay_from_step(step);
-        self.inner.node_overlays.insert(step.node_id.clone(), overlay);
+        self.inner
+            .node_overlays
+            .insert(step.node_id.clone(), overlay);
         self.current_step_index = Some(step.step_index);
     }
 
@@ -187,7 +190,9 @@ impl LiveTraceOverlay {
             error_message: None,
             indicator_offset: Position::new(0.0, -16.0),
         };
-        self.inner.node_overlays.insert(node_id.to_string(), overlay);
+        self.inner
+            .node_overlays
+            .insert(node_id.to_string(), overlay);
     }
 }
 

@@ -2,7 +2,6 @@
 ///
 /// A `Gate` combines regression detection with significance checking to
 /// produce a final `GateDecision` for a set of metrics.
-
 use crate::baseline::Baseline;
 use crate::regression::{self, RegressionResult};
 use crate::significance::{is_significant, SampleStats};
@@ -52,10 +51,18 @@ pub fn evaluate(
         let reg = regression::detect(base_val, cand_val, policy);
 
         // Build synthetic SampleStats for significance check.
-        let base_stats = SampleStats::new(sample_n.max(2), base_val, sample_std)
-            .unwrap_or(SampleStats { n: 2, mean: base_val, std_dev: 0.0 });
-        let cand_stats = SampleStats::new(sample_n.max(2), cand_val, sample_std)
-            .unwrap_or(SampleStats { n: 2, mean: cand_val, std_dev: 0.0 });
+        let base_stats =
+            SampleStats::new(sample_n.max(2), base_val, sample_std).unwrap_or(SampleStats {
+                n: 2,
+                mean: base_val,
+                std_dev: 0.0,
+            });
+        let cand_stats =
+            SampleStats::new(sample_n.max(2), cand_val, sample_std).unwrap_or(SampleStats {
+                n: 2,
+                mean: cand_val,
+                std_dev: 0.0,
+            });
 
         let significant = is_significant(&base_stats, &cand_stats, alpha);
         let blocks = reg.is_blocking() && significant;

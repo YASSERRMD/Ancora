@@ -3,15 +3,14 @@ use crate::otlp::{OtlpMetricPoint, OtlpSpan};
 
 #[test]
 fn test_grafana_config_with_auth() {
-    let cfg = GrafanaConfig::new("http://tempo:3200", "http://loki:3100")
-        .with_auth("Bearer abc123");
+    let cfg =
+        GrafanaConfig::new("http://tempo:3200", "http://loki:3100").with_auth("Bearer abc123");
     assert_eq!(cfg.auth_token.as_deref(), Some("Bearer abc123"));
 }
 
 #[test]
 fn test_grafana_config_with_org_id() {
-    let cfg = GrafanaConfig::new("http://tempo:3200", "http://loki:3100")
-        .with_org_id("42");
+    let cfg = GrafanaConfig::new("http://tempo:3200", "http://loki:3100").with_org_id("42");
     assert_eq!(cfg.org_id.as_deref(), Some("42"));
 }
 
@@ -51,7 +50,9 @@ fn test_loki_stream_push_entry() {
 #[test]
 fn test_metric_to_loki_line_format() {
     let mut point = OtlpMetricPoint::new("requests_total", 42.0);
-    point.labels.push(("method".to_string(), "POST".to_string()));
+    point
+        .labels
+        .push(("method".to_string(), "POST".to_string()));
     point.timestamp_ns = 1_000_000_000;
     let line = metric_to_loki_line(&point);
     assert!(line.contains("requests_total"));

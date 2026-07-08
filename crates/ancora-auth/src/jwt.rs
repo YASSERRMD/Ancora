@@ -1,5 +1,5 @@
-use crate::token::{Token, TokenKind};
 use crate::jwks::JwksStore;
+use crate::token::{Token, TokenKind};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum JwtError {
@@ -48,11 +48,7 @@ impl JwtClaims {
     }
 
     pub fn encode(&self) -> String {
-        format!(
-            "mock.{}.{}",
-            self.sub,
-            self.exp_tick,
-        )
+        format!("mock.{}.{}", self.sub, self.exp_tick,)
     }
 }
 
@@ -63,7 +59,11 @@ pub struct JwtValidator<'a> {
 }
 
 impl<'a> JwtValidator<'a> {
-    pub fn new(store: &'a JwksStore, issuer: impl Into<String>, audience: impl Into<String>) -> Self {
+    pub fn new(
+        store: &'a JwksStore,
+        issuer: impl Into<String>,
+        audience: impl Into<String>,
+    ) -> Self {
         Self {
             store,
             issuer: issuer.into(),
@@ -71,8 +71,16 @@ impl<'a> JwtValidator<'a> {
         }
     }
 
-    pub fn validate(&self, kid: &str, claims: &JwtClaims, current_tick: u64) -> Result<Token, JwtError> {
-        let key = self.store.get_key(kid).ok_or_else(|| JwtError::UnknownKid(kid.to_string()))?;
+    pub fn validate(
+        &self,
+        kid: &str,
+        claims: &JwtClaims,
+        current_tick: u64,
+    ) -> Result<Token, JwtError> {
+        let key = self
+            .store
+            .get_key(kid)
+            .ok_or_else(|| JwtError::UnknownKid(kid.to_string()))?;
         if !key.is_active(current_tick) {
             return Err(JwtError::KeyExpired);
         }
@@ -80,10 +88,16 @@ impl<'a> JwtValidator<'a> {
             return Err(JwtError::TokenExpired);
         }
         if claims.iss != self.issuer {
-            return Err(JwtError::InvalidClaims(format!("issuer mismatch: {}", claims.iss)));
+            return Err(JwtError::InvalidClaims(format!(
+                "issuer mismatch: {}",
+                claims.iss
+            )));
         }
         if claims.aud != self.audience {
-            return Err(JwtError::InvalidClaims(format!("audience mismatch: {}", claims.aud)));
+            return Err(JwtError::InvalidClaims(format!(
+                "audience mismatch: {}",
+                claims.aud
+            )));
         }
         Ok(Token::new(
             claims.encode(),

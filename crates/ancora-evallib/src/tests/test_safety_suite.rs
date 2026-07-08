@@ -1,4 +1,4 @@
-use crate::safety::{SafetySuite, SafetyOutcome};
+use crate::safety::{SafetyOutcome, SafetySuite};
 
 #[test]
 fn safety_default_catalog_all_pass() {

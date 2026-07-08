@@ -1,7 +1,7 @@
-use crate::pii_scrub::scrub_pii;
-use crate::hashing::hash_value;
-use crate::span_policy::{SpanPolicy, apply_span_policy};
 use crate::classification::DataClass;
+use crate::hashing::hash_value;
+use crate::pii_scrub::scrub_pii;
+use crate::span_policy::{apply_span_policy, SpanPolicy};
 
 #[test]
 fn pii_scrub_reproducible() {

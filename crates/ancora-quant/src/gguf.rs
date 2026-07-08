@@ -7,6 +7,7 @@ use std::path::PathBuf;
 
 /// Quantization type for a GGUF tensor.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[allow(non_camel_case_types)] // variant names mirror the GGUF spec's own quant-type identifiers
 pub enum GgufQuantType {
     F32,
     F16,

@@ -10,7 +10,11 @@ pub struct Version {
 
 impl Version {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     pub fn is_compatible_with(&self, other: &Version) -> bool {
@@ -35,7 +39,11 @@ pub struct VersionedWorker {
 
 impl VersionedWorker {
     pub fn new(id: impl Into<String>, version: Version) -> Self {
-        Self { id: id.into(), version, active_runs: 0 }
+        Self {
+            id: id.into(),
+            version,
+            active_runs: 0,
+        }
     }
 
     pub fn is_idle(&self) -> bool {

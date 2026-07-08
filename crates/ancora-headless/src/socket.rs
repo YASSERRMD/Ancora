@@ -1,8 +1,8 @@
-/// Local Unix socket API for the headless agent.
-///
-/// Provides a request/response protocol over a local Unix domain socket,
-/// allowing local processes to interact with the Ancora agent without any
-/// network exposure.
+//! Local Unix socket API for the headless agent.
+//!
+//! Provides a request/response protocol over a local Unix domain socket,
+//! allowing local processes to interact with the Ancora agent without any
+//! network exposure.
 
 use std::collections::HashMap;
 
@@ -43,11 +43,21 @@ pub struct SocketResponse {
 
 impl SocketResponse {
     pub fn success(id: u64, body: impl Into<String>) -> Self {
-        SocketResponse { id, ok: true, body: body.into(), error: None }
+        SocketResponse {
+            id,
+            ok: true,
+            body: body.into(),
+            error: None,
+        }
     }
 
     pub fn error(id: u64, err: impl Into<String>) -> Self {
-        SocketResponse { id, ok: false, body: String::new(), error: Some(err.into()) }
+        SocketResponse {
+            id,
+            ok: false,
+            body: String::new(),
+            error: Some(err.into()),
+        }
     }
 }
 
@@ -141,7 +151,9 @@ impl SocketApiHandler {
                 self.status = "stopping".to_string();
                 SocketResponse::success(req.id, "shutting down")
             }
-            ApiMethod::Unknown(m) => SocketResponse::error(req.id, format!("unknown method: {}", m)),
+            ApiMethod::Unknown(m) => {
+                SocketResponse::error(req.id, format!("unknown method: {}", m))
+            }
         }
     }
 

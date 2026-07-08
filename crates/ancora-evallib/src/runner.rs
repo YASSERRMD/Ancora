@@ -68,39 +68,77 @@ pub fn run_offline_eval() -> EvalReport {
 
     // Tool-use suite
     let (p, t) = ToolUseSuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "tool_use".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "tool_use".into(),
+        passed: p,
+        total: t,
+    });
 
     // RAG faithfulness suite
     let (p, t) = RagFaithfulnessSuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "rag_faithfulness".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "rag_faithfulness".into(),
+        passed: p,
+        total: t,
+    });
 
     // Coordination suite
     let (p, t) = CoordinationSuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "coordination".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "coordination".into(),
+        passed: p,
+        total: t,
+    });
 
     // Reasoning suite
     let (p, t) = ReasoningSuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "reasoning".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "reasoning".into(),
+        passed: p,
+        total: t,
+    });
 
     // Safety suite
     let (p, t) = SafetySuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "safety".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "safety".into(),
+        passed: p,
+        total: t,
+    });
 
     // Routing suite
     let (p, t) = RoutingSuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "routing".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "routing".into(),
+        passed: p,
+        total: t,
+    });
 
     // Long-context suite
     let (p, t) = LongContextSuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "long_context".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "long_context".into(),
+        passed: p,
+        total: t,
+    });
 
     // Multilingual suite
     let (p, t) = MultilingualSuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "multilingual".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "multilingual".into(),
+        passed: p,
+        total: t,
+    });
 
     // Cost-efficiency suite
     let (p, t) = CostEfficiencySuite::default_catalog().run_all();
-    results.push(SuiteResult { name: "cost_efficiency".into(), passed: p, total: t });
+    results.push(SuiteResult {
+        name: "cost_efficiency".into(),
+        passed: p,
+        total: t,
+    });
 
-    EvalReport { suite_results: results }
+    EvalReport {
+        suite_results: results,
+    }
 }

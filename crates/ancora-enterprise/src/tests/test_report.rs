@@ -31,7 +31,14 @@ fn populated_report() {
     let licenses = vec![&lic];
 
     let mut incidents = IncidentLog::new();
-    incidents.record(EnterpriseIncident::new("i1", "t1", "N", IncidentSeverity::High, "d", 1));
+    incidents.record(EnterpriseIncident::new(
+        "i1",
+        "t1",
+        "N",
+        IncidentSeverity::High,
+        "d",
+        1,
+    ));
 
     let mut cp = EnterpriseCheckpoint::new(1);
     cp.add(chk("c1", CheckStatus::Pass));

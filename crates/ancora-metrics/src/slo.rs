@@ -26,7 +26,12 @@ pub struct ErrorBudget {
 
 impl ErrorBudget {
     pub fn new(target: SloTarget) -> Self {
-        Self { target, observed_availability: 1.0, total_requests: 0, failed_requests: 0 }
+        Self {
+            target,
+            observed_availability: 1.0,
+            total_requests: 0,
+            failed_requests: 0,
+        }
     }
 
     pub fn record(&mut self, success: bool) {
@@ -69,7 +74,11 @@ pub struct BurnRateAlert {
 
 impl BurnRateAlert {
     pub fn new(threshold_multiplier: f64) -> Self {
-        Self { threshold_multiplier, fired: false, current_burn_rate: 0.0 }
+        Self {
+            threshold_multiplier,
+            fired: false,
+            current_burn_rate: 0.0,
+        }
     }
 
     /// Evaluate burn rate given the observed error rate and the SLO target.

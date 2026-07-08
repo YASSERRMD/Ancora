@@ -15,7 +15,10 @@ pub struct SummarizationPolicy {
 
 impl SummarizationPolicy {
     pub fn new(turns_before_summary: usize, keep_last_n: usize) -> Self {
-        Self { turns_before_summary, keep_last_n }
+        Self {
+            turns_before_summary,
+            keep_last_n,
+        }
     }
 
     pub fn should_summarize(&self, total_turns: usize) -> bool {
@@ -35,7 +38,11 @@ impl ConversationSummarizer {
 
     pub fn summarize(&self, turns: &[Turn]) -> SummaryResult {
         if turns.len() <= self.policy.keep_last_n {
-            return SummaryResult { summary: String::new(), kept: turns.to_vec(), dropped_count: 0 };
+            return SummaryResult {
+                summary: String::new(),
+                kept: turns.to_vec(),
+                dropped_count: 0,
+            };
         }
         let split = turns.len() - self.policy.keep_last_n;
         let to_summarize = &turns[..split];
@@ -45,8 +52,16 @@ impl ConversationSummarizer {
             .iter()
             .map(|t| format!("[{}] {}", t.role, t.content))
             .collect();
-        let summary = format!("Summary of {} turns: {}", to_summarize.len(), parts.join("; "));
-        SummaryResult { summary, kept, dropped_count: split }
+        let summary = format!(
+            "Summary of {} turns: {}",
+            to_summarize.len(),
+            parts.join("; ")
+        );
+        SummaryResult {
+            summary,
+            kept,
+            dropped_count: split,
+        }
     }
 }
 

@@ -10,7 +10,11 @@ fn register_tenant_succeeds() {
 #[test]
 fn registry_count_increments() {
     let mut registry = TenantRegistry::new();
-    registry.register(Tenant::new("t1", "A", 1), ResourceQuota::standard()).unwrap();
-    registry.register(Tenant::new("t2", "B", 2), ResourceQuota::standard()).unwrap();
+    registry
+        .register(Tenant::new("t1", "A", 1), ResourceQuota::standard())
+        .unwrap();
+    registry
+        .register(Tenant::new("t2", "B", 2), ResourceQuota::standard())
+        .unwrap();
     assert_eq!(registry.count(), 2);
 }

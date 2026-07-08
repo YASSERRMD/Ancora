@@ -25,7 +25,8 @@ fn test_map_span_service_name() {
 #[test]
 fn test_map_span_resource_from_attribute() {
     let mut span = OtlpSpan::new("http-call", [1u8; 16], [2u8; 8]);
-    span.attributes.push(("http.route".to_string(), "/api/v1/health".to_string()));
+    span.attributes
+        .push(("http.route".to_string(), "/api/v1/health".to_string()));
     let cfg = DatadogConfig::new("key", "svc", "env");
     let ds = map_span_to_datadog(&span, &cfg);
     assert_eq!(ds.resource, "/api/v1/health");
@@ -68,7 +69,9 @@ fn test_map_metric_type_is_gauge() {
 #[test]
 fn test_map_metric_label_tags_included() {
     let mut point = OtlpMetricPoint::new("latency", 200.0);
-    point.labels.push(("region".to_string(), "us-west-2".to_string()));
+    point
+        .labels
+        .push(("region".to_string(), "us-west-2".to_string()));
     let cfg = DatadogConfig::new("key", "svc", "prod");
     let dm = map_metric_to_datadog(&point, &cfg);
     assert!(dm.tags.iter().any(|t| t == "region:us-west-2"));

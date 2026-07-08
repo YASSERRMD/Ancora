@@ -3,7 +3,10 @@ use crate::{IsolationChecker, IsolationResult, TenantRegistry};
 fn different_tenant_is_cross_tenant_violation() {
     let registry = TenantRegistry::new();
     let result = IsolationChecker::check(&registry, "t1", "t2");
-    assert!(matches!(result, IsolationResult::CrossTenantViolation { .. }));
+    assert!(matches!(
+        result,
+        IsolationResult::CrossTenantViolation { .. }
+    ));
 }
 #[test]
 fn require_same_tenant_fails_cross_tenant() {

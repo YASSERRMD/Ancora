@@ -1,8 +1,8 @@
-/// Statistical significance check.
-///
-/// Uses a simple z-test approximation to decide whether the observed delta
-/// is large enough to be treated as real rather than noise.  No external
-/// crates are used; the normal CDF is approximated with a rational fit.
+//! Statistical significance check.
+//!
+//! Uses a simple z-test approximation to decide whether the observed delta
+//! is large enough to be treated as real rather than noise.  No external
+//! crates are used; the normal CDF is approximated with a rational fit.
 
 /// Parameters that describe a set of repeated eval samples.
 #[derive(Debug, Clone)]
@@ -37,10 +37,9 @@ fn normal_cdf(z: f64) -> f64 {
         return 1.0 - normal_cdf(-z);
     }
     let t = 1.0 / (1.0 + 0.2316419 * z);
-    let poly = t * (0.319381530
-        + t * (-0.356563782
-            + t * (1.781477937
-                + t * (-1.821255978 + t * 1.330274429))));
+    let poly = t
+        * (0.319381530
+            + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
     let pdf = (-0.5 * z * z).exp() / (2.0 * std::f64::consts::PI).sqrt();
     1.0 - pdf * poly
 }

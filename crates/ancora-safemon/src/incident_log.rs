@@ -2,7 +2,6 @@
 ///
 /// Records all detected safety issues with timestamps, severity, and context
 /// for audit and compliance purposes.
-
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -116,7 +115,10 @@ impl IncidentLog {
     }
 
     pub fn by_severity(&self, severity: &IncidentSeverity) -> Vec<&Incident> {
-        self.incidents.iter().filter(|i| &i.severity == severity).collect()
+        self.incidents
+            .iter()
+            .filter(|i| &i.severity == severity)
+            .collect()
     }
 
     pub fn find_by_id(&self, id: u64) -> Option<&Incident> {
@@ -165,7 +167,13 @@ mod tests {
     fn max_entries_respected() {
         let mut log = IncidentLog::new(3);
         for i in 0..5 {
-            log.log(IncidentSeverity::Info, "test", format!("desc {}", i), "", None);
+            log.log(
+                IncidentSeverity::Info,
+                "test",
+                format!("desc {}", i),
+                "",
+                None,
+            );
         }
         assert_eq!(log.count(), 3);
     }
@@ -173,7 +181,13 @@ mod tests {
     #[test]
     fn json_output_valid() {
         let mut log = IncidentLog::new(10);
-        log.log(IncidentSeverity::Medium, "toxicity", "Toxic output", "bad word", None);
+        log.log(
+            IncidentSeverity::Medium,
+            "toxicity",
+            "Toxic output",
+            "bad word",
+            None,
+        );
         let json = log.to_json();
         assert!(json.starts_with('['));
         assert!(json.ends_with(']'));

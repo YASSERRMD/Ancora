@@ -1,4 +1,4 @@
-use crate::replay::{ReplayControls, PlaybackState};
+use crate::replay::{PlaybackState, ReplayControls};
 
 #[test]
 fn test_replay_controls_drive_backend_step_forward() {

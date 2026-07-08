@@ -1,5 +1,4 @@
 /// Performance measurement module: measures observability overhead.
-
 use std::time::Instant;
 
 /// Result of a single overhead measurement.
@@ -64,7 +63,9 @@ impl BenchmarkReport {
     }
 
     pub fn all_within_budget(&self, max_fraction: f64) -> bool {
-        self.measurements.iter().all(|m| m.within_budget(max_fraction))
+        self.measurements
+            .iter()
+            .all(|m| m.within_budget(max_fraction))
     }
 
     pub fn worst_case(&self) -> Option<&OverheadMeasurement> {

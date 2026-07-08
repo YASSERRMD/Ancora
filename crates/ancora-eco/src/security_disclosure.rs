@@ -73,7 +73,9 @@ pub struct DisclosureRegistry {
 
 impl DisclosureRegistry {
     pub fn new() -> Self {
-        DisclosureRegistry { disclosures: Vec::new() }
+        DisclosureRegistry {
+            disclosures: Vec::new(),
+        }
     }
 
     pub fn report(&mut self, disclosure: SecurityDisclosure) {
@@ -81,10 +83,7 @@ impl DisclosureRegistry {
     }
 
     pub fn open_count(&self) -> usize {
-        self.disclosures
-            .iter()
-            .filter(|d| !d.is_patched())
-            .count()
+        self.disclosures.iter().filter(|d| !d.is_patched()).count()
     }
 
     pub fn get_mut(&mut self, id: &str) -> Option<&mut SecurityDisclosure> {
@@ -112,12 +111,8 @@ mod tests {
 
     #[test]
     fn disclosed_cannot_advance() {
-        let mut d = SecurityDisclosure::new(
-            "CVE-2026-002",
-            "other-ext",
-            Severity::Low,
-            "Info leak",
-        );
+        let mut d =
+            SecurityDisclosure::new("CVE-2026-002", "other-ext", Severity::Low, "Info leak");
         for _ in 0..4 {
             d.advance().unwrap();
         }

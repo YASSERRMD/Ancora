@@ -23,7 +23,9 @@ fn langchain_tool_propagates_error() {
         description: "Always fails".into(),
     };
     let adapter = AncoraToolAdapter::from_langchain(def, |_| {
-        Err(ToolAdapterError { message: "intentional failure".into() })
+        Err(ToolAdapterError {
+            message: "intentional failure".into(),
+        })
     });
     let err = adapter.run("anything").unwrap_err();
     assert!(err.message.contains("intentional failure"));
@@ -32,9 +34,18 @@ fn langchain_tool_propagates_error() {
 #[test]
 fn import_multiple_langchain_tools() {
     let defs = vec![
-        LangchainToolDef { name: "search".into(), description: "Searches".into() },
-        LangchainToolDef { name: "translate".into(), description: "Translates".into() },
-        LangchainToolDef { name: "summarise".into(), description: "Summarises".into() },
+        LangchainToolDef {
+            name: "search".into(),
+            description: "Searches".into(),
+        },
+        LangchainToolDef {
+            name: "translate".into(),
+            description: "Translates".into(),
+        },
+        LangchainToolDef {
+            name: "summarise".into(),
+            description: "Summarises".into(),
+        },
     ];
     let adapters = import_langchain_tools(defs);
     assert_eq!(adapters.len(), 3);

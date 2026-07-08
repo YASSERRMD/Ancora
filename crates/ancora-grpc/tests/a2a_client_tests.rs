@@ -1,8 +1,4 @@
-use ancora_grpc::{
-    agent_card::AgentCard,
-    client::A2aClient,
-    identity::AgentIdentity,
-};
+use ancora_grpc::{agent_card::AgentCard, client::A2aClient, identity::AgentIdentity};
 use tokio::sync::oneshot;
 
 async fn spawn_card_server(card: AgentCard) -> (std::net::SocketAddr, oneshot::Sender<()>) {
@@ -35,7 +31,11 @@ async fn ancora_fetches_remote_agent_card() {
 
 #[tokio::test]
 async fn ancora_verifies_signed_remote_agent() {
-    let card = AgentCard::new("signed-remote", "A signed remote agent", "grpc://127.0.0.1:50051");
+    let card = AgentCard::new(
+        "signed-remote",
+        "A signed remote agent",
+        "grpc://127.0.0.1:50051",
+    );
     let id = AgentIdentity::generate();
     let signed = id.attach_to(card);
     let (bound, tx) = spawn_card_server(signed).await;
@@ -87,11 +87,10 @@ async fn from_url_client_fetches_card() {
 #[tokio::test]
 async fn ancora_submits_task_to_remote_agent() {
     let client = A2aClient::new("127.0.0.1", 59999);
-    let task = client.submit_task("task-001", "Summarise this document.").await;
+    let task = client
+        .submit_task("task-001", "Summarise this document.")
+        .await;
 
     assert_eq!(task.id, "task-001");
-    assert_eq!(
-        task.input.as_deref(),
-        Some("Summarise this document.")
-    );
+    assert_eq!(task.input.as_deref(), Some("Summarise this document."));
 }

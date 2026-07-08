@@ -1,5 +1,5 @@
+use crate::guardrail::{GuardrailOutcome, InputGuardrail};
 use crate::pii::PiiInputGuardrail;
-use crate::guardrail::{InputGuardrail, GuardrailOutcome};
 
 #[test]
 fn pii_input_blocked_or_redacted() {
@@ -11,7 +11,10 @@ fn pii_input_blocked_or_redacted() {
 #[test]
 fn clean_input_passes() {
     let g = PiiInputGuardrail;
-    assert_eq!(g.check_input("summarize this document"), GuardrailOutcome::Pass);
+    assert_eq!(
+        g.check_input("summarize this document"),
+        GuardrailOutcome::Pass
+    );
 }
 
 #[test]

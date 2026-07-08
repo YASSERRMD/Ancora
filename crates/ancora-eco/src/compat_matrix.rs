@@ -19,7 +19,9 @@ pub struct CompatMatrix {
 
 impl CompatMatrix {
     pub fn new() -> Self {
-        CompatMatrix { entries: Vec::new() }
+        CompatMatrix {
+            entries: Vec::new(),
+        }
     }
 
     /// Add an entry by testing the given extension manifest against the core version.
@@ -86,7 +88,9 @@ mod tests {
             min_api_version: SemVer::new(1, 0, 0),
             max_api_version: SemVer::new(1, 9, 0),
         };
-        let core = CoreApiVersion { version: SemVer::new(1, 2, 0) };
+        let core = CoreApiVersion {
+            version: SemVer::new(1, 2, 0),
+        };
         matrix.record("my-ext", &manifest, &core);
         assert_eq!(matrix.compatible_count(), 1);
         assert_eq!(matrix.incompatible_count(), 0);
@@ -99,7 +103,9 @@ mod tests {
             min_api_version: SemVer::new(1, 0, 0),
             max_api_version: SemVer::new(1, 9, 0),
         };
-        let core = CoreApiVersion { version: SemVer::new(1, 1, 0) };
+        let core = CoreApiVersion {
+            version: SemVer::new(1, 1, 0),
+        };
         matrix.record("some-ext", &manifest, &core);
         let report = matrix.generate_report();
         assert!(report.contains("some-ext"));

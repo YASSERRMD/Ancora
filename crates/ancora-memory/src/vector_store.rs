@@ -22,8 +22,9 @@ impl std::fmt::Display for VectorStoreError {
         match self {
             Self::NotFound(n) => write!(f, "collection not found: {n}"),
             Self::AlreadyExists(n) => write!(f, "collection already exists: {n}"),
-            Self::DimensionMismatch { expected, got } =>
-                write!(f, "dimension mismatch: expected {expected}, got {got}"),
+            Self::DimensionMismatch { expected, got } => {
+                write!(f, "dimension mismatch: expected {expected}, got {got}")
+            }
             Self::InvalidFilter(msg) => write!(f, "invalid filter: {msg}"),
             Self::Io(msg) => write!(f, "I/O error: {msg}"),
         }
@@ -59,7 +60,11 @@ pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
     let dot: f32 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
     let mag_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
     let mag_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
-    if mag_a == 0.0 || mag_b == 0.0 { 0.0 } else { dot / (mag_a * mag_b) }
+    if mag_a == 0.0 || mag_b == 0.0 {
+        0.0
+    } else {
+        dot / (mag_a * mag_b)
+    }
 }
 
 /// Dot product (inner product) of two vectors.
@@ -69,7 +74,12 @@ pub fn dot_product(a: &[f32], b: &[f32]) -> f32 {
 
 /// L2 (Euclidean) distance converted to a similarity score: 1 / (1 + dist).
 pub fn l2_similarity(a: &[f32], b: &[f32]) -> f32 {
-    let dist: f32 = a.iter().zip(b.iter()).map(|(x, y)| (x - y).powi(2)).sum::<f32>().sqrt();
+    let dist: f32 = a
+        .iter()
+        .zip(b.iter())
+        .map(|(x, y)| (x - y).powi(2))
+        .sum::<f32>()
+        .sqrt();
     1.0 / (1.0 + dist)
 }
 
@@ -86,19 +96,29 @@ pub enum PayloadValue {
 }
 
 impl From<&str> for PayloadValue {
-    fn from(s: &str) -> Self { Self::String(s.to_owned()) }
+    fn from(s: &str) -> Self {
+        Self::String(s.to_owned())
+    }
 }
 impl From<String> for PayloadValue {
-    fn from(s: String) -> Self { Self::String(s) }
+    fn from(s: String) -> Self {
+        Self::String(s)
+    }
 }
 impl From<i64> for PayloadValue {
-    fn from(n: i64) -> Self { Self::Integer(n) }
+    fn from(n: i64) -> Self {
+        Self::Integer(n)
+    }
 }
 impl From<f64> for PayloadValue {
-    fn from(f: f64) -> Self { Self::Float(f) }
+    fn from(f: f64) -> Self {
+        Self::Float(f)
+    }
 }
 impl From<bool> for PayloadValue {
-    fn from(b: bool) -> Self { Self::Bool(b) }
+    fn from(b: bool) -> Self {
+        Self::Bool(b)
+    }
 }
 
 /// Metadata map attached to every point.
@@ -108,7 +128,12 @@ pub type Payload = HashMap<String, PayloadValue>;
 
 /// Field type annotation for a payload key.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum FieldType { Keyword, Integer, Float, Bool }
+pub enum FieldType {
+    Keyword,
+    Integer,
+    Float,
+    Bool,
+}
 
 /// Schema hint for a collection's payload fields.
 /// Backends may use this to build indexes for filter acceleration.
@@ -118,7 +143,9 @@ pub struct PayloadSchema {
 }
 
 impl PayloadSchema {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn field(mut self, name: impl Into<String>, kind: FieldType) -> Self {
         self.fields.insert(name.into(), kind);
         self
@@ -130,13 +157,13 @@ impl PayloadSchema {
     pub fn validate(&self, payload: &Payload) -> Result<(), String> {
         for (key, expected_type) in &self.fields {
             if let Some(val) = payload.get(key) {
-                let ok = match (expected_type, val) {
-                    (FieldType::Keyword, PayloadValue::String(_)) => true,
-                    (FieldType::Integer, PayloadValue::Integer(_)) => true,
-                    (FieldType::Float, PayloadValue::Float(_)) => true,
-                    (FieldType::Bool, PayloadValue::Bool(_)) => true,
-                    _ => false,
-                };
+                let ok = matches!(
+                    (expected_type, val),
+                    (FieldType::Keyword, PayloadValue::String(_))
+                        | (FieldType::Integer, PayloadValue::Integer(_))
+                        | (FieldType::Float, PayloadValue::Float(_))
+                        | (FieldType::Bool, PayloadValue::Bool(_))
+                );
                 if !ok {
                     return Err(format!("field `{key}` has wrong type for schema"));
                 }
@@ -156,10 +183,14 @@ pub enum PointId {
 }
 
 impl From<u64> for PointId {
-    fn from(n: u64) -> Self { Self::Num(n) }
+    fn from(n: u64) -> Self {
+        Self::Num(n)
+    }
 }
 impl From<&str> for PointId {
-    fn from(s: &str) -> Self { Self::Uuid(s.to_owned()) }
+    fn from(s: &str) -> Self {
+        Self::Uuid(s.to_owned())
+    }
 }
 
 /// A vector point to be stored or retrieved.
@@ -174,15 +205,22 @@ pub struct Point {
 
 impl Point {
     pub fn new(id: impl Into<PointId>, vector: Vec<f32>) -> Self {
-        Self { id: id.into(), vector, payload: Payload::new(), named_vectors: HashMap::new() }
+        Self {
+            id: id.into(),
+            vector,
+            payload: Payload::new(),
+            named_vectors: HashMap::new(),
+        }
     }
 
     pub fn with_payload(mut self, key: impl Into<String>, val: impl Into<PayloadValue>) -> Self {
-        self.payload.insert(key.into(), val.into()); self
+        self.payload.insert(key.into(), val.into());
+        self
     }
 
     pub fn with_named_vector(mut self, name: impl Into<String>, vec: Vec<f32>) -> Self {
-        self.named_vectors.insert(name.into(), vec); self
+        self.named_vectors.insert(name.into(), vec);
+        self
     }
 }
 
@@ -257,7 +295,12 @@ pub struct HnswConfig {
 }
 
 impl Default for HnswConfig {
-    fn default() -> Self { Self { m: 16, ef_construct: 100 } }
+    fn default() -> Self {
+        Self {
+            m: 16,
+            ef_construct: 100,
+        }
+    }
 }
 
 /// IVF-Flat index configuration for backends that support it (e.g., pgvector).
@@ -267,7 +310,9 @@ pub struct IvfFlatConfig {
 }
 
 impl Default for IvfFlatConfig {
-    fn default() -> Self { Self { lists: 100 } }
+    fn default() -> Self {
+        Self { lists: 100 }
+    }
 }
 
 /// Index algorithm options.
@@ -299,10 +344,12 @@ impl CollectionSpec {
         }
     }
     pub fn with_schema(mut self, schema: PayloadSchema) -> Self {
-        self.payload_schema = schema; self
+        self.payload_schema = schema;
+        self
     }
     pub fn with_index(mut self, index: IndexConfig) -> Self {
-        self.index = index; self
+        self.index = index;
+        self
     }
 }
 
@@ -328,7 +375,9 @@ pub struct NamedVectorConfig {
 }
 
 impl NamedVectorConfig {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn add(mut self, name: impl Into<String>, dims: usize, distance: Distance) -> Self {
         self.vectors.insert(name.into(), (dims, distance));
         self
@@ -350,13 +399,31 @@ pub struct QueryRequest {
 
 impl QueryRequest {
     pub fn new(vector: Vec<f32>, top_k: usize) -> Self {
-        Self { vector, top_k, filter: None, score_threshold: None, with_payload: true, offset: 0, vector_name: None }
+        Self {
+            vector,
+            top_k,
+            filter: None,
+            score_threshold: None,
+            with_payload: true,
+            offset: 0,
+            vector_name: None,
+        }
     }
-    pub fn with_filter(mut self, f: Filter) -> Self { self.filter = Some(f); self }
-    pub fn with_score_threshold(mut self, t: f32) -> Self { self.score_threshold = Some(t); self }
-    pub fn with_offset(mut self, o: usize) -> Self { self.offset = o; self }
+    pub fn with_filter(mut self, f: Filter) -> Self {
+        self.filter = Some(f);
+        self
+    }
+    pub fn with_score_threshold(mut self, t: f32) -> Self {
+        self.score_threshold = Some(t);
+        self
+    }
+    pub fn with_offset(mut self, o: usize) -> Self {
+        self.offset = o;
+        self
+    }
     pub fn with_vector_name(mut self, name: impl Into<String>) -> Self {
-        self.vector_name = Some(name.into()); self
+        self.vector_name = Some(name.into());
+        self
     }
 }
 
@@ -375,10 +442,23 @@ pub struct HybridQueryRequest {
 
 impl HybridQueryRequest {
     pub fn new(dense_vector: Vec<f32>, keyword: impl Into<String>, top_k: usize) -> Self {
-        Self { dense_vector, keyword: keyword.into(), top_k, alpha: 0.5, filter: None, score_threshold: None }
+        Self {
+            dense_vector,
+            keyword: keyword.into(),
+            top_k,
+            alpha: 0.5,
+            filter: None,
+            score_threshold: None,
+        }
     }
-    pub fn with_alpha(mut self, alpha: f32) -> Self { self.alpha = alpha; self }
-    pub fn with_filter(mut self, f: Filter) -> Self { self.filter = Some(f); self }
+    pub fn with_alpha(mut self, alpha: f32) -> Self {
+        self.alpha = alpha;
+        self
+    }
+    pub fn with_filter(mut self, f: Filter) -> Self {
+        self.filter = Some(f);
+        self
+    }
 }
 
 /// Blend a dense vector score and a keyword (BM25) score using the given alpha.
@@ -395,8 +475,14 @@ pub fn hybrid_score(vector_score: f32, keyword_score: f32, alpha: f32) -> f32 {
 /// Production backends use proper BM25; this reference version is term-presence only.
 pub fn keyword_score_naive(text: &str, query: &str) -> f32 {
     let text_lower = text.to_ascii_lowercase();
-    let all_match = query.split_whitespace().all(|w| text_lower.contains(&w.to_ascii_lowercase()));
-    if all_match { 1.0 } else { 0.0 }
+    let all_match = query
+        .split_whitespace()
+        .all(|w| text_lower.contains(&w.to_ascii_lowercase()));
+    if all_match {
+        1.0
+    } else {
+        0.0
+    }
 }
 
 // ---- pagination -----------------------------------------------------------
@@ -413,10 +499,15 @@ pub struct Page<T> {
 
 impl<T> Page<T> {
     pub fn new(items: Vec<T>, offset: usize) -> Self {
-        Self { total: None, offset, items }
+        Self {
+            total: None,
+            offset,
+            items,
+        }
     }
     pub fn with_total(mut self, total: u64) -> Self {
-        self.total = Some(total); self
+        self.total = Some(total);
+        self
     }
     pub fn has_next(&self) -> bool {
         match self.total {
@@ -438,7 +529,12 @@ pub struct BatchConfig {
 }
 
 impl Default for BatchConfig {
-    fn default() -> Self { Self { batch_size: 100, retries: 3 } }
+    fn default() -> Self {
+        Self {
+            batch_size: 100,
+            retries: 3,
+        }
+    }
 }
 
 /// Split `points` into chunks of `batch_size` for batch upsert.
@@ -456,7 +552,10 @@ pub fn make_batches(points: Vec<Point>, batch_size: usize) -> Vec<Vec<Point>> {
 /// Used by the in-memory reference impl and any backend that does threshold
 /// filtering in Rust rather than at the store level.
 pub fn apply_score_threshold(results: Vec<ScoredPoint>, threshold: f32) -> Vec<ScoredPoint> {
-    results.into_iter().filter(|p| p.score >= threshold).collect()
+    results
+        .into_iter()
+        .filter(|p| p.score >= threshold)
+        .collect()
 }
 
 // ---- the trait ------------------------------------------------------------
@@ -485,7 +584,10 @@ mod schema_tests {
     #[test]
     fn schema_rejects_wrong_type() {
         let mut p = Payload::new();
-        p.insert("age".to_owned(), PayloadValue::String("not-a-number".to_owned()));
+        p.insert(
+            "age".to_owned(),
+            PayloadValue::String("not-a-number".to_owned()),
+        );
         assert!(schema().validate(&p).is_err());
     }
 
@@ -540,8 +642,16 @@ mod hybrid_tests {
     #[test]
     fn apply_score_threshold_removes_low() {
         let pts = vec![
-            ScoredPoint { id: PointId::Num(1), score: 0.9, payload: Payload::new() },
-            ScoredPoint { id: PointId::Num(2), score: 0.3, payload: Payload::new() },
+            ScoredPoint {
+                id: PointId::Num(1),
+                score: 0.9,
+                payload: Payload::new(),
+            },
+            ScoredPoint {
+                id: PointId::Num(2),
+                score: 0.3,
+                payload: Payload::new(),
+            },
         ];
         let filtered = apply_score_threshold(pts, 0.5);
         assert_eq!(filtered.len(), 1);
@@ -668,27 +778,45 @@ mod filter_tests {
     #[test]
     fn filter_eq_matches_string() {
         let p = make_payload("tag", "hello");
-        assert!(filter_matches(&p, &Filter::Eq("tag".to_owned(), PayloadValue::String("hello".to_owned()))));
+        assert!(filter_matches(
+            &p,
+            &Filter::Eq("tag".to_owned(), PayloadValue::String("hello".to_owned()))
+        ));
     }
 
     #[test]
     fn filter_eq_rejects_wrong_value() {
         let p = make_payload("tag", "hello");
-        assert!(!filter_matches(&p, &Filter::Eq("tag".to_owned(), PayloadValue::String("world".to_owned()))));
+        assert!(!filter_matches(
+            &p,
+            &Filter::Eq("tag".to_owned(), PayloadValue::String("world".to_owned()))
+        ));
     }
 
     #[test]
     fn filter_gt_integer() {
         let p = make_payload("n", 5i64);
-        assert!(filter_matches(&p, &Filter::Gt("n".to_owned(), PayloadValue::Integer(3))));
-        assert!(!filter_matches(&p, &Filter::Gt("n".to_owned(), PayloadValue::Integer(5))));
+        assert!(filter_matches(
+            &p,
+            &Filter::Gt("n".to_owned(), PayloadValue::Integer(3))
+        ));
+        assert!(!filter_matches(
+            &p,
+            &Filter::Gt("n".to_owned(), PayloadValue::Integer(5))
+        ));
     }
 
     #[test]
     fn filter_lt_integer() {
         let p = make_payload("n", 3i64);
-        assert!(filter_matches(&p, &Filter::Lt("n".to_owned(), PayloadValue::Integer(5))));
-        assert!(!filter_matches(&p, &Filter::Lt("n".to_owned(), PayloadValue::Integer(3))));
+        assert!(filter_matches(
+            &p,
+            &Filter::Lt("n".to_owned(), PayloadValue::Integer(5))
+        ));
+        assert!(!filter_matches(
+            &p,
+            &Filter::Lt("n".to_owned(), PayloadValue::Integer(3))
+        ));
     }
 
     #[test]
@@ -717,15 +845,27 @@ pub trait VectorStore: Send + Sync {
     fn describe_collection(&self, name: &str) -> Result<CollectionInfo, VectorStoreError>;
 
     fn upsert(&self, collection: &str, points: Vec<Point>) -> Result<(), VectorStoreError>;
-    fn batch_upsert(&self, collection: &str, batches: Vec<Vec<Point>>) -> Result<(), VectorStoreError> {
+    fn batch_upsert(
+        &self,
+        collection: &str,
+        batches: Vec<Vec<Point>>,
+    ) -> Result<(), VectorStoreError> {
         for batch in batches {
             self.upsert(collection, batch)?;
         }
         Ok(())
     }
 
-    fn query(&self, collection: &str, req: QueryRequest) -> Result<Vec<ScoredPoint>, VectorStoreError>;
-    fn hybrid_query(&self, collection: &str, req: HybridQueryRequest) -> Result<Vec<ScoredPoint>, VectorStoreError>;
+    fn query(
+        &self,
+        collection: &str,
+        req: QueryRequest,
+    ) -> Result<Vec<ScoredPoint>, VectorStoreError>;
+    fn hybrid_query(
+        &self,
+        collection: &str,
+        req: HybridQueryRequest,
+    ) -> Result<Vec<ScoredPoint>, VectorStoreError>;
 
     fn delete(&self, collection: &str, ids: Vec<PointId>) -> Result<(), VectorStoreError>;
     fn delete_by_filter(&self, collection: &str, filter: Filter) -> Result<u64, VectorStoreError>;

@@ -1,5 +1,4 @@
 /// templates - Load graph templates from presets.
-
 use crate::import::{GraphSpec, SpecEdge, SpecNode};
 use std::collections::HashMap;
 
@@ -68,7 +67,10 @@ impl TemplateRegistry {
     }
 
     pub fn by_category(&self, cat: &TemplateCategory) -> Vec<&Template> {
-        self.templates.iter().filter(|t| &t.category == cat).collect()
+        self.templates
+            .iter()
+            .filter(|t| &t.category == cat)
+            .collect()
     }
 
     pub fn search(&self, query: &str) -> Vec<&Template> {
@@ -130,9 +132,12 @@ fn edge(id: &str, src: &str, tgt: &str, etype: &str) -> SpecEdge {
 
 fn build_single_agent_template() -> Template {
     let mut spec = GraphSpec::new("single_agent");
-    spec.nodes.push(node("in", "control.router", "Input", 0.0, 0.0));
-    spec.nodes.push(node("llm", "agent.llm", "LLM Agent", 200.0, 0.0));
-    spec.nodes.push(node("out", "control.merge", "Output", 400.0, 0.0));
+    spec.nodes
+        .push(node("in", "control.router", "Input", 0.0, 0.0));
+    spec.nodes
+        .push(node("llm", "agent.llm", "LLM Agent", 200.0, 0.0));
+    spec.nodes
+        .push(node("out", "control.merge", "Output", 400.0, 0.0));
     spec.edges.push(edge("e1", "in", "llm", "data_flow"));
     spec.edges.push(edge("e2", "llm", "out", "data_flow"));
 
@@ -148,12 +153,28 @@ fn build_single_agent_template() -> Template {
 
 fn build_rag_pipeline_template() -> Template {
     let mut spec = GraphSpec::new("rag_pipeline");
-    spec.nodes.push(node("query", "control.router", "Query", 0.0, 0.0));
-    spec.nodes.push(node("retrieval", "agent.retrieval", "Retrieval", 200.0, 0.0));
-    spec.nodes.push(node("llm", "agent.llm", "LLM Agent", 400.0, 0.0));
-    spec.nodes.push(node("verify", "verifier.hallucination", "Hallucination Detector", 400.0, 120.0));
-    spec.nodes.push(node("out", "control.merge", "Output", 600.0, 0.0));
-    spec.edges.push(edge("e1", "query", "retrieval", "data_flow"));
+    spec.nodes
+        .push(node("query", "control.router", "Query", 0.0, 0.0));
+    spec.nodes.push(node(
+        "retrieval",
+        "agent.retrieval",
+        "Retrieval",
+        200.0,
+        0.0,
+    ));
+    spec.nodes
+        .push(node("llm", "agent.llm", "LLM Agent", 400.0, 0.0));
+    spec.nodes.push(node(
+        "verify",
+        "verifier.hallucination",
+        "Hallucination Detector",
+        400.0,
+        120.0,
+    ));
+    spec.nodes
+        .push(node("out", "control.merge", "Output", 600.0, 0.0));
+    spec.edges
+        .push(edge("e1", "query", "retrieval", "data_flow"));
     spec.edges.push(edge("e2", "retrieval", "llm", "data_flow"));
     spec.edges.push(edge("e3", "llm", "verify", "verification"));
     spec.edges.push(edge("e4", "verify", "out", "data_flow"));
@@ -170,21 +191,41 @@ fn build_rag_pipeline_template() -> Template {
 
 fn build_agent_verifier_template() -> Template {
     let mut spec = GraphSpec::new("agent_verifier");
-    spec.nodes.push(node("in", "control.router", "Input", 0.0, 0.0));
-    spec.nodes.push(node("llm", "agent.llm", "LLM Agent", 200.0, 0.0));
-    spec.nodes.push(node("schema_check", "verifier.json_schema", "Schema Verifier", 400.0, 0.0));
-    spec.nodes.push(node("toxicity", "verifier.toxicity", "Toxicity Filter", 400.0, 100.0));
-    spec.nodes.push(node("out", "control.merge", "Output", 600.0, 0.0));
+    spec.nodes
+        .push(node("in", "control.router", "Input", 0.0, 0.0));
+    spec.nodes
+        .push(node("llm", "agent.llm", "LLM Agent", 200.0, 0.0));
+    spec.nodes.push(node(
+        "schema_check",
+        "verifier.json_schema",
+        "Schema Verifier",
+        400.0,
+        0.0,
+    ));
+    spec.nodes.push(node(
+        "toxicity",
+        "verifier.toxicity",
+        "Toxicity Filter",
+        400.0,
+        100.0,
+    ));
+    spec.nodes
+        .push(node("out", "control.merge", "Output", 600.0, 0.0));
     spec.edges.push(edge("e1", "in", "llm", "data_flow"));
-    spec.edges.push(edge("e2", "llm", "schema_check", "verification"));
-    spec.edges.push(edge("e3", "llm", "toxicity", "verification"));
-    spec.edges.push(edge("e4", "schema_check", "out", "data_flow"));
-    spec.edges.push(edge("e5", "toxicity", "out", "control_dep"));
+    spec.edges
+        .push(edge("e2", "llm", "schema_check", "verification"));
+    spec.edges
+        .push(edge("e3", "llm", "toxicity", "verification"));
+    spec.edges
+        .push(edge("e4", "schema_check", "out", "data_flow"));
+    spec.edges
+        .push(edge("e5", "toxicity", "out", "control_dep"));
 
     Template {
         id: "agent_verifier".into(),
         name: "Agent with Verifiers".into(),
-        description: "An LLM agent whose output is checked by schema and toxicity verifiers.".into(),
+        description: "An LLM agent whose output is checked by schema and toxicity verifiers."
+            .into(),
         category: TemplateCategory::Verification,
         spec,
         tags: vec!["verifier".into(), "safety".into(), "schema".into()],
@@ -193,15 +234,27 @@ fn build_agent_verifier_template() -> Template {
 
 fn build_multi_agent_template() -> Template {
     let mut spec = GraphSpec::new("multi_agent");
-    spec.nodes.push(node("router", "control.router", "Router", 0.0, 0.0));
-    spec.nodes.push(node("classifier", "agent.classifier", "Classifier", 200.0, -80.0));
-    spec.nodes.push(node("llm_a", "agent.llm", "LLM Agent A", 200.0, 40.0));
-    spec.nodes.push(node("llm_b", "agent.llm", "LLM Agent B", 200.0, 160.0));
-    spec.nodes.push(node("merge", "control.merge", "Merge", 400.0, 40.0));
-    spec.edges.push(edge("e1", "router", "classifier", "data_flow"));
+    spec.nodes
+        .push(node("router", "control.router", "Router", 0.0, 0.0));
+    spec.nodes.push(node(
+        "classifier",
+        "agent.classifier",
+        "Classifier",
+        200.0,
+        -80.0,
+    ));
+    spec.nodes
+        .push(node("llm_a", "agent.llm", "LLM Agent A", 200.0, 40.0));
+    spec.nodes
+        .push(node("llm_b", "agent.llm", "LLM Agent B", 200.0, 160.0));
+    spec.nodes
+        .push(node("merge", "control.merge", "Merge", 400.0, 40.0));
+    spec.edges
+        .push(edge("e1", "router", "classifier", "data_flow"));
     spec.edges.push(edge("e2", "router", "llm_a", "data_flow"));
     spec.edges.push(edge("e3", "router", "llm_b", "data_flow"));
-    spec.edges.push(edge("e4", "classifier", "merge", "control_dep"));
+    spec.edges
+        .push(edge("e4", "classifier", "merge", "control_dep"));
     spec.edges.push(edge("e5", "llm_a", "merge", "data_flow"));
     spec.edges.push(edge("e6", "llm_b", "merge", "data_flow"));
 
@@ -217,14 +270,30 @@ fn build_multi_agent_template() -> Template {
 
 fn build_loop_template() -> Template {
     let mut spec = GraphSpec::new("loop_template");
-    spec.nodes.push(node("in", "control.router", "Input", 0.0, 0.0));
-    spec.nodes.push(node("llm", "agent.llm", "LLM Agent", 200.0, 0.0));
-    spec.nodes.push(node("check", "verifier.hallucination", "Quality Check", 400.0, 0.0));
-    spec.nodes.push(node("loop_ctrl", "control.loop", "Loop Controller", 300.0, 120.0));
-    spec.nodes.push(node("out", "control.merge", "Output", 600.0, 0.0));
+    spec.nodes
+        .push(node("in", "control.router", "Input", 0.0, 0.0));
+    spec.nodes
+        .push(node("llm", "agent.llm", "LLM Agent", 200.0, 0.0));
+    spec.nodes.push(node(
+        "check",
+        "verifier.hallucination",
+        "Quality Check",
+        400.0,
+        0.0,
+    ));
+    spec.nodes.push(node(
+        "loop_ctrl",
+        "control.loop",
+        "Loop Controller",
+        300.0,
+        120.0,
+    ));
+    spec.nodes
+        .push(node("out", "control.merge", "Output", 600.0, 0.0));
     spec.edges.push(edge("e1", "in", "llm", "data_flow"));
     spec.edges.push(edge("e2", "llm", "check", "data_flow"));
-    spec.edges.push(edge("e3", "check", "loop_ctrl", "control_dep"));
+    spec.edges
+        .push(edge("e3", "check", "loop_ctrl", "control_dep"));
     spec.edges.push(edge("e4", "loop_ctrl", "llm", "loop_back"));
     spec.edges.push(edge("e5", "check", "out", "data_flow"));
 
@@ -251,7 +320,9 @@ mod unit {
     #[test]
     fn get_template_by_id() {
         let r = TemplateRegistry::default_registry();
-        let t = r.get("single_agent").expect("single_agent template missing");
+        let t = r
+            .get("single_agent")
+            .expect("single_agent template missing");
         assert_eq!(t.category, TemplateCategory::Basic);
     }
 

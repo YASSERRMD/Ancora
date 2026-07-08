@@ -19,10 +19,14 @@ impl ClassificationEnforcer {
             ));
         }
         if policy.deny_public_write && record.level == SensitivityLevel::Public {
-            return EnforcementDecision::Deny("write to PUBLIC classification is not allowed by policy".to_string());
+            return EnforcementDecision::Deny(
+                "write to PUBLIC classification is not allowed by policy".to_string(),
+            );
         }
         if policy.require_category_tag && record.tags.is_empty() {
-            return EnforcementDecision::Deny("policy requires at least one category tag".to_string());
+            return EnforcementDecision::Deny(
+                "policy requires at least one category tag".to_string(),
+            );
         }
         EnforcementDecision::Allow
     }

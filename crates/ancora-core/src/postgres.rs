@@ -1,8 +1,8 @@
 // Postgres-backed journal and checkpoint store. Compiled only with the `postgres` feature.
 use std::sync::Mutex;
 
-use prost::Message as _;
 use postgres::{Client, NoTls};
+use prost::Message as _;
 
 use ancora_proto::ancora::JournalEvent;
 
@@ -43,9 +43,7 @@ pub struct PostgresStore {
 fn extract_activity_key(event: &JournalEvent) -> Option<String> {
     use ancora_proto::ancora::journal_event::Event;
     match event.event.as_ref()? {
-        Event::ActivityRecorded(a) if !a.activity_key.is_empty() => {
-            Some(a.activity_key.clone())
-        }
+        Event::ActivityRecorded(a) if !a.activity_key.is_empty() => Some(a.activity_key.clone()),
         _ => None,
     }
 }
@@ -111,8 +109,7 @@ impl JournalStore for PostgresStore {
         rows.iter()
             .map(|row| {
                 let bytes: Vec<u8> = row.get(0);
-                JournalEvent::decode(bytes.as_slice())
-                    .map_err(|e| storage(format!("decode: {e}")))
+                JournalEvent::decode(bytes.as_slice()).map_err(|e| storage(format!("decode: {e}")))
             })
             .collect()
     }
@@ -177,7 +174,9 @@ impl PostgresStore {
     /// Connect using a Postgres connection string and run schema migrations.
     pub fn connect(connection_str: &str) -> Result<Self, AncoraError> {
         let client = Client::connect(connection_str, NoTls).map_err(storage)?;
-        let store = Self { client: Mutex::new(client) };
+        let store = Self {
+            client: Mutex::new(client),
+        };
         store.migrate()?;
         Ok(store)
     }
@@ -235,17 +234,26 @@ mod tests {
             assert_eq!(ev.seq, i as u64, "seq must be monotonically increasing");
         }
 
-        assert!(store.read(&run_b).unwrap().is_empty(), "empty run returns no events");
+        assert!(
+            store.read(&run_b).unwrap().is_empty(),
+            "empty run returns no events"
+        );
 
         store.append(&run_c, activity("key-pg-xyz")).unwrap();
         let err = store.append(&run_c, activity("key-pg-xyz")).unwrap_err();
-        assert!(matches!(err, AncoraError::JournalWrite(_)), "duplicate key must be rejected");
+        assert!(
+            matches!(err, AncoraError::JournalWrite(_)),
+            "duplicate key must be rejected"
+        );
 
         store.append(&run_d, run_started("a")).unwrap();
         store.append(&run_d, run_started("b")).unwrap();
         let ev = store.load(&run_d, 1).unwrap().unwrap();
         assert_eq!(ev.seq, 1);
-        assert!(store.load(&run_d, 99).unwrap().is_none(), "missing seq returns None");
+        assert!(
+            store.load(&run_d, 99).unwrap().is_none(),
+            "missing seq returns None"
+        );
     }
 
     fn run_started(label: &str) -> JournalEvent {

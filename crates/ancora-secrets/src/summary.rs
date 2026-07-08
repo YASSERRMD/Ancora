@@ -1,5 +1,4 @@
 use crate::store::SecretStore;
-use crate::secret::SecretStatus;
 
 #[derive(Debug)]
 pub struct SecretSummary {
@@ -15,9 +14,18 @@ impl SecretSummary {
         let total = secrets.len();
         let with_ttl = secrets.iter().filter(|s| s.ttl_ticks.is_some()).count();
         let version_counts = secrets.iter().map(|s| s.version_count()).collect();
-        Self { tenant_id: tenant_id.to_string(), total, with_ttl, version_counts }
+        Self {
+            tenant_id: tenant_id.to_string(),
+            total,
+            with_ttl,
+            version_counts,
+        }
     }
 
-    pub fn total_versions(&self) -> usize { self.version_counts.iter().sum() }
-    pub fn max_versions(&self) -> usize { self.version_counts.iter().copied().max().unwrap_or(0) }
+    pub fn total_versions(&self) -> usize {
+        self.version_counts.iter().sum()
+    }
+    pub fn max_versions(&self) -> usize {
+        self.version_counts.iter().copied().max().unwrap_or(0)
+    }
 }

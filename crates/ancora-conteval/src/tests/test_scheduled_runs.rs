@@ -66,9 +66,18 @@ fn test_scheduler_missing_job_returns_error() {
 
 #[test]
 fn test_interval_durations() {
-    assert_eq!(EvalInterval::Seconds(30).to_duration(), Duration::from_secs(30));
-    assert_eq!(EvalInterval::Minutes(5).to_duration(), Duration::from_secs(300));
-    assert_eq!(EvalInterval::Hours(2).to_duration(), Duration::from_secs(7200));
+    assert_eq!(
+        EvalInterval::Seconds(30).to_duration(),
+        Duration::from_secs(30)
+    );
+    assert_eq!(
+        EvalInterval::Minutes(5).to_duration(),
+        Duration::from_secs(300)
+    );
+    assert_eq!(
+        EvalInterval::Hours(2).to_duration(),
+        Duration::from_secs(7200)
+    );
 }
 
 #[test]

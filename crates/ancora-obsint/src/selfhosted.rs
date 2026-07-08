@@ -1,5 +1,5 @@
-/// Self-hosted observability mode: enforces data residency by blocking external exports.
-/// When self-hosted mode is active, only configured internal endpoints are permitted.
+//! Self-hosted observability mode: enforces data residency by blocking external exports.
+//! When self-hosted mode is active, only configured internal endpoints are permitted.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ResidencyPolicy {
@@ -46,11 +46,7 @@ impl std::fmt::Display for ResidencyError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ResidencyError::ExternalEndpointBlocked { endpoint } => {
-                write!(
-                    f,
-                    "residency policy blocks external endpoint: {}",
-                    endpoint
-                )
+                write!(f, "residency policy blocks external endpoint: {}", endpoint)
             }
             ResidencyError::PolicyViolation { reason } => {
                 write!(f, "residency policy violation: {}", reason)

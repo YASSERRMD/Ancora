@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::{error::ConfigError, secret_provider::SecretProvider};
+use std::collections::HashMap;
 
 /// Resolves secrets from environment variables (or an in-memory override for testing).
 pub struct EnvSecretProvider {
@@ -11,7 +11,10 @@ pub struct EnvSecretProvider {
 
 impl EnvSecretProvider {
     pub fn new() -> Self {
-        Self { overrides: HashMap::new(), invalidated: std::collections::HashSet::new() }
+        Self {
+            overrides: HashMap::new(),
+            invalidated: std::collections::HashSet::new(),
+        }
     }
 
     pub fn with_override(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {

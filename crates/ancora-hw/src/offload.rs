@@ -82,11 +82,10 @@ pub fn compute_offload_policy(
         hw.gpu_vram_mib
     };
 
-    let gpu_layer_capacity = if bytes_per_layer_mib == 0 {
-        total_layers
-    } else {
-        (gpu_budget_mib / bytes_per_layer_mib).min(total_layers as u64) as u32
-    };
+    let gpu_layer_capacity = gpu_budget_mib
+        .checked_div(bytes_per_layer_mib)
+        .map(|v| v.min(total_layers as u64) as u32)
+        .unwrap_or(total_layers);
 
     let cpu_layers = total_layers - gpu_layer_capacity;
 

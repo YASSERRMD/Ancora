@@ -19,12 +19,36 @@ struct CostExample {
 }
 
 const COST_EXAMPLES: &[CostExample] = &[
-    CostExample { lang: "rust",       input_tokens: EXAMPLE_INPUT_TOKENS, output_tokens: EXAMPLE_OUTPUT_TOKENS },
-    CostExample { lang: "go",         input_tokens: EXAMPLE_INPUT_TOKENS, output_tokens: EXAMPLE_OUTPUT_TOKENS },
-    CostExample { lang: "python",     input_tokens: EXAMPLE_INPUT_TOKENS, output_tokens: EXAMPLE_OUTPUT_TOKENS },
-    CostExample { lang: "typescript", input_tokens: EXAMPLE_INPUT_TOKENS, output_tokens: EXAMPLE_OUTPUT_TOKENS },
-    CostExample { lang: "dotnet",     input_tokens: EXAMPLE_INPUT_TOKENS, output_tokens: EXAMPLE_OUTPUT_TOKENS },
-    CostExample { lang: "java",       input_tokens: EXAMPLE_INPUT_TOKENS, output_tokens: EXAMPLE_OUTPUT_TOKENS },
+    CostExample {
+        lang: "rust",
+        input_tokens: EXAMPLE_INPUT_TOKENS,
+        output_tokens: EXAMPLE_OUTPUT_TOKENS,
+    },
+    CostExample {
+        lang: "go",
+        input_tokens: EXAMPLE_INPUT_TOKENS,
+        output_tokens: EXAMPLE_OUTPUT_TOKENS,
+    },
+    CostExample {
+        lang: "python",
+        input_tokens: EXAMPLE_INPUT_TOKENS,
+        output_tokens: EXAMPLE_OUTPUT_TOKENS,
+    },
+    CostExample {
+        lang: "typescript",
+        input_tokens: EXAMPLE_INPUT_TOKENS,
+        output_tokens: EXAMPLE_OUTPUT_TOKENS,
+    },
+    CostExample {
+        lang: "dotnet",
+        input_tokens: EXAMPLE_INPUT_TOKENS,
+        output_tokens: EXAMPLE_OUTPUT_TOKENS,
+    },
+    CostExample {
+        lang: "java",
+        input_tokens: EXAMPLE_INPUT_TOKENS,
+        output_tokens: EXAMPLE_OUTPUT_TOKENS,
+    },
 ];
 
 #[test]
@@ -32,7 +56,11 @@ fn test_all_cost_examples_produce_same_total() {
     for e in COST_EXAMPLES {
         let cost = compute_cost_usd(e.input_tokens, e.output_tokens);
         let expected = compute_cost_usd(EXAMPLE_INPUT_TOKENS, EXAMPLE_OUTPUT_TOKENS);
-        assert!((cost - expected).abs() < 1e-10, "lang {} cost differs", e.lang);
+        assert!(
+            (cost - expected).abs() < 1e-10,
+            "lang {} cost differs",
+            e.lang
+        );
     }
 }
 
@@ -42,11 +70,13 @@ fn test_six_cost_examples() {
 }
 
 #[test]
+#[allow(clippy::assertions_on_constants)]
 fn test_expected_cost_is_positive() {
     assert!(EXPECTED_COST_USD > 0.0);
 }
 
 #[test]
+#[allow(clippy::assertions_on_constants)]
 fn test_output_rate_higher_than_input_rate() {
     assert!(EXAMPLE_RATE_OUT > EXAMPLE_RATE_IN);
 }

@@ -20,7 +20,10 @@ impl std::fmt::Display for ValidationError {
             Self::EmptyDescription => write!(f, "preset description must not be empty"),
             Self::NoCapabilities => write!(f, "preset must list at least one capability"),
             Self::AirGapConflictsWithRouting => {
-                write!(f, "air-gap:required is incompatible with the Routing capability")
+                write!(
+                    f,
+                    "air-gap:required is incompatible with the Routing capability"
+                )
             }
             Self::EmptyOverrideKey => write!(f, "override key must not be empty"),
         }

@@ -1,16 +1,25 @@
-use crate::customer_support::{ResponseTemplate, SupportEngine, TicketStatus};
+use crate::customer_support::{ResponseTemplate, SupportEngine};
 
 #[test]
 fn support_engine_routes_ticket_offline() {
     let templates = vec![
-        ResponseTemplate::new("billing", "For billing issues please visit the billing portal."),
-        ResponseTemplate::new("refund", "Refund requests are processed within 5-7 business days."),
+        ResponseTemplate::new(
+            "billing",
+            "For billing issues please visit the billing portal.",
+        ),
+        ResponseTemplate::new(
+            "refund",
+            "Refund requests are processed within 5-7 business days.",
+        ),
     ];
     let mut engine = SupportEngine::new(templates);
 
     let id = engine.submit("Billing question", "I was charged twice this month.");
     let response = engine.auto_respond(id).unwrap();
-    assert!(response.contains("billing portal"), "should match billing template");
+    assert!(
+        response.contains("billing portal"),
+        "should match billing template"
+    );
 }
 
 #[test]

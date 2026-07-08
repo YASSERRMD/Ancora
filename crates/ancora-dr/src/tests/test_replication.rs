@@ -1,11 +1,15 @@
 #[cfg(test)]
 mod tests {
-    use crate::{JournalEntry, JournalStore, replicate, replication_lag};
+    use crate::{replicate, replication_lag, JournalEntry, JournalStore};
 
     fn populated_primary(n: u64) -> JournalStore {
         let mut s = JournalStore::new();
         for i in 1..=n {
-            s.append(JournalEntry { seq: i, data: format!("d{}", i) }).unwrap();
+            s.append(JournalEntry {
+                seq: i,
+                data: format!("d{}", i),
+            })
+            .unwrap();
         }
         s
     }
@@ -22,7 +26,7 @@ mod tests {
     #[test]
     fn replication_lag_measured() {
         let primary = populated_primary(5);
-        let mut secondary = populated_primary(3);
+        let secondary = populated_primary(3);
         let lag = replication_lag(&primary, &secondary);
         assert_eq!(lag, 2);
     }
@@ -33,7 +37,12 @@ mod tests {
         let mut secondary = JournalStore::new();
         replicate(&primary, &mut secondary);
         // Add more to primary
-        primary.append(JournalEntry { seq: 4, data: "d4".into() }).unwrap();
+        primary
+            .append(JournalEntry {
+                seq: 4,
+                data: "d4".into(),
+            })
+            .unwrap();
         let synced = replicate(&primary, &mut secondary);
         assert_eq!(synced, 1);
         assert_eq!(secondary.entries.len(), 4);

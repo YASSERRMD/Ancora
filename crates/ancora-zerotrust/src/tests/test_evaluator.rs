@@ -1,8 +1,8 @@
+use crate::device::{DevicePosture, DeviceStore};
 use crate::evaluator::ZeroTrustEvaluator;
 use crate::identity::{Identity, IdentityKind};
-use crate::device::{DevicePosture, DeviceStore};
-use crate::request::AccessRequest;
 use crate::policy::{AuthzDecision, ZeroTrustPolicy};
+use crate::request::AccessRequest;
 
 fn make_trusted_device(id: &str, tenant_id: &str, tick: u64) -> DevicePosture {
     let mut d = DevicePosture::new(id, tenant_id, tick);
@@ -30,7 +30,10 @@ fn deny_suspended_identity() {
     identity.suspend();
     let request = AccessRequest::new("r1", "t1", "i1", "api", "GET", 1);
     let devices = DeviceStore::new();
-    assert!(matches!(ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices), AuthzDecision::Deny(_)));
+    assert!(matches!(
+        ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices),
+        AuthzDecision::Deny(_)
+    ));
 }
 
 #[test]
@@ -39,5 +42,31 @@ fn deny_blocked_resource() {
     let identity = Identity::new("i1", "t1", IdentityKind::Human, 1);
     let request = AccessRequest::new("r1", "t1", "i1", "admin/secrets", "GET", 1);
     let devices = DeviceStore::new();
-    assert!(matches!(ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices), AuthzDecision::Deny(_)));
+    assert!(matches!(
+        ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices),
+        AuthzDecision::Deny(_)
+    ));
+}
+
+#[test]
+fn allow_trusted_device_when_required() {
+    let policy = ZeroTrustPolicy::new("t1").require_device();
+    let identity = Identity::new("i1", "t1", IdentityKind::Human, 1);
+    let mut devices = DeviceStore::new();
+    devices.upsert(make_trusted_device("d1", "t1", 1));
+    let request = AccessRequest::new("r1", "t1", "i1", "api/data", "GET", 1).with_device("d1");
+    let decision = ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices);
+    assert_eq!(decision, AuthzDecision::Allow);
+}
+
+#[test]
+fn deny_untrusted_device_when_required() {
+    let policy = ZeroTrustPolicy::new("t1").require_device();
+    let identity = Identity::new("i1", "t1", IdentityKind::Human, 1);
+    let devices = DeviceStore::new();
+    let request = AccessRequest::new("r1", "t1", "i1", "api/data", "GET", 1).with_device("d1");
+    assert!(matches!(
+        ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices),
+        AuthzDecision::Deny(_)
+    ));
 }

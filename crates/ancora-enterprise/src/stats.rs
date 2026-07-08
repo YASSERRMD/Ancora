@@ -1,5 +1,5 @@
-use crate::incident::IncidentLog;
 use crate::checkpoint::EnterpriseCheckpoint;
+use crate::incident::IncidentLog;
 use crate::license::EnterpriseLicense;
 use crate::posture::SecurityPosture;
 
@@ -55,7 +55,13 @@ impl EnterpriseStats {
     pub fn health_score(&self) -> f64 {
         let posture_component = self.overall_posture_score as f64 / 100.0;
         let check_component = self.check_pass_rate;
-        let incident_penalty = if self.critical_incidents > 0 { 0.3 } else if self.open_incidents > 0 { 0.1 } else { 0.0 };
+        let incident_penalty = if self.critical_incidents > 0 {
+            0.3
+        } else if self.open_incidents > 0 {
+            0.1
+        } else {
+            0.0
+        };
         ((posture_component + check_component) / 2.0 - incident_penalty).max(0.0)
     }
 }

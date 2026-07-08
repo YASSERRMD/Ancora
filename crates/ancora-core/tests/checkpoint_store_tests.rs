@@ -4,7 +4,10 @@ use ancora_core::journal::{CheckpointStore, MemoryStore};
 fn load_checkpoint_returns_none_when_no_checkpoint_saved() {
     let store = MemoryStore::new();
     let result = store.load_checkpoint("run-new").unwrap();
-    assert!(result.is_none(), "must return None when no checkpoint has been saved");
+    assert!(
+        result.is_none(),
+        "must return None when no checkpoint has been saved"
+    );
 }
 
 #[test]
@@ -27,7 +30,10 @@ fn save_overwrites_previous_checkpoint() {
     store.save("run-ow", 7, b"v2").unwrap();
 
     let (at_seq, loaded_data) = store.load_checkpoint("run-ow").unwrap().unwrap();
-    assert_eq!(at_seq, 7, "latest checkpoint must overwrite the earlier one");
+    assert_eq!(
+        at_seq, 7,
+        "latest checkpoint must overwrite the earlier one"
+    );
     assert_eq!(loaded_data, b"v2");
 }
 

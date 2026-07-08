@@ -35,10 +35,13 @@ pub fn run() {
 
     for step in steps.iter_mut().take(2) {
         let claim = step.claim.clone();
-        let found = knowledge_base.iter().any(|f| *f == claim.as_str());
+        let found = knowledge_base.contains(&claim.as_str());
         let result = StepVerifier::verify(step, |_| found);
         if result.passed {
-            journal.record(step.index as u64, ReasoningEvent::StepVerified { index: step.index });
+            journal.record(
+                step.index as u64,
+                ReasoningEvent::StepVerified { index: step.index },
+            );
             evidence.add(&claim, "knowledge-base".into());
             citations.add(&claim, format!("fact-db://entry/{}", step.index));
             journal.record(
@@ -49,12 +52,15 @@ pub fn run() {
                 },
             );
         } else {
-            journal.record(step.index as u64, ReasoningEvent::StepRefuted { index: step.index });
+            journal.record(
+                step.index as u64,
+                ReasoningEvent::StepRefuted { index: step.index },
+            );
         }
     }
 
     let fc = FactChecker::check(&steps[0].claim, |claim| {
-        if knowledge_base.iter().any(|f| *f == claim) {
+        if knowledge_base.contains(&claim) {
             Some("verified-facts-db".into())
         } else {
             None
@@ -80,7 +86,9 @@ pub fn run() {
     if abstained {
         journal.record(
             99,
-            ReasoningEvent::StepAbstained { index: weak_steps[0].index },
+            ReasoningEvent::StepAbstained {
+                index: weak_steps[0].index,
+            },
         );
     }
 
@@ -90,7 +98,10 @@ pub fn run() {
     }
     println!("Contradictions found: {}", contradictions.len());
     println!("Citations for step 0: {:?}", citations.get(&steps[0].claim));
-    println!("Evidence for step 0: {} source(s)", evidence.count(&steps[0].claim));
+    println!(
+        "Evidence for step 0: {} source(s)",
+        evidence.count(&steps[0].claim)
+    );
 }
 
 #[cfg(test)]

@@ -1,22 +1,22 @@
-pub mod blackboard;
-pub mod contract_net;
 pub mod auction;
-pub mod negotiation;
+pub mod blackboard;
 pub mod conflict;
-pub mod deadlock;
-pub mod journal;
 pub mod contract;
+pub mod contract_net;
+pub mod deadlock;
 pub mod error;
+pub mod journal;
+pub mod negotiation;
 
 #[cfg(test)]
 mod tests;
 
-pub use blackboard::{Blackboard, BlackboardError};
-pub use contract_net::{Bid, ContractNet};
 pub use auction::Auction;
-pub use negotiation::{Negotiation, Proposal};
+pub use blackboard::{Blackboard, BlackboardError};
 pub use conflict::{Claim, ConflictPolicy, ConflictResolver};
-pub use deadlock::DeadlockDetector;
-pub use journal::{CoordJournal, CoordEvent};
 pub use contract::AgentContract;
+pub use contract_net::{Bid, ContractNet};
+pub use deadlock::DeadlockDetector;
 pub use error::CoordError;
+pub use journal::{CoordEvent, CoordJournal};
+pub use negotiation::{Negotiation, Proposal};

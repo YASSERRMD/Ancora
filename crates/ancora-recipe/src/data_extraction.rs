@@ -107,14 +107,20 @@ mod tests {
 
     #[test]
     fn schema_validation_catches_missing_required() {
-        let schema = Schema::new(vec![SchemaField { name: "name".into(), required: true }]);
+        let schema = Schema::new(vec![SchemaField {
+            name: "name".into(),
+            required: true,
+        }]);
         let record = ExtractedRecord::default();
         assert!(schema.validate(&record).is_err());
     }
 
     #[test]
     fn schema_validation_passes_when_fields_present() {
-        let schema = Schema::new(vec![SchemaField { name: "name".into(), required: true }]);
+        let schema = Schema::new(vec![SchemaField {
+            name: "name".into(),
+            required: true,
+        }]);
         let mut record = ExtractedRecord::default();
         record.set("name", "Alice");
         assert!(schema.validate(&record).is_ok());

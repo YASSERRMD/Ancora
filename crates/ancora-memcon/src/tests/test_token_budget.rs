@@ -28,7 +28,13 @@ fn within_budget_fails_when_large() {
 
 #[test]
 fn token_footprint_reduced_after_consolidation() {
-    let before = vec!["turn1".to_string(), "turn2".to_string(), "turn3".to_string(), "turn4".to_string(), "turn5".to_string()];
+    let before = vec![
+        "turn1".to_string(),
+        "turn2".to_string(),
+        "turn3".to_string(),
+        "turn4".to_string(),
+        "turn5".to_string(),
+    ];
     let after = vec!["summary of 4 turns: [...]".to_string(), "turn5".to_string()];
     let before_tokens = TokenBudget::total_tokens(&before);
     let after_tokens = TokenBudget::total_tokens(&after);

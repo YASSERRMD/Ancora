@@ -1,6 +1,8 @@
 /// Tests: OTLP export to mock collector.
-
-use crate::export::{ExportBatch, ExportResult, MockCollector, NoopExporter, OtlpConfig, OtlpExporter, Resource, SpanExporter};
+use crate::export::{
+    ExportBatch, ExportResult, MockCollector, NoopExporter, OtlpConfig, OtlpExporter, Resource,
+    SpanExporter,
+};
 use crate::genai_attrs;
 use crate::span::{Span, SpanStatus};
 use crate::trace::Trace;
@@ -11,7 +13,12 @@ fn make_trace_with_spans(n: usize) -> Trace {
     let tid = root.trace_id.clone();
     let mut trace = Trace::new(tid.clone(), root);
     for i in 0..n {
-        let mut child = Span::child(&format!("child-{}", i), root_id.clone(), tid.clone(), (i as u64 + 1) * 1000);
+        let mut child = Span::child(
+            &format!("child-{}", i),
+            root_id.clone(),
+            tid.clone(),
+            (i as u64 + 1) * 1000,
+        );
         child.finish((i as u64 + 2) * 1000, SpanStatus::Ok);
         trace.add_span(child).unwrap();
     }
@@ -49,13 +56,22 @@ fn exported_span_has_correct_trace_id() {
     collector.export(&batch);
     let spans = collector.collected();
     assert_eq!(spans.len(), 1);
-    assert_eq!(spans[0].trace_id, trace.get_span(&trace.root_id).unwrap().trace_id.0);
+    assert_eq!(
+        spans[0].trace_id,
+        trace.get_span(&trace.root_id).unwrap().trace_id.0
+    );
 }
 
 #[test]
 fn exported_span_attributes_include_genai_keys() {
     let mut root = Span::root("llm-call", 0);
-    genai_attrs::set_request_attrs(&mut root, "anthropic", "claude-3-5-sonnet", Some(4096), None);
+    genai_attrs::set_request_attrs(
+        &mut root,
+        "anthropic",
+        "claude-3-5-sonnet",
+        Some(4096),
+        None,
+    );
     genai_attrs::set_cost_attr(&mut root, 0.0012);
     let tid = root.trace_id.clone();
     let trace = Trace::new(tid, root);
@@ -65,7 +81,10 @@ fn exported_span_attributes_include_genai_keys() {
     collector.export(&batch);
     let spans = collector.collected();
     let attrs: std::collections::HashMap<_, _> = spans[0].attributes.iter().cloned().collect();
-    assert_eq!(attrs.get("gen_ai.system").map(|s| s.as_str()), Some("anthropic"));
+    assert_eq!(
+        attrs.get("gen_ai.system").map(|s| s.as_str()),
+        Some("anthropic")
+    );
 }
 
 #[test]

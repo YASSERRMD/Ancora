@@ -38,7 +38,10 @@ impl TransferBuilder {
         self
     }
 
-    pub fn tick(mut self, t: u64) -> Self { self.tick = t; self }
+    pub fn tick(mut self, t: u64) -> Self {
+        self.tick = t;
+        self
+    }
 
     pub fn checksum(mut self, cs: impl Into<String>) -> Self {
         self.checksum = Some(cs.into());
@@ -47,10 +50,17 @@ impl TransferBuilder {
 
     pub fn build(self) -> TransferRequest {
         let mut req = TransferRequest::new(
-            self.id, self.tenant_id, self.requestor, self.media, self.direction,
-            self.description, self.tick,
+            self.id,
+            self.tenant_id,
+            self.requestor,
+            self.media,
+            self.direction,
+            self.description,
+            self.tick,
         );
-        if let Some(cs) = self.checksum { req.checksum = Some(cs); }
+        if let Some(cs) = self.checksum {
+            req.checksum = Some(cs);
+        }
         req
     }
 }

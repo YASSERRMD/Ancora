@@ -64,7 +64,10 @@ impl ScalePolicy {
             && !self.bounds.at_min(current)
             && self.cooldown.can_scale_down()
         {
-            let by = current - self.bounds.clamp(current.saturating_sub(self.scale_down_step));
+            let by = current
+                - self
+                    .bounds
+                    .clamp(current.saturating_sub(self.scale_down_step));
             if by > 0 {
                 self.cooldown.record_scale_down();
                 info!(by, "scale-down decision");

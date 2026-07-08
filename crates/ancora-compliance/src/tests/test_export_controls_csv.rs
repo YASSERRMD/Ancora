@@ -1,4 +1,4 @@
-use crate::{ComplianceControl, Framework, controls_to_csv};
+use crate::{controls_to_csv, ComplianceControl, Framework};
 #[test]
 fn controls_csv_has_header_and_data() {
     let c = ComplianceControl::new("CC6.1", Framework::Soc2, "Access", "desc");

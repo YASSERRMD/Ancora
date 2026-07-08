@@ -58,6 +58,10 @@ fn grade_result_rationale_is_nonempty() {
 
 #[test]
 fn grader_error_display() {
-    assert!(!GraderError::InvalidInput("bad".into()).to_string().is_empty());
-    assert!(!GraderError::GradingFailed("err".into()).to_string().is_empty());
+    assert!(!GraderError::InvalidInput("bad".into())
+        .to_string()
+        .is_empty());
+    assert!(!GraderError::GradingFailed("err".into())
+        .to_string()
+        .is_empty());
 }

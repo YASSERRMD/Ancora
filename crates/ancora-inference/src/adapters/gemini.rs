@@ -154,18 +154,30 @@ impl GeminiClient {
 
     fn completions_url(&self, model_id: &str) -> String {
         let base = self.profile.base_url.trim_end_matches('/');
-        let key_suffix = self.profile.auth.as_query_param()
+        let key_suffix = self
+            .profile
+            .auth
+            .as_query_param()
             .map(|(k, v)| format!("?{}={}", k, v))
             .unwrap_or_default();
-        format!("{}/v1beta/models/{}:generateContent{}", base, model_id, key_suffix)
+        format!(
+            "{}/v1beta/models/{}:generateContent{}",
+            base, model_id, key_suffix
+        )
     }
 
     fn stream_url(&self, model_id: &str) -> String {
         let base = self.profile.base_url.trim_end_matches('/');
-        let key_suffix = self.profile.auth.as_query_param()
+        let key_suffix = self
+            .profile
+            .auth
+            .as_query_param()
             .map(|(k, v)| format!("?{}={}&alt=sse", k, v))
             .unwrap_or_else(|| "?alt=sse".to_owned());
-        format!("{}/v1beta/models/{}:streamGenerateContent{}", base, model_id, key_suffix)
+        format!(
+            "{}/v1beta/models/{}:streamGenerateContent{}",
+            base, model_id, key_suffix
+        )
     }
 
     /// Build the Gemini request body (contents + tools array).
@@ -173,7 +185,9 @@ impl GeminiClient {
         &self,
         request: &CompletionRequest,
     ) -> Result<serde_json::Value, InferenceError> {
-        let contents: Vec<GeminiContent> = request.messages.iter()
+        let contents: Vec<GeminiContent> = request
+            .messages
+            .iter()
             .filter(|m| m.role != "system")
             .map(encode_message)
             .collect();
@@ -185,15 +199,14 @@ impl GeminiClient {
             }]
         };
         let wire = GeminiRequest { contents, tools };
-        let mut body = serde_json::to_value(&wire)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let mut body =
+            serde_json::to_value(&wire).map_err(|e| InferenceError::Parse(e.to_string()))?;
         self.profile.request_transforms.apply(&mut body);
         Ok(body)
     }
 
     fn post_json(&self, url: &str, body: &serde_json::Value) -> Result<String, InferenceError> {
-        let json = serde_json::to_string(body)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let json = serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let mut req = ureq::post(url);
         for (k, v) in &self.profile.extra_headers {
             req = req.set(k, v);
@@ -211,8 +224,7 @@ impl GeminiClient {
         body: &serde_json::Value,
         on_token: &mut dyn FnMut(TokenEvent),
     ) -> Result<(), InferenceError> {
-        let json = serde_json::to_string(body)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let json = serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let mut req = ureq::post(url);
         for (k, v) in &self.profile.extra_headers {
             req = req.set(k, v);
@@ -238,13 +250,20 @@ impl GeminiClient {
         body: &str,
         model_id: &str,
     ) -> Result<CompletionResponse, InferenceError> {
-        let wire: GeminiResponse = serde_json::from_str(body)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let wire: GeminiResponse =
+            serde_json::from_str(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let (content, tool_calls, tokens_in, tokens_out) = decode_response(wire);
-        let cost_usd = self.profile
+        let cost_usd = self
+            .profile
             .model_meta(model_id)
             .and_then(|m| m.compute_cost(tokens_in, tokens_out, 0));
-        Ok(CompletionResponse { content, tokens_in, tokens_out, cost_usd, tool_calls })
+        Ok(CompletionResponse {
+            content,
+            tokens_in,
+            tokens_out,
+            cost_usd,
+            tool_calls,
+        })
     }
 }
 
@@ -296,7 +315,10 @@ pub fn parse_sse_line(line: &str) -> Option<TokenEvent> {
     let resp: GeminiResponse = serde_json::from_str(data).ok()?;
     let candidate = resp.candidates.into_iter().next()?;
     let finished = candidate.finish_reason.is_some();
-    let text: String = candidate.content.parts.into_iter()
+    let text: String = candidate
+        .content
+        .parts
+        .into_iter()
         .filter_map(|p| p.text)
         .collect();
     Some(TokenEvent { text, finished })
@@ -334,33 +356,42 @@ struct GeminiRequest {
 pub(crate) fn encode_message(msg: &Message) -> GeminiContent {
     let role = map_role(&msg.role).to_owned();
     let parts = if msg.content_parts.is_empty() {
-        vec![GeminiPart { text: Some(msg.content.clone()), inline_data: None, function_call: None }]
+        vec![GeminiPart {
+            text: Some(msg.content.clone()),
+            inline_data: None,
+            function_call: None,
+        }]
     } else {
-        msg.content_parts.iter().map(|p| match p {
-            ContentPart::Text { text } => {
-                GeminiPart { text: Some(text.clone()), inline_data: None, function_call: None }
-            }
-            ContentPart::ImageUrl { image_url } => {
-                // data: URLs carry base64 bytes Gemini can ingest as inline_data.
-                if let Some(rest) = image_url.url.strip_prefix("data:") {
-                    if let Some(idx) = rest.find(";base64,") {
-                        let mime_type = rest[..idx].to_owned();
-                        let data = rest[idx + 8..].to_owned();
-                        return GeminiPart {
-                            text: None,
-                            inline_data: Some(GeminiInlineData { mime_type, data }),
-                            function_call: None,
-                        };
-                    }
-                }
-                // Plain URL fallback: embed as text note.
-                GeminiPart {
-                    text: Some(format!("[image: {}]", image_url.url)),
+        msg.content_parts
+            .iter()
+            .map(|p| match p {
+                ContentPart::Text { text } => GeminiPart {
+                    text: Some(text.clone()),
                     inline_data: None,
                     function_call: None,
+                },
+                ContentPart::ImageUrl { image_url } => {
+                    // data: URLs carry base64 bytes Gemini can ingest as inline_data.
+                    if let Some(rest) = image_url.url.strip_prefix("data:") {
+                        if let Some(idx) = rest.find(";base64,") {
+                            let mime_type = rest[..idx].to_owned();
+                            let data = rest[idx + 8..].to_owned();
+                            return GeminiPart {
+                                text: None,
+                                inline_data: Some(GeminiInlineData { mime_type, data }),
+                                function_call: None,
+                            };
+                        }
+                    }
+                    // Plain URL fallback: embed as text note.
+                    GeminiPart {
+                        text: Some(format!("[image: {}]", image_url.url)),
+                        inline_data: None,
+                        function_call: None,
+                    }
                 }
-            }
-        }).collect()
+            })
+            .collect()
     };
     GeminiContent { role, parts }
 }
@@ -457,7 +488,10 @@ mod tests {
                 },
                 finish_reason: Some("STOP".to_owned()),
             }],
-            usage_metadata: GeminiUsageMetadata { prompt_token_count: 10, candidates_token_count: 5 },
+            usage_metadata: GeminiUsageMetadata {
+                prompt_token_count: 10,
+                candidates_token_count: 5,
+            },
         };
         let (text, calls, tok_in, tok_out) = decode_response(resp);
         assert!(text.is_empty());

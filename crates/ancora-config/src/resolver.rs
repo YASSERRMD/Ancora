@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::{error::ConfigError, secret_provider::SecretProvider};
+use std::collections::HashMap;
 
 /// Registry of named providers. Resolves `provider:key` references at use time.
 pub struct SecretResolver {
@@ -8,7 +8,9 @@ pub struct SecretResolver {
 
 impl SecretResolver {
     pub fn new() -> Self {
-        Self { providers: HashMap::new() }
+        Self {
+            providers: HashMap::new(),
+        }
     }
 
     pub fn register(&mut self, name: impl Into<String>, provider: Box<dyn SecretProvider>) {
@@ -19,17 +21,23 @@ impl SecretResolver {
     /// caller and never stored in any log or journal buffer.
     pub fn resolve(&self, reference: &str) -> Result<String, ConfigError> {
         let (provider_name, key) = split_ref(reference)?;
-        let provider = self.providers.get(provider_name).ok_or_else(|| {
-            ConfigError::ProviderNotFound { provider: provider_name.into() }
-        })?;
+        let provider =
+            self.providers
+                .get(provider_name)
+                .ok_or_else(|| ConfigError::ProviderNotFound {
+                    provider: provider_name.into(),
+                })?;
         provider.resolve(key)
     }
 
     /// Notify the named provider that a key has been rotated.
     pub fn notify_rotation(&mut self, provider_name: &str, key: &str) -> Result<(), ConfigError> {
-        let provider = self.providers.get_mut(provider_name).ok_or_else(|| {
-            ConfigError::ProviderNotFound { provider: provider_name.into() }
-        })?;
+        let provider =
+            self.providers
+                .get_mut(provider_name)
+                .ok_or_else(|| ConfigError::ProviderNotFound {
+                    provider: provider_name.into(),
+                })?;
         provider.on_rotation(key);
         Ok(())
     }
@@ -42,7 +50,9 @@ impl Default for SecretResolver {
 }
 
 fn split_ref(reference: &str) -> Result<(&str, &str), ConfigError> {
-    reference.split_once(':').ok_or_else(|| ConfigError::SecretUnresolvable {
-        key: reference.into(),
-    })
+    reference
+        .split_once(':')
+        .ok_or_else(|| ConfigError::SecretUnresolvable {
+            key: reference.into(),
+        })
 }

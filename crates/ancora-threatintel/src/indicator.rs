@@ -87,15 +87,24 @@ impl Indicator {
         }
     }
 
-    pub fn with_expiry(mut self, tick: u64) -> Self { self.expires_tick = Some(tick); self }
-    pub fn with_tag(mut self, tag: impl Into<String>) -> Self { self.tags.push(tag.into()); self }
+    pub fn with_expiry(mut self, tick: u64) -> Self {
+        self.expires_tick = Some(tick);
+        self
+    }
+    pub fn with_tag(mut self, tag: impl Into<String>) -> Self {
+        self.tags.push(tag.into());
+        self
+    }
     pub fn with_metadata(mut self, k: impl Into<String>, v: impl Into<String>) -> Self {
-        self.metadata.insert(k.into(), v.into()); self
+        self.metadata.insert(k.into(), v.into());
+        self
     }
 
     pub fn is_expired(&self, current_tick: u64) -> bool {
-        self.expires_tick.map_or(false, |e| current_tick >= e)
+        self.expires_tick.is_some_and(|e| current_tick >= e)
     }
 
-    pub fn deactivate(&mut self) { self.active = false; }
+    pub fn deactivate(&mut self) {
+        self.active = false;
+    }
 }

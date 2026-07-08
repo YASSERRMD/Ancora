@@ -26,7 +26,10 @@ fn test_ten_contributing_sections() {
 #[test]
 fn test_all_sections_covered() {
     for section in CONTRIBUTING_SECTIONS {
-        assert!(section_covered(section), "CONTRIBUTING.md missing section: {section}");
+        assert!(
+            section_covered(section),
+            "CONTRIBUTING.md missing section: {section}"
+        );
     }
 }
 
@@ -48,6 +51,9 @@ fn test_commit_conventions_documented() {
 #[test]
 fn test_all_section_names_snake_case() {
     for s in CONTRIBUTING_SECTIONS {
-        assert!(s.chars().all(|c| c.is_ascii_lowercase() || c == '_'), "not snake_case: {s}");
+        assert!(
+            s.chars().all(|c| c.is_ascii_lowercase() || c == '_'),
+            "not snake_case: {s}"
+        );
     }
 }

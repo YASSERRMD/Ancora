@@ -78,5 +78,7 @@ fn test_weak_cipher_rejected() {
 
 #[test]
 fn test_all_strong_ciphers_accepted() {
-    for c in STRONG_CIPHERS { assert!(validate_cipher(c).is_ok()); }
+    for c in STRONG_CIPHERS {
+        assert!(validate_cipher(c).is_ok());
+    }
 }

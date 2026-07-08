@@ -32,5 +32,5 @@ fn cost_single_estimate_stable() {
     let e2 = TokenBudget::estimate_tokens(s);
     assert_eq!(e1, e2);
     // roughly 1 token per 4 chars
-    assert_eq!(e1, (s.len() + 3) / 4);
+    assert_eq!(e1, s.len().div_ceil(4));
 }

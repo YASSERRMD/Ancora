@@ -13,10 +13,23 @@ fn policy_should_escalate() {
 #[test]
 fn policy_add_levels() {
     let mut policy = EscalationPolicy::new("t1", Severity::Medium);
-    policy.add_level(EscalationLevel::new(1, "alice", EscalationChannel::Pager, 0));
-    policy.add_level(EscalationLevel::new(2, "bob", EscalationChannel::Phone, 300));
+    policy.add_level(EscalationLevel::new(
+        1,
+        "alice",
+        EscalationChannel::Pager,
+        0,
+    ));
+    policy.add_level(EscalationLevel::new(
+        2,
+        "bob",
+        EscalationChannel::Phone,
+        300,
+    ));
     assert_eq!(policy.level_count(), 2);
-    assert_eq!(policy.level_at(0).map(|l| l.on_call.as_str()), Some("alice"));
+    assert_eq!(
+        policy.level_at(0).map(|l| l.on_call.as_str()),
+        Some("alice")
+    );
     assert_eq!(policy.level_at(1).map(|l| l.delay_ticks), Some(300));
 }
 

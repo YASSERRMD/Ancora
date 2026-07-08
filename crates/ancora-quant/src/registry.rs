@@ -8,7 +8,6 @@ use std::path::{Path, PathBuf};
 use crate::capability::CapabilityFlags;
 use crate::gguf::GgufDescriptor;
 use crate::onnx::OnnxDescriptor;
-use crate::quant_level::QuantTier;
 
 /// A model entry in the local registry.
 #[derive(Debug, Clone)]
@@ -194,7 +193,14 @@ impl ModelRegistry {
                     count += 1;
                 } else if ext == "onnx" {
                     use crate::onnx::{OnnxDescriptor, OnnxPrecision};
-                    let desc = OnnxDescriptor::new(stem.clone(), path, 17, OnnxPrecision::Float32, size, 0.0);
+                    let desc = OnnxDescriptor::new(
+                        stem.clone(),
+                        path,
+                        17,
+                        OnnxPrecision::Float32,
+                        size,
+                        0.0,
+                    );
                     self.register_onnx(stem, desc);
                     count += 1;
                 }

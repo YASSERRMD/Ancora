@@ -10,7 +10,10 @@ fn regression_below_threshold_blocks() {
         ThresholdKind::Absolute(0.02),
     );
     let result = detect(0.90, 0.80, &policy);
-    assert!(result.is_blocking(), "expected gate to block on 10 pp accuracy drop");
+    assert!(
+        result.is_blocking(),
+        "expected gate to block on 10 pp accuracy drop"
+    );
     match result {
         RegressionResult::Regression { delta, threshold } => {
             assert!((delta - 0.10).abs() < 1e-9);

@@ -17,8 +17,19 @@ pub struct Policy {
 }
 
 impl Policy {
-    pub fn new(id: impl Into<String>, effect: Effect, actions: Vec<String>, condition: Condition) -> Self {
-        Self { id: id.into(), effect, actions, condition, priority: 100 }
+    pub fn new(
+        id: impl Into<String>,
+        effect: Effect,
+        actions: Vec<String>,
+        condition: Condition,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            effect,
+            actions,
+            condition,
+            priority: 100,
+        }
     }
 
     pub fn with_priority(mut self, priority: u32) -> Self {
@@ -30,9 +41,21 @@ impl Policy {
         self.actions.iter().any(|a| a == action || a == "*")
     }
 
-    pub fn evaluate(&self, action: &str, subject: &AttributeSet, resource: &AttributeSet, env: &AttributeSet) -> Option<&Effect> {
-        if !self.applies_to_action(action) { return None; }
-        if self.condition.evaluate(subject, resource, env) { Some(&self.effect) } else { None }
+    pub fn evaluate(
+        &self,
+        action: &str,
+        subject: &AttributeSet,
+        resource: &AttributeSet,
+        env: &AttributeSet,
+    ) -> Option<&Effect> {
+        if !self.applies_to_action(action) {
+            return None;
+        }
+        if self.condition.evaluate(subject, resource, env) {
+            Some(&self.effect)
+        } else {
+            None
+        }
     }
 }
 
@@ -42,14 +65,20 @@ pub struct PolicyStore {
 }
 
 impl PolicyStore {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn add(&mut self, policy: Policy) {
         self.policies.push(policy);
         self.policies.sort_by_key(|p| p.priority);
     }
 
-    pub fn policies(&self) -> &[Policy] { &self.policies }
+    pub fn policies(&self) -> &[Policy] {
+        &self.policies
+    }
 
-    pub fn count(&self) -> usize { self.policies.len() }
+    pub fn count(&self) -> usize {
+        self.policies.len()
+    }
 }

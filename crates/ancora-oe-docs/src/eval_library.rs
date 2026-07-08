@@ -70,7 +70,10 @@ impl EvalCatalog {
     }
 
     pub fn by_category(&self, category: &EvalCategory) -> Vec<&EvalCatalogEntry> {
-        self.entries.iter().filter(|e| &e.category == category).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.category == category)
+            .collect()
     }
 
     pub fn total(&self) -> usize {

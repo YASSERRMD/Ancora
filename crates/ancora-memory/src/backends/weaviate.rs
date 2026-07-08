@@ -1,13 +1,13 @@
-/// Weaviate backend for the `VectorStore` trait.
-///
-/// Weaviate exposes both REST and GraphQL APIs. This module generates request
-/// bodies and URL strings for all relevant operations without requiring a live
-/// server during tests.
-///
-/// Requires the `weaviate` feature: `ancora-memory = { features = ["weaviate"] }`.
-///
-/// Integration tests require `WEAVIATE_URL` in the environment (e.g.
-/// `http://localhost:8080`).
+//! Weaviate backend for the `VectorStore` trait.
+//!
+//! Weaviate exposes both REST and GraphQL APIs. This module generates request
+//! bodies and URL strings for all relevant operations without requiring a live
+//! server during tests.
+//!
+//! Requires the `weaviate` feature: `ancora-memory = { features = ["weaviate"] }`.
+//!
+//! Integration tests require `WEAVIATE_URL` in the environment (e.g.
+//! `http://localhost:8080`).
 
 // ---- connection config ---------------------------------------------------
 
@@ -26,18 +26,27 @@ pub struct WeaviateConfig {
 
 impl WeaviateConfig {
     pub fn new(url: impl Into<String>) -> Self {
-        Self { url: url.into(), api_key: None, openai_key: None, timeout_secs: 30 }
+        Self {
+            url: url.into(),
+            api_key: None,
+            openai_key: None,
+            timeout_secs: 30,
+        }
     }
 
     pub fn with_api_key(mut self, key: impl Into<String>) -> Self {
-        self.api_key = Some(key.into()); self
+        self.api_key = Some(key.into());
+        self
     }
 
     pub fn with_openai_key(mut self, key: impl Into<String>) -> Self {
-        self.openai_key = Some(key.into()); self
+        self.openai_key = Some(key.into());
+        self
     }
 
-    pub fn local() -> Self { Self::new("http://localhost:8080") }
+    pub fn local() -> Self {
+        Self::new("http://localhost:8080")
+    }
 
     /// Returns auth header value if an API key is configured.
     pub fn auth_header(&self) -> Option<String> {
@@ -104,11 +113,7 @@ pub mod data_type {
 /// Build the JSON body for creating a Weaviate class (schema definition).
 ///
 /// `class_name` must start with an uppercase letter (Weaviate convention).
-pub fn create_class_body(
-    class_name: &str,
-    description: &str,
-    vectorizer: &str,
-) -> Value {
+pub fn create_class_body(class_name: &str, description: &str, vectorizer: &str) -> Value {
     json!({
         "class": class_name,
         "description": description,
@@ -124,11 +129,16 @@ pub fn create_class_with_properties_body(
     vectorizer: &str,
     properties: &[(&str, &str, &str)], // (name, data_type, description)
 ) -> Value {
-    let props: Vec<Value> = properties.iter().map(|(name, dtype, desc)| json!({
-        "name": name,
-        "description": desc,
-        "dataType": [dtype]
-    })).collect();
+    let props: Vec<Value> = properties
+        .iter()
+        .map(|(name, dtype, desc)| {
+            json!({
+                "name": name,
+                "description": desc,
+                "dataType": [dtype]
+            })
+        })
+        .collect();
     json!({
         "class": class_name,
         "description": description,
@@ -176,11 +186,16 @@ pub fn upsert_object_body(class: &str, properties: &Value, vector: Option<&[f32]
 
 /// Build the batch objects body for `POST /v1/batch/objects`.
 pub fn batch_objects_body(objects: &[(String, Value, Option<Vec<f32>>)]) -> Value {
-    let objs: Vec<Value> = objects.iter().map(|(class, props, vec)| {
-        let mut obj = json!({ "class": class, "properties": props });
-        if let Some(v) = vec { obj["vector"] = json!(v); }
-        obj
-    }).collect();
+    let objs: Vec<Value> = objects
+        .iter()
+        .map(|(class, props, vec)| {
+            let mut obj = json!({ "class": class, "properties": props });
+            if let Some(v) = vec {
+                obj["vector"] = json!(v);
+            }
+            obj
+        })
+        .collect();
     json!({ "objects": objs })
 }
 
@@ -205,7 +220,14 @@ pub fn graphql_near_vector_query(
     limit: usize,
     fields: &[&str],
 ) -> Value {
-    let vec_str = format!("[{}]", vector.iter().map(|v| format!("{v}")).collect::<Vec<_>>().join(","));
+    let vec_str = format!(
+        "[{}]",
+        vector
+            .iter()
+            .map(|v| format!("{v}"))
+            .collect::<Vec<_>>()
+            .join(",")
+    );
     let field_str = fields.join(" ");
     let query = format!(
         r#"{{ Get {{ {class}(nearVector: {{ vector: {vec_str} }} limit: {limit}) {{ {field_str} _additional {{ id distance }} }} }} }}"#
@@ -221,7 +243,14 @@ pub fn graphql_near_vector_with_certainty_query(
     certainty: f32,
     fields: &[&str],
 ) -> Value {
-    let vec_str = format!("[{}]", vector.iter().map(|v| format!("{v}")).collect::<Vec<_>>().join(","));
+    let vec_str = format!(
+        "[{}]",
+        vector
+            .iter()
+            .map(|v| format!("{v}"))
+            .collect::<Vec<_>>()
+            .join(",")
+    );
     let field_str = fields.join(" ");
     let query = format!(
         r#"{{ Get {{ {class}(nearVector: {{ vector: {vec_str} certainty: {certainty} }} limit: {limit}) {{ {field_str} _additional {{ id distance }} }} }} }}"#
@@ -290,10 +319,14 @@ pub fn add_reference_body(to_class: &str, to_id: &str) -> Value {
 /// Build a batch reference body for `POST /v1/batch/references`.
 pub fn batch_references_body(refs: &[(&str, &str, &str, &str, &str)]) -> Vec<Value> {
     // (from_class, from_id, property, to_class, to_id)
-    refs.iter().map(|(from_class, from_id, property, to_class, to_id)| json!({
-        "from": format!("weaviate://localhost/{from_class}/{from_id}/{property}"),
-        "to": format!("weaviate://localhost/{to_class}/{to_id}")
-    })).collect()
+    refs.iter()
+        .map(|(from_class, from_id, property, to_class, to_id)| {
+            json!({
+                "from": format!("weaviate://localhost/{from_class}/{from_id}/{property}"),
+                "to": format!("weaviate://localhost/{to_class}/{to_id}")
+            })
+        })
+        .collect()
 }
 
 pub fn batch_references_url(base: &str) -> String {
@@ -353,7 +386,13 @@ pub fn graphql_hybrid_query(
     let alpha = alpha.clamp(0.0, 1.0);
     let field_str = fields.join(" ");
     let vector_part = if let Some(v) = vector {
-        let vs = format!("[{}]", v.iter().map(|x| format!("{x}")).collect::<Vec<_>>().join(","));
+        let vs = format!(
+            "[{}]",
+            v.iter()
+                .map(|x| format!("{x}"))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
         format!(", vector: {vs}")
     } else {
         String::new()
@@ -377,7 +416,11 @@ pub fn sharding_config(virtual_per_physical: u16) -> Value {
 }
 
 /// Merge replication and sharding config into a class body.
-pub fn apply_cluster_config(mut class_body: Value, replication_factor: u8, virtual_shards: u16) -> Value {
+pub fn apply_cluster_config(
+    mut class_body: Value,
+    replication_factor: u8,
+    virtual_shards: u16,
+) -> Value {
     class_body["replicationConfig"] = json!({ "factor": replication_factor });
     class_body["shardingConfig"] = json!({ "virtualPerPhysical": virtual_shards });
     class_body
@@ -396,11 +439,7 @@ pub mod tokenization {
 }
 
 /// Build a property definition with a specific tokenization mode.
-pub fn property_with_tokenization(
-    name: &str,
-    data_type: &str,
-    tokenization: &str,
-) -> Value {
+pub fn property_with_tokenization(name: &str, data_type: &str, tokenization: &str) -> Value {
     json!({
         "name": name,
         "dataType": [data_type],
@@ -484,7 +523,8 @@ pub fn graphql_near_text_query(
     certainty: Option<f32>,
     fields: &[&str],
 ) -> Value {
-    let concepts_str = concepts.iter()
+    let concepts_str = concepts
+        .iter()
         .map(|c| format!("\"{c}\""))
         .collect::<Vec<_>>()
         .join(", ");
@@ -524,7 +564,14 @@ pub fn graphql_generative_query(
     prompt_template: &str,
     fields: &[&str],
 ) -> Value {
-    let vec_str = format!("[{}]", vector.iter().map(|v| format!("{v}")).collect::<Vec<_>>().join(","));
+    let vec_str = format!(
+        "[{}]",
+        vector
+            .iter()
+            .map(|v| format!("{v}"))
+            .collect::<Vec<_>>()
+            .join(",")
+    );
     let field_str = fields.join(" ");
     let query = format!(
         r#"{{ Get {{ {class}(nearVector: {{ vector: {vec_str} }} limit: {limit}) {{ {field_str} _additional {{ generate(singleResult: {{ prompt: "{prompt_template}" }}) {{ singleResult error }} id }} }} }} }}"#
@@ -540,7 +587,14 @@ pub fn graphql_grouped_generative_query(
     task_prompt: &str,
     fields: &[&str],
 ) -> Value {
-    let vec_str = format!("[{}]", vector.iter().map(|v| format!("{v}")).collect::<Vec<_>>().join(","));
+    let vec_str = format!(
+        "[{}]",
+        vector
+            .iter()
+            .map(|v| format!("{v}"))
+            .collect::<Vec<_>>()
+            .join(",")
+    );
     let field_str = fields.join(" ");
     let query = format!(
         r#"{{ Get {{ {class}(nearVector: {{ vector: {vec_str} }} limit: {limit}) {{ {field_str} _additional {{ generate(groupedResult: {{ task: "{task_prompt}" }}) {{ groupedResult error }} id }} }} }} }}"#
@@ -794,8 +848,13 @@ mod tests {
     #[test]
     fn create_class_with_properties_has_all_props() {
         let body = create_class_with_properties_body(
-            "Document", "test", "none",
-            &[("title", data_type::TEXT, "The title"), ("year", data_type::INT, "Year")],
+            "Document",
+            "test",
+            "none",
+            &[
+                ("title", data_type::TEXT, "The title"),
+                ("year", data_type::INT, "Year"),
+            ],
         );
         let props = body["properties"].as_array().unwrap();
         assert_eq!(props.len(), 2);
@@ -820,7 +879,11 @@ mod tests {
     #[test]
     fn batch_objects_body_contains_all_objects() {
         let objects = vec![
-            ("Document".to_owned(), json!({"title": "a"}), Some(vec![0.1f32])),
+            (
+                "Document".to_owned(),
+                json!({"title": "a"}),
+                Some(vec![0.1f32]),
+            ),
             ("Document".to_owned(), json!({"title": "b"}), None),
         ];
         let body = batch_objects_body(&objects);
@@ -1067,7 +1130,10 @@ mod tests {
         let body = graphql_aggregate_count_query("Document");
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("Aggregate"), "query: {q}");
-        assert!(q.contains("meta { count }") || q.contains("meta{count}") || q.contains("count"), "query: {q}");
+        assert!(
+            q.contains("meta { count }") || q.contains("meta{count}") || q.contains("count"),
+            "query: {q}"
+        );
     }
 
     #[test]
@@ -1080,7 +1146,8 @@ mod tests {
 
     #[test]
     fn graphql_near_text_query_contains_concepts() {
-        let body = graphql_near_text_query("Document", &["machine learning", "AI"], 5, None, &["title"]);
+        let body =
+            graphql_near_text_query("Document", &["machine learning", "AI"], 5, None, &["title"]);
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("nearText"), "query: {q}");
         assert!(q.contains("machine learning"), "query: {q}");
@@ -1103,7 +1170,8 @@ mod tests {
 
     #[test]
     fn graphql_generative_query_contains_generate_keyword() {
-        let body = graphql_generative_query("Document", &[0.1f32], 3, "Summarize {title}", &["title"]);
+        let body =
+            graphql_generative_query("Document", &[0.1f32], 3, "Summarize {title}", &["title"]);
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("generate"), "query: {q}");
         assert!(q.contains("singleResult"), "query: {q}");
@@ -1112,7 +1180,13 @@ mod tests {
 
     #[test]
     fn graphql_grouped_generative_query_contains_grouped_result() {
-        let body = graphql_grouped_generative_query("Document", &[0.1f32], 3, "Analyze all docs", &["title"]);
+        let body = graphql_grouped_generative_query(
+            "Document",
+            &[0.1f32],
+            3,
+            "Analyze all docs",
+            &["title"],
+        );
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("groupedResult"), "query: {q}");
         assert!(q.contains("Analyze all docs"), "query: {q}");
@@ -1144,8 +1218,14 @@ mod tests {
     #[test]
     fn add_reference_body_has_beacon() {
         let body = add_reference_body("Author", "author-uuid");
-        assert!(body["beacon"].as_str().unwrap().contains("Author"), "body: {body}");
-        assert!(body["beacon"].as_str().unwrap().contains("author-uuid"), "body: {body}");
+        assert!(
+            body["beacon"].as_str().unwrap().contains("Author"),
+            "body: {body}"
+        );
+        assert!(
+            body["beacon"].as_str().unwrap().contains("author-uuid"),
+            "body: {body}"
+        );
     }
 
     #[test]

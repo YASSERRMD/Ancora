@@ -25,7 +25,10 @@ impl OtlpHttpExporter {
     /// Create a new exporter pointing at the given OTLP HTTP endpoint.
     /// Typical default: `http://localhost:4318/v1/traces`.
     pub fn new(endpoint: impl Into<String>) -> Self {
-        Self { endpoint: endpoint.into(), buffer: Arc::new(Mutex::new(Vec::new())) }
+        Self {
+            endpoint: endpoint.into(),
+            buffer: Arc::new(Mutex::new(Vec::new())),
+        }
     }
 
     /// Flush buffered spans to the OTLP HTTP endpoint.
@@ -38,8 +41,7 @@ impl OtlpHttpExporter {
             return Ok(());
         }
         let body = crate::otlp::spans_to_otlp(&spans);
-        let json = serde_json::to_string(&body)
-            .map_err(|e| OtlpHttpError(e.to_string()))?;
+        let json = serde_json::to_string(&body).map_err(|e| OtlpHttpError(e.to_string()))?;
         ureq::post(&self.endpoint)
             .set("Content-Type", "application/json")
             .send_string(&json)

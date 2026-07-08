@@ -14,7 +14,10 @@ pub trait ModelClient: Send + Sync {
         on_token: &mut dyn FnMut(TokenEvent),
     ) -> Result<CompletionResponse, InferenceError> {
         let resp = self.complete(request)?;
-        on_token(TokenEvent { text: resp.content.clone(), finished: true });
+        on_token(TokenEvent {
+            text: resp.content.clone(),
+            finished: true,
+        });
         Ok(resp)
     }
 }

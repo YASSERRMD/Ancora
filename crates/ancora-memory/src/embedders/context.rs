@@ -1,9 +1,9 @@
-/// Context assembly with token budget.
-///
-/// Assembles a context window from retrieved passages, respecting a token
-/// budget so the final context fits within an LLM's context length.
-/// Token counting is approximate (whitespace-split word count multiplied by
-/// a tokens-per-word factor).
+//! Context assembly with token budget.
+//!
+//! Assembles a context window from retrieved passages, respecting a token
+//! budget so the final context fits within an LLM's context length.
+//! Token counting is approximate (whitespace-split word count multiplied by
+//! a tokens-per-word factor).
 
 // ---- token estimation ---------------------------------------------------
 
@@ -65,15 +65,18 @@ impl ContextAssembler {
     }
 
     pub fn with_separator(mut self, sep: impl Into<String>) -> Self {
-        self.separator = sep.into(); self
+        self.separator = sep.into();
+        self
     }
 
     pub fn without_headers(mut self) -> Self {
-        self.passage_header = None; self
+        self.passage_header = None;
+        self
     }
 
     pub fn with_tokens_per_word(mut self, factor: f32) -> Self {
-        self.tokens_per_word = factor; self
+        self.tokens_per_word = factor;
+        self
     }
 
     /// Assemble passages into a context window respecting `max_tokens`.
@@ -87,9 +90,11 @@ impl ContextAssembler {
         let mut dropped = 0;
 
         for (i, passage) in passages.iter().enumerate() {
-            let header = self.passage_header.as_ref().map(|h| {
-                h.replace("{index}", &(i + 1).to_string())
-            }).unwrap_or_default();
+            let header = self
+                .passage_header
+                .as_ref()
+                .map(|h| h.replace("{index}", &(i + 1).to_string()))
+                .unwrap_or_default();
             let entry = format!("{header}{passage}");
             let entry_tokens = estimate_tokens(&entry, self.tokens_per_word);
             let sep_cost = if parts.is_empty() { 0 } else { sep_tokens };

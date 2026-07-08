@@ -1,28 +1,33 @@
 // Coverage gate: MCP integration scenarios all have cross-language tests.
 
 const MCP_SCENARIOS: &[(&str, &str, &str)] = &[
-    ("rust-server",  "python", "xlang_mcp_rust_python"),
-    ("go-server",    "ts",     "xlang_mcp_go_ts"),
-    ("ts-server",    "rust",   "xlang_mcp_go_ts"),
-    ("python-server","java",   "xlang_mcp_go_ts"),
+    ("rust-server", "python", "xlang_mcp_rust_python"),
+    ("go-server", "ts", "xlang_mcp_go_ts"),
+    ("ts-server", "rust", "xlang_mcp_go_ts"),
+    ("python-server", "java", "xlang_mcp_go_ts"),
 ];
 
 const MCP_TOOLS: &[&str] = &["search", "fetch", "write", "read"];
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn test_mcp_scenarios_defined() {
     assert!(!MCP_SCENARIOS.is_empty());
 }
 
 #[test]
 fn test_rust_server_python_client_covered() {
-    let found = MCP_SCENARIOS.iter().any(|(server, client, _)| *server == "rust-server" && *client == "python");
+    let found = MCP_SCENARIOS
+        .iter()
+        .any(|(server, client, _)| *server == "rust-server" && *client == "python");
     assert!(found, "no rust-server/python test");
 }
 
 #[test]
 fn test_go_server_ts_client_covered() {
-    let found = MCP_SCENARIOS.iter().any(|(server, client, _)| *server == "go-server" && *client == "ts");
+    let found = MCP_SCENARIOS
+        .iter()
+        .any(|(server, client, _)| *server == "go-server" && *client == "ts");
     assert!(found, "no go-server/ts test");
 }
 

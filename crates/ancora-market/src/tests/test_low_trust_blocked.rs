@@ -1,5 +1,5 @@
 use crate::badge::BadgeSet;
-use crate::policy::{InstallPolicy, PolicyMode, PolicyVerdict, evaluate_policy};
+use crate::policy::{evaluate_policy, InstallPolicy, PolicyMode, PolicyVerdict};
 use crate::trust_score::{TrustBreakdown, TrustScore};
 
 fn low_trust() -> TrustScore {
@@ -54,7 +54,7 @@ fn strict_mode_blocks_low_trust() {
     };
     let badges = BadgeSet::new();
     let verdict = evaluate_policy(&policy, &low_trust(), &badges, None);
-    assert_eq!(verdict.is_blocked(), true);
+    assert!(verdict.is_blocked());
     if let PolicyVerdict::Block(reasons) = verdict {
         assert!(!reasons.is_empty());
     }

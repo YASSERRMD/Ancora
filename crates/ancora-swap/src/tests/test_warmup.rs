@@ -1,5 +1,4 @@
 /// Tests verifying warmup completes before the model serves traffic.
-
 use crate::runtime::{make_model, WarmupStatus};
 use crate::warmup::WarmupGate;
 

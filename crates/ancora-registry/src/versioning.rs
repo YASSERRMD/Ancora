@@ -8,19 +8,35 @@ pub struct Version {
 
 impl Version {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     /// Parse a version string of the form "MAJOR.MINOR.PATCH".
     pub fn parse(s: &str) -> Result<Self, VersionParseError> {
         let parts: Vec<&str> = s.splitn(3, '.').collect();
         if parts.len() != 3 {
-            return Err(VersionParseError(format!("expected MAJOR.MINOR.PATCH, got '{s}'")));
+            return Err(VersionParseError(format!(
+                "expected MAJOR.MINOR.PATCH, got '{s}'"
+            )));
         }
-        let major = parts[0].parse::<u32>().map_err(|_| VersionParseError(format!("invalid major: '{}'", parts[0])))?;
-        let minor = parts[1].parse::<u32>().map_err(|_| VersionParseError(format!("invalid minor: '{}'", parts[1])))?;
-        let patch = parts[2].parse::<u32>().map_err(|_| VersionParseError(format!("invalid patch: '{}'", parts[2])))?;
-        Ok(Self { major, minor, patch })
+        let major = parts[0]
+            .parse::<u32>()
+            .map_err(|_| VersionParseError(format!("invalid major: '{}'", parts[0])))?;
+        let minor = parts[1]
+            .parse::<u32>()
+            .map_err(|_| VersionParseError(format!("invalid minor: '{}'", parts[1])))?;
+        let patch = parts[2]
+            .parse::<u32>()
+            .map_err(|_| VersionParseError(format!("invalid patch: '{}'", parts[2])))?;
+        Ok(Self {
+            major,
+            minor,
+            patch,
+        })
     }
 }
 

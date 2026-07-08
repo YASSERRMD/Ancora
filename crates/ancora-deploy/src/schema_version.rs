@@ -1,5 +1,5 @@
-use crate::worker::Version;
 use crate::error::DeployError;
+use crate::worker::Version;
 
 /// Journal schema version. Workers must negotiate before exchanging entries.
 #[derive(Clone, Debug, PartialEq)]

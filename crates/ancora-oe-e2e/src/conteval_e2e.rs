@@ -1,5 +1,4 @@
 /// Continuous evaluation module: tracks quality metrics over time.
-
 use std::collections::VecDeque;
 
 /// A time-series quality observation.

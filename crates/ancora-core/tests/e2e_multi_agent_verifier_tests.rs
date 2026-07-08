@@ -130,7 +130,9 @@ struct ApproveAll;
 
 impl VerifierNode for ApproveAll {
     fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
-        Ok(VerifierResult::Approved { output: candidate.to_string() })
+        Ok(VerifierResult::Approved {
+            output: candidate.to_string(),
+        })
     }
 }
 
@@ -138,7 +140,9 @@ struct RejectAll;
 
 impl VerifierNode for RejectAll {
     fn verify(&self, _node: &Node, _candidate: &str) -> Result<VerifierResult, AncoraError> {
-        Ok(VerifierResult::Rejected { reason: "policy violation".into() })
+        Ok(VerifierResult::Rejected {
+            reason: "policy violation".into(),
+        })
     }
 }
 
@@ -147,7 +151,11 @@ fn two_node_graph_validates() {
     let graph = Graph {
         id: "g-two".into(),
         nodes: vec![agent_node("agent"), agent_node("verifier")],
-        edges: vec![Edge { from: "agent".into(), to: "verifier".into(), condition: None }],
+        edges: vec![Edge {
+            from: "agent".into(),
+            to: "verifier".into(),
+            condition: None,
+        }],
         entry_node: "agent".into(),
     };
     assert!(graph.validate().is_ok());
@@ -158,7 +166,11 @@ fn two_node_graph_has_correct_entry_node() {
     let graph = Graph {
         id: "g-two".into(),
         nodes: vec![agent_node("agent"), agent_node("verifier")],
-        edges: vec![Edge { from: "agent".into(), to: "verifier".into(), condition: None }],
+        edges: vec![Edge {
+            from: "agent".into(),
+            to: "verifier".into(),
+            condition: None,
+        }],
         entry_node: "agent".into(),
     };
     assert_eq!(graph.entry_node, "agent");
@@ -228,7 +240,10 @@ fn three_of_three_approvals_is_consensus() {
     let votes: Vec<VerifierResult> = (0..3)
         .map(|_| ApproveAll.verify(&node, "out").unwrap())
         .collect();
-    let approvals = votes.iter().filter(|v| matches!(v, VerifierResult::Approved { .. })).count();
+    let approvals = votes
+        .iter()
+        .filter(|v| matches!(v, VerifierResult::Approved { .. }))
+        .count();
     assert_eq!(approvals, 3);
     assert!(approvals > 3 / 2);
 }
@@ -248,7 +263,11 @@ fn multi_agent_graph_edge_is_directed_from_agent_to_verifier() {
     let graph = Graph {
         id: "g-dir".into(),
         nodes: vec![agent_node("agent"), agent_node("verifier")],
-        edges: vec![Edge { from: "agent".into(), to: "verifier".into(), condition: None }],
+        edges: vec![Edge {
+            from: "agent".into(),
+            to: "verifier".into(),
+            condition: None,
+        }],
         entry_node: "agent".into(),
     };
     assert_eq!(graph.edges[0].from, "agent");

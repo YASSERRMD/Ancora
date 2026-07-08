@@ -1,5 +1,5 @@
-use crate::eval_parity::{shared_eval_dataset, run_eval, EvalRunSummary, check_eval_parity};
-use crate::cost_parity::{reference_cost_record, check_cost_parity};
+use crate::cost_parity::{check_cost_parity, reference_cost_record};
+use crate::eval_parity::{check_eval_parity, run_eval, shared_eval_dataset, EvalRunSummary};
 
 const ALL_LANGS: &[&str] = &["rust", "python", "typescript", "go", "java", "csharp"];
 
@@ -27,14 +27,18 @@ fn test_mean_score_is_one_for_all_languages() {
         assert!(
             (summary.mean_score - 1.0).abs() < 1e-9,
             "language {:?} mean_score should be 1.0, got {}",
-            lang, summary.mean_score
+            lang,
+            summary.mean_score
         );
     }
 }
 
 #[test]
 fn test_cost_scores_equal_across_languages() {
-    let records: Vec<_> = ALL_LANGS.iter().map(|l| reference_cost_record(*l)).collect();
+    let records: Vec<_> = ALL_LANGS
+        .iter()
+        .map(|l| reference_cost_record(*l))
+        .collect();
     let issues = check_cost_parity(&records);
     assert!(issues.is_empty(), "cost parity issues: {:?}", issues);
 }

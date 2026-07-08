@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use crate::key::KeyStatus;
 use crate::store::KeyStore;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct KeyStats {
@@ -17,7 +17,9 @@ impl KeyStats {
         let active = store.list_tenant_active(tenant_id);
         let total_active = active.len();
         let mut by_algorithm: HashMap<String, usize> = HashMap::new();
-        for k in &active { *by_algorithm.entry(format!("{}", k.algorithm)).or_insert(0) += 1; }
+        for k in &active {
+            *by_algorithm.entry(format!("{}", k.algorithm)).or_insert(0) += 1;
+        }
         Self {
             tenant_id: tenant_id.to_string(),
             total_active,

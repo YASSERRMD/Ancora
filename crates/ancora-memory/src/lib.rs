@@ -1,6 +1,10 @@
+pub mod backends;
+pub mod conformance;
 pub mod edit;
 pub mod embed;
+pub mod embedders;
 pub mod entry;
+pub mod mem_store;
 pub mod scope;
 pub mod semantic;
 pub mod store;
@@ -8,7 +12,3 @@ pub mod tier;
 pub mod traits;
 pub mod vector;
 pub mod vector_store;
-pub mod mem_store;
-pub mod conformance;
-pub mod backends;
-pub mod embedders;

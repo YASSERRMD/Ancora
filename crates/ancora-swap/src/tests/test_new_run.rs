@@ -1,5 +1,4 @@
 /// Tests that new runs started after a swap use the new model.
-
 use crate::runtime::{make_model, RunId, SwapRuntime};
 
 #[test]

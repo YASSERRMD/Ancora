@@ -26,6 +26,9 @@ impl CoordJournal {
     }
 
     pub fn replay(&self) -> Vec<(&str, &str)> {
-        self.events.iter().map(|e| (e.kind.as_str(), e.description.as_str())).collect()
+        self.events
+            .iter()
+            .map(|e| (e.kind.as_str(), e.description.as_str()))
+            .collect()
     }
 }

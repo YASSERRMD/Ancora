@@ -6,16 +6,26 @@ struct DiskQuota {
 }
 
 impl DiskQuota {
-    fn new(quota_bytes: u64) -> Self { Self { used_bytes: 0, quota_bytes } }
+    fn new(quota_bytes: u64) -> Self {
+        Self {
+            used_bytes: 0,
+            quota_bytes,
+        }
+    }
     fn write(&mut self, bytes: u64) -> Result<(), String> {
         if self.used_bytes + bytes > self.quota_bytes {
-            Err(format!("disk full: used={} quota={}", self.used_bytes, self.quota_bytes))
+            Err(format!(
+                "disk full: used={} quota={}",
+                self.used_bytes, self.quota_bytes
+            ))
         } else {
             self.used_bytes += bytes;
             Ok(())
         }
     }
-    fn free_space(&self) -> u64 { self.quota_bytes.saturating_sub(self.used_bytes) }
+    fn free_space(&self) -> u64 {
+        self.quota_bytes.saturating_sub(self.used_bytes)
+    }
 }
 
 fn write_journal_entries(disk: &mut DiskQuota, entries: &[u64]) -> (usize, bool) {

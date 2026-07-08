@@ -14,18 +14,51 @@ fn main() {
 
     let mut incidents = IncidentLog::new();
     incidents.record(
-        EnterpriseIncident::new("inc-1", "tenant-acme", "Unusual API activity", IncidentSeverity::High, "pentest", 80)
-            .with_assignee("security-team"),
+        EnterpriseIncident::new(
+            "inc-1",
+            "tenant-acme",
+            "Unusual API activity",
+            IncidentSeverity::High,
+            "pentest",
+            80,
+        )
+        .with_assignee("security-team"),
     );
 
     let mut audit = EnterpriseAuditLog::new();
-    audit.record(EnterpriseAuditEntry::new(1, "tenant-acme", EnterpriseAction::LicenseIssued, "admin", "Annual enterprise license"));
-    audit.record(EnterpriseAuditEntry::new(100, "tenant-acme", EnterpriseAction::CheckpointRun, "cron", "Daily health check"));
-    audit.record(EnterpriseAuditEntry::new(100, "tenant-acme", EnterpriseAction::PostureAssessed, "cron", "Security posture computed"));
+    audit.record(EnterpriseAuditEntry::new(
+        1,
+        "tenant-acme",
+        EnterpriseAction::LicenseIssued,
+        "admin",
+        "Annual enterprise license",
+    ));
+    audit.record(EnterpriseAuditEntry::new(
+        100,
+        "tenant-acme",
+        EnterpriseAction::CheckpointRun,
+        "cron",
+        "Daily health check",
+    ));
+    audit.record(EnterpriseAuditEntry::new(
+        100,
+        "tenant-acme",
+        EnterpriseAction::PostureAssessed,
+        "cron",
+        "Security posture computed",
+    ));
 
     let licenses = vec![&license];
     let stats = EnterpriseStats::compute(&licenses, &incidents, &checkpoint, &posture, 100);
-    let report = EnterpriseReport::generate("tenant-acme", &licenses, &incidents, &checkpoint, &posture, &audit, 100);
+    let report = EnterpriseReport::generate(
+        "tenant-acme",
+        &licenses,
+        &incidents,
+        &checkpoint,
+        &posture,
+        &audit,
+        100,
+    );
 
     println!("=== Enterprise Status Report ===");
     println!("Tenant:            {}", report.tenant_id);
@@ -33,8 +66,16 @@ fn main() {
     println!("License tier:      {}", license.tier);
     println!("Capabilities:      {}", license.cap_count());
     println!();
-    println!("Security posture:  {}/100 ({})", report.posture_score, posture.posture_level());
-    println!("Health checks:     {}/{} passing", checkpoint.passing().len(), checkpoint.count());
+    println!(
+        "Security posture:  {}/100 ({})",
+        report.posture_score,
+        posture.posture_level()
+    );
+    println!(
+        "Health checks:     {}/{} passing",
+        checkpoint.passing().len(),
+        checkpoint.count()
+    );
     println!("Failing checks:    {}", report.failing_checks);
     println!();
     println!("Open incidents:    {}", report.open_incidents);
@@ -44,5 +85,9 @@ fn main() {
     println!("Health score:      {:.0}%", stats.health_score() * 100.0);
     println!("System healthy:    {}", report.is_healthy());
     println!();
-    println!("Features enabled:  {}/{}", features.enabled_count(), features.count());
+    println!(
+        "Features enabled:  {}/{}",
+        features.enabled_count(),
+        features.count()
+    );
 }

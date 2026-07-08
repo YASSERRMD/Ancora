@@ -1,6 +1,4 @@
-use crate::capability::{
-    Capability, CapabilityBuilder, CapabilityFlags, QuantLimitations,
-};
+use crate::capability::{Capability, CapabilityBuilder, CapabilityFlags, QuantLimitations};
 
 #[test]
 fn capability_flags_honored() {

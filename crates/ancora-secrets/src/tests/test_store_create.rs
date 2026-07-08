@@ -2,7 +2,13 @@ use crate::{SecretKind, SecretStore};
 #[test]
 fn create_secret_succeeds_for_valid_path() {
     let mut store = SecretStore::new();
-    let result = store.create("t1", "db/password", SecretKind::DatabaseCredential, "pass", 1);
+    let result = store.create(
+        "t1",
+        "db/password",
+        SecretKind::DatabaseCredential,
+        "pass",
+        1,
+    );
     assert!(result.is_ok());
 }
 #[test]

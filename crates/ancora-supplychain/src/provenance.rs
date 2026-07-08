@@ -59,12 +59,30 @@ pub struct ProvenanceStore {
     records: HashMap<String, ProvenanceRecord>,
 }
 
+impl Default for ProvenanceStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProvenanceStore {
-    pub fn new() -> Self { Self { records: HashMap::new() } }
-    pub fn record(&mut self, r: ProvenanceRecord) { self.records.insert(r.component_id.clone(), r); }
-    pub fn get(&self, component_id: &str) -> Option<&ProvenanceRecord> { self.records.get(component_id) }
-    pub fn has_provenance(&self, component_id: &str) -> bool { self.records.contains_key(component_id) }
-    pub fn count(&self) -> usize { self.records.len() }
+    pub fn new() -> Self {
+        Self {
+            records: HashMap::new(),
+        }
+    }
+    pub fn record(&mut self, r: ProvenanceRecord) {
+        self.records.insert(r.component_id.clone(), r);
+    }
+    pub fn get(&self, component_id: &str) -> Option<&ProvenanceRecord> {
+        self.records.get(component_id)
+    }
+    pub fn has_provenance(&self, component_id: &str) -> bool {
+        self.records.contains_key(component_id)
+    }
+    pub fn count(&self) -> usize {
+        self.records.len()
+    }
     pub fn by_kind(&self, kind: &ProvenanceKind) -> Vec<&ProvenanceRecord> {
         self.records.values().filter(|r| &r.kind == kind).collect()
     }

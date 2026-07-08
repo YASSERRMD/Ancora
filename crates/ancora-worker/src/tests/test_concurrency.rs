@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use crate::concurrency::{total_capacity, worker_has_capacity};
     use ancora_controlplane::model::RunPriority;
     use ancora_controlplane::store::ControlPlaneStore;
-    use crate::concurrency::{total_capacity, worker_has_capacity};
 
     #[test]
     fn worker_has_capacity_when_under_limit() {
@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn lease_renewal_prevents_premature_requeue() {
-        use chrono::{Duration, Utc};
+        use chrono::Utc;
         let mut store = ControlPlaneStore::new();
         let run = store.create_run("t1", RunPriority::Normal);
         let w = store.register_worker(1);

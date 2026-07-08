@@ -28,7 +28,10 @@ impl EnterpriseReport {
         tick: u64,
     ) -> Self {
         let tenant_str = tenant_id.into();
-        let active_licenses = licenses.iter().filter(|l| l.is_valid(tick) && l.tenant_id == tenant_str).count();
+        let active_licenses = licenses
+            .iter()
+            .filter(|l| l.is_valid(tick) && l.tenant_id == tenant_str)
+            .count();
         let tenant_incidents = incidents.for_tenant(&tenant_str);
 
         Self {
@@ -45,5 +48,7 @@ impl EnterpriseReport {
         }
     }
 
-    pub fn is_healthy(&self) -> bool { self.failing_checks == 0 && self.critical_incidents == 0 }
+    pub fn is_healthy(&self) -> bool {
+        self.failing_checks == 0 && self.critical_incidents == 0
+    }
 }

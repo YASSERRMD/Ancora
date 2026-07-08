@@ -1,13 +1,19 @@
 #[cfg(test)]
 mod tests {
-    use crate::{BackupEngine, Journal, JournalEntry};
     use crate::manifest::sha256_hex;
+    use crate::{BackupEngine, Journal, JournalEntry};
 
     #[test]
     fn checksum_mismatch_is_rejected() {
         let eng = BackupEngine::plaintext();
         let mut j = Journal::new();
-        j.append(JournalEntry { seq: 1, run_id: "r".into(), tenant_id: "t".into(), kind: "x".into(), payload: "{}".into() });
+        j.append(JournalEntry {
+            seq: 1,
+            run_id: "r".into(),
+            tenant_id: "t".into(),
+            kind: "x".into(),
+            payload: "{}".into(),
+        });
         let mut archive = eng.snapshot(&j, vec![], vec![], 0).unwrap();
 
         // Tamper with payload

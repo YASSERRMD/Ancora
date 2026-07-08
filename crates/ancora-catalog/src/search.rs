@@ -60,7 +60,7 @@ impl SearchHit {
 }
 
 /// Search the catalog index for entries whose tags contain `tag`.
-pub fn search_by_tag<'a>(index: &'a CatalogIndex, tag: &str) -> Vec<SearchHit> {
+pub fn search_by_tag(index: &CatalogIndex, tag: &str) -> Vec<SearchHit> {
     let mut hits = Vec::new();
     for t in &index.tools {
         if t.metadata.has_tag(tag) {

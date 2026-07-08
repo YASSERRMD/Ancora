@@ -1,11 +1,10 @@
+use crate::embedders::embedder::{l2_normalize, EmbedResult, Embedder, Embedding};
 /// Local/offline deterministic embedder for testing and edge deployments.
 ///
 /// The `HashEmbedder` maps each text to a sparse one-hot-like vector via a
 /// polynomial hash -- no model download required, fully reproducible across
 /// runs. The `TfidfEmbedder` computes a simple TF-IDF bag-of-words vector.
-
 use std::collections::HashMap;
-use crate::embedders::embedder::{Embedding, EmbedResult, Embedder, l2_normalize};
 
 // ---- HashEmbedder -------------------------------------------------------
 
@@ -20,11 +19,15 @@ pub struct HashEmbedder {
 
 impl HashEmbedder {
     pub fn new(dims: usize) -> Self {
-        Self { dims, components: 4 }
+        Self {
+            dims,
+            components: 4,
+        }
     }
 
     pub fn with_components(mut self, n: usize) -> Self {
-        self.components = n.max(1); self
+        self.components = n.max(1);
+        self
     }
 }
 
@@ -36,9 +39,9 @@ impl Embedder for HashEmbedder {
         for (i, word) in words.iter().enumerate() {
             // polynomial hash seeded by word position
             let seed = (i as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15);
-            let h = word.bytes().fold(seed, |acc, b| {
-                acc.wrapping_mul(31).wrapping_add(b as u64)
-            });
+            let h = word
+                .bytes()
+                .fold(seed, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u64));
             let idx = (h as usize) % self.dims;
             v[idx] += 1.0 / total as f32;
         }
@@ -46,8 +49,12 @@ impl Embedder for HashEmbedder {
         Ok(v)
     }
 
-    fn model_name(&self) -> &str { "hash-embedder-v1" }
-    fn dims(&self) -> usize { self.dims }
+    fn model_name(&self) -> &str {
+        "hash-embedder-v1"
+    }
+    fn dims(&self) -> usize {
+        self.dims
+    }
 }
 
 // ---- TfidfEmbedder ------------------------------------------------------
@@ -71,34 +78,44 @@ impl TfidfEmbedder {
             for t in tokens {
                 *freq.entry(t.clone()).or_default() += 1;
             }
-            let unique: std::collections::HashSet<String> = doc.split_whitespace()
-                .map(normalize_token)
-                .collect();
+            let unique: std::collections::HashSet<String> =
+                doc.split_whitespace().map(normalize_token).collect();
             for t in unique {
                 *doc_freq.entry(t).or_default() += 1;
             }
         }
         let mut terms: Vec<(String, usize)> = freq.into_iter().collect();
-        terms.sort_by(|a, b| b.1.cmp(&a.1));
+        terms.sort_by_key(|b| std::cmp::Reverse(b.1));
         terms.truncate(max_vocab);
         let n = docs.len().max(1) as f32;
         let vocab: Vec<String> = terms.iter().map(|(t, _)| t.clone()).collect();
-        let idf: Vec<f32> = vocab.iter().map(|t| {
-            let df = *doc_freq.get(t).unwrap_or(&1) as f32;
-            (1.0 + n / df).ln()
-        }).collect();
+        let idf: Vec<f32> = vocab
+            .iter()
+            .map(|t| {
+                let df = *doc_freq.get(t).unwrap_or(&1) as f32;
+                (1.0 + n / df).ln()
+            })
+            .collect();
         Self { vocab, idf }
     }
 
-    pub fn vocab_size(&self) -> usize { self.vocab.len() }
+    pub fn vocab_size(&self) -> usize {
+        self.vocab.len()
+    }
 }
 
 fn normalize_token(s: &str) -> String {
-    s.chars().filter(|c| c.is_alphabetic()).collect::<String>().to_lowercase()
+    s.chars()
+        .filter(|c| c.is_alphabetic())
+        .collect::<String>()
+        .to_lowercase()
 }
 
 fn tokenize(text: &str) -> Vec<String> {
-    text.split_whitespace().map(normalize_token).filter(|s| !s.is_empty()).collect()
+    text.split_whitespace()
+        .map(normalize_token)
+        .filter(|s| !s.is_empty())
+        .collect()
 }
 
 impl Embedder for TfidfEmbedder {
@@ -112,7 +129,10 @@ impl Embedder for TfidfEmbedder {
             }
             map
         };
-        let mut v: Vec<f32> = self.vocab.iter().zip(self.idf.iter())
+        let mut v: Vec<f32> = self
+            .vocab
+            .iter()
+            .zip(self.idf.iter())
             .map(|(term, idf)| {
                 let tf_val = tf.get(term.as_str()).copied().unwrap_or(0.0);
                 tf_val * idf
@@ -122,8 +142,12 @@ impl Embedder for TfidfEmbedder {
         Ok(v)
     }
 
-    fn model_name(&self) -> &str { "tfidf-v1" }
-    fn dims(&self) -> usize { self.vocab.len() }
+    fn model_name(&self) -> &str {
+        "tfidf-v1"
+    }
+    fn dims(&self) -> usize {
+        self.vocab.len()
+    }
 }
 
 // ---- tests ---------------------------------------------------------------
@@ -197,7 +221,10 @@ mod local_embedder_tests {
         let e = TfidfEmbedder::fit(docs, 20);
         let v = e.embed("giraffe hippopotamus").unwrap();
         assert_eq!(v.len(), e.vocab_size());
-        assert!(v.iter().all(|x| *x == 0.0), "OOV should produce zero vector before norm");
+        assert!(
+            v.iter().all(|x| *x == 0.0),
+            "OOV should produce zero vector before norm"
+        );
     }
 
     #[test]

@@ -1,22 +1,15 @@
 //! Example: load a local LoRA adapter onto a base model and hot-swap it.
 
-use ancora_ft::{
-    AdapterDescriptor, AdapterId, AdapterRegistry, BaseModel,
-    SelectionJournal,
-};
-use ancora_ft::integrity::attach_integrity;
 use ancora_ft::export::{export_adapter, ExportOptions};
+use ancora_ft::integrity::attach_integrity;
 use ancora_ft::journal::select_for_tenant;
-use ancora_ft::runtime::{load_adapter_onto, hot_swap, TenantAdapterMap};
+use ancora_ft::runtime::{hot_swap, load_adapter_onto, TenantAdapterMap};
+use ancora_ft::{AdapterDescriptor, AdapterId, AdapterRegistry, BaseModel, SelectionJournal};
 use std::path::PathBuf;
 
 fn main() {
     // 1. Describe the base model.
-    let mut model = BaseModel::new(
-        "llama-3.1-8b",
-        PathBuf::from("/models/llama-3.1-8b"),
-        8.0,
-    );
+    let mut model = BaseModel::new("llama-3.1-8b", PathBuf::from("/models/llama-3.1-8b"), 8.0);
 
     // 2. Create an adapter descriptor.
     let mut adapter = AdapterDescriptor::new(
@@ -28,7 +21,10 @@ fn main() {
 
     // 3. Attach integrity metadata.
     attach_integrity(&mut adapter, 1_048_576);
-    println!("Adapter integrity: {:?}", adapter.integrity.as_ref().unwrap().sha256);
+    println!(
+        "Adapter integrity: {:?}",
+        adapter.integrity.as_ref().unwrap().sha256
+    );
 
     // 4. Load adapter onto model.
     let id = load_adapter_onto(&mut model, adapter.clone(), 1_048_576).unwrap();
@@ -65,7 +61,10 @@ fn main() {
     attach_integrity(&mut adapter_v2, 2_097_152);
     let new_id = hot_swap(&mut model, adapter_v2, 2_097_152).unwrap();
     println!("Hot-swapped to: {}", new_id);
-    println!("Active adapters after swap: {}", model.active_adapter_count());
+    println!(
+        "Active adapters after swap: {}",
+        model.active_adapter_count()
+    );
 
     // 9. Export to GGUF pointer.
     let export_opts = ExportOptions::gguf(PathBuf::from("/exports"), "Q4_K_M");

@@ -1,4 +1,4 @@
-use crate::{AutoAssessor, ControlRegistry, Framework, presets};
+use crate::{presets, AutoAssessor, ControlRegistry, Framework};
 #[test]
 fn load_preset_populates_registry() {
     let mut reg = ControlRegistry::new();

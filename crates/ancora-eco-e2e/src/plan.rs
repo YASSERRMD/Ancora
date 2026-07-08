@@ -1,4 +1,4 @@
-/// Test plan: structured acceptance checklist for ecosystem e2e.
+//! Test plan: structured acceptance checklist for ecosystem e2e.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CheckStatus {
@@ -43,9 +43,7 @@ pub struct TestPlan {
 
 impl TestPlan {
     pub fn new() -> Self {
-        TestPlan {
-            checks: Vec::new(),
-        }
+        TestPlan { checks: Vec::new() }
     }
 
     pub fn add_check(&mut self, check: AcceptanceCheck) {

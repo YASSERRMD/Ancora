@@ -4,12 +4,20 @@ mod tests {
     use crate::query::ComponentQuery;
 
     fn make_component(id: &str, kind: ComponentKind) -> Component {
-        Component::new(id, "comp", "1.0.0", kind, License::Mit, "vendor", "sha256:00")
+        Component::new(
+            id,
+            "comp",
+            "1.0.0",
+            kind,
+            License::Mit,
+            "vendor",
+            "sha256:00",
+        )
     }
 
     #[test]
     fn test_query_kind_library_filters_only_library() {
-        let components = vec![
+        let components = [
             make_component("c1", ComponentKind::Library),
             make_component("c2", ComponentKind::Binary),
             make_component("c3", ComponentKind::Library),
@@ -21,12 +29,14 @@ mod tests {
             .run(components.iter());
 
         assert_eq!(results.len(), 2);
-        assert!(results.iter().all(|c| matches!(c.kind, ComponentKind::Library)));
+        assert!(results
+            .iter()
+            .all(|c| matches!(c.kind, ComponentKind::Library)));
     }
 
     #[test]
     fn test_query_kind_binary_filters_only_binary() {
-        let components = vec![
+        let components = [
             make_component("c1", ComponentKind::Library),
             make_component("c2", ComponentKind::Binary),
         ];
@@ -41,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_query_kind_no_match_returns_empty() {
-        let components = vec![
+        let components = [
             make_component("c1", ComponentKind::Library),
             make_component("c2", ComponentKind::Binary),
         ];
@@ -55,7 +65,7 @@ mod tests {
 
     #[test]
     fn test_query_no_filter_returns_all() {
-        let components = vec![
+        let components = [
             make_component("c1", ComponentKind::Library),
             make_component("c2", ComponentKind::Binary),
             make_component("c3", ComponentKind::Container),
@@ -67,7 +77,7 @@ mod tests {
 
     #[test]
     fn test_query_kind_container() {
-        let components = vec![
+        let components = [
             make_component("c1", ComponentKind::Container),
             make_component("c2", ComponentKind::Library),
             make_component("c3", ComponentKind::Container),

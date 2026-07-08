@@ -63,7 +63,13 @@ pub struct ToolResult {
 
 impl ToolResult {
     pub fn ok(call_id: &str, tool_name: &str, output: Value, elapsed_ms: u64) -> Self {
-        Self { call_id: call_id.to_string(), tool_name: tool_name.to_string(), output, is_error: false, elapsed_ms }
+        Self {
+            call_id: call_id.to_string(),
+            tool_name: tool_name.to_string(),
+            output,
+            is_error: false,
+            elapsed_ms,
+        }
     }
 
     pub fn error(call_id: &str, tool_name: &str, reason: &str) -> Self {

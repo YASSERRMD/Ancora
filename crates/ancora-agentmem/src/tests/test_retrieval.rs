@@ -7,10 +7,7 @@ fn mem(id: &str, content: &str) -> MemoryEntry {
 
 #[test]
 fn retrieves_matching_memory() {
-    let entries = vec![
-        mem("1", "rust is fast"),
-        mem("2", "python is slow"),
-    ];
+    let entries = [mem("1", "rust is fast"), mem("2", "python is slow")];
     let refs: Vec<&MemoryEntry> = entries.iter().collect();
     let results = KeywordRetriever::retrieve(&refs, "rust", 5);
     assert_eq!(results.len(), 1);
@@ -19,7 +16,7 @@ fn retrieves_matching_memory() {
 
 #[test]
 fn multi_word_query_ranks_better_match_first() {
-    let entries = vec![
+    let entries = [
         mem("1", "rust is fast"),
         mem("2", "rust and python comparison"),
     ];
@@ -31,7 +28,7 @@ fn multi_word_query_ranks_better_match_first() {
 
 #[test]
 fn no_match_returns_empty() {
-    let entries = vec![mem("1", "rust is fast")];
+    let entries = [mem("1", "rust is fast")];
     let refs: Vec<&MemoryEntry> = entries.iter().collect();
     let results = KeywordRetriever::retrieve(&refs, "java", 5);
     assert!(results.is_empty());

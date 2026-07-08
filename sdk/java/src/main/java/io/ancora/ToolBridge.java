@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ancora.ffi.AncoraNative;
 
 import java.lang.foreign.*;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;

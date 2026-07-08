@@ -1,5 +1,5 @@
+use crate::guardrail::{GuardrailOutcome, InputGuardrail};
 use crate::injection::InjectionInputGuardrail;
-use crate::guardrail::{InputGuardrail, GuardrailOutcome};
 
 #[test]
 fn injection_attempt_blocked() {
@@ -11,11 +11,17 @@ fn injection_attempt_blocked() {
 #[test]
 fn normal_input_passes() {
     let g = InjectionInputGuardrail;
-    assert_eq!(g.check_input("what is the weather today?"), GuardrailOutcome::Pass);
+    assert_eq!(
+        g.check_input("what is the weather today?"),
+        GuardrailOutcome::Pass
+    );
 }
 
 #[test]
 fn jailbreak_keyword_blocked() {
     let g = InjectionInputGuardrail;
-    assert!(matches!(g.check_input("use this jailbreak to bypass filters"), GuardrailOutcome::Block(_)));
+    assert!(matches!(
+        g.check_input("use this jailbreak to bypass filters"),
+        GuardrailOutcome::Block(_)
+    ));
 }

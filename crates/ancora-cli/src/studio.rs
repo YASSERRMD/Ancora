@@ -24,7 +24,10 @@ pub fn serve(port: u16) -> std::io::Result<()> {
     use std::sync::Arc;
     let store = Arc::new(MemoryStore::new());
     let server = StudioServer::bind(port, store)?;
-    println!("ancora studio: listening on http://127.0.0.1:{}", server.port());
+    println!(
+        "ancora studio: listening on http://127.0.0.1:{}",
+        server.port()
+    );
     loop {
         server.handle_one()?;
     }
@@ -33,6 +36,10 @@ pub fn serve(port: u16) -> std::io::Result<()> {
 /// Local HTTP server exposing run timelines and replay.
 pub struct StudioServer {
     listener: std::net::TcpListener,
+    // TODO(#follow-up): list_runs/run_timeline/replay_run are stubs that
+    // don't query this yet (hardcoded empty/placeholder responses). See
+    // follow-up task on wiring StudioServer to real MemoryStore data.
+    #[allow(dead_code)]
     store: Arc<MemoryStore>,
 }
 
@@ -56,7 +63,10 @@ impl StudioServer {
         if run_id.is_empty() {
             return (400, r#"{"error":"missing run id"}"#.into());
         }
-        let timeline = RunTimeline { run_id: run_id.into(), events: vec![] };
+        let timeline = RunTimeline {
+            run_id: run_id.into(),
+            events: vec![],
+        };
         let body = serde_json::to_string(&timeline).unwrap_or_default();
         (200, body)
     }
@@ -65,7 +75,10 @@ impl StudioServer {
         if run_id.is_empty() {
             return (400, r#"{"error":"missing run id"}"#.into());
         }
-        let resp = ReplayResponse { run_id: run_id.into(), status: "ok".into() };
+        let resp = ReplayResponse {
+            run_id: run_id.into(),
+            status: "ok".into(),
+        };
         let body = serde_json::to_string(&resp).unwrap_or_default();
         (200, body)
     }
@@ -128,7 +141,10 @@ fn write_response(stream: &mut TcpStream, status: u16, body: &str) {
     };
     let response = format!(
         "HTTP/1.1 {} {}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
-        status, status_text, body.len(), body
+        status,
+        status_text,
+        body.len(),
+        body
     );
     stream.write_all(response.as_bytes()).ok();
 }

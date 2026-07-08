@@ -54,7 +54,10 @@ fn xlang_rust_journal_has_started_as_first_event() {
 #[test]
 fn xlang_rust_journal_has_completed_as_last_event() {
     let events = xlang_single_agent_journal("r");
-    assert!(matches!(events.last().unwrap().event, Some(Event::RunCompleted(_))));
+    assert!(matches!(
+        events.last().unwrap().event,
+        Some(Event::RunCompleted(_))
+    ));
 }
 
 #[test]
@@ -78,5 +81,7 @@ fn xlang_rust_output_is_valid_json() {
     let events = xlang_single_agent_journal("r");
     if let Some(Event::RunCompleted(c)) = &events.last().unwrap().event {
         serde_json::from_str::<serde_json::Value>(&c.output_json).unwrap();
-    } else { panic!("Expected RunCompleted"); }
+    } else {
+        panic!("Expected RunCompleted");
+    }
 }

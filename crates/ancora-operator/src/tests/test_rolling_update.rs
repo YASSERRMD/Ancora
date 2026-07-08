@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::tests::test_reconcile::tests::make_cluster;
     use crate::reconciler::Reconciler;
+    use crate::tests::test_reconcile::tests::make_cluster;
 
     #[test]
     fn update_propagates_to_deployments() {
@@ -11,11 +11,17 @@ mod tests {
 
         r.rolling_update_cluster(&mut cluster, "ancora:v2".to_string());
 
-        let cp = r.k8s().get("Deployment", "upd-cluster-control-plane").unwrap();
+        let cp = r
+            .k8s()
+            .get("Deployment", "upd-cluster-control-plane")
+            .unwrap();
         assert_eq!(cp.get("image").and_then(|v| v.as_str()), Some("ancora:v2"));
 
         let worker = r.k8s().get("Deployment", "upd-cluster-worker").unwrap();
-        assert_eq!(worker.get("image").and_then(|v| v.as_str()), Some("ancora:v2"));
+        assert_eq!(
+            worker.get("image").and_then(|v| v.as_str()),
+            Some("ancora:v2")
+        );
     }
 
     #[test]

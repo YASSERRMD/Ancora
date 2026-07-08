@@ -5,8 +5,8 @@ use ancora_core::{
     run::RunStatus,
 };
 use ancora_proto::ancora::{
-    journal_event::Event, HumanDecisionReceivedEvent, HumanDecisionRequestedEvent,
-    JournalEvent, RunCompletedEvent, RunStartedEvent,
+    journal_event::Event, HumanDecisionReceivedEvent, HumanDecisionRequestedEvent, JournalEvent,
+    RunCompletedEvent, RunStartedEvent,
 };
 
 fn build_hil_journal(run_id: &str) -> Vec<JournalEvent> {
@@ -62,7 +62,10 @@ fn xlang_hil_rust_completes() {
         store.append(rid, ev.clone()).unwrap();
     }
     assert_eq!(
-        replay_events(rid, &store.read(rid).unwrap()).unwrap().run.status,
+        replay_events(rid, &store.read(rid).unwrap())
+            .unwrap()
+            .run
+            .status,
         RunStatus::Completed
     );
 }
@@ -70,11 +73,14 @@ fn xlang_hil_rust_completes() {
 #[test]
 fn xlang_hil_rust_decision_requested_before_received() {
     let evs = build_hil_journal("r");
-    let kinds: Vec<&str> = evs.iter().filter_map(|e| match &e.event {
-        Some(Event::HumanDecisionRequested(_)) => Some("requested"),
-        Some(Event::HumanDecisionReceived(_)) => Some("received"),
-        _ => None,
-    }).collect();
+    let kinds: Vec<&str> = evs
+        .iter()
+        .filter_map(|e| match &e.event {
+            Some(Event::HumanDecisionRequested(_)) => Some("requested"),
+            Some(Event::HumanDecisionReceived(_)) => Some("received"),
+            _ => None,
+        })
+        .collect();
     assert_eq!(kinds, vec!["requested", "received"]);
 }
 

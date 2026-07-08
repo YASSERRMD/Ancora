@@ -35,10 +35,7 @@ impl CatalogIndex {
 
     /// Total number of entries across all categories.
     pub fn len(&self) -> usize {
-        self.tools.len()
-            + self.connectors.len()
-            + self.providers.len()
-            + self.vector_stores.len()
+        self.tools.len() + self.connectors.len() + self.providers.len() + self.vector_stores.len()
     }
 
     pub fn is_empty(&self) -> bool {

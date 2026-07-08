@@ -1,5 +1,4 @@
 /// Tests for the vLLM integration using mock transports.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineKind};
 use crate::vllm::{SamplingParams, VllmClient, VllmError, VllmTransport};
 
@@ -81,7 +80,9 @@ fn vllm_oom_error() {
 
 #[test]
 fn vllm_sampling_params_from_request() {
-    let req = CompletionRequest::new("x").with_max_tokens(512).with_temperature(0.2);
+    let req = CompletionRequest::new("x")
+        .with_max_tokens(512)
+        .with_temperature(0.2);
     let params = SamplingParams::from_request(&req);
     assert_eq!(params.max_tokens, 512);
     assert!((params.temperature - 0.2).abs() < 1e-6);

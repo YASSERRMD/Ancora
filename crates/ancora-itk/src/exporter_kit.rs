@@ -1,5 +1,4 @@
 /// Conformance kit for exporter extensions.
-
 use std::collections::HashMap;
 
 /// A record to be exported.

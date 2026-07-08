@@ -13,7 +13,11 @@ pub struct MaintenanceWindow {
 
 impl MaintenanceWindow {
     pub fn new() -> Self {
-        Self { state: MaintenanceState::Inactive, entered_at: None, reason: None }
+        Self {
+            state: MaintenanceState::Inactive,
+            entered_at: None,
+            reason: None,
+        }
     }
 
     pub fn enter(&mut self, now: u64, reason: &str) {

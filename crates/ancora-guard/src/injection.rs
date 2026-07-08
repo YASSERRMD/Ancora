@@ -1,4 +1,4 @@
-use crate::guardrail::{InputGuardrail, GuardrailOutcome};
+use crate::guardrail::{GuardrailOutcome, InputGuardrail};
 
 const INJECTION_PATTERNS: &[&str] = &[
     "ignore previous instructions",

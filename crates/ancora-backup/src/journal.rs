@@ -32,12 +32,20 @@ impl Journal {
 
     /// Export entries with seq > `since` (incremental export).
     pub fn incremental(&self, since: u64) -> Vec<JournalEntry> {
-        self.entries.iter().filter(|e| e.seq > since).cloned().collect()
+        self.entries
+            .iter()
+            .filter(|e| e.seq > since)
+            .cloned()
+            .collect()
     }
 
     /// Export entries up to and including `up_to_seq` (point-in-time).
     pub fn up_to(&self, up_to_seq: u64) -> Vec<JournalEntry> {
-        self.entries.iter().filter(|e| e.seq <= up_to_seq).cloned().collect()
+        self.entries
+            .iter()
+            .filter(|e| e.seq <= up_to_seq)
+            .cloned()
+            .collect()
     }
 
     /// Restore from a list of entries, replacing current state.

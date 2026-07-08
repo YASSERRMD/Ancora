@@ -3,7 +3,14 @@ use crate::feed::{FeedFormat, FeedStore, ThreatFeed};
 #[test]
 fn feed_register_and_get() {
     let mut store = FeedStore::new();
-    let feed = ThreatFeed::new("f1", "t1", "Test Feed", FeedFormat::Internal, "internal://x", 1);
+    let feed = ThreatFeed::new(
+        "f1",
+        "t1",
+        "Test Feed",
+        FeedFormat::Internal,
+        "internal://x",
+        1,
+    );
     store.register_feed(feed);
     assert!(store.get_feed("f1").is_some());
     assert_eq!(store.feed_count(), 1);

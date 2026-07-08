@@ -32,7 +32,12 @@ fn safety_monitor_is_case_insensitive() {
 #[test]
 fn custom_rule_detects_keyword() {
     let mut monitor = SafetyMonitor::new();
-    monitor.add_rule(KeywordRule::new("T001", "exploit", Severity::High, "Security issue"));
+    monitor.add_rule(KeywordRule::new(
+        "T001",
+        "exploit",
+        Severity::High,
+        "Security issue",
+    ));
 
     assert!(!monitor.is_safe("Found an exploit in the code."));
     assert!(monitor.is_safe("Nothing suspicious here."));

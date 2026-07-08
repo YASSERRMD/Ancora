@@ -1,9 +1,5 @@
-use ancora_toolsynth::{
-    ApprovalGate, EffectClass, SandboxRunner, SynthRegistry, spec_from_goal,
-};
-use ancora_guard::{
-    AllowDenyGuardrail, GuardrailJournal, GuardrailOutcome, GuardrailPolicy,
-};
+use ancora_guard::{AllowDenyGuardrail, GuardrailJournal, GuardrailOutcome, GuardrailPolicy};
+use ancora_toolsynth::{spec_from_goal, ApprovalGate, EffectClass, SandboxRunner, SynthRegistry};
 
 #[test]
 fn tool_synthesis_plus_guardrails() {

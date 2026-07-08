@@ -1,14 +1,19 @@
 /// Swap journal: append-only log of swap and rollback events for replay.
-
 use crate::model::ModelVersion;
 
 /// The kind of event recorded in the journal.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum SwapEvent {
     /// A model was swapped from one version to another.
-    Swap { from: ModelVersion, to: ModelVersion },
+    Swap {
+        from: ModelVersion,
+        to: ModelVersion,
+    },
     /// A rollback was performed, restoring a prior version.
-    Rollback { from: ModelVersion, to: ModelVersion },
+    Rollback {
+        from: ModelVersion,
+        to: ModelVersion,
+    },
 }
 
 /// A single entry in the swap journal.

@@ -1,9 +1,7 @@
 use ancora_secboot::{
-    AttestationLog, AttestationRecord, AttestationStatus,
-    BootAuditEntry, BootAuditLog, BootChain, BootEvent,
-    IntegrityEvaluator, MeasurementBuilder, MeasurementKind,
-    SealingStore, IntegrityReport, BootStats,
-    strict_boot_policy,
+    strict_boot_policy, AttestationLog, AttestationRecord, AttestationStatus, BootAuditEntry,
+    BootAuditLog, BootChain, BootEvent, BootStats, IntegrityEvaluator, IntegrityReport,
+    MeasurementBuilder, MeasurementKind, SealingStore,
 };
 
 fn main() {
@@ -40,8 +38,12 @@ fn main() {
 
     let mut attest_log = AttestationLog::new();
     attest_log.record(AttestationRecord::new(
-        "att-1", "tenant-acme", "node-prod-01",
-        AttestationStatus::Trusted, "tpm-quote-abc", 400,
+        "att-1",
+        "tenant-acme",
+        "node-prod-01",
+        AttestationStatus::Trusted,
+        "tpm-quote-abc",
+        400,
     ));
 
     let report = IntegrityReport::generate(&policy, &chain, &attest_log, 400);
@@ -53,12 +55,26 @@ fn main() {
     println!("Trust rate: {:.0}%", stats.trust_rate() * 100.0);
 
     let mut sealing = SealingStore::new();
-    sealing.seal("disk-key", "tenant-acme", "secret-disk-encryption-key", "kernel-digest-v5", 300);
+    sealing.seal(
+        "disk-key",
+        "tenant-acme",
+        "secret-disk-encryption-key",
+        "kernel-digest-v5",
+        300,
+    );
     let unsealed = sealing.unseal("disk-key", "kernel-digest-v5");
     println!("Unseal result: {:?}", unsealed);
 
     let mut audit = BootAuditLog::new();
-    audit.record(BootAuditEntry::new(400, "tenant-acme", "node-prod-01", BootEvent::ChainValidated, "system", true, "all checks passed"));
+    audit.record(BootAuditEntry::new(
+        400,
+        "tenant-acme",
+        "node-prod-01",
+        BootEvent::ChainValidated,
+        "system",
+        true,
+        "all checks passed",
+    ));
     println!("Audit entries: {}", audit.count());
     println!("done");
 }

@@ -1,5 +1,5 @@
 use crate::drift_parity::{
-    MetricWindow, detect_drift, DriftSeverity, stable_drift_report, check_drift_parity,
+    check_drift_parity, detect_drift, stable_drift_report, DriftSeverity, MetricWindow,
 };
 
 #[test]
@@ -37,16 +37,16 @@ fn test_warning_drift() {
 #[test]
 fn test_stable_drift_report_no_critical() {
     let report = stable_drift_report("rust");
-    assert!(!report.has_critical(), "stable report should have no critical drift");
+    assert!(
+        !report.has_critical(),
+        "stable report should have no critical drift"
+    );
 }
 
 #[test]
 fn test_drift_parity_across_languages() {
     let langs = &["rust", "python", "typescript", "go", "java", "csharp"];
-    let reports: Vec<_> = langs
-        .iter()
-        .map(|&l| (l, stable_drift_report(l)))
-        .collect();
+    let reports: Vec<_> = langs.iter().map(|&l| (l, stable_drift_report(l))).collect();
     let refs: Vec<(&str, _)> = reports.iter().map(|(l, r)| (*l, r.clone())).collect();
     let issues = check_drift_parity(&refs);
     assert!(issues.is_empty(), "drift parity issues: {:?}", issues);

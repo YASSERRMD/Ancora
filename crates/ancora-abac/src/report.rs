@@ -12,8 +12,18 @@ pub fn report(store: &PolicyStore) -> PolicyReport {
     let mut deny_count = 0;
     let mut wildcard_count = 0;
     for p in store.policies() {
-        match p.effect { Effect::Allow => allow_count += 1, Effect::Deny => deny_count += 1 }
-        if p.actions.iter().any(|a| a == "*") { wildcard_count += 1; }
+        match p.effect {
+            Effect::Allow => allow_count += 1,
+            Effect::Deny => deny_count += 1,
+        }
+        if p.actions.iter().any(|a| a == "*") {
+            wildcard_count += 1;
+        }
     }
-    PolicyReport { total: store.count(), allow_count, deny_count, wildcard_count }
+    PolicyReport {
+        total: store.count(),
+        allow_count,
+        deny_count,
+        wildcard_count,
+    }
 }

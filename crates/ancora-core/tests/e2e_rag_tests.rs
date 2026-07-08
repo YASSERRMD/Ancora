@@ -9,8 +9,8 @@ use ancora_core::{
     run::RunStatus,
 };
 use ancora_proto::ancora::{
-    journal_event::Event, ActivityRecordedEvent, JournalEvent, NodeEnteredEvent,
-    NodeExitedEvent, RunCompletedEvent, RunStartedEvent,
+    journal_event::Event, ActivityRecordedEvent, JournalEvent, NodeEnteredEvent, NodeExitedEvent,
+    RunCompletedEvent, RunStartedEvent,
 };
 
 fn ev(seq: u64, run_id: &str, event: Event) -> JournalEvent {
@@ -26,13 +26,22 @@ fn ev(seq: u64, run_id: &str, event: Event) -> JournalEvent {
 const FIXTURE_CHUNKS: &[(&str, f32)] = &[
     ("Rust memory model: ownership and borrowing.", 0.91),
     ("Lifetimes prevent dangling references.", 0.87),
-    ("The borrow checker enforces these rules at compile time.", 0.83),
+    (
+        "The borrow checker enforces these rules at compile time.",
+        0.83,
+    ),
 ];
 
 fn rag_retrieval_json(chunks: &[(&str, f32)]) -> String {
     let items: Vec<String> = chunks
         .iter()
-        .map(|(text, score)| format!(r#"{{"text":{},"score":{}}}"#, serde_json::to_string(text).unwrap(), score))
+        .map(|(text, score)| {
+            format!(
+                r#"{{"text":{},"score":{}}}"#,
+                serde_json::to_string(text).unwrap(),
+                score
+            )
+        })
         .collect();
     format!("[{}]", items.join(","))
 }
@@ -42,36 +51,60 @@ fn build_rag_journal(run_id: &str) -> Vec<JournalEvent> {
     let generation = r#"{"answer":"Rust uses ownership and borrowing to manage memory safely."}"#;
 
     vec![
-        ev(0, run_id, Event::RunStarted(RunStartedEvent {
-            run_id: run_id.to_owned(),
-            spec_bytes: vec![],
-            spec_type: "AgentSpec".into(),
-        })),
-        ev(1, run_id, Event::NodeEntered(NodeEnteredEvent {
-            node_id: "rag-node".into(),
-            node_kind: "agent".into(),
-        })),
-        ev(2, run_id, Event::ActivityRecorded(ActivityRecordedEvent {
-            activity_key: "vector-retrieve-1".into(),
-            activity_kind: "retrieval".into(),
-            input_json: r#"{"query":"rust memory management","top_k":3}"#.into(),
-            result_json: retrieval,
-            replayed: false,
-        })),
-        ev(3, run_id, Event::ActivityRecorded(ActivityRecordedEvent {
-            activity_key: "llm-generate-1".into(),
-            activity_kind: "llm".into(),
-            input_json: r#"{"context":"...","question":"rust memory management"}"#.into(),
-            result_json: generation.into(),
-            replayed: false,
-        })),
-        ev(4, run_id, Event::NodeExited(NodeExitedEvent {
-            node_id: "rag-node".into(),
-            success: true,
-        })),
-        ev(5, run_id, Event::RunCompleted(RunCompletedEvent {
-            output_json: generation.into(),
-        })),
+        ev(
+            0,
+            run_id,
+            Event::RunStarted(RunStartedEvent {
+                run_id: run_id.to_owned(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".into(),
+            }),
+        ),
+        ev(
+            1,
+            run_id,
+            Event::NodeEntered(NodeEnteredEvent {
+                node_id: "rag-node".into(),
+                node_kind: "agent".into(),
+            }),
+        ),
+        ev(
+            2,
+            run_id,
+            Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: "vector-retrieve-1".into(),
+                activity_kind: "retrieval".into(),
+                input_json: r#"{"query":"rust memory management","top_k":3}"#.into(),
+                result_json: retrieval,
+                replayed: false,
+            }),
+        ),
+        ev(
+            3,
+            run_id,
+            Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: "llm-generate-1".into(),
+                activity_kind: "llm".into(),
+                input_json: r#"{"context":"...","question":"rust memory management"}"#.into(),
+                result_json: generation.into(),
+                replayed: false,
+            }),
+        ),
+        ev(
+            4,
+            run_id,
+            Event::NodeExited(NodeExitedEvent {
+                node_id: "rag-node".into(),
+                success: true,
+            }),
+        ),
+        ev(
+            5,
+            run_id,
+            Event::RunCompleted(RunCompletedEvent {
+                output_json: generation.into(),
+            }),
+        ),
     ]
 }
 
@@ -192,5 +225,9 @@ fn rag_e2e_generation_output_is_valid_json() {
 #[test]
 fn rag_e2e_journal_has_six_events() {
     let events = build_rag_journal("e2e-rag-count");
-    assert_eq!(events.len(), 6, "started+entered+retrieve+generate+exited+completed = 6");
+    assert_eq!(
+        events.len(),
+        6,
+        "started+entered+retrieve+generate+exited+completed = 6"
+    );
 }

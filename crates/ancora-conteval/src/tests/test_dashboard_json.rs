@@ -72,7 +72,10 @@ fn test_dashboard_json_null_trend_slope() {
     let state = make_state();
     let json = state.to_json();
     // claude-3 has None trend_slope - should appear as null.
-    assert!(json.contains("null"), "None trend_slope should serialize as null");
+    assert!(
+        json.contains("null"),
+        "None trend_slope should serialize as null"
+    );
 }
 
 #[test]

@@ -2,7 +2,7 @@
 //!
 //! Aggregates results from multiple eval dimensions into a structured report.
 
-use crate::model::{SmallModel, SampleResult};
+use crate::model::{SampleResult, SmallModel};
 use crate::runtime::{MemoryFootprint, PowerProxy};
 
 /// Summary of a single model's edge evaluation.
@@ -51,9 +51,11 @@ impl EdgeEvalReport {
 
     /// Find the best model by edge score.
     pub fn best_model(&self) -> Option<&ModelEvalSummary> {
-        self.summaries
-            .iter()
-            .max_by(|a, b| a.edge_score().partial_cmp(&b.edge_score()).unwrap_or(std::cmp::Ordering::Equal))
+        self.summaries.iter().max_by(|a, b| {
+            a.edge_score()
+                .partial_cmp(&b.edge_score())
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
     }
 
     /// Render a plain-text summary of the report.
@@ -80,6 +82,7 @@ impl EdgeEvalReport {
     }
 
     /// Build a report from raw evaluation data.
+    #[allow(clippy::too_many_arguments)]
     pub fn build_from_results(
         title: impl Into<String>,
         model: &SmallModel,

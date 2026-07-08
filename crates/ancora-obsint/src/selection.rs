@@ -1,5 +1,4 @@
 /// Exporter selection: determines which backend(s) to use based on configuration.
-
 use crate::selfhosted::ResidencyPolicy;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -32,9 +31,7 @@ impl ExporterBackend {
     pub fn is_external(&self) -> bool {
         matches!(
             self,
-            ExporterBackend::Langfuse
-                | ExporterBackend::Phoenix
-                | ExporterBackend::Datadog
+            ExporterBackend::Langfuse | ExporterBackend::Phoenix | ExporterBackend::Datadog
         )
     }
 }

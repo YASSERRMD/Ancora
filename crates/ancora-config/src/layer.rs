@@ -12,7 +12,10 @@ pub struct ConfigLayers {
 
 impl ConfigLayers {
     pub fn new(base: AncoraCfg) -> Self {
-        Self { base, ..Default::default() }
+        Self {
+            base,
+            ..Default::default()
+        }
     }
 
     pub fn with_file(mut self, overlay: AncoraCfg) -> Self {

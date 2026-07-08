@@ -4,7 +4,7 @@
 use crate::config::{parse_override, serialize_profile};
 use crate::model::HardwareProfile;
 use crate::probe::probe_hardware;
-use crate::thermal::{read_thermal_pressure, run_thermal_hook, ThermalPressure};
+use crate::thermal::{run_thermal_hook, ThermalPressure};
 
 #[test]
 fn runs_offline_probe_does_not_panic() {
@@ -45,6 +45,10 @@ fn thermal_pressure_throughput_scale_range() {
     for v in 0u8..=3 {
         let p = ThermalPressure::from_u8(v);
         let scale = p.throughput_scale();
-        assert!(scale > 0.0 && scale <= 1.0, "scale out of range for {:?}", p);
+        assert!(
+            scale > 0.0 && scale <= 1.0,
+            "scale out of range for {:?}",
+            p
+        );
     }
 }

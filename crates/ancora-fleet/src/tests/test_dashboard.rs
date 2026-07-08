@@ -1,6 +1,6 @@
 use crate::dashboard::*;
-use crate::registration::*;
 use crate::inventory::*;
+use crate::registration::*;
 use crate::telemetry::*;
 use std::collections::HashMap;
 
@@ -23,8 +23,9 @@ fn test_dashboard_json_valid() {
     let registry = setup_registry_with_devices(3);
     let mut inventory = FleetInventory::new();
     for i in 0..3 {
-        let record = DeviceInventory::new(DeviceId::new(format!("dev-{}", i)), format!("host-{}", i))
-            .with_resources(4, 8192, 100);
+        let record =
+            DeviceInventory::new(DeviceId::new(format!("dev-{}", i)), format!("host-{}", i))
+                .with_resources(4, 8192, 100);
         inventory.update(record);
     }
     let telemetry = FleetTelemetry::new();

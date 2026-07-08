@@ -29,5 +29,8 @@ fn provenance_kind_display() {
     assert_eq!(format!("{}", ProvenanceKind::BuildSystem), "BUILD_SYSTEM");
     assert_eq!(format!("{}", ProvenanceKind::Vcs), "VCS");
     assert_eq!(format!("{}", ProvenanceKind::Registry), "REGISTRY");
-    assert_eq!(format!("{}", ProvenanceKind::ArtifactStore), "ARTIFACT_STORE");
+    assert_eq!(
+        format!("{}", ProvenanceKind::ArtifactStore),
+        "ARTIFACT_STORE"
+    );
 }

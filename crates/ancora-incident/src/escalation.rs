@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::incident::Severity;
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EscalationChannel {
@@ -30,8 +30,18 @@ pub struct EscalationLevel {
 }
 
 impl EscalationLevel {
-    pub fn new(level: u8, on_call: impl Into<String>, channel: EscalationChannel, delay_ticks: u64) -> Self {
-        Self { level, on_call: on_call.into(), channel, delay_ticks }
+    pub fn new(
+        level: u8,
+        on_call: impl Into<String>,
+        channel: EscalationChannel,
+        delay_ticks: u64,
+    ) -> Self {
+        Self {
+            level,
+            on_call: on_call.into(),
+            channel,
+            delay_ticks,
+        }
     }
 }
 
@@ -44,16 +54,24 @@ pub struct EscalationPolicy {
 
 impl EscalationPolicy {
     pub fn new(tenant_id: impl Into<String>, min_severity: Severity) -> Self {
-        Self { tenant_id: tenant_id.into(), min_severity, levels: Vec::new() }
+        Self {
+            tenant_id: tenant_id.into(),
+            min_severity,
+            levels: Vec::new(),
+        }
     }
 
-    pub fn add_level(&mut self, level: EscalationLevel) { self.levels.push(level); }
+    pub fn add_level(&mut self, level: EscalationLevel) {
+        self.levels.push(level);
+    }
 
     pub fn should_escalate(&self, severity: &Severity) -> bool {
         severity >= &self.min_severity
     }
 
-    pub fn level_count(&self) -> usize { self.levels.len() }
+    pub fn level_count(&self) -> usize {
+        self.levels.len()
+    }
 
     pub fn level_at(&self, index: usize) -> Option<&EscalationLevel> {
         self.levels.get(index)
@@ -70,7 +88,19 @@ pub struct EscalationRecord {
 }
 
 impl EscalationRecord {
-    pub fn new(incident_id: impl Into<String>, level: u8, on_call: impl Into<String>, channel: EscalationChannel, tick: u64) -> Self {
-        Self { incident_id: incident_id.into(), level, on_call: on_call.into(), channel, tick }
+    pub fn new(
+        incident_id: impl Into<String>,
+        level: u8,
+        on_call: impl Into<String>,
+        channel: EscalationChannel,
+        tick: u64,
+    ) -> Self {
+        Self {
+            incident_id: incident_id.into(),
+            level,
+            on_call: on_call.into(),
+            channel,
+            tick,
+        }
     }
 }

@@ -1,5 +1,4 @@
 /// Prometheus metrics exporter: text-format scrape endpoint generation.
-
 use crate::otlp::OtlpMetricPoint;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -39,11 +38,7 @@ pub struct PrometheusSample {
 }
 
 impl PrometheusMetric {
-    pub fn new(
-        name: impl Into<String>,
-        help: impl Into<String>,
-        metric_type: MetricType,
-    ) -> Self {
+    pub fn new(name: impl Into<String>, help: impl Into<String>, metric_type: MetricType) -> Self {
         PrometheusMetric {
             name: name.into(),
             help: help.into(),
@@ -84,7 +79,10 @@ impl PrometheusMetric {
                 .timestamp_ms
                 .map(|t| format!(" {}", t))
                 .unwrap_or_default();
-            out.push_str(&format!("{}{} {}{}\n", self.name, label_str, sample.value, ts_str));
+            out.push_str(&format!(
+                "{}{} {}{}\n",
+                self.name, label_str, sample.value, ts_str
+            ));
         }
         out
     }
@@ -109,7 +107,11 @@ pub fn points_to_prometheus(points: &[OtlpMetricPoint]) -> Vec<PrometheusMetric>
 
 /// Renders a complete scrape response from multiple metrics.
 pub fn render_scrape(metrics: &[PrometheusMetric]) -> String {
-    metrics.iter().map(|m| m.render()).collect::<Vec<_>>().join("")
+    metrics
+        .iter()
+        .map(|m| m.render())
+        .collect::<Vec<_>>()
+        .join("")
 }
 
 /// Validates a Prometheus metric name (must match [a-zA-Z_:][a-zA-Z0-9_:]*).
@@ -120,10 +122,7 @@ pub fn validate_metric_name(name: &str) -> Result<(), String> {
     let mut chars = name.chars();
     let first = chars.next().unwrap();
     if !first.is_ascii_alphabetic() && first != '_' && first != ':' {
-        return Err(format!(
-            "metric name '{}' must start with [a-zA-Z_:]",
-            name
-        ));
+        return Err(format!("metric name '{}' must start with [a-zA-Z_:]", name));
     }
     for c in chars {
         if !c.is_ascii_alphanumeric() && c != '_' && c != ':' {

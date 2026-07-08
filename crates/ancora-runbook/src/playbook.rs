@@ -17,7 +17,11 @@ pub struct Playbook {
 
 impl Playbook {
     pub fn new(name: &str, trigger: &str) -> Self {
-        Self { name: name.to_string(), trigger: trigger.to_string(), steps: vec![] }
+        Self {
+            name: name.to_string(),
+            trigger: trigger.to_string(),
+            steps: vec![],
+        }
     }
 
     pub fn add_step(mut self, action: &str, expected: &str, on_failure: &str) -> Self {

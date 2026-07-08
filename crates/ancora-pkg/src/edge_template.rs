@@ -105,7 +105,9 @@ pub struct EdgeTemplate {
 impl EdgeTemplate {
     pub fn render(config: EdgeConfig) -> Result<Self, EdgeError> {
         if config.product_name.is_empty() {
-            return Err(EdgeError::InvalidConfig("product_name is required".to_string()));
+            return Err(EdgeError::InvalidConfig(
+                "product_name is required".to_string(),
+            ));
         }
         if config.version.is_empty() {
             return Err(EdgeError::InvalidConfig("version is required".to_string()));
@@ -155,11 +157,20 @@ impl EdgeTemplate {
             storage = config.constraints.storage_limit_mb,
         );
 
-        Ok(Self { config, build_spec, runtime_config })
+        Ok(Self {
+            config,
+            build_spec,
+            runtime_config,
+        })
     }
 
     pub fn binary_name(&self) -> String {
-        format!("{}-{}-{}", self.config.product_name, self.config.version, self.config.arch.as_str())
+        format!(
+            "{}-{}-{}",
+            self.config.product_name,
+            self.config.version,
+            self.config.arch.as_str()
+        )
     }
 
     pub fn contains_in_build(&self, field: &str) -> bool {

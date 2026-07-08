@@ -2,7 +2,10 @@ use crate::retrieval::RetrievalChecker;
 
 #[test]
 fn retrieval_passes_when_all_keywords_present() {
-    let contents = vec!["the user likes rust".to_string(), "prefers offline mode".to_string()];
+    let contents = vec![
+        "the user likes rust".to_string(),
+        "prefers offline mode".to_string(),
+    ];
     assert!(RetrievalChecker::check(&contents, &["rust", "offline"]));
 }
 

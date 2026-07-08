@@ -56,10 +56,8 @@ fn apply_event(state: &mut ReplayState, event: &JournalEvent) -> Result<(), Anco
             state.run.seq = event.seq;
             state.activity_keys.push(a.activity_key.clone());
         }
-        Some(Event::Error(_)) => {
-            if state.run.status == RunStatus::Running {
-                state.run.transition(RunStatus::Failed)?;
-            }
+        Some(Event::Error(_)) if state.run.status == RunStatus::Running => {
+            state.run.transition(RunStatus::Failed)?;
         }
         _ => {}
     }

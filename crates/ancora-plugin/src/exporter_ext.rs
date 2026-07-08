@@ -1,5 +1,4 @@
 /// Exporter extension point - forward telemetry spans and metrics to an external sink.
-
 use std::collections::HashMap;
 
 /// A telemetry span representing a unit of work.

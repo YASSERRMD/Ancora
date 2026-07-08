@@ -1,4 +1,4 @@
-use crate::license::{LicenseClass, LicenseDeclaration, LicenseError, require_license};
+use crate::license::{require_license, LicenseClass, LicenseDeclaration, LicenseError};
 
 #[test]
 fn open_source_license_is_required_and_accepted() {
@@ -8,7 +8,10 @@ fn open_source_license_is_required_and_accepted() {
 
 #[test]
 fn missing_license_is_rejected() {
-    assert_eq!(require_license(None, false), Err(LicenseError::DeclarationMissing));
+    assert_eq!(
+        require_license(None, false),
+        Err(LicenseError::DeclarationMissing)
+    );
 }
 
 #[test]

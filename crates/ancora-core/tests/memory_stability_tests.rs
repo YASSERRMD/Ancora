@@ -47,7 +47,9 @@ fn minimal_journal(run_id: &str, n_activities: usize) -> Vec<JournalEvent> {
         run_id: run_id.to_owned(),
         seq: last_seq as u64,
         recorded_at_ns: (last_seq * 1_000_000) as i64,
-        event: Some(Event::RunCompleted(RunCompletedEvent { output_json: String::new() })),
+        event: Some(Event::RunCompleted(RunCompletedEvent {
+            output_json: String::new(),
+        })),
     });
 
     events
@@ -66,7 +68,11 @@ fn store_handles_one_thousand_runs_without_error() {
     }
 
     let events = store.read("run-500").unwrap();
-    assert_eq!(events.len(), 3, "run-500 must have started+activity+completed");
+    assert_eq!(
+        events.len(),
+        3,
+        "run-500 must have started+activity+completed"
+    );
 }
 
 #[test]

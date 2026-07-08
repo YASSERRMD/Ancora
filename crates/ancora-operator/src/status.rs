@@ -13,7 +13,11 @@ pub fn make_condition(ctype: &str, status: ConditionStatus, message: &str) -> Co
 pub fn ready_condition(ready: bool, message: &str) -> Condition {
     make_condition(
         "Ready",
-        if ready { ConditionStatus::True } else { ConditionStatus::False },
+        if ready {
+            ConditionStatus::True
+        } else {
+            ConditionStatus::False
+        },
         message,
     )
 }

@@ -25,6 +25,6 @@ mod tests {
         s.reset();
         // after reset, next call is counter=1 again, not sampled for rate=2
         assert!(!s.should_sample()); // counter=1, 1%2!=0
-        assert!(s.should_sample());  // counter=2, 2%2==0
+        assert!(s.should_sample()); // counter=2, 2%2==0
     }
 }

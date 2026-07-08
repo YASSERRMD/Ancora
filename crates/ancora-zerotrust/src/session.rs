@@ -54,32 +54,63 @@ impl ZeroTrustSession {
     }
 
     pub fn with_device(mut self, device_id: impl Into<String>) -> Self {
-        self.device_id = Some(device_id.into()); self
+        self.device_id = Some(device_id.into());
+        self
     }
 
     pub fn is_valid(&self, current_tick: u64) -> bool {
         self.state == SessionState::Active && current_tick < self.expires_tick
     }
 
-    pub fn refresh_verification(&mut self, tick: u64) { self.last_verified_tick = tick; }
-    pub fn expire(&mut self) { self.state = SessionState::Expired; }
-    pub fn revoke(&mut self) { self.state = SessionState::Revoked; }
+    pub fn refresh_verification(&mut self, tick: u64) {
+        self.last_verified_tick = tick;
+    }
+    pub fn expire(&mut self) {
+        self.state = SessionState::Expired;
+    }
+    pub fn revoke(&mut self) {
+        self.state = SessionState::Revoked;
+    }
 }
 
 pub struct SessionStore {
     sessions: HashMap<String, ZeroTrustSession>,
 }
 
+impl Default for SessionStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SessionStore {
-    pub fn new() -> Self { Self { sessions: HashMap::new() } }
-    pub fn insert(&mut self, s: ZeroTrustSession) { self.sessions.insert(s.id.clone(), s); }
-    pub fn get(&self, id: &str) -> Option<&ZeroTrustSession> { self.sessions.get(id) }
-    pub fn get_mut(&mut self, id: &str) -> Option<&mut ZeroTrustSession> { self.sessions.get_mut(id) }
+    pub fn new() -> Self {
+        Self {
+            sessions: HashMap::new(),
+        }
+    }
+    pub fn insert(&mut self, s: ZeroTrustSession) {
+        self.sessions.insert(s.id.clone(), s);
+    }
+    pub fn get(&self, id: &str) -> Option<&ZeroTrustSession> {
+        self.sessions.get(id)
+    }
+    pub fn get_mut(&mut self, id: &str) -> Option<&mut ZeroTrustSession> {
+        self.sessions.get_mut(id)
+    }
     pub fn active(&self, current_tick: u64) -> Vec<&ZeroTrustSession> {
-        self.sessions.values().filter(|s| s.is_valid(current_tick)).collect()
+        self.sessions
+            .values()
+            .filter(|s| s.is_valid(current_tick))
+            .collect()
     }
     pub fn for_identity<'a>(&'a self, identity_id: &str) -> Vec<&'a ZeroTrustSession> {
-        self.sessions.values().filter(|s| s.identity_id == identity_id).collect()
+        self.sessions
+            .values()
+            .filter(|s| s.identity_id == identity_id)
+            .collect()
     }
-    pub fn count(&self) -> usize { self.sessions.len() }
+    pub fn count(&self) -> usize {
+        self.sessions.len()
+    }
 }

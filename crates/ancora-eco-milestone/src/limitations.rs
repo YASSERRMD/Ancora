@@ -14,7 +14,12 @@ impl Limitation {
         workaround: Option<&'static str>,
         target_release: Option<&'static str>,
     ) -> Self {
-        Self { id, summary, workaround, target_release }
+        Self {
+            id,
+            summary,
+            workaround,
+            target_release,
+        }
     }
 
     pub fn has_workaround(&self) -> bool {

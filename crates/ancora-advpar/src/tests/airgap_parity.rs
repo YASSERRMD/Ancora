@@ -1,8 +1,8 @@
 // Air-gap parity: all advanced capability tests run in-process, no network.
 // Validates that every parity check completes without any I/O.
-use ancora_ageval::{PlanningMetric, RoutingMetric, ReasoningMetric};
-use ancora_coord::{ContractNet, Bid};
-use ancora_guard::{GuardrailOutcome, GuardrailPolicy, InjectionInputGuardrail, GuardrailJournal};
+use ancora_ageval::{PlanningMetric, ReasoningMetric, RoutingMetric};
+use ancora_coord::{Bid, ContractNet};
+use ancora_guard::{GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail};
 use ancora_lh::BackgroundRun;
 use ancora_memcon::TokenBudget;
 use ancora_orchestrate::fan_out;
@@ -27,7 +27,11 @@ fn airgap_parity_orchestrate_in_memory() {
 
 #[test]
 fn airgap_parity_coord_in_memory() {
-    let bids = vec![Bid { agent_id: "a".into(), task_id: "t".into(), score: 0.9 }];
+    let bids = vec![Bid {
+        agent_id: "a".into(),
+        task_id: "t".into(),
+        score: 0.9,
+    }];
     assert!(ContractNet::assign(&bids).is_some());
 }
 
@@ -61,7 +65,13 @@ fn airgap_parity_reason_in_memory() {
 #[test]
 fn airgap_parity_skills_in_memory() {
     let mut reg = SkillRegistry::default();
-    reg.load(SkillDescriptor::new("x", 1, "x", vec![], SkillScope::ReadOnly));
+    reg.load(SkillDescriptor::new(
+        "x",
+        1,
+        "x",
+        vec![],
+        SkillScope::ReadOnly,
+    ));
     assert!(reg.find("x").is_some());
 }
 

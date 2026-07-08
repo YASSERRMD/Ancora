@@ -1,8 +1,8 @@
-/// Author identity and signing for marketplace extensions.
-///
-/// Each extension must be signed by a verified author. This module provides
-/// lightweight identity records and a deterministic signature verification
-/// stub that is safe for offline use.
+//! Author identity and signing for marketplace extensions.
+//!
+//! Each extension must be signed by a verified author. This module provides
+//! lightweight identity records and a deterministic signature verification
+//! stub that is safe for offline use.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AuthorIdentity {

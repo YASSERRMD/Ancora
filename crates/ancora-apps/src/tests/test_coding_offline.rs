@@ -26,8 +26,18 @@ fn coding_assistant_finds_snippet_offline() {
 #[test]
 fn coding_assistant_cross_language_search() {
     let mut lib = SnippetLibrary::new();
-    lib.add(Snippet::new("r1", Language::Rust, "write to file", "std::fs::write(path, data)?;"));
-    lib.add(Snippet::new("p1", Language::Python, "write to file", "open(path, 'w').write(data)"));
+    lib.add(Snippet::new(
+        "r1",
+        Language::Rust,
+        "write to file",
+        "std::fs::write(path, data)?;",
+    ));
+    lib.add(Snippet::new(
+        "p1",
+        Language::Python,
+        "write to file",
+        "open(path, 'w').write(data)",
+    ));
 
     let assistant = CodingAssistant::new(lib);
     let suggestion = assistant.suggest("write to file", None);

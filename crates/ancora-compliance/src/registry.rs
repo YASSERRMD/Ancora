@@ -1,13 +1,17 @@
-use std::collections::HashMap;
 use crate::control::{ComplianceControl, ControlStatus};
 use crate::framework::{ControlId, Framework};
+use std::collections::HashMap;
 
 pub struct ControlRegistry {
     controls: HashMap<String, ComplianceControl>,
 }
 
 impl ControlRegistry {
-    pub fn new() -> Self { Self { controls: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            controls: HashMap::new(),
+        }
+    }
 
     pub fn register(&mut self, control: ComplianceControl) {
         self.controls.insert(control.id.0.clone(), control);
@@ -21,14 +25,22 @@ impl ControlRegistry {
         self.controls.get_mut(&id.0)
     }
 
-    pub fn count(&self) -> usize { self.controls.len() }
+    pub fn count(&self) -> usize {
+        self.controls.len()
+    }
 
     pub fn for_framework(&self, framework: &Framework) -> Vec<&ComplianceControl> {
-        self.controls.values().filter(|c| &c.framework == framework).collect()
+        self.controls
+            .values()
+            .filter(|c| &c.framework == framework)
+            .collect()
     }
 
     pub fn by_status(&self, status: &ControlStatus) -> Vec<&ComplianceControl> {
-        self.controls.values().filter(|c| &c.status == status).collect()
+        self.controls
+            .values()
+            .filter(|c| &c.status == status)
+            .collect()
     }
 
     pub fn compliant_count(&self) -> usize {
@@ -36,12 +48,19 @@ impl ControlRegistry {
     }
 
     pub fn non_compliant_count(&self) -> usize {
-        self.controls.values().filter(|c| c.status == ControlStatus::NonCompliant).count()
+        self.controls
+            .values()
+            .filter(|c| c.status == ControlStatus::NonCompliant)
+            .count()
     }
 
-    pub fn all(&self) -> impl Iterator<Item = &ComplianceControl> { self.controls.values() }
+    pub fn all(&self) -> impl Iterator<Item = &ComplianceControl> {
+        self.controls.values()
+    }
 }
 
 impl Default for ControlRegistry {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

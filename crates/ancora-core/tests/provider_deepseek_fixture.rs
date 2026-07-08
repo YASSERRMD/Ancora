@@ -1,9 +1,9 @@
 /// DeepSeek provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const DEEPSEEK_CHAT: &str    = "deepseek-chat";
-const DEEPSEEK_CODER: &str   = "deepseek-coder";
-const DEEPSEEK_R1: &str      = "deepseek-reasoner";
+const DEEPSEEK_CHAT: &str = "deepseek-chat";
+const DEEPSEEK_CODER: &str = "deepseek-coder";
+const DEEPSEEK_R1: &str = "deepseek-reasoner";
 
 fn deepseek_router() -> ModelRouter {
     let mut r = ModelRouter::new(DEEPSEEK_CHAT);
@@ -19,7 +19,10 @@ fn deepseek_default_is_chat() {
 
 #[test]
 fn deepseek_coder_binding_resolves() {
-    assert_eq!(deepseek_router().resolve("coder-node", None), DEEPSEEK_CODER);
+    assert_eq!(
+        deepseek_router().resolve("coder-node", None),
+        DEEPSEEK_CODER
+    );
 }
 
 #[test]
@@ -35,7 +38,10 @@ fn deepseek_unbound_falls_back_to_chat() {
 #[test]
 fn deepseek_all_models_start_with_deepseek() {
     for m in [DEEPSEEK_CHAT, DEEPSEEK_CODER, DEEPSEEK_R1] {
-        assert!(m.starts_with("deepseek-"), "Expected deepseek- prefix in {m}");
+        assert!(
+            m.starts_with("deepseek-"),
+            "Expected deepseek- prefix in {m}"
+        );
     }
 }
 

@@ -42,7 +42,10 @@ pub fn build_bedrock_profile() -> ProviderProfile {
                 .with_tools()
                 .with_streaming(),
         )
-        .add_alias("claude-3-5-sonnet", "anthropic.claude-3-5-sonnet-20241022-v2:0")
+        .add_alias(
+            "claude-3-5-sonnet",
+            "anthropic.claude-3-5-sonnet-20241022-v2:0",
+        )
         .add_alias("claude-haiku", "anthropic.claude-3-haiku-20240307-v1:0")
         .add_alias("llama3-70b", "meta.llama3-70b-instruct-v1:0")
         .add_alias("mistral-large", "mistral.mistral-large-2402-v1:0")
@@ -82,20 +85,27 @@ mod tests {
     #[test]
     fn bedrock_llama_alias_resolves() {
         let p = build_bedrock_profile();
-        assert_eq!(p.resolve_model_id("llama3-70b"), "meta.llama3-70b-instruct-v1:0");
+        assert_eq!(
+            p.resolve_model_id("llama3-70b"),
+            "meta.llama3-70b-instruct-v1:0"
+        );
     }
 
     #[test]
     fn bedrock_claude_has_vision() {
         let p = build_bedrock_profile();
-        let meta = p.model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0").unwrap();
+        let meta = p
+            .model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0")
+            .unwrap();
         assert!(meta.capabilities.vision);
     }
 
     #[test]
     fn bedrock_claude_has_tools() {
         let p = build_bedrock_profile();
-        let meta = p.model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0").unwrap();
+        let meta = p
+            .model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0")
+            .unwrap();
         assert!(meta.capabilities.tools);
     }
 
@@ -116,8 +126,12 @@ mod tests {
     #[test]
     fn bedrock_claude_haiku_pricing_cheaper_than_sonnet() {
         let p = build_bedrock_profile();
-        let sonnet = p.model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0").unwrap();
-        let haiku = p.model_meta("anthropic.claude-3-haiku-20240307-v1:0").unwrap();
+        let sonnet = p
+            .model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0")
+            .unwrap();
+        let haiku = p
+            .model_meta("anthropic.claude-3-haiku-20240307-v1:0")
+            .unwrap();
         let sp = sonnet.pricing.as_ref().unwrap();
         let hp = haiku.pricing.as_ref().unwrap();
         assert!(hp.input_per_million < sp.input_per_million);
@@ -126,7 +140,9 @@ mod tests {
     #[test]
     fn bedrock_claude_sonnet_context_window() {
         let p = build_bedrock_profile();
-        let meta = p.model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0").unwrap();
+        let meta = p
+            .model_meta("anthropic.claude-3-5-sonnet-20241022-v2:0")
+            .unwrap();
         assert_eq!(meta.context_window, 200_000);
     }
 
@@ -154,15 +170,22 @@ mod tests {
             "mistral.mistral-large-2402-v1:0",
         ];
         for model_id in models {
-            let meta = p.model_meta(model_id).unwrap_or_else(|| panic!("{model_id} missing"));
-            assert!(meta.capabilities.streaming, "{model_id} should have streaming");
+            let meta = p
+                .model_meta(model_id)
+                .unwrap_or_else(|| panic!("{model_id} missing"));
+            assert!(
+                meta.capabilities.streaming,
+                "{model_id} should have streaming"
+            );
         }
     }
 
     #[test]
     fn bedrock_cost_computed_for_haiku() {
         let p = build_bedrock_profile();
-        let meta = p.model_meta("anthropic.claude-3-haiku-20240307-v1:0").unwrap();
+        let meta = p
+            .model_meta("anthropic.claude-3-haiku-20240307-v1:0")
+            .unwrap();
         let cost = meta.compute_cost(100, 50, 0).unwrap();
         // 100 in * $0.25/M + 50 out * $1.25/M
         let expected = 100.0 * 0.25 / 1_000_000.0 + 50.0 * 1.25 / 1_000_000.0;

@@ -1,4 +1,4 @@
-use crate::trace_e2e::{build_run_trace, Span, Trace};
+use crate::trace_e2e::{build_run_trace, Trace};
 
 #[test]
 fn run_produces_a_complete_trace() {
@@ -34,7 +34,10 @@ fn trace_spans_have_valid_time_ranges() {
 fn trace_attributes_are_accessible() {
     let trace = build_run_trace("trace-003");
     let root = trace.root_span().unwrap();
-    assert_eq!(root.attributes.get("agent.name").map(|s| s.as_str()), Some("test-agent"));
+    assert_eq!(
+        root.attributes.get("agent.name").map(|s| s.as_str()),
+        Some("test-agent")
+    );
 }
 
 #[test]

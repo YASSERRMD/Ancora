@@ -30,6 +30,10 @@ impl AuditStats {
     }
 
     pub fn failure_rate(&self) -> f64 {
-        if self.total == 0 { 0.0 } else { self.failures as f64 / self.total as f64 }
+        if self.total == 0 {
+            0.0
+        } else {
+            self.failures as f64 / self.total as f64
+        }
     }
 }

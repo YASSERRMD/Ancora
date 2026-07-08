@@ -20,7 +20,11 @@ impl ProviderErrorRate {
         let s = self.success.get(provider).copied().unwrap_or(0);
         let e = self.errors.get(provider).copied().unwrap_or(0);
         let total = s + e;
-        if total == 0 { 0.0 } else { e as f64 / total as f64 }
+        if total == 0 {
+            0.0
+        } else {
+            e as f64 / total as f64
+        }
     }
 }
 

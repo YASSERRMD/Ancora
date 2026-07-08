@@ -21,10 +21,10 @@ pub mod reliability;
 pub mod report;
 pub mod runtime;
 
-pub use memory::{MemoryBudget, smallest_fitting};
+pub use memory::{smallest_fitting, MemoryBudget};
 pub use model::{CapabilitySample, SampleResult, SmallModel, SmallModelSuite, TaskCategory};
-pub use power::{ThermalEnvelope, most_efficient};
 pub use offline::{MockScorer, OfflineConfig, OfflineDataset, OfflineEvalRunner, OfflineSample};
+pub use power::{most_efficient, ThermalEnvelope};
 pub use quant::{QuantFormat, QuantMeasurement, QuantTradeoffEval};
 pub use recommend::{DeviceProfile, DeviceRecommender, ModelCandidate, Recommendation};
 pub use reliability::{

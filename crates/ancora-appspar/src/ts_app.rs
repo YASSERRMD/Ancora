@@ -1,6 +1,6 @@
-/// TypeScript/Node sample app parity module.
-///
-/// Models the canonical TypeScript (anthropic-sdk) agent sample app.
+//! TypeScript/Node sample app parity module.
+//!
+//! Models the canonical TypeScript (anthropic-sdk) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TsApp {
@@ -37,7 +37,10 @@ impl std::fmt::Display for TsAppError {
 }
 
 impl TsApp {
-    pub fn new(name: impl Into<String>, sdk_version: impl Into<String>) -> Result<Self, TsAppError> {
+    pub fn new(
+        name: impl Into<String>,
+        sdk_version: impl Into<String>,
+    ) -> Result<Self, TsAppError> {
         let sdk_version = sdk_version.into();
         if sdk_version.is_empty() {
             return Err(TsAppError::InvalidSdkVersion);

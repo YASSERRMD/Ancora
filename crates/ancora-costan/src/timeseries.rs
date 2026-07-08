@@ -1,4 +1,4 @@
-/// Cost time series tracking - records cost data points over time.
+//! Cost time series tracking - records cost data points over time.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CostPoint {
@@ -22,7 +22,11 @@ impl CostTimeSeries {
 
     /// Record a new cost data point.
     pub fn record(&mut self, timestamp: u64, cost_usd: f64, tokens: u64) {
-        self.points.push(CostPoint { timestamp, cost_usd, tokens });
+        self.points.push(CostPoint {
+            timestamp,
+            cost_usd,
+            tokens,
+        });
         self.points.sort_by_key(|p| p.timestamp);
     }
 
@@ -62,8 +66,7 @@ impl CostTimeSeries {
 
     /// Aggregate by hour bucket (truncate timestamp to hour).
     pub fn hourly_buckets(&self) -> Vec<(u64, f64)> {
-        let mut buckets: std::collections::BTreeMap<u64, f64> =
-            std::collections::BTreeMap::new();
+        let mut buckets: std::collections::BTreeMap<u64, f64> = std::collections::BTreeMap::new();
         for p in &self.points {
             let hour = (p.timestamp / 3600) * 3600;
             *buckets.entry(hour).or_insert(0.0) += p.cost_usd;

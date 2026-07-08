@@ -1,6 +1,5 @@
 use crate::perf::{
-    histogram_bucket, p95_ms, BootTimer, PhaseStopwatch, TimingSample,
-    DEFAULT_BOOT_TARGET_MS,
+    histogram_bucket, p95_ms, BootTimer, PhaseStopwatch, TimingSample, DEFAULT_BOOT_TARGET_MS,
 };
 use std::time::Duration;
 
@@ -44,9 +43,9 @@ fn test_slowest_phase_identified() {
 
 #[test]
 fn test_p95_calculation() {
-    let samples: Vec<Duration> = (0..100).map(|i| Duration::from_millis(i)).collect();
+    let samples: Vec<Duration> = (0..100).map(Duration::from_millis).collect();
     let p95 = p95_ms(&samples);
-    assert!(p95 >= 94 && p95 <= 99);
+    assert!((94..=99).contains(&p95));
 }
 
 #[test]

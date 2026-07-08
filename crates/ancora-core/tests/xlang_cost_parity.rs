@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 struct LangCost {
+    #[allow(dead_code)]
     lang: &'static str,
     input_tokens: u64,
     output_tokens: u64,
@@ -21,17 +22,31 @@ impl LangCost {
 const RATES: (f64, f64) = (3.0, 15.0);
 
 fn make_lang_cost(lang: &'static str) -> LangCost {
-    LangCost { lang, input_tokens: 1000, output_tokens: 500, input_rate_per_m: RATES.0, output_rate_per_m: RATES.1 }
+    LangCost {
+        lang,
+        input_tokens: 1000,
+        output_tokens: 500,
+        input_rate_per_m: RATES.0,
+        output_rate_per_m: RATES.1,
+    }
 }
 
 const LANGS: &[&str] = &["rust", "go", "python", "ts", "dotnet", "java"];
 
 #[test]
 fn all_languages_compute_identical_cost() {
-    let costs: Vec<f64> = LANGS.iter().map(|l| make_lang_cost(l).total_usd()).collect();
+    let costs: Vec<f64> = LANGS
+        .iter()
+        .map(|l| make_lang_cost(l).total_usd())
+        .collect();
     let first = costs[0];
     for (i, &c) in costs.iter().enumerate() {
-        assert!((c - first).abs() < 1e-12, "cost mismatch for {} at index {}", LANGS[i], i);
+        assert!(
+            (c - first).abs() < 1e-12,
+            "cost mismatch for {} at index {}",
+            LANGS[i],
+            i
+        );
     }
 }
 
@@ -66,6 +81,9 @@ fn total_cost_is_sum_of_input_and_output() {
 
 #[test]
 fn cost_map_has_six_languages() {
-    let map: HashMap<&str, f64> = LANGS.iter().map(|l| (*l, make_lang_cost(l).total_usd())).collect();
+    let map: HashMap<&str, f64> = LANGS
+        .iter()
+        .map(|l| (*l, make_lang_cost(l).total_usd()))
+        .collect();
     assert_eq!(map.len(), 6);
 }

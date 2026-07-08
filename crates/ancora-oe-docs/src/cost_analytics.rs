@@ -29,11 +29,7 @@ pub struct ModelPricing {
 }
 
 impl ModelPricing {
-    pub fn new(
-        model: impl Into<String>,
-        input_cost_per_1k: f64,
-        output_cost_per_1k: f64,
-    ) -> Self {
+    pub fn new(model: impl Into<String>, input_cost_per_1k: f64, output_cost_per_1k: f64) -> Self {
         Self {
             model: model.into(),
             input_cost_per_1k,

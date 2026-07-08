@@ -1,10 +1,10 @@
 /// Qwen (Alibaba) provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const QWEN3_MAX: &str    = "qwen3-max";
-const QWEN3_PLUS: &str   = "qwen3-plus";
-const QWEN_TURBO: &str   = "qwen-turbo";
-const QWEN_LONG: &str    = "qwen-long";
+const QWEN3_MAX: &str = "qwen3-max";
+const QWEN3_PLUS: &str = "qwen3-plus";
+const QWEN_TURBO: &str = "qwen-turbo";
+const QWEN_LONG: &str = "qwen-long";
 const QWEN_VL_PLUS: &str = "qwen-vl-plus";
 
 fn qwen_router() -> ModelRouter {

@@ -30,9 +30,18 @@ fn test_edge_arch_triples() {
 fn test_edge_runtime_security() {
     let config = EdgeConfig::new("sec-edge", "1.0.0", EdgeArch::X86_64);
     let tmpl = EdgeTemplate::render(config).expect("should render");
-    assert!(tmpl.runtime_config.contains("tls: required"), "TLS must be required at the edge");
-    assert!(tmpl.runtime_config.contains("no_root: true"), "must run without root");
-    assert!(tmpl.runtime_config.contains("audit_log: enabled"), "audit log must be enabled");
+    assert!(
+        tmpl.runtime_config.contains("tls: required"),
+        "TLS must be required at the edge"
+    );
+    assert!(
+        tmpl.runtime_config.contains("no_root: true"),
+        "must run without root"
+    );
+    assert!(
+        tmpl.runtime_config.contains("audit_log: enabled"),
+        "audit log must be enabled"
+    );
 }
 
 #[test]
@@ -60,8 +69,8 @@ fn test_edge_resource_constraints_in_runtime() {
         max_cpu_percent: 25,
         storage_limit_mb: 256,
     };
-    let config = EdgeConfig::new("small-edge", "1.0.0", EdgeArch::Armv7)
-        .with_constraints(constraints);
+    let config =
+        EdgeConfig::new("small-edge", "1.0.0", EdgeArch::Armv7).with_constraints(constraints);
     let tmpl = EdgeTemplate::render(config).expect("should render");
     assert!(tmpl.runtime_config.contains("max_memory_mb: 128"));
     assert!(tmpl.runtime_config.contains("max_cpu_percent: 25"));

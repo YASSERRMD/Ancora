@@ -3,7 +3,6 @@
 /// Two runs may share a common prefix and then diverge.  [`diff_journals`]
 /// walks both journals in lockstep and returns a [`RunDiff`] describing
 /// the point of divergence and per-position differences.
-
 use crate::loader::{EntryKind, Journal, Seq};
 
 /// Describes how two journal entries differ.
@@ -51,10 +50,20 @@ fn entry_summary(kind: &EntryKind) -> String {
     match kind {
         EntryKind::StateChange { from, to } => format!("{}->{}", from, to),
         EntryKind::LlmExchange { prompt, response } => {
-            format!("prompt={:?} response={:?}", &prompt[..prompt.len().min(40)], &response[..response.len().min(40)])
+            format!(
+                "prompt={:?} response={:?}",
+                &prompt[..prompt.len().min(40)],
+                &response[..response.len().min(40)]
+            )
         }
-        EntryKind::ToolCall { tool_name, output, .. } => {
-            format!("tool={} output={:?}", tool_name, &output[..output.len().min(40)])
+        EntryKind::ToolCall {
+            tool_name, output, ..
+        } => {
+            format!(
+                "tool={} output={:?}",
+                tool_name,
+                &output[..output.len().min(40)]
+            )
         }
         EntryKind::Annotation { text } => format!("annotation={:?}", text),
     }
@@ -74,7 +83,10 @@ fn diff_entry(left: &EntryKind, right: &EntryKind) -> EntryDiff {
     if ls == rs {
         EntryDiff::Equal
     } else {
-        EntryDiff::ContentChanged { left: ls, right: rs }
+        EntryDiff::ContentChanged {
+            left: ls,
+            right: rs,
+        }
     }
 }
 
@@ -103,19 +115,24 @@ pub fn diff_journals(left: &Journal, right: &Journal) -> RunDiff {
         lines.push(DiffLine { seq, diff: d });
     }
 
-    RunDiff { first_divergence, lines }
+    RunDiff {
+        first_divergence,
+        lines,
+    }
 }
 
 impl RunDiff {
     /// Return true if the two journals are identical (no divergence).
     pub fn is_identical(&self) -> bool {
-        self.first_divergence.is_none()
-            && self.lines.iter().all(|l| l.diff == EntryDiff::Equal)
+        self.first_divergence.is_none() && self.lines.iter().all(|l| l.diff == EntryDiff::Equal)
     }
 
     /// Return only the lines that differ.
     pub fn changed_lines(&self) -> Vec<&DiffLine> {
-        self.lines.iter().filter(|l| l.diff != EntryDiff::Equal).collect()
+        self.lines
+            .iter()
+            .filter(|l| l.diff != EntryDiff::Equal)
+            .collect()
     }
 }
 
@@ -128,7 +145,10 @@ mod tests {
         JournalEntry::new(
             RunId::new(run),
             seq,
-            EntryKind::StateChange { from: from.into(), to: to.into() },
+            EntryKind::StateChange {
+                from: from.into(),
+                to: to.into(),
+            },
         )
     }
 
@@ -154,7 +174,10 @@ mod tests {
         let j1 = load_journal(vec![sc("r1", 0, "a", "b"), sc("r1", 1, "b", "c")]).unwrap();
         let j2 = load_journal(vec![sc("r2", 0, "a", "b")]).unwrap();
         let diff = diff_journals(&j1, &j2);
-        assert!(diff.changed_lines().iter().any(|l| l.diff == EntryDiff::OnlyInLeft));
+        assert!(diff
+            .changed_lines()
+            .iter()
+            .any(|l| l.diff == EntryDiff::OnlyInLeft));
     }
 
     #[test]

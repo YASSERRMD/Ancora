@@ -12,7 +12,13 @@ fn effect_display() {
 }
 #[test]
 fn rule_display_includes_key_fields() {
-    let rule = RuleBuilder::new("r1").host("api.com").port(443).tcp().allow().priority(10).build();
+    let rule = RuleBuilder::new("r1")
+        .host("api.com")
+        .port(443)
+        .tcp()
+        .allow()
+        .priority(10)
+        .build();
     let s = format!("{}", rule);
     assert!(s.contains("r1"));
     assert!(s.contains("api.com"));

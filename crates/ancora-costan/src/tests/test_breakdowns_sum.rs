@@ -1,9 +1,9 @@
 use crate::{
+    by_capability::{Capability, CapabilityCostBreakdown},
     by_model::ModelCostBreakdown,
     by_provider::ProviderCostBreakdown,
-    by_tool::ToolCostBreakdown,
     by_tenant::TenantCostBreakdown,
-    by_capability::{Capability, CapabilityCostBreakdown},
+    by_tool::ToolCostBreakdown,
 };
 
 #[test]
@@ -13,8 +13,12 @@ fn model_breakdown_sums_to_total() {
     b.record("claude-3", 2.0, 2000);
     b.record("mistral", 1.0, 1000);
     let from_top: f64 = b.top_models().iter().map(|(_, c)| c).sum();
-    assert!((from_top - b.total_cost()).abs() < 1e-9,
-        "top models sum {} != total {}", from_top, b.total_cost());
+    assert!(
+        (from_top - b.total_cost()).abs() < 1e-9,
+        "top models sum {} != total {}",
+        from_top,
+        b.total_cost()
+    );
 }
 
 #[test]
@@ -54,10 +58,13 @@ fn capability_fractions_sum_to_one() {
     b.record(Capability::Reflection, 2.0);
     b.record(Capability::Routing, 1.0);
     let total = b.total_cost();
-    let sum_fracs =
-        b.fraction_for(&Capability::Planner)
+    let sum_fracs = b.fraction_for(&Capability::Planner)
         + b.fraction_for(&Capability::Reflection)
         + b.fraction_for(&Capability::Routing);
-    assert!((sum_fracs - 1.0).abs() < 1e-9,
-        "fractions sum to {} not 1.0 (total={})", sum_fracs, total);
+    assert!(
+        (sum_fracs - 1.0).abs() < 1e-9,
+        "fractions sum to {} not 1.0 (total={})",
+        sum_fracs,
+        total
+    );
 }

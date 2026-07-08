@@ -1,9 +1,12 @@
-use ancora_guard::{AllowDenyGuardrail, GuardrailJournal, GuardrailOutcome, GuardrailPolicy};
 use crate::{tool_misuse_scenarios, GuardrailScorer};
+use ancora_guard::{AllowDenyGuardrail, GuardrailJournal, GuardrailOutcome, GuardrailPolicy};
 
 fn check_tool(tool: &str) -> bool {
     let mut p = GuardrailPolicy::new();
-    p.add_action(AllowDenyGuardrail::allow_only(vec!["search_web", "summarize"]));
+    p.add_action(AllowDenyGuardrail::allow_only(vec![
+        "search_web",
+        "summarize",
+    ]));
     let mut j = GuardrailJournal::default();
     !matches!(p.check_action(tool, "", &mut j, 1), GuardrailOutcome::Pass)
 }
@@ -32,11 +35,12 @@ fn tool_misuse_dataset_has_scenarios() {
 
 #[test]
 fn tool_misuse_scorer_blocked_count() {
-    let denied_tools = vec!["run_shell", "delete_all_files"];
-    let scenarios: Vec<_> = denied_tools.iter().map(|t| {
-        crate::AdversarialScenario::new("t", crate::AttackCategory::ToolMisuse, t, true)
-    }).collect();
-    let report = GuardrailScorer::score(&scenarios, |tool| check_tool(tool));
+    let denied_tools = ["run_shell", "delete_all_files"];
+    let scenarios: Vec<_> = denied_tools
+        .iter()
+        .map(|t| crate::AdversarialScenario::new("t", crate::AttackCategory::ToolMisuse, t, true))
+        .collect();
+    let report = GuardrailScorer::score(&scenarios, check_tool);
     assert_eq!(report.false_negatives(), 0);
     assert!((report.effectiveness() - 1.0).abs() < f64::EPSILON);
 }

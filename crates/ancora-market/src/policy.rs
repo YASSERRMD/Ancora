@@ -3,9 +3,8 @@
 /// Operators configure an `InstallPolicy` that gates extension installs based
 /// on the computed trust score, required badges, and other signals. The policy
 /// is evaluated before install proceeds.
-
 use crate::badge::{BadgeKind, BadgeSet};
-use crate::residency::{Region, ResidencyDeclaration, ResidencyError, enforce_residency};
+use crate::residency::{enforce_residency, Region, ResidencyDeclaration, ResidencyError};
 use crate::trust_score::TrustScore;
 
 /// The operating mode of the install policy.
@@ -129,7 +128,7 @@ pub fn evaluate_policy(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::trust_score::{TrustScore, TrustBreakdown};
+    use crate::trust_score::{TrustBreakdown, TrustScore};
 
     fn low_score() -> TrustScore {
         TrustScore {

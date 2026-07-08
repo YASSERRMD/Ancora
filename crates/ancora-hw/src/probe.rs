@@ -120,21 +120,24 @@ pub fn detect_gpu_backend(arch: &CpuArch) -> GpuBackend {
     {
         // All Apple M-series and recent Intel Macs have Metal.
         let _ = arch;
-        return GpuBackend::Metal;
+        GpuBackend::Metal
     }
-    #[cfg(target_os = "linux")]
+    #[cfg(not(target_os = "macos"))]
     {
-        // Check for nvidia device nodes.
-        if std::path::Path::new("/dev/nvidia0").exists() {
-            return GpuBackend::Cuda;
+        #[cfg(target_os = "linux")]
+        {
+            // Check for nvidia device nodes.
+            if std::path::Path::new("/dev/nvidia0").exists() {
+                return GpuBackend::Cuda;
+            }
+            // Check for AMD render nodes.
+            if std::path::Path::new("/dev/dri/renderD128").exists() {
+                return GpuBackend::Rocm;
+            }
         }
-        // Check for AMD render nodes.
-        if std::path::Path::new("/dev/dri/renderD128").exists() {
-            return GpuBackend::Rocm;
-        }
+        let _ = arch;
+        GpuBackend::None
     }
-    let _ = arch;
-    GpuBackend::None
 }
 
 /// Estimate GPU VRAM in MiB; 0 when no GPU backend is present.
@@ -156,8 +159,9 @@ pub fn detect_npu_platform(arch: &CpuArch) -> NpuPlatform {
     {
         // All Apple M-series chips include the ANE.
         let _ = arch;
-        return NpuPlatform::AppleAne;
+        NpuPlatform::AppleAne
     }
+    #[cfg(not(target_os = "macos"))]
     match arch {
         CpuArch::Aarch64 => {
             // On Android/Linux ARM64, NNAPI may expose an NPU.

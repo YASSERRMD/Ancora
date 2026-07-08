@@ -4,7 +4,6 @@
 /// provides OS-level address-space isolation. The host communicates with the
 /// subprocess over a stdio-based protocol. Resource limits are enforced via
 /// OS mechanisms (rlimit on POSIX, Job Objects on Windows).
-
 use crate::resource_limits::ResourceViolation;
 use crate::sandbox::Sandbox;
 
@@ -55,7 +54,9 @@ impl SubprocessInstance {
         sandbox: Sandbox,
     ) -> Result<Self, SubprocessError> {
         if _executable.is_empty() {
-            return Err(SubprocessError::SpawnFailed("executable path is empty".into()));
+            return Err(SubprocessError::SpawnFailed(
+                "executable path is empty".into(),
+            ));
         }
         Ok(Self {
             instance_id: instance_id.into(),
@@ -86,7 +87,10 @@ impl SubprocessInstance {
         payload.push(b'=');
         payload.extend_from_slice(&req.payload);
 
-        Ok(PluginResponse { status: ResponseStatus::Ok, payload })
+        Ok(PluginResponse {
+            status: ResponseStatus::Ok,
+            payload,
+        })
     }
 
     /// Terminate the subprocess.
@@ -159,7 +163,10 @@ mod tests {
         )
         .expect("spawn ok");
         let resp = inst
-            .send(PluginRequest { method: "ping".into(), payload: b"hello".to_vec() })
+            .send(PluginRequest {
+                method: "ping".into(),
+                payload: b"hello".to_vec(),
+            })
             .expect("send ok");
         assert_eq!(resp.status, ResponseStatus::Ok);
     }
@@ -173,7 +180,10 @@ mod tests {
         )
         .expect("spawn ok");
         inst.terminate();
-        let res = inst.send(PluginRequest { method: "op".into(), payload: vec![] });
+        let res = inst.send(PluginRequest {
+            method: "op".into(),
+            payload: vec![],
+        });
         assert!(res.is_err());
     }
 }

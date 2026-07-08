@@ -1,5 +1,7 @@
-use crate::{go_app::GoApp, python_app::PythonApp, ts_app::TsApp,
-            dotnet_app::DotnetApp, java_app::JavaApp, rust_app::RustApp};
+use crate::{
+    dotnet_app::DotnetApp, go_app::GoApp, java_app::JavaApp, python_app::PythonApp,
+    rust_app::RustApp, ts_app::TsApp,
+};
 
 /// All apps must produce exactly two messages (user + assistant) for any input.
 #[test]
@@ -78,15 +80,31 @@ fn all_apps_second_message_is_assistant() {
 fn trace_ids_are_unique_per_language() {
     let input = "unique";
 
-    let ids = vec![
+    let ids = [
         GoApp::new("a").run(input).unwrap().trace_id,
-        PythonApp::new("a", "m").unwrap().run(input).unwrap().trace_id,
+        PythonApp::new("a", "m")
+            .unwrap()
+            .run(input)
+            .unwrap()
+            .trace_id,
         TsApp::new("a", "1.0").unwrap().run(input).unwrap().trace_id,
-        DotnetApp::new("a", "net8.0").unwrap().run(input).unwrap().trace_id,
+        DotnetApp::new("a", "net8.0")
+            .unwrap()
+            .run(input)
+            .unwrap()
+            .trace_id,
         JavaApp::new("a", 17).unwrap().run(input).unwrap().trace_id,
-        RustApp::new("a", 2021).unwrap().run(input).unwrap().trace_id,
+        RustApp::new("a", 2021)
+            .unwrap()
+            .run(input)
+            .unwrap()
+            .trace_id,
     ];
 
     let unique: std::collections::HashSet<_> = ids.iter().collect();
-    assert_eq!(unique.len(), ids.len(), "trace IDs must be unique per language");
+    assert_eq!(
+        unique.len(),
+        ids.len(),
+        "trace IDs must be unique per language"
+    );
 }

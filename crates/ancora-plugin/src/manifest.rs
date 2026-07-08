@@ -1,4 +1,4 @@
-/// Plugin manifest format - describes a plugin's identity, version, and capabilities.
+//! Plugin manifest format - describes a plugin's identity, version, and capabilities.
 
 /// Semantic version triplet.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -10,7 +10,11 @@ pub struct SemVer {
 
 impl SemVer {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     /// Parse a version string of the form "major.minor.patch".
@@ -23,7 +27,11 @@ impl SemVer {
             p.parse::<u32>()
                 .map_err(|_| ManifestError::InvalidVersion(s.to_string()))
         };
-        Ok(Self::new(parse(parts[0])?, parse(parts[1])?, parse(parts[2])?))
+        Ok(Self::new(
+            parse(parts[0])?,
+            parse(parts[1])?,
+            parse(parts[2])?,
+        ))
     }
 }
 
@@ -57,8 +65,12 @@ impl PluginKind {
             PluginKind::Exporter => "exporter",
         }
     }
+}
 
-    pub fn from_str(s: &str) -> Result<Self, ManifestError> {
+impl std::str::FromStr for PluginKind {
+    type Err = ManifestError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "provider" => Ok(PluginKind::Provider),
             "vector_store" => Ok(PluginKind::VectorStore),
@@ -180,18 +192,30 @@ impl ManifestBuilder {
     }
 
     pub fn build(self) -> Result<PluginManifest, ManifestError> {
-        let id = self.id.ok_or_else(|| ManifestError::MissingField("id".into()))?;
+        let id = self
+            .id
+            .ok_or_else(|| ManifestError::MissingField("id".into()))?;
         if id.is_empty() || id.contains(' ') {
             return Err(ManifestError::InvalidId(id));
         }
-        let name = self.name.ok_or_else(|| ManifestError::MissingField("name".into()))?;
-        let version = self.version.ok_or_else(|| ManifestError::MissingField("version".into()))?;
-        let min_sdk = self.min_sdk.ok_or_else(|| ManifestError::MissingField("min_sdk".into()))?;
-        let max_sdk = self.max_sdk.ok_or_else(|| ManifestError::MissingField("max_sdk".into()))?;
+        let name = self
+            .name
+            .ok_or_else(|| ManifestError::MissingField("name".into()))?;
+        let version = self
+            .version
+            .ok_or_else(|| ManifestError::MissingField("version".into()))?;
+        let min_sdk = self
+            .min_sdk
+            .ok_or_else(|| ManifestError::MissingField("min_sdk".into()))?;
+        let max_sdk = self
+            .max_sdk
+            .ok_or_else(|| ManifestError::MissingField("max_sdk".into()))?;
         if min_sdk > max_sdk {
             return Err(ManifestError::SdkRangeInverted);
         }
-        let kind = self.kind.ok_or_else(|| ManifestError::MissingField("kind".into()))?;
+        let kind = self
+            .kind
+            .ok_or_else(|| ManifestError::MissingField("kind".into()))?;
         Ok(PluginManifest {
             id,
             name,

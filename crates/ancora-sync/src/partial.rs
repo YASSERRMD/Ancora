@@ -22,7 +22,11 @@ pub struct PartialSyncSession {
 
 impl PartialSyncSession {
     /// Create a new session with the given batch size.
-    pub fn new(device_id: impl Into<String>, entries: Vec<JournalEntry>, batch_size: usize) -> Self {
+    pub fn new(
+        device_id: impl Into<String>,
+        entries: Vec<JournalEntry>,
+        batch_size: usize,
+    ) -> Self {
         Self {
             device_id: device_id.into(),
             pending: entries,

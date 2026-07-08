@@ -7,7 +7,10 @@ pub struct RedactionConfig {
 
 impl RedactionConfig {
     pub fn new(redact_at_or_above: SensitivityLevel) -> Self {
-        Self { redact_at_or_above, mask: "***REDACTED***".to_string() }
+        Self {
+            redact_at_or_above,
+            mask: "***REDACTED***".to_string(),
+        }
     }
 
     pub fn with_mask(mut self, mask: impl Into<String>) -> Self {

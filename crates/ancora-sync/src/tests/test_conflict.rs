@@ -33,7 +33,7 @@ fn test_no_conflict_same_payload() {
     // Different device IDs mean we still flag it.
     let conflicts = ConflictDetector::detect(&[a, b]);
     // Both have the same payload but different device_id -- reported as conflict.
-    assert!(!conflicts.is_empty() || true); // defensive: at minimum no panic
+    assert_eq!(conflicts.len(), 1);
 }
 
 #[test]

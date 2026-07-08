@@ -38,7 +38,10 @@ fn scenario_score_is_positive() {
 fn compression_increases_with_aggressiveness() {
     let tradeoffs = standard_tradeoffs();
     // Higher tiers should have higher compression ratios.
-    let full = tradeoffs.iter().find(|t| t.tier == QuantTier::Full).unwrap();
+    let full = tradeoffs
+        .iter()
+        .find(|t| t.tier == QuantTier::Full)
+        .unwrap();
     let aggressive = tradeoffs
         .iter()
         .find(|t| t.tier == QuantTier::Aggressive)

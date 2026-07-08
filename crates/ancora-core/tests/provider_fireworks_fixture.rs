@@ -1,10 +1,10 @@
 /// Fireworks AI provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const FW_LLAMA3_70B: &str  = "fireworks_ai/accounts/fireworks/models/llama-v3-70b-instruct";
-const FW_LLAMA3_8B: &str   = "fireworks_ai/accounts/fireworks/models/llama-v3-8b-instruct";
-const FW_MIXTRAL: &str     = "fireworks_ai/accounts/fireworks/models/mixtral-8x7b-instruct";
-const FW_DEEPSEEK: &str    = "fireworks_ai/accounts/fireworks/models/deepseek-coder-33b-instruct";
+const FW_LLAMA3_70B: &str = "fireworks_ai/accounts/fireworks/models/llama-v3-70b-instruct";
+const FW_LLAMA3_8B: &str = "fireworks_ai/accounts/fireworks/models/llama-v3-8b-instruct";
+const FW_MIXTRAL: &str = "fireworks_ai/accounts/fireworks/models/mixtral-8x7b-instruct";
+const FW_DEEPSEEK: &str = "fireworks_ai/accounts/fireworks/models/deepseek-coder-33b-instruct";
 
 fn fireworks_router() -> ModelRouter {
     let mut r = ModelRouter::new(FW_LLAMA3_70B);
@@ -37,7 +37,10 @@ fn fireworks_deepseek_binding_resolves() {
 #[test]
 fn fireworks_model_strings_have_prefix() {
     for m in [FW_LLAMA3_70B, FW_LLAMA3_8B, FW_MIXTRAL, FW_DEEPSEEK] {
-        assert!(m.starts_with("fireworks_ai/"), "Expected fireworks_ai/ prefix in {m}");
+        assert!(
+            m.starts_with("fireworks_ai/"),
+            "Expected fireworks_ai/ prefix in {m}"
+        );
     }
 }
 

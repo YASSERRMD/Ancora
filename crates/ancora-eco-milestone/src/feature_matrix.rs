@@ -16,7 +16,11 @@ pub struct FeatureRow {
 
 impl FeatureRow {
     pub fn full(feature: impl Into<String>) -> Self {
-        Self { feature: feature.into(), community: Support::Full, enterprise: Support::Full }
+        Self {
+            feature: feature.into(),
+            community: Support::Full,
+            enterprise: Support::Full,
+        }
     }
 
     pub fn enterprise_only(feature: impl Into<String>, _note: impl Into<String>) -> Self {

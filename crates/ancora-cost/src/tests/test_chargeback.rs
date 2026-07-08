@@ -7,9 +7,33 @@ mod tests {
 
     fn make_attributor() -> CostAttributor {
         let mut a = CostAttributor::default();
-        a.record(CostRecord { tenant_id: "t1".into(), run_id: "r1".into(), model: "gpt-4o".into(), provider: "openai".into(), tool: None, tokens: 1000, cost_usd: 0.10 });
-        a.record(CostRecord { tenant_id: "t1".into(), run_id: "r2".into(), model: "gpt-4o".into(), provider: "openai".into(), tool: None, tokens: 500, cost_usd: 0.05 });
-        a.record(CostRecord { tenant_id: "t2".into(), run_id: "r3".into(), model: "claude-3".into(), provider: "anthropic".into(), tool: None, tokens: 800, cost_usd: 0.08 });
+        a.record(CostRecord {
+            tenant_id: "t1".into(),
+            run_id: "r1".into(),
+            model: "gpt-4o".into(),
+            provider: "openai".into(),
+            tool: None,
+            tokens: 1000,
+            cost_usd: 0.10,
+        });
+        a.record(CostRecord {
+            tenant_id: "t1".into(),
+            run_id: "r2".into(),
+            model: "gpt-4o".into(),
+            provider: "openai".into(),
+            tool: None,
+            tokens: 500,
+            cost_usd: 0.05,
+        });
+        a.record(CostRecord {
+            tenant_id: "t2".into(),
+            run_id: "r3".into(),
+            model: "claude-3".into(),
+            provider: "anthropic".into(),
+            tool: None,
+            tokens: 800,
+            cost_usd: 0.08,
+        });
         a
     }
 

@@ -4,24 +4,24 @@
 /// cross-crate integration checks that verify the full advanced suite is green.
 #[cfg(test)]
 mod tests {
-    mod full_advanced_suite;
-    mod advanced_parity;
     mod advanced_determinism;
-    mod red_team_green;
-    mod behavior_evals_green;
-    mod preset_catalog_link;
     mod advanced_examples_run;
-    mod docs_link_check;
-    mod baselines_recorded;
-    mod version_alignment;
+    mod advanced_parity;
     mod airgap_all;
-    mod cross_crate_smoke;
+    mod baselines_recorded;
+    mod behavior_evals_green;
     mod bench_gate;
-    mod preset_suite;
-    mod redteam_regression;
-    mod parity_canonical;
+    mod cross_crate_smoke;
+    mod docs_link_check;
+    mod full_advanced_suite;
     mod guardrail_chain;
-    mod reason_chain;
+    mod parity_canonical;
     mod planning_chain;
+    mod preset_catalog_link;
+    mod preset_suite;
+    mod reason_chain;
+    mod red_team_green;
+    mod redteam_regression;
     mod routing_chain;
+    mod version_alignment;
 }

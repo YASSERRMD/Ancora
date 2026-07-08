@@ -4,8 +4,16 @@ use crate::contract_net::Bid;
 #[test]
 fn auction_resolves_assignment() {
     let mut auction = Auction::new("task-1");
-    auction.submit(Bid { agent_id: "a".into(), task_id: "task-1".into(), score: 0.7 });
-    auction.submit(Bid { agent_id: "b".into(), task_id: "task-1".into(), score: 0.4 });
+    auction.submit(Bid {
+        agent_id: "a".into(),
+        task_id: "task-1".into(),
+        score: 0.7,
+    });
+    auction.submit(Bid {
+        agent_id: "b".into(),
+        task_id: "task-1".into(),
+        score: 0.4,
+    });
     let winner = auction.resolve().unwrap();
     assert_eq!(winner.agent_id, "a");
 }
@@ -13,7 +21,11 @@ fn auction_resolves_assignment() {
 #[test]
 fn auction_counts_bids() {
     let mut auction = Auction::new("t");
-    auction.submit(Bid { agent_id: "x".into(), task_id: "t".into(), score: 1.0 });
+    auction.submit(Bid {
+        agent_id: "x".into(),
+        task_id: "t".into(),
+        score: 1.0,
+    });
     assert_eq!(auction.bid_count(), 1);
 }
 

@@ -1,4 +1,4 @@
-use crate::routing::{RoutingSuite, RoutingOutcome};
+use crate::routing::{RoutingOutcome, RoutingSuite};
 
 #[test]
 fn routing_default_catalog_all_pass() {

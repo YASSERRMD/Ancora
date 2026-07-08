@@ -14,25 +14,25 @@ pub use validation::{validate, ValidationError};
 
 #[cfg(test)]
 mod tests {
-    mod research_preset;
-    mod coding_preset;
-    mod support_preset;
-    mod analysis_preset;
-    mod government_preset;
-    mod override_test;
-    mod validation_test;
-    mod airgap_test;
-    mod examples_run;
-    mod locked_preset;
-    mod capability_list;
-    mod descriptor_fields;
-    mod assemble_tools;
-    mod system_prompt;
-    mod residency_test;
-    mod multi_override;
-    mod replace_override;
-    mod invalid_name;
-    mod invalid_caps;
     mod airgap_routing_conflict;
+    mod airgap_test;
+    mod analysis_preset;
+    mod assemble_tools;
+    mod capability_list;
+    mod coding_preset;
     mod coding_support_analysis;
+    mod descriptor_fields;
+    mod examples_run;
+    mod government_preset;
+    mod invalid_caps;
+    mod invalid_name;
+    mod locked_preset;
+    mod multi_override;
+    mod override_test;
+    mod replace_override;
+    mod research_preset;
+    mod residency_test;
+    mod support_preset;
+    mod system_prompt;
+    mod validation_test;
 }

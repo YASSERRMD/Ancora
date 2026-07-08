@@ -1,5 +1,5 @@
 use ancora_core::error::AncoraError;
-use ancora_core::executor::{NodeExecutor, VerifierNode, VerifierResult};
+use ancora_core::executor::{VerifierNode, VerifierResult};
 use ancora_core::graph::{Node, NodeKind, NodeSpec};
 use ancora_proto::ancora::AgentSpec as ProtoSpec;
 
@@ -25,7 +25,9 @@ struct AlwaysApprove;
 
 impl VerifierNode for AlwaysApprove {
     fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
-        Ok(VerifierResult::Approved { output: candidate.to_string() })
+        Ok(VerifierResult::Approved {
+            output: candidate.to_string(),
+        })
     }
 }
 
@@ -33,17 +35,21 @@ struct AlwaysReject;
 
 impl VerifierNode for AlwaysReject {
     fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
-        Ok(VerifierResult::Rejected { reason: format!("rejected: {}", candidate) })
+        Ok(VerifierResult::Rejected {
+            reason: format!("rejected: {}", candidate),
+        })
     }
 }
 
 /// Runs N verifiers and returns the number of approvals.
 fn run_n_verifiers<V: VerifierNode>(verifier: &V, node: &Node, candidate: &str, n: usize) -> usize {
     (0..n)
-        .filter(|_| matches!(
-            verifier.verify(node, candidate).unwrap(),
-            VerifierResult::Approved { .. }
-        ))
+        .filter(|_| {
+            matches!(
+                verifier.verify(node, candidate).unwrap(),
+                VerifierResult::Approved { .. }
+            )
+        })
         .count()
 }
 
@@ -60,7 +66,10 @@ fn always_reject_verifier_rejects_with_reason() {
     let result = AlwaysReject.verify(&node, "my-output").unwrap();
     assert!(matches!(result, VerifierResult::Rejected { .. }));
     if let VerifierResult::Rejected { reason } = result {
-        assert!(reason.contains("my-output"), "rejection reason must cite the candidate");
+        assert!(
+            reason.contains("my-output"),
+            "rejection reason must cite the candidate"
+        );
     }
 }
 
@@ -85,13 +94,12 @@ fn tie_break_at_three_verifiers_two_approve_one_reject() {
     let node = agent_node("v-node");
 
     let mut approve_count = 0usize;
-    for (i, verifier) in [
+    for verifier in [
         &AlwaysApprove as &dyn VerifierNode,
         &AlwaysApprove,
         &AlwaysReject,
     ]
     .iter()
-    .enumerate()
     {
         if let VerifierResult::Approved { .. } = verifier.verify(&node, "candidate").unwrap() {
             approve_count += 1;

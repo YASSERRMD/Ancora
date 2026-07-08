@@ -1,6 +1,6 @@
-use std::collections::BTreeMap;
 use crate::error::MigrateError;
 use crate::migration::Migration;
+use std::collections::BTreeMap;
 
 pub struct MigrationRegistry {
     migrations: BTreeMap<u32, Migration>,
@@ -8,7 +8,9 @@ pub struct MigrationRegistry {
 
 impl MigrationRegistry {
     pub fn new() -> Self {
-        Self { migrations: BTreeMap::new() }
+        Self {
+            migrations: BTreeMap::new(),
+        }
     }
 
     pub fn register(&mut self, m: Migration) {

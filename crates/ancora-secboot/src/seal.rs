@@ -26,8 +26,18 @@ pub struct SealingStore {
     blobs: HashMap<String, SealedBlob>,
 }
 
+impl Default for SealingStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SealingStore {
-    pub fn new() -> Self { Self { blobs: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            blobs: HashMap::new(),
+        }
+    }
 
     pub fn seal(
         &mut self,
@@ -41,13 +51,16 @@ impl SealingStore {
         if self.blobs.contains_key(&id) {
             return SealResult::AlreadySealed;
         }
-        self.blobs.insert(id.clone(), SealedBlob {
-            id,
-            tenant_id: tenant_id.into(),
-            data: data.into(),
-            required_digest: required_digest.into(),
-            tick,
-        });
+        self.blobs.insert(
+            id.clone(),
+            SealedBlob {
+                id,
+                tenant_id: tenant_id.into(),
+                data: data.into(),
+                required_digest: required_digest.into(),
+                tick,
+            },
+        );
         SealResult::Sealed
     }
 
@@ -64,6 +77,10 @@ impl SealingStore {
         }
     }
 
-    pub fn count(&self) -> usize { self.blobs.len() }
-    pub fn contains(&self, id: &str) -> bool { self.blobs.contains_key(id) }
+    pub fn count(&self) -> usize {
+        self.blobs.len()
+    }
+    pub fn contains(&self, id: &str) -> bool {
+        self.blobs.contains_key(id)
+    }
 }

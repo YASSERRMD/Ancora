@@ -1,5 +1,4 @@
 /// test_run_diff.rs - Verify the diff engine correctly identifies divergence.
-
 use crate::diff::{diff_journals, EntryDiff};
 use crate::loader::{load_journal, EntryKind, JournalEntry, RunId, Seq};
 
@@ -7,7 +6,10 @@ fn sc(run: &str, seq: u64, from: &str, to: &str) -> JournalEntry {
     JournalEntry::new(
         RunId::new(run),
         seq,
-        EntryKind::StateChange { from: from.into(), to: to.into() },
+        EntryKind::StateChange {
+            from: from.into(),
+            to: to.into(),
+        },
     )
 }
 
@@ -15,7 +17,10 @@ fn llm(run: &str, seq: u64, prompt: &str, response: &str) -> JournalEntry {
     JournalEntry::new(
         RunId::new(run),
         seq,
-        EntryKind::LlmExchange { prompt: prompt.into(), response: response.into() },
+        EntryKind::LlmExchange {
+            prompt: prompt.into(),
+            response: response.into(),
+        },
     )
 }
 
@@ -40,16 +45,8 @@ fn diff_identical_returns_no_divergence() {
 
 #[test]
 fn diff_highlights_first_divergence_seq() {
-    let j1 = load_journal(vec![
-        sc("r1", 0, "a", "b"),
-        sc("r1", 1, "b", "c"),
-    ])
-    .unwrap();
-    let j2 = load_journal(vec![
-        sc("r2", 0, "a", "b"),
-        sc("r2", 1, "b", "DIFFERENT"),
-    ])
-    .unwrap();
+    let j1 = load_journal(vec![sc("r1", 0, "a", "b"), sc("r1", 1, "b", "c")]).unwrap();
+    let j2 = load_journal(vec![sc("r2", 0, "a", "b"), sc("r2", 1, "b", "DIFFERENT")]).unwrap();
     let diff = diff_journals(&j1, &j2);
     assert_eq!(diff.first_divergence, Some(Seq(1)));
 }

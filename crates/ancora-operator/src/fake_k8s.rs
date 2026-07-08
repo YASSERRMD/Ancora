@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde_json::Value;
+use std::collections::HashMap;
 
 /// In-memory fake Kubernetes API for envtest-style operator testing.
 #[derive(Default)]

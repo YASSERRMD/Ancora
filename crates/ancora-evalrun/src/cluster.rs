@@ -1,7 +1,6 @@
 /// Failure clustering - group similar failure reasons together.
 ///
 /// Uses a simple token-overlap similarity to cluster failure messages.
-
 use std::collections::HashMap;
 
 /// A single failure observation.
@@ -23,10 +22,7 @@ pub struct FailureCluster {
 ///
 /// Two messages are in the same cluster when they share at least
 /// `min_shared_tokens` tokens (whitespace-split words).
-pub fn cluster_failures(
-    failures: &[Failure],
-    min_shared_tokens: usize,
-) -> Vec<FailureCluster> {
+pub fn cluster_failures(failures: &[Failure], min_shared_tokens: usize) -> Vec<FailureCluster> {
     let mut clusters: Vec<FailureCluster> = Vec::new();
 
     for failure in failures {
@@ -49,14 +45,18 @@ pub fn cluster_failures(
     }
 
     // Sort by count descending.
-    clusters.sort_by(|a, b| b.count.cmp(&a.count));
+    clusters.sort_by_key(|b| std::cmp::Reverse(b.count));
     clusters
 }
 
 /// Tokenize a string into lowercase words.
 fn tokenize(s: &str) -> Vec<String> {
     s.split_whitespace()
-        .map(|w| w.to_lowercase().trim_matches(|c: char| !c.is_alphanumeric()).to_string())
+        .map(|w| {
+            w.to_lowercase()
+                .trim_matches(|c: char| !c.is_alphanumeric())
+                .to_string()
+        })
         .filter(|w| !w.is_empty())
         .collect()
 }
@@ -80,9 +80,7 @@ fn shared_tokens(a: &[String], b: &[String]) -> usize {
 }
 
 /// Collect all failures from a breakdown slice.
-pub fn collect_failures(
-    breakdowns: &[crate::breakdown::CaseBreakdown],
-) -> Vec<Failure> {
+pub fn collect_failures(breakdowns: &[crate::breakdown::CaseBreakdown]) -> Vec<Failure> {
     breakdowns
         .iter()
         .flat_map(|b| {

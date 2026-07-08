@@ -14,7 +14,10 @@ impl<'a> TenantIsolation<'a> {
 
     /// Ensure the tenant exists and is active before accepting a run.
     pub fn assert_active(&self, tenant_id: &TenantId) -> Result<(), TenantError> {
-        let t = self.registry.get(tenant_id).ok_or_else(|| TenantError::NotFound(tenant_id.0.clone()))?;
+        let t = self
+            .registry
+            .get(tenant_id)
+            .ok_or_else(|| TenantError::NotFound(tenant_id.0.clone()))?;
         match t.state {
             TenantState::Active => Ok(()),
             TenantState::Suspended => Err(TenantError::Suspended(tenant_id.0.clone())),
@@ -35,9 +38,18 @@ impl<'a> TenantIsolation<'a> {
     }
 
     /// Validate that the requested provider is in this tenant's allowlist.
-    pub fn assert_provider_allowed(&self, tenant_id: &TenantId, provider: &str) -> Result<(), TenantError> {
-        let t = self.registry.get(tenant_id).ok_or_else(|| TenantError::NotFound(tenant_id.0.clone()))?;
-        if t.config.provider_allowlist.is_empty() || t.config.provider_allowlist.iter().any(|p| p == provider) {
+    pub fn assert_provider_allowed(
+        &self,
+        tenant_id: &TenantId,
+        provider: &str,
+    ) -> Result<(), TenantError> {
+        let t = self
+            .registry
+            .get(tenant_id)
+            .ok_or_else(|| TenantError::NotFound(tenant_id.0.clone()))?;
+        if t.config.provider_allowlist.is_empty()
+            || t.config.provider_allowlist.iter().any(|p| p == provider)
+        {
             Ok(())
         } else {
             Err(TenantError::ProviderNotAllowed {
@@ -48,8 +60,15 @@ impl<'a> TenantIsolation<'a> {
     }
 
     /// Validate that the resource's region satisfies the tenant's residency policy.
-    pub fn assert_residency(&self, tenant_id: &TenantId, resource_region: &str) -> Result<(), TenantError> {
-        let t = self.registry.get(tenant_id).ok_or_else(|| TenantError::NotFound(tenant_id.0.clone()))?;
+    pub fn assert_residency(
+        &self,
+        tenant_id: &TenantId,
+        resource_region: &str,
+    ) -> Result<(), TenantError> {
+        let t = self
+            .registry
+            .get(tenant_id)
+            .ok_or_else(|| TenantError::NotFound(tenant_id.0.clone()))?;
         match &t.config.residency_region {
             None => Ok(()),
             Some(req) if req == resource_region => Ok(()),

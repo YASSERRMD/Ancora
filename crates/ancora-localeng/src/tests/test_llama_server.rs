@@ -1,5 +1,4 @@
 /// Tests for the llama.cpp server integration using mock transports.
-
 use crate::llama_server::{LlamaServerClient, LlamaServerError, LlamaServerTransport};
 use crate::model::{CompletionRequest, CompletionResult, EngineKind};
 
@@ -60,7 +59,12 @@ fn llama_server_complete_ok() {
 #[test]
 fn llama_server_health_ok() {
     let config = crate::llama_server::default_config();
-    let client = LlamaServerClient::new(config, OkTransport { response: String::new() });
+    let client = LlamaServerClient::new(
+        config,
+        OkTransport {
+            response: String::new(),
+        },
+    );
     assert!(client.health().unwrap());
 }
 
@@ -74,8 +78,7 @@ fn llama_server_complete_err() {
 
 #[test]
 fn llama_server_endpoint_uses_config() {
-    let config = crate::llama_server::default_config()
-        .with_endpoint("http://10.0.0.1:9090");
+    let config = crate::llama_server::default_config().with_endpoint("http://10.0.0.1:9090");
     let client = LlamaServerClient::new(config, ErrTransport);
     assert_eq!(client.endpoint(), "http://10.0.0.1:9090");
 }

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::spec::ToolSpec;
 use crate::error::SynthError;
+use crate::spec::ToolSpec;
+use std::collections::HashMap;
 
 /// Registry of approved synthesized tools.
 #[derive(Debug, Default)]
@@ -30,6 +30,8 @@ impl SynthRegistry {
     }
 
     pub fn lookup(&self, name: &str) -> Result<&ToolSpec, SynthError> {
-        self.tools.get(name).ok_or_else(|| SynthError::NotFound(name.to_string()))
+        self.tools
+            .get(name)
+            .ok_or_else(|| SynthError::NotFound(name.to_string()))
     }
 }

@@ -1,5 +1,5 @@
-use crate::policy::ZeroTrustPolicy;
 use crate::device::TrustLevel;
+use crate::policy::ZeroTrustPolicy;
 
 pub fn strict_policy(tenant_id: impl Into<String>) -> ZeroTrustPolicy {
     ZeroTrustPolicy::new(tenant_id)

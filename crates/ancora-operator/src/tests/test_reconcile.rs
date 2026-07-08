@@ -41,7 +41,9 @@ pub mod tests {
 
         assert!(r.k8s().exists("Deployment", "test-cluster-control-plane"));
         assert!(r.k8s().exists("Deployment", "test-cluster-worker"));
-        assert!(r.k8s().exists("HorizontalPodAutoscaler", "test-cluster-worker-hpa"));
+        assert!(r
+            .k8s()
+            .exists("HorizontalPodAutoscaler", "test-cluster-worker-hpa"));
         assert!(r.k8s().exists("ConfigMap", "test-cluster-journal"));
     }
 
@@ -60,7 +62,11 @@ pub mod tests {
         let mut r = Reconciler::new();
         let mut cluster = make_cluster("test-cluster");
         r.reconcile_cluster(&mut cluster).unwrap();
-        assert!(cluster.metadata.finalizers.iter().any(|f| f == "ancora.io/cleanup"));
+        assert!(cluster
+            .metadata
+            .finalizers
+            .iter()
+            .any(|f| f == "ancora.io/cleanup"));
     }
 
     #[test]

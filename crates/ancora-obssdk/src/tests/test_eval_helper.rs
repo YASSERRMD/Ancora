@@ -1,5 +1,5 @@
 use crate::context::{Span, Trace};
-use crate::eval_helpers::{EvalCriteria, EvalRunner, run_multilang_eval};
+use crate::eval_helpers::{run_multilang_eval, EvalCriteria, EvalRunner};
 
 fn make_trace(id: &str, spans: &[(&str, &str, u64, u64)]) -> Trace {
     let mut t = Trace::new(id);
@@ -11,10 +11,10 @@ fn make_trace(id: &str, spans: &[(&str, &str, u64, u64)]) -> Trace {
 
 #[test]
 fn eval_helper_passes_criteria() {
-    let trace = make_trace("e-t1", &[
-        ("s1", "agent.run", 0, 500),
-        ("s2", "tool.call", 50, 400),
-    ]);
+    let trace = make_trace(
+        "e-t1",
+        &[("s1", "agent.run", 0, 500), ("s2", "tool.call", 50, 400)],
+    );
     let criteria = EvalCriteria::new("basic")
         .with_min_spans(2)
         .with_required_span("agent.run");

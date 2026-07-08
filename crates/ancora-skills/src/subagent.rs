@@ -1,6 +1,6 @@
-use serde_json::Value;
-use crate::skill::SkillScope;
 use crate::error::SkillError;
+use crate::skill::SkillScope;
+use serde_json::Value;
 
 /// Descriptor for a sub-agent that can be invoked as a task node.
 #[derive(Debug, Clone)]
@@ -28,12 +28,18 @@ pub struct SubAgentResult {
 
 impl SubAgentNode {
     pub fn new(node_id: &str, agent_id: &str, input: Value) -> Self {
-        Self { node_id: node_id.to_string(), agent_id: agent_id.to_string(), input }
+        Self {
+            node_id: node_id.to_string(),
+            agent_id: agent_id.to_string(),
+            input,
+        }
     }
 
     pub fn invoke(&self, scope: &SkillScope) -> Result<SubAgentResult, SkillError> {
         if *scope == SkillScope::Unrestricted {
-            return Err(SkillError::PermissionDenied("unrestricted scope not allowed for sub-agents".into()));
+            return Err(SkillError::PermissionDenied(
+                "unrestricted scope not allowed for sub-agents".into(),
+            ));
         }
         Ok(SubAgentResult {
             node_id: self.node_id.clone(),

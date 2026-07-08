@@ -62,7 +62,9 @@ fn milvus_activity_key_contains_milvus() {
     let events = build_milvus_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.activity_key.contains("milvus"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -71,7 +73,9 @@ fn milvus_input_has_collection_name_and_metric() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.input_json.contains("collection_name"));
         assert!(a.input_json.contains("metric_type"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -82,7 +86,9 @@ fn milvus_result_has_three_chunks_with_ids() {
         let arr = v.as_array().unwrap();
         assert_eq!(arr.len(), 3);
         assert!(arr[0]["id"].is_number());
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -95,7 +101,9 @@ fn milvus_scores_descending() {
         let s1 = arr[1]["score"].as_f64().unwrap();
         let s2 = arr[2]["score"].as_f64().unwrap();
         assert!(s0 >= s1 && s1 >= s2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

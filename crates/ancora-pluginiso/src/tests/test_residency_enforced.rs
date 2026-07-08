@@ -3,7 +3,6 @@
 /// The residency policy controls which geographic regions a plugin is allowed
 /// to send data to or receive data from.  This is relevant for GDPR, CCPA,
 /// and other data-sovereignty requirements.
-
 use crate::residency::{ResidencyPolicy, ResidencyViolation};
 
 #[test]

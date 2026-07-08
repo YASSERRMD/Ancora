@@ -1,5 +1,5 @@
-use crate::schema::{ToolCall, ToolResult};
 use crate::error::ToolError;
+use crate::schema::{ToolCall, ToolResult};
 
 pub const DEFAULT_PARALLEL_LIMIT: usize = 8;
 
@@ -28,7 +28,11 @@ impl ParallelDispatcher {
 
     /// Simulate parallel execution using a provided executor closure.
     /// In production this would be async; here we call sequentially and collect results.
-    pub fn execute<F>(&self, calls: Vec<ToolCall>, mut exec: F) -> Result<Vec<ToolResult>, ToolError>
+    pub fn execute<F>(
+        &self,
+        calls: Vec<ToolCall>,
+        mut exec: F,
+    ) -> Result<Vec<ToolResult>, ToolError>
     where
         F: FnMut(&ToolCall) -> Result<ToolResult, ToolError>,
     {

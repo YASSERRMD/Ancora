@@ -12,8 +12,7 @@ fn override_applies_new_key() {
 
 #[test]
 fn override_replaces_existing_key() {
-    let preset = research_assistant()
-        .with_override("max_citations", "10");
+    let preset = research_assistant().with_override("max_citations", "10");
     let modified = apply_overrides(
         preset,
         vec![("max_citations".to_string(), "100".to_string())],
@@ -29,7 +28,6 @@ fn override_missing_key_returns_none() {
 
 #[test]
 fn override_does_not_affect_capabilities() {
-    use crate::Capability;
     let preset = research_assistant();
     let cap_count_before = preset.capabilities.len();
     let modified = apply_overrides(preset, vec![("k".to_string(), "v".to_string())]);

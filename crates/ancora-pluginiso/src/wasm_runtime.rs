@@ -3,7 +3,6 @@
 /// In a production integration this module would drive a Wasm engine such as
 /// Wasmtime or Wasmer.  Here we model the runtime interface without pulling in
 /// heavy dependencies, so the types and contracts are clear and testable.
-
 use crate::resource_limits::ResourceViolation;
 use crate::sandbox::Sandbox;
 
@@ -56,12 +55,7 @@ impl WasmInstance {
         // Check resource limits against simulated usage.
         self.sandbox
             .resource_limits
-            .check(
-                self.simulated_cpu_ms,
-                self.simulated_memory,
-                1,
-                0,
-            )
+            .check(self.simulated_cpu_ms, self.simulated_memory, 1, 0)
             .map_err(WasmError::ResourceExceeded)?;
 
         // Echo the function name and args as a trivial "result".
@@ -130,8 +124,9 @@ mod tests {
 
     #[test]
     fn valid_wasm_call_succeeds() {
-        let mut inst = WasmInstance::instantiate("id", &vec![0x00, 0x61, 0x73, 0x6d], sandbox_for_test())
-            .expect("instantiation ok");
+        let mut inst =
+            WasmInstance::instantiate("id", &vec![0x00, 0x61, 0x73, 0x6d], sandbox_for_test())
+                .expect("instantiation ok");
         let res = inst.call("add", b"12").expect("call ok");
         assert!(!res.is_empty());
     }

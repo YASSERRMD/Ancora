@@ -1,4 +1,6 @@
-use crate::{AssignmentStore, AuthzDecision, Permission, PermissionChecker, Role, RoleAssignment, RolePolicy};
+use crate::{
+    AssignmentStore, AuthzDecision, Permission, PermissionChecker, Role, RoleAssignment, RolePolicy,
+};
 #[test]
 fn deny_message_contains_subject() {
     let store = AssignmentStore::new();

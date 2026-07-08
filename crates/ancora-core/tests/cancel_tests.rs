@@ -6,7 +6,10 @@ use ancora_core::cancel::cancellation_pair;
 #[test]
 fn token_is_not_cancelled_initially() {
     let (token, _handle) = cancellation_pair();
-    assert!(!token.is_cancelled(), "token must start in non-cancelled state");
+    assert!(
+        !token.is_cancelled(),
+        "token must start in non-cancelled state"
+    );
 }
 
 #[test]

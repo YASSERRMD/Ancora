@@ -1,4 +1,4 @@
-/// Cost anomaly detection using Z-score based statistical analysis.
+//! Cost anomaly detection using Z-score based statistical analysis.
 
 #[derive(Debug, Clone)]
 pub struct AnomalyAlert {
@@ -18,7 +18,10 @@ pub struct AnomalyDetector {
 
 impl AnomalyDetector {
     pub fn new(threshold: f64) -> Self {
-        Self { history: Vec::new(), threshold }
+        Self {
+            history: Vec::new(),
+            threshold,
+        }
     }
 
     /// Add a historical observation (without checking for anomaly).

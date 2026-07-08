@@ -1,4 +1,5 @@
 use crate::scaffolding::{scaffold, ScaffoldError, ScaffoldKind, ScaffoldRequest};
+use std::str::FromStr;
 
 fn req(kind: ScaffoldKind, name: &str) -> ScaffoldRequest {
     ScaffoldRequest::new(kind, name)
@@ -17,7 +18,10 @@ fn scaffold_provider_generates_files() {
 fn scaffold_tool_generates_conformance() {
     let output = scaffold(&req(ScaffoldKind::Tool, "WebSearch")).unwrap();
     let paths = output.paths();
-    assert!(paths.contains(&"src/conformance.rs"), "missing conformance stub");
+    assert!(
+        paths.contains(&"src/conformance.rs"),
+        "missing conformance stub"
+    );
 }
 
 #[test]
@@ -31,14 +35,20 @@ fn scaffold_generates_test_file() {
 fn scaffold_cargo_toml_has_crate_name() {
     let output = scaffold(&req(ScaffoldKind::VectorStore, "Pinecone")).unwrap();
     let cargo = output.get("Cargo.toml").expect("must have Cargo.toml");
-    assert!(cargo.content.contains("ancora-pinecone"), "crate name not in Cargo.toml");
+    assert!(
+        cargo.content.contains("ancora-pinecone"),
+        "crate name not in Cargo.toml"
+    );
 }
 
 #[test]
 fn scaffold_lib_references_snake_name() {
     let output = scaffold(&req(ScaffoldKind::Provider, "AcmeCloud")).unwrap();
     let lib = output.get("src/lib.rs").expect("must have lib.rs");
-    assert!(lib.content.contains("acme_cloud"), "snake_name not in lib.rs");
+    assert!(
+        lib.content.contains("acme_cloud"),
+        "snake_name not in lib.rs"
+    );
 }
 
 #[test]
@@ -61,7 +71,14 @@ fn scaffold_empty_name_returns_error() {
 
 #[test]
 fn scaffold_kind_from_str_roundtrips() {
-    for s in &["provider", "tool", "grader", "guardrail", "exporter", "plugin"] {
+    for s in &[
+        "provider",
+        "tool",
+        "grader",
+        "guardrail",
+        "exporter",
+        "plugin",
+    ] {
         let k = ScaffoldKind::from_str(s).unwrap_or_else(|_| panic!("parse failed for {s}"));
         assert_eq!(k.as_str(), *s, "as_str mismatch for {s}");
     }
@@ -85,8 +102,7 @@ fn scaffold_kind_from_str_unknown_returns_error() {
 
 #[test]
 fn scaffold_with_author_sets_author_in_cargo() {
-    let r = ScaffoldRequest::new(ScaffoldKind::Tool, "MyTool")
-        .with_author("alice");
+    let r = ScaffoldRequest::new(ScaffoldKind::Tool, "MyTool").with_author("alice");
     let output = scaffold(&r).unwrap();
     let cargo = output.get("Cargo.toml").unwrap();
     assert!(cargo.content.contains("alice"));

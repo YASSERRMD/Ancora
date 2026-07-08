@@ -1,5 +1,4 @@
 /// test_run_executes - Test that a graph can be run from the builder against the local backend.
-
 use crate::import::{GraphSpec, SpecEdge, SpecNode};
 use crate::runner::{run_spec, LocalBackendConfig, RunStatus, StepStatus};
 use std::collections::HashMap;
@@ -54,7 +53,12 @@ fn run_steps_have_succeeded_status() {
     let config = LocalBackendConfig::default();
     let result = run_spec(&spec, &config).unwrap();
     for step in &result.steps {
-        assert_eq!(step.status, StepStatus::Succeeded, "step {} should have succeeded", step.node_id);
+        assert_eq!(
+            step.status,
+            StepStatus::Succeeded,
+            "step {} should have succeeded",
+            step.node_id
+        );
     }
 }
 
@@ -63,8 +67,14 @@ fn run_produces_outputs_per_node() {
     let spec = minimal_spec("run_outputs");
     let config = LocalBackendConfig::default();
     let result = run_spec(&spec, &config).unwrap();
-    assert!(result.outputs.contains_key("a"), "output for node a missing");
-    assert!(result.outputs.contains_key("b"), "output for node b missing");
+    assert!(
+        result.outputs.contains_key("a"),
+        "output for node a missing"
+    );
+    assert!(
+        result.outputs.contains_key("b"),
+        "output for node b missing"
+    );
 }
 
 #[test]
@@ -73,7 +83,11 @@ fn run_invalid_spec_returns_validation_error() {
     let config = LocalBackendConfig::default();
     let err = run_spec(&spec, &config).unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("validation"), "expected validation error, got: {}", msg);
+    assert!(
+        msg.contains("validation"),
+        "expected validation error, got: {}",
+        msg
+    );
 }
 
 #[test]
@@ -89,11 +103,44 @@ fn run_returns_run_id() {
 fn run_topological_order_respected() {
     // n1 -> n2 -> n3: step_index for n1 < n2 < n3.
     let mut spec = GraphSpec::new("topo_order");
-    spec.nodes.push(SpecNode { id: "n1".into(), kind: "agent.llm".into(), label: "First".into(), x: 0.0, y: 0.0, config: HashMap::new() });
-    spec.nodes.push(SpecNode { id: "n2".into(), kind: "tool.web_search".into(), label: "Second".into(), x: 100.0, y: 0.0, config: HashMap::new() });
-    spec.nodes.push(SpecNode { id: "n3".into(), kind: "verifier.toxicity".into(), label: "Third".into(), x: 200.0, y: 0.0, config: HashMap::new() });
-    spec.edges.push(SpecEdge { id: "e1".into(), source: "n1".into(), target: "n2".into(), edge_type: "data_flow".into(), label: None });
-    spec.edges.push(SpecEdge { id: "e2".into(), source: "n2".into(), target: "n3".into(), edge_type: "data_flow".into(), label: None });
+    spec.nodes.push(SpecNode {
+        id: "n1".into(),
+        kind: "agent.llm".into(),
+        label: "First".into(),
+        x: 0.0,
+        y: 0.0,
+        config: HashMap::new(),
+    });
+    spec.nodes.push(SpecNode {
+        id: "n2".into(),
+        kind: "tool.web_search".into(),
+        label: "Second".into(),
+        x: 100.0,
+        y: 0.0,
+        config: HashMap::new(),
+    });
+    spec.nodes.push(SpecNode {
+        id: "n3".into(),
+        kind: "verifier.toxicity".into(),
+        label: "Third".into(),
+        x: 200.0,
+        y: 0.0,
+        config: HashMap::new(),
+    });
+    spec.edges.push(SpecEdge {
+        id: "e1".into(),
+        source: "n1".into(),
+        target: "n2".into(),
+        edge_type: "data_flow".into(),
+        label: None,
+    });
+    spec.edges.push(SpecEdge {
+        id: "e2".into(),
+        source: "n2".into(),
+        target: "n3".into(),
+        edge_type: "data_flow".into(),
+        label: None,
+    });
 
     let config = LocalBackendConfig::default();
     let result = run_spec(&spec, &config).unwrap();

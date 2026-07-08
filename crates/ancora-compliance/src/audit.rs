@@ -1,6 +1,6 @@
-use std::collections::VecDeque;
 use crate::control::ControlStatus;
 use crate::framework::{ControlId, Framework};
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct AssessmentRecord {
@@ -41,23 +41,40 @@ pub struct ComplianceAuditLog {
 }
 
 impl ComplianceAuditLog {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
-    pub fn record(&mut self, entry: AssessmentRecord) { self.records.push_back(entry); }
+    pub fn record(&mut self, entry: AssessmentRecord) {
+        self.records.push_back(entry);
+    }
 
-    pub fn count(&self) -> usize { self.records.len() }
+    pub fn count(&self) -> usize {
+        self.records.len()
+    }
 
     pub fn for_framework(&self, framework: &Framework) -> Vec<&AssessmentRecord> {
-        self.records.iter().filter(|r| &r.framework == framework).collect()
+        self.records
+            .iter()
+            .filter(|r| &r.framework == framework)
+            .collect()
     }
 
     pub fn for_control(&self, id: &ControlId) -> Vec<&AssessmentRecord> {
-        self.records.iter().filter(|r| &r.control_id == id).collect()
+        self.records
+            .iter()
+            .filter(|r| &r.control_id == id)
+            .collect()
     }
 
     pub fn for_tenant(&self, tenant_id: &str) -> Vec<&AssessmentRecord> {
-        self.records.iter().filter(|r| r.tenant_id == tenant_id).collect()
+        self.records
+            .iter()
+            .filter(|r| r.tenant_id == tenant_id)
+            .collect()
     }
 
-    pub fn all(&self) -> impl Iterator<Item = &AssessmentRecord> { self.records.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &AssessmentRecord> {
+        self.records.iter()
+    }
 }

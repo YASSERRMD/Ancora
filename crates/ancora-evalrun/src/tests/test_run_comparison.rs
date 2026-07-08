@@ -1,7 +1,6 @@
-use crate::aggregate::{compute_aggregate, AggregateMetrics};
-use crate::compare::{compare_runs, ci_overlap, CompareVerdict};
-use crate::executor::{EvalCase, Executor, RunConfig, RunId, exact_match};
-use crate::rollout::RolloutRunner;
+use crate::aggregate::AggregateMetrics;
+use crate::compare::{ci_overlap, compare_runs, CompareVerdict};
+use crate::executor::RunId;
 
 fn make_metrics(pass_rate: f64, total_rollouts: usize) -> AggregateMetrics {
     let successes = (pass_rate * total_rollouts as f64).round() as usize;
@@ -53,7 +52,10 @@ fn ci_overlap_detection() {
     // Overlapping intervals.
     assert!(ci_overlap(0.4, 0.6, 0.5, 0.7), "intervals should overlap");
     // Non-overlapping intervals.
-    assert!(!ci_overlap(0.1, 0.3, 0.4, 0.6), "intervals should not overlap");
+    assert!(
+        !ci_overlap(0.1, 0.3, 0.4, 0.6),
+        "intervals should not overlap"
+    );
 }
 
 #[test]

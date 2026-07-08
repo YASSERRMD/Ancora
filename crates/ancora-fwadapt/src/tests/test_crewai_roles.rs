@@ -21,8 +21,14 @@ fn crewai_roles_map_to_a_crew() {
             },
         ],
         tasks: vec![
-            CrewAITask { description: "Implement feature X".into(), assigned_to: "dev".into() },
-            CrewAITask { description: "Review PR".into(), assigned_to: "reviewer".into() },
+            CrewAITask {
+                description: "Implement feature X".into(),
+                assigned_to: "dev".into(),
+            },
+            CrewAITask {
+                description: "Review PR".into(),
+                assigned_to: "reviewer".into(),
+            },
         ],
     };
     let plan = map_crewai_to_ancora(def).unwrap();
@@ -39,7 +45,10 @@ fn crewai_empty_crew_returns_error() {
         agents: vec![],
         tasks: vec![],
     };
-    assert!(matches!(map_crewai_to_ancora(def), Err(CrewMappingError::EmptyCrew)));
+    assert!(matches!(
+        map_crewai_to_ancora(def),
+        Err(CrewMappingError::EmptyCrew)
+    ));
 }
 
 #[test]

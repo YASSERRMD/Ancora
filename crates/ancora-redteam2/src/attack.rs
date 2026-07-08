@@ -55,6 +55,7 @@ pub struct AttackStep {
 }
 
 impl AttackStep {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: impl Into<String>,
         scenario_id: impl Into<String>,
@@ -78,23 +79,45 @@ impl AttackStep {
     }
 
     pub fn is_successful(&self) -> bool {
-        matches!(self.outcome, AttackOutcome::Success | AttackOutcome::PartialSuccess)
+        matches!(
+            self.outcome,
+            AttackOutcome::Success | AttackOutcome::PartialSuccess
+        )
     }
 
-    pub fn was_detected(&self) -> bool { self.outcome == AttackOutcome::Detected }
-    pub fn was_blocked(&self) -> bool { self.outcome == AttackOutcome::Blocked }
+    pub fn was_detected(&self) -> bool {
+        self.outcome == AttackOutcome::Detected
+    }
+    pub fn was_blocked(&self) -> bool {
+        self.outcome == AttackOutcome::Blocked
+    }
 }
 
 pub struct AttackLog {
     steps: Vec<AttackStep>,
 }
 
+impl Default for AttackLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AttackLog {
-    pub fn new() -> Self { Self { steps: Vec::new() } }
-    pub fn record(&mut self, step: AttackStep) { self.steps.push(step); }
-    pub fn count(&self) -> usize { self.steps.len() }
+    pub fn new() -> Self {
+        Self { steps: Vec::new() }
+    }
+    pub fn record(&mut self, step: AttackStep) {
+        self.steps.push(step);
+    }
+    pub fn count(&self) -> usize {
+        self.steps.len()
+    }
     pub fn for_scenario<'a>(&'a self, scenario_id: &str) -> Vec<&'a AttackStep> {
-        self.steps.iter().filter(|s| s.scenario_id == scenario_id).collect()
+        self.steps
+            .iter()
+            .filter(|s| s.scenario_id == scenario_id)
+            .collect()
     }
     pub fn successful(&self) -> Vec<&AttackStep> {
         self.steps.iter().filter(|s| s.is_successful()).collect()
@@ -105,5 +128,7 @@ impl AttackLog {
     pub fn by_vector<'a>(&'a self, vector: &AttackVector) -> Vec<&'a AttackStep> {
         self.steps.iter().filter(|s| &s.vector == vector).collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &AttackStep> { self.steps.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &AttackStep> {
+        self.steps.iter()
+    }
 }

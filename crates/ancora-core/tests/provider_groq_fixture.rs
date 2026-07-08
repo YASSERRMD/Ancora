@@ -1,10 +1,10 @@
 /// Groq provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const GROQ_LLAMA3_70B: &str   = "groq/llama3-70b-8192";
-const GROQ_LLAMA3_8B: &str    = "groq/llama3-8b-8192";
-const GROQ_MIXTRAL: &str      = "groq/mixtral-8x7b-32768";
-const GROQ_GEMMA2: &str       = "groq/gemma2-9b-it";
+const GROQ_LLAMA3_70B: &str = "groq/llama3-70b-8192";
+const GROQ_LLAMA3_8B: &str = "groq/llama3-8b-8192";
+const GROQ_MIXTRAL: &str = "groq/mixtral-8x7b-32768";
+const GROQ_GEMMA2: &str = "groq/gemma2-9b-it";
 
 fn groq_router() -> ModelRouter {
     let mut r = ModelRouter::new(GROQ_LLAMA3_70B);

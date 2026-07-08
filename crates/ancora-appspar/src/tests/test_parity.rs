@@ -1,8 +1,12 @@
-use crate::parity::{run_all, all_pass, REQUIRED_FEATURES};
+use crate::parity::{all_pass, run_all, REQUIRED_FEATURES};
 
 #[test]
 fn all_languages_pass_parity() {
-    assert!(all_pass(), "one or more languages failed parity: {:?}", run_all());
+    assert!(
+        all_pass(),
+        "one or more languages failed parity: {:?}",
+        run_all()
+    );
 }
 
 #[test]
@@ -18,6 +22,7 @@ fn parity_reports_correct_languages() {
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn required_features_non_empty() {
     assert!(!REQUIRED_FEATURES.is_empty());
 }

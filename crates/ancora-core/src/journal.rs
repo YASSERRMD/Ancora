@@ -195,9 +195,7 @@ mod tests {
         let threads: Vec<_> = (0..8)
             .map(|i| {
                 let s = Arc::clone(&store);
-                thread::spawn(move || {
-                    s.append("run-conc", make_event(&format!("e{i}"))).unwrap()
-                })
+                thread::spawn(move || s.append("run-conc", make_event(&format!("e{i}"))).unwrap())
             })
             .collect();
 

@@ -13,6 +13,5 @@ pub fn permissive_boot_policy(tenant_id: impl Into<String>) -> BootPolicy {
 }
 
 pub fn kernel_only_policy(tenant_id: impl Into<String>) -> BootPolicy {
-    BootPolicy::new(tenant_id)
-        .require_kind(MeasurementKind::Kernel)
+    BootPolicy::new(tenant_id).require_kind(MeasurementKind::Kernel)
 }

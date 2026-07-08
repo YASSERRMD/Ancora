@@ -20,7 +20,13 @@ pub enum SkillScope {
 }
 
 impl SkillDescriptor {
-    pub fn new(name: &str, version: u32, description: &str, tags: Vec<&str>, scope: SkillScope) -> Self {
+    pub fn new(
+        name: &str,
+        version: u32,
+        description: &str,
+        tags: Vec<&str>,
+        scope: SkillScope,
+    ) -> Self {
         Self {
             name: name.to_string(),
             version,

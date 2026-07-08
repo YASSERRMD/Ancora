@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::key::{CryptoKey, KeyPurpose};
+use std::fmt;
 
 impl fmt::Display for KeyPurpose {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

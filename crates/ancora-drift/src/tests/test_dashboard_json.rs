@@ -1,7 +1,7 @@
 //! Integration tests: dashboard JSON is valid and contains expected fields.
 
 use crate::alerting::{Alert, Severity};
-use crate::dashboard::{DashboardSnapshot, HealthStatus, Metric, extract_top_level_str};
+use crate::dashboard::{extract_top_level_str, DashboardSnapshot, HealthStatus, Metric};
 
 #[test]
 fn dashboard_json_valid_and_contains_timestamp() {
@@ -34,8 +34,16 @@ fn dashboard_json_health_incident_with_critical_alert() {
 #[test]
 fn dashboard_json_includes_metrics() {
     let metrics = vec![
-        Metric { name: "mean_cost_micros".into(), value: 150.0, unit: "microdollars".into() },
-        Metric { name: "input_drift_z".into(), value: 1.2, unit: "z-score".into() },
+        Metric {
+            name: "mean_cost_micros".into(),
+            value: 150.0,
+            unit: "microdollars".into(),
+        },
+        Metric {
+            name: "input_drift_z".into(),
+            value: 1.2,
+            unit: "z-score".into(),
+        },
     ];
     let snap = DashboardSnapshot::new("ts", metrics, vec![]);
     let json = snap.to_json();
@@ -46,8 +54,8 @@ fn dashboard_json_includes_metrics() {
 
 #[test]
 fn dashboard_json_includes_alert_details() {
-    let alerts = vec![Alert::new(Severity::Warning, "tool_drift", "tool usage changed")
-        .with_metric(4.5)];
+    let alerts =
+        vec![Alert::new(Severity::Warning, "tool_drift", "tool usage changed").with_metric(4.5)];
     let snap = DashboardSnapshot::new("ts", vec![], alerts);
     let json = snap.to_json();
     assert!(json.contains("\"WARNING\""));

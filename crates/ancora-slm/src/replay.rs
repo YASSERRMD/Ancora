@@ -41,7 +41,10 @@ impl ReplayStore {
         let p = prompt.into();
         let r = response.into();
         self.entries.insert(p.clone(), r.clone());
-        self.log.push(ReplayEntry { prompt: p, response: r });
+        self.log.push(ReplayEntry {
+            prompt: p,
+            response: r,
+        });
     }
 
     /// Look up the recorded response for a given prompt.
@@ -87,7 +90,10 @@ pub struct ReplayModelFn {
 
 impl ReplayModelFn {
     pub fn new(store: ReplayStore, default_response: impl Into<String>) -> Self {
-        Self { store, default_response: default_response.into() }
+        Self {
+            store,
+            default_response: default_response.into(),
+        }
     }
 
     pub fn call(&self, prompt: &str) -> String {
@@ -107,6 +113,9 @@ pub fn make_replay_fn(
     let store_map: HashMap<String, String> = pairs.into_iter().collect();
     let default = default_response.into();
     move |prompt: &str| -> String {
-        store_map.get(prompt).cloned().unwrap_or_else(|| default.clone())
+        store_map
+            .get(prompt)
+            .cloned()
+            .unwrap_or_else(|| default.clone())
     }
 }

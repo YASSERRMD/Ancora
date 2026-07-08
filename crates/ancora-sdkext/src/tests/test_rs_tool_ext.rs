@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::rs_traits::{ExtensionError, ToolExtension, ToolMeta, Value};
+use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // A concrete Rust extension for testing

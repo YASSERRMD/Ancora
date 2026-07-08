@@ -85,7 +85,8 @@ impl MfaEnforcer {
     }
 
     pub fn issue_challenge(&mut self, challenge: MfaChallenge) {
-        self.challenges.insert(challenge.challenge_id.clone(), challenge);
+        self.challenges
+            .insert(challenge.challenge_id.clone(), challenge);
     }
 
     pub fn verify_challenge(&mut self, challenge_id: &str, code: &str, current_tick: u64) -> bool {

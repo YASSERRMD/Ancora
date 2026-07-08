@@ -1,4 +1,4 @@
-/// Trace tree - nested span view of an agent run (parent/child spans).
+//! Trace tree - nested span view of an agent run (parent/child spans).
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SpanKind {
@@ -48,7 +48,10 @@ impl TraceTree {
     }
 
     pub fn root_spans(&self) -> Vec<&Span> {
-        self.spans.iter().filter(|s| s.parent_id.is_none()).collect()
+        self.spans
+            .iter()
+            .filter(|s| s.parent_id.is_none())
+            .collect()
     }
 
     pub fn children_of(&self, parent_id: &str) -> Vec<&Span> {

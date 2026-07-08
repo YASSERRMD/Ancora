@@ -1,5 +1,7 @@
 use ancora_ageval::{GuardrailMetric, PlanningMetric, RoutingMetric};
-use ancora_guard::{GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail, SafetyOutputGuardrail};
+use ancora_guard::{
+    GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail, SafetyOutputGuardrail,
+};
 
 #[test]
 fn routing_plus_escalation_plus_verifier() {

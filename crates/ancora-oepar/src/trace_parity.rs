@@ -159,7 +159,12 @@ pub fn compare_traces(a: &Trace, b: &Trace) -> ParityResult {
         }
         for (key, val_a) in &span_a.attributes {
             match span_b.attributes.get(key) {
-                None => diffs.push(format!("span[{}] missing attribute {:?} in {:?}", i, key, b.language.as_str())),
+                None => diffs.push(format!(
+                    "span[{}] missing attribute {:?} in {:?}",
+                    i,
+                    key,
+                    b.language.as_str()
+                )),
                 Some(val_b) if val_a != val_b => diffs.push(format!(
                     "span[{}] attribute {:?} mismatch: {:?} vs {:?}",
                     i, key, val_a, val_b
@@ -183,11 +188,16 @@ pub fn reference_trace(language: Language) -> Trace {
         .with_attribute("gen_ai.system", "ancora")
         .with_attribute("gen_ai.operation.name", "chat")
         .with_duration(120);
-    let child = Span::new("trace-001", "span-child", "agent.llm_call", language.clone())
-        .with_parent("span-root")
-        .with_attribute("gen_ai.system", "ancora")
-        .with_attribute("gen_ai.request.model", "gpt-4o")
-        .with_duration(80);
+    let child = Span::new(
+        "trace-001",
+        "span-child",
+        "agent.llm_call",
+        language.clone(),
+    )
+    .with_parent("span-root")
+    .with_attribute("gen_ai.system", "ancora")
+    .with_attribute("gen_ai.request.model", "gpt-4o")
+    .with_duration(80);
     trace.add_span(root);
     trace.add_span(child);
     trace

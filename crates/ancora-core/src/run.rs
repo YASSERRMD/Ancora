@@ -31,7 +31,10 @@ pub struct Run {
 impl RunStatus {
     /// Returns true if no further transitions are legal from this state.
     pub fn is_terminal(self) -> bool {
-        matches!(self, RunStatus::Completed | RunStatus::Cancelled | RunStatus::Failed)
+        matches!(
+            self,
+            RunStatus::Completed | RunStatus::Cancelled | RunStatus::Failed
+        )
     }
 
     /// Attempt to transition to `next`. Returns an error if the transition is
@@ -44,7 +47,10 @@ impl RunStatus {
         let allowed = match self {
             RunStatus::Pending => matches!(next, RunStatus::Running),
             RunStatus::Running => {
-                matches!(next, RunStatus::Completed | RunStatus::Cancelled | RunStatus::Failed)
+                matches!(
+                    next,
+                    RunStatus::Completed | RunStatus::Cancelled | RunStatus::Failed
+                )
             }
             RunStatus::Completed | RunStatus::Cancelled | RunStatus::Failed => false,
         };

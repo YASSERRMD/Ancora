@@ -60,16 +60,24 @@ class Phase149E2eVerifierTest {
         try (Runtime rt = new Runtime()) {
             ExecutorService pool = Executors.newFixedThreadPool(2);
             Future<List<RunEvent>> dFuture = pool.submit(() -> {
-                Agent d = new Agent(rt);
-                List<RunEvent> events = d.run(new AgentSpec("llama3", "draft", null, null, null)).collectAll();
-                d.close();
-                return events;
+                try {
+                    Agent d = new Agent(rt);
+                    List<RunEvent> events = d.run(new AgentSpec("llama3", "draft", null, null, null)).collectAll();
+                    d.close();
+                    return events;
+                } catch (Throwable t) {
+                    throw new RuntimeException(t);
+                }
             });
             Future<List<RunEvent>> vFuture = pool.submit(() -> {
-                Agent v = new Agent(rt);
-                List<RunEvent> events = v.run(new AgentSpec("llama3", "verify", null, null, null)).collectAll();
-                v.close();
-                return events;
+                try {
+                    Agent v = new Agent(rt);
+                    List<RunEvent> events = v.run(new AgentSpec("llama3", "verify", null, null, null)).collectAll();
+                    v.close();
+                    return events;
+                } catch (Throwable t) {
+                    throw new RuntimeException(t);
+                }
             });
             pool.shutdown();
             pool.awaitTermination(30, TimeUnit.SECONDS);

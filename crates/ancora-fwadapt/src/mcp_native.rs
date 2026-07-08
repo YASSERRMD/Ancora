@@ -1,7 +1,7 @@
-/// Native import of Model Context Protocol (MCP) tool definitions into Ancora.
-///
-/// MCP tools are described by a JSON-schema-like structure. This module
-/// provides an in-process representation and a registry without any network I/O.
+//! Native import of Model Context Protocol (MCP) tool definitions into Ancora.
+//!
+//! MCP tools are described by a JSON-schema-like structure. This module
+//! provides an in-process representation and a registry without any network I/O.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct McpParamDef {
@@ -88,14 +88,9 @@ impl McpToolRegistry {
     }
 
     /// Validate that all required parameters are present in a call map.
-    pub fn validate_call(
-        &self,
-        name: &str,
-        args: &[(&str, &str)],
-    ) -> Result<(), McpRegistryError> {
+    pub fn validate_call(&self, name: &str, args: &[(&str, &str)]) -> Result<(), McpRegistryError> {
         let tool = self.get(name)?;
-        let provided: std::collections::HashSet<&str> =
-            args.iter().map(|(k, _)| *k).collect();
+        let provided: std::collections::HashSet<&str> = args.iter().map(|(k, _)| *k).collect();
         for param in &tool.params {
             if param.required && !provided.contains(param.name.as_str()) {
                 return Err(McpRegistryError::ToolNotFound(format!(

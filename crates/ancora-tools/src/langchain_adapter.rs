@@ -3,6 +3,9 @@ use std::sync::Arc;
 use crate::error::ToolError;
 use crate::tool::{Tool, ToolEffect};
 
+/// Signature for a LangChain-style tool callable.
+type RunFn = Box<dyn Fn(&str) -> Result<String, String> + Send + Sync>;
+
 /// Minimal representation of a LangChain-style tool definition.
 ///
 /// LangChain tools expose `name`, `description`, and a `run(input) -> output`
@@ -13,7 +16,7 @@ pub struct LangchainTool {
     pub name: String,
     pub description: String,
     pub args_schema: Option<serde_json::Value>,
-    pub run: Box<dyn Fn(&str) -> Result<String, String> + Send + Sync>,
+    pub run: RunFn,
 }
 
 impl LangchainTool {
@@ -75,12 +78,10 @@ impl Tool for LangchainToolAdapter {
         let arg = if let Some(s) = input.get("input").and_then(|v| v.as_str()) {
             s.to_owned()
         } else {
-            serde_json::to_string(input)
-                .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?
+            serde_json::to_string(input).map_err(|e| ToolError::ExecutionFailed(e.to_string()))?
         };
 
-        let output = (self.inner.run)(&arg)
-            .map_err(ToolError::ExecutionFailed)?;
+        let output = (self.inner.run)(&arg).map_err(ToolError::ExecutionFailed)?;
 
         Ok(serde_json::json!({ "output": output }))
     }
@@ -160,7 +161,9 @@ mod tests {
             Ok(format!("result: {}", input.len()))
         });
         registry.register(from_langchain(lc));
-        let result = registry.call("calc", &serde_json::json!({ "input": "abc" })).unwrap();
+        let result = registry
+            .call("calc", &serde_json::json!({ "input": "abc" }))
+            .unwrap();
         assert_eq!(result["output"], "result: 3");
     }
 }

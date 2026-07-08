@@ -2,7 +2,6 @@
 ///
 /// Demonstrates composing agents implemented in different languages via
 /// a simple in-process A2A routing table. No network calls are made.
-
 use std::collections::HashMap;
 
 /// A language identifier for an agent implementation.
@@ -100,12 +99,7 @@ impl PolyglotRouter {
         if !self.routes.contains_key(to) {
             return Err(RouterError::NoEndpointForLanguage(to.as_str().to_string()));
         }
-        let trace_id = format!(
-            "a2a-{}-{}-{}",
-            from.as_str(),
-            to.as_str(),
-            payload.len()
-        );
+        let trace_id = format!("a2a-{}-{}-{}", from.as_str(), to.as_str(), payload.len());
         Ok(A2aMessage {
             from_language: from.as_str().to_string(),
             to_language: to.as_str().to_string(),

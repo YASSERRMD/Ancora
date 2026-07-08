@@ -3,7 +3,12 @@ use crate::revocation::{DeviceRevocationList, RevocationReason};
 #[test]
 fn test_compromised_device_revoked() {
     let mut drl = DeviceRevocationList::new();
-    drl.revoke("compromised-device", RevocationReason::KeyCompromised, "private key leaked", 1);
+    drl.revoke(
+        "compromised-device",
+        RevocationReason::KeyCompromised,
+        "private key leaked",
+        1,
+    );
     assert!(drl.is_revoked("compromised-device"));
 }
 
@@ -16,7 +21,12 @@ fn test_non_revoked_device() {
 #[test]
 fn test_revocation_record_stored() {
     let mut drl = DeviceRevocationList::new();
-    drl.revoke("bad-device", RevocationReason::TamperDetected, "tamper event", 5);
+    drl.revoke(
+        "bad-device",
+        RevocationReason::TamperDetected,
+        "tamper event",
+        5,
+    );
     let record = drl.get_record("bad-device").unwrap();
     assert_eq!(record.device_id, "bad-device");
     assert_eq!(record.reason, RevocationReason::TamperDetected);
@@ -33,7 +43,12 @@ fn test_revocation_count() {
 #[test]
 fn test_unrevoke_device() {
     let mut drl = DeviceRevocationList::new();
-    drl.revoke("temp-device", RevocationReason::PolicyViolation, "policy", 20);
+    drl.revoke(
+        "temp-device",
+        RevocationReason::PolicyViolation,
+        "policy",
+        20,
+    );
     assert!(drl.is_revoked("temp-device"));
     drl.unrevoke("temp-device");
     assert!(!drl.is_revoked("temp-device"));

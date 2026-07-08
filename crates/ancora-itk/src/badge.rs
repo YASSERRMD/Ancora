@@ -1,5 +1,4 @@
 /// Badge issuance for compliant extensions.
-
 use crate::report::{KitReport, KitStatus};
 
 /// Tier of compliance badge.

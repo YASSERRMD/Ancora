@@ -1,7 +1,14 @@
-use crate::{DataCategory, DataRecord, SensitivityLevel, to_json};
+use crate::{to_json, DataCategory, DataRecord, SensitivityLevel};
 #[test]
 fn json_output_is_array() {
-    let r = DataRecord::new("r1", "t1", "x", SensitivityLevel::Public, DataCategory::Generic, 5);
+    let r = DataRecord::new(
+        "r1",
+        "t1",
+        "x",
+        SensitivityLevel::Public,
+        DataCategory::Generic,
+        5,
+    );
     let json = to_json(&[&r]);
     assert!(json.starts_with('['));
     assert!(json.ends_with(']'));

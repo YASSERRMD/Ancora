@@ -108,7 +108,10 @@ fn unauthenticated_mcp_result_is_recorded_in_journal_for_audit() {
     let tool_ev = events.iter().find(|e| {
         matches!(&e.event, Some(Event::ActivityRecorded(a)) if a.activity_key.contains("unauthed"))
     });
-    assert!(tool_ev.is_some(), "unauthenticated call must be recorded in audit journal");
+    assert!(
+        tool_ev.is_some(),
+        "unauthenticated call must be recorded in audit journal"
+    );
 }
 
 #[test]
@@ -116,9 +119,10 @@ fn unauthenticated_mcp_result_contains_error_code_401() {
     let run_id = "mcp-auth-err";
     let events = mcp_journal(run_id, None, false);
 
-    let tool_ev = events.iter().find(|e| {
-        matches!(&e.event, Some(Event::ActivityRecorded(a)) if a.activity_kind == "tool")
-    }).unwrap();
+    let tool_ev = events
+        .iter()
+        .find(|e| matches!(&e.event, Some(Event::ActivityRecorded(a)) if a.activity_kind == "tool"))
+        .unwrap();
 
     if let Some(Event::ActivityRecorded(a)) = &tool_ev.event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
@@ -138,15 +142,22 @@ fn mcp_tool_input_with_bearer_token_contains_authorization() {
 fn mcp_tool_input_without_token_has_no_authorization_header() {
     let input = mcp_tool_input("search", None, r#"{}"#);
     let v: serde_json::Value = serde_json::from_str(&input).unwrap();
-    assert!(v["headers"].is_null() || !v.get("headers").is_some_and(|h| h.get("Authorization").is_some()),
-        "unauthenticated input must have no Authorization header");
+    assert!(
+        v["headers"].is_null()
+            || v.get("headers")
+                .is_none_or(|h| h.get("Authorization").is_none()),
+        "unauthenticated input must have no Authorization header"
+    );
 }
 
 #[test]
 fn authenticated_mcp_activity_key_prefix_is_authed() {
     let events = mcp_journal("mcp-key-test", Some("tok"), true);
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
-        assert!(a.activity_key.contains("authed"), "authed call key must contain 'authed'");
+        assert!(
+            a.activity_key.contains("authed"),
+            "authed call key must contain 'authed'"
+        );
     }
 }
 
@@ -154,7 +165,10 @@ fn authenticated_mcp_activity_key_prefix_is_authed() {
 fn unauthenticated_mcp_activity_key_prefix_is_unauthed() {
     let events = mcp_journal("mcp-unauth-key", None, false);
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
-        assert!(a.activity_key.contains("unauthed"), "unauthed call key must contain 'unauthed'");
+        assert!(
+            a.activity_key.contains("unauthed"),
+            "unauthed call key must contain 'unauthed'"
+        );
     }
 }
 
@@ -163,11 +177,14 @@ fn auth_error_output_fails_success_schema_validation() {
     let unauth_output = r#"{"error":"unauthenticated","code":401}"#;
     let success_schema = r#"{"type":"object","required":["results"]}"#;
     let result = validate_output(unauth_output, success_schema);
-    assert!(result.is_err() || {
-        serde_json::from_str::<serde_json::Value>(unauth_output)
-            .map(|v| v.get("results").is_none())
-            .unwrap_or(false)
-    }, "auth error must not satisfy success schema");
+    assert!(
+        result.is_err() || {
+            serde_json::from_str::<serde_json::Value>(unauth_output)
+                .map(|v| v.get("results").is_none())
+                .unwrap_or(false)
+        },
+        "auth error must not satisfy success schema"
+    );
 }
 
 #[test]

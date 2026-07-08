@@ -85,7 +85,7 @@ public class Phase146HumanInLoopTests
         {
             using var a = new Agent();
             var h = a.Run(new AgentSpec("llama3"));
-            Assert.Throws<ArgumentNullException>(() => h.Resume(null!));
+            Assert.Throws<ArgumentNullException>(() => h.Resume((string)null!));
         }
         catch (DllNotFoundException) { }
     }

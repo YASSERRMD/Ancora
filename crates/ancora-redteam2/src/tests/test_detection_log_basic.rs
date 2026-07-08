@@ -29,8 +29,22 @@ fn for_scenario() {
 #[test]
 fn by_source() {
     let mut log = DetectionLog::new();
-    log.record(DetectionEvent::new("d1", "sc1", DetectionSource::Edr, "x", 1, true));
-    log.record(DetectionEvent::new("d2", "sc1", DetectionSource::Siem, "x", 1, false));
+    log.record(DetectionEvent::new(
+        "d1",
+        "sc1",
+        DetectionSource::Edr,
+        "x",
+        1,
+        true,
+    ));
+    log.record(DetectionEvent::new(
+        "d2",
+        "sc1",
+        DetectionSource::Siem,
+        "x",
+        1,
+        false,
+    ));
     assert_eq!(log.by_source(&DetectionSource::Edr).len(), 1);
     assert_eq!(log.by_source(&DetectionSource::Ids).len(), 0);
 }

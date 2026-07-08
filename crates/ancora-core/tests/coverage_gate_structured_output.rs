@@ -1,14 +1,14 @@
 // Coverage gate: structured output validation scenarios are all tested.
 
 const STRUCTURED_OUTPUT_SCENARIOS: &[(&str, &str)] = &[
-    ("valid_json",          "det_identical_inputs"),
-    ("empty_object",        "det_map_ordering"),
-    ("nested_object",       "det_cross_language_replay"),
-    ("array_result",        "xlang_journal_equality"),
-    ("unicode_content",     "det_cost_replay"),
-    ("large_payload",       "det_large_journal_perf"),
+    ("valid_json", "det_identical_inputs"),
+    ("empty_object", "det_map_ordering"),
+    ("nested_object", "det_cross_language_replay"),
+    ("array_result", "xlang_journal_equality"),
+    ("unicode_content", "det_cost_replay"),
+    ("large_payload", "det_large_journal_perf"),
     ("schema_v1_migration", "det_version_migration"),
-    ("schema_v2",           "det_version_migration"),
+    ("schema_v2", "det_version_migration"),
 ];
 
 fn validate_json_structure(json: &str) -> bool {
@@ -30,18 +30,29 @@ fn test_8_structured_output_scenarios() {
 #[test]
 fn test_all_scenarios_map_to_test_module() {
     for (scenario, module) in STRUCTURED_OUTPUT_SCENARIOS {
-        assert!(!module.is_empty(), "scenario '{scenario}' has no test module");
+        assert!(
+            !module.is_empty(),
+            "scenario '{scenario}' has no test module"
+        );
     }
 }
 
 #[test]
-fn test_validate_json_object() { assert!(validate_json_structure(r#"{"key": "val"}"#)); }
+fn test_validate_json_object() {
+    assert!(validate_json_structure(r#"{"key": "val"}"#));
+}
 
 #[test]
-fn test_validate_json_array() { assert!(validate_json_structure(r#"[1, 2, 3]"#)); }
+fn test_validate_json_array() {
+    assert!(validate_json_structure(r#"[1, 2, 3]"#));
+}
 
 #[test]
-fn test_validate_json_null() { assert!(validate_json_structure("null")); }
+fn test_validate_json_null() {
+    assert!(validate_json_structure("null"));
+}
 
 #[test]
-fn test_validate_json_number() { assert!(validate_json_structure("42.5")); }
+fn test_validate_json_number() {
+    assert!(validate_json_structure("42.5"));
+}

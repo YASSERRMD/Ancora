@@ -21,7 +21,10 @@ pub fn build(params: &ParamSet) -> Recipe {
     r.add_step(RecipeStep::new(
         "outline",
         StepAction::Generate,
-        format!("Generate outline with {} sections for topic '{}'", sections, topic),
+        format!(
+            "Generate outline with {} sections for topic '{}'",
+            sections, topic
+        ),
     ));
     r.add_step(RecipeStep::new(
         "research",

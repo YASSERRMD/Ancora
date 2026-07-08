@@ -44,7 +44,9 @@ impl CircuitBreaker {
     pub fn on_failure(&mut self, now: u64) {
         self.consecutive_failures += 1;
         if self.consecutive_failures >= self.failure_threshold {
-            self.state = CBState::Open { until: now + self.reset_timeout_secs };
+            self.state = CBState::Open {
+                until: now + self.reset_timeout_secs,
+            };
         }
     }
 

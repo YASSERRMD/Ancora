@@ -2,7 +2,6 @@
 ///
 /// Plugins run sandboxed with resource, network, and filesystem limits,
 /// cryptographic signature verification, and crash isolation.
-
 pub mod audit;
 pub mod capability_grants;
 pub mod crash_isolation;

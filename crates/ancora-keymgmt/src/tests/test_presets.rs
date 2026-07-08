@@ -1,4 +1,6 @@
-use crate::{aes256_encryption_key, ed25519_signing_key, ephemeral_key, KeyAlgorithm, KeyPurpose, KeyStatus};
+use crate::{
+    aes256_encryption_key, ed25519_signing_key, ephemeral_key, KeyAlgorithm, KeyPurpose, KeyStatus,
+};
 #[test]
 fn aes256_preset_is_active_encryption() {
     let k = aes256_encryption_key("k1", "t1", 10);

@@ -30,7 +30,11 @@ pub struct ProcedureStep {
 }
 
 impl ProcedureStep {
-    pub fn new(id: impl Into<String>, title: impl Into<String>, instructions: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        title: impl Into<String>,
+        instructions: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             title: title.into(),
@@ -45,9 +49,15 @@ impl ProcedureStep {
         self.completed_tick = Some(tick);
     }
 
-    pub fn skip(&mut self) { self.status = ProcedureStepStatus::Skipped; }
-    pub fn fail(&mut self) { self.status = ProcedureStepStatus::Failed; }
-    pub fn is_done(&self) -> bool { self.status != ProcedureStepStatus::Pending }
+    pub fn skip(&mut self) {
+        self.status = ProcedureStepStatus::Skipped;
+    }
+    pub fn fail(&mut self) {
+        self.status = ProcedureStepStatus::Failed;
+    }
+    pub fn is_done(&self) -> bool {
+        self.status != ProcedureStepStatus::Pending
+    }
 }
 
 pub struct OfflineProcedure {
@@ -71,16 +81,26 @@ impl OfflineProcedure {
         }
     }
 
-    pub fn add_step(&mut self, step: ProcedureStep) { self.steps.push(step); }
+    pub fn add_step(&mut self, step: ProcedureStep) {
+        self.steps.push(step);
+    }
 
-    pub fn step_count(&self) -> usize { self.steps.len() }
+    pub fn step_count(&self) -> usize {
+        self.steps.len()
+    }
 
     pub fn completed_count(&self) -> usize {
-        self.steps.iter().filter(|s| s.status == ProcedureStepStatus::Completed).count()
+        self.steps
+            .iter()
+            .filter(|s| s.status == ProcedureStepStatus::Completed)
+            .count()
     }
 
     pub fn pending_count(&self) -> usize {
-        self.steps.iter().filter(|s| s.status == ProcedureStepStatus::Pending).count()
+        self.steps
+            .iter()
+            .filter(|s| s.status == ProcedureStepStatus::Pending)
+            .count()
     }
 
     pub fn is_complete(&self) -> bool {
@@ -88,7 +108,9 @@ impl OfflineProcedure {
     }
 
     pub fn progress(&self) -> f64 {
-        if self.steps.is_empty() { return 0.0; }
+        if self.steps.is_empty() {
+            return 0.0;
+        }
         self.completed_count() as f64 / self.steps.len() as f64
     }
 
@@ -96,5 +118,7 @@ impl OfflineProcedure {
         self.steps.iter_mut().find(|s| s.id == id)
     }
 
-    pub fn steps(&self) -> &[ProcedureStep] { &self.steps }
+    pub fn steps(&self) -> &[ProcedureStep] {
+        &self.steps
+    }
 }

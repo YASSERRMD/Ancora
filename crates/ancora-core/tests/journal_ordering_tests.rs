@@ -39,7 +39,11 @@ fn read_returns_events_in_seq_order() {
     }
     let events = store.read("run-c").unwrap();
     let seqs: Vec<u64> = events.iter().map(|e| e.seq).collect();
-    assert_eq!(seqs, vec![0, 1, 2, 3], "events must be in ascending seq order");
+    assert_eq!(
+        seqs,
+        vec![0, 1, 2, 3],
+        "events must be in ascending seq order"
+    );
 }
 
 #[test]

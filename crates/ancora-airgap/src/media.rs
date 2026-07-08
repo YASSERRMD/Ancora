@@ -57,7 +57,9 @@ impl MediaControl {
     }
 
     pub fn is_allowed(&self, media: &MediaType) -> bool {
-        if self.blocked.contains(media) { return false; }
+        if self.blocked.contains(media) {
+            return false;
+        }
         self.allowed.contains(media)
     }
 
@@ -65,6 +67,10 @@ impl MediaControl {
         self.blocked.contains(media)
     }
 
-    pub fn allowed_count(&self) -> usize { self.allowed.len() }
-    pub fn blocked_count(&self) -> usize { self.blocked.len() }
+    pub fn allowed_count(&self) -> usize {
+        self.allowed.len()
+    }
+    pub fn blocked_count(&self) -> usize {
+        self.blocked.len()
+    }
 }

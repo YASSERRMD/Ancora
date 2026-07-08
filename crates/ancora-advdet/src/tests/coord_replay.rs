@@ -1,4 +1,4 @@
-use ancora_coord::{Bid, Blackboard, CoordJournal, ContractNet};
+use ancora_coord::{Bid, Blackboard, ContractNet, CoordJournal};
 
 fn record_events(journal: &mut CoordJournal) {
     journal.record(1, "assign", "task-1 -> agent-A");
@@ -25,9 +25,21 @@ fn coord_journal_replay_stable() {
 #[test]
 fn contract_net_winner_stable() {
     let bids = vec![
-        Bid { agent_id: "a1".into(), task_id: "t1".into(), score: 0.7 },
-        Bid { agent_id: "a2".into(), task_id: "t1".into(), score: 0.9 },
-        Bid { agent_id: "a3".into(), task_id: "t1".into(), score: 0.5 },
+        Bid {
+            agent_id: "a1".into(),
+            task_id: "t1".into(),
+            score: 0.7,
+        },
+        Bid {
+            agent_id: "a2".into(),
+            task_id: "t1".into(),
+            score: 0.9,
+        },
+        Bid {
+            agent_id: "a3".into(),
+            task_id: "t1".into(),
+            score: 0.5,
+        },
     ];
     let w1 = ContractNet::assign(&bids).map(|b| b.agent_id.clone());
     let w2 = ContractNet::assign(&bids).map(|b| b.agent_id.clone());

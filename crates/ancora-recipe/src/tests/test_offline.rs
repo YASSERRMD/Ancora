@@ -1,8 +1,10 @@
 /// These tests verify that recipes run entirely offline - no network, no filesystem I/O.
 /// All operations are in-memory and deterministic.
-
 use crate::params::ParamSet;
-use crate::{code_review, customer_support, data_extraction, debate, doc_processing, rag_citations, research_report};
+use crate::{
+    code_review, customer_support, data_extraction, debate, doc_processing, rag_citations,
+    research_report,
+};
 
 #[test]
 fn all_recipes_build_offline() {

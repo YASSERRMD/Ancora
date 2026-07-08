@@ -50,28 +50,55 @@ impl AttestationRecord {
         }
     }
 
-    pub fn is_trusted(&self) -> bool { self.status == AttestationStatus::Trusted }
+    pub fn is_trusted(&self) -> bool {
+        self.status == AttestationStatus::Trusted
+    }
 }
 
 pub struct AttestationLog {
     entries: Vec<AttestationRecord>,
 }
 
+impl Default for AttestationLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AttestationLog {
-    pub fn new() -> Self { Self { entries: Vec::new() } }
-    pub fn record(&mut self, entry: AttestationRecord) { self.entries.push(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: Vec::new(),
+        }
+    }
+    pub fn record(&mut self, entry: AttestationRecord) {
+        self.entries.push(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a AttestationRecord> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
     pub fn for_node<'a>(&'a self, node_id: &str) -> Vec<&'a AttestationRecord> {
-        self.entries.iter().filter(|e| e.node_id == node_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.node_id == node_id)
+            .collect()
     }
-    pub fn trusted<'a>(&'a self) -> Vec<&'a AttestationRecord> {
+    pub fn trusted(&self) -> Vec<&AttestationRecord> {
         self.entries.iter().filter(|e| e.is_trusted()).collect()
     }
-    pub fn untrusted<'a>(&'a self) -> Vec<&'a AttestationRecord> {
-        self.entries.iter().filter(|e| e.status == AttestationStatus::Untrusted).collect()
+    pub fn untrusted(&self) -> Vec<&AttestationRecord> {
+        self.entries
+            .iter()
+            .filter(|e| e.status == AttestationStatus::Untrusted)
+            .collect()
     }
-    pub fn all(&self) -> &[AttestationRecord] { &self.entries }
+    pub fn all(&self) -> &[AttestationRecord] {
+        &self.entries
+    }
 }

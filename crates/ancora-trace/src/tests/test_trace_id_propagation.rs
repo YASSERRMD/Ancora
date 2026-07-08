@@ -1,5 +1,4 @@
 /// Tests: trace id propagates correctly across agent-to-agent calls.
-
 use crate::propagation::{HeaderCarrier, TraceContext};
 use crate::span::{Span, SpanId, TraceId};
 
@@ -26,7 +25,12 @@ fn child_agent_uses_parent_span_as_parent_id() {
     carrier.inject(&ctx);
 
     let received = carrier.extract().unwrap();
-    let child = Span::child("child-agent-run", received.parent_span_id.clone(), received.trace_id.clone(), 1000);
+    let child = Span::child(
+        "child-agent-run",
+        received.parent_span_id.clone(),
+        received.trace_id.clone(),
+        1000,
+    );
     assert_eq!(child.parent_id.as_ref(), Some(&parent_span_id));
     assert_eq!(child.trace_id, trace_id);
 }

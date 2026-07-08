@@ -1,7 +1,7 @@
-/// Plugin audit log.
-///
-/// Every significant plugin lifecycle event is recorded in the audit log,
-/// providing an immutable trail for compliance, debugging, and security review.
+//! Plugin audit log.
+//!
+//! Every significant plugin lifecycle event is recorded in the audit log,
+//! providing an immutable trail for compliance, debugging, and security review.
 
 /// The kind of event being recorded.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -100,8 +100,16 @@ mod tests {
     #[test]
     fn filter_by_plugin_returns_correct_events() {
         let mut log = AuditLog::new();
-        log.record(AuditEvent { plugin_id: "a".into(), kind: EventKind::Loaded, detail: "".into() });
-        log.record(AuditEvent { plugin_id: "b".into(), kind: EventKind::Loaded, detail: "".into() });
+        log.record(AuditEvent {
+            plugin_id: "a".into(),
+            kind: EventKind::Loaded,
+            detail: "".into(),
+        });
+        log.record(AuditEvent {
+            plugin_id: "b".into(),
+            kind: EventKind::Loaded,
+            detail: "".into(),
+        });
         let a_events = log.events_for_plugin("a");
         assert_eq!(a_events.len(), 1);
     }

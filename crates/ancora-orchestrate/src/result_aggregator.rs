@@ -15,7 +15,9 @@ pub struct ResultAggregator {
 
 impl ResultAggregator {
     pub fn new() -> Self {
-        Self { results: HashMap::new() }
+        Self {
+            results: HashMap::new(),
+        }
     }
 
     pub fn record(&mut self, result: AgentResult) {

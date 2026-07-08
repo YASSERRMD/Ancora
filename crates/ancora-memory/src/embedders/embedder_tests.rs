@@ -1,18 +1,18 @@
-/// Offline tests confirming the Embedder trait is satisfied by local embedders
-/// and that all helper functions behave correctly across edge cases.
+//! Offline tests confirming the Embedder trait is satisfied by local embedders
+//! and that all helper functions behave correctly across edge cases.
 
 #[cfg(test)]
 mod embedder_trait_offline_tests {
-    use std::sync::Arc;
+    use crate::embedders::cohere::{CohereConfig, CohereEmbedder, CohereReranker};
     use crate::embedders::embedder::{
-        Embedder, Reranker, EmbedError, cosine_similarity, l2_normalize,
-        parse_openai_embedding, parse_openai_batch_embeddings,
+        cosine_similarity, l2_normalize, parse_openai_batch_embeddings, parse_openai_embedding,
+        EmbedError, Embedder, Reranker,
     };
     use crate::embedders::local::HashEmbedder;
-    use crate::embedders::openai::OpenAiEmbedder;
     use crate::embedders::openai::OpenAiEmbedConfig;
-    use crate::embedders::cohere::{CohereConfig, CohereEmbedder, CohereReranker};
+    use crate::embedders::openai::OpenAiEmbedder;
     use crate::embedders::qwen_glm::{QwenEmbedConfig, QwenEmbedder};
+    use std::sync::Arc;
 
     // ---- Embedder trait satisfaction ------------------------------------
 
@@ -90,7 +90,10 @@ mod embedder_trait_offline_tests {
         let b = [1.0f32, 0.0];
         let sim = cosine_similarity(&a, &b);
         let expected = 1.0f32 / std::f32::consts::SQRT_2;
-        assert!((sim - expected).abs() < 1e-5, "sim: {sim} expected: {expected}");
+        assert!(
+            (sim - expected).abs() < 1e-5,
+            "sim: {sim} expected: {expected}"
+        );
     }
 
     // ---- l2_normalize edge cases ----------------------------------------
@@ -114,7 +117,10 @@ mod embedder_trait_offline_tests {
 
     #[test]
     fn embed_error_display_not_empty() {
-        let e = EmbedError::InputTooLong { max_tokens: 8192, got: 9000 };
+        let e = EmbedError::InputTooLong {
+            max_tokens: 8192,
+            got: 9000,
+        };
         assert!(!e.to_string().is_empty());
     }
 

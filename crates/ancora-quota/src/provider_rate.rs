@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use crate::error::QuotaError;
 use crate::window::SlidingWindow;
+use std::collections::HashMap;
 
 /// Per-provider, per-tenant rate coordination.
 /// Enforces a maximum requests-per-minute per provider key.
@@ -16,9 +16,18 @@ impl ProviderRateCoordinator {
     }
 
     /// Record a call to `provider` from `tenant`. Returns error when `max_rps` is exceeded.
-    pub fn check(&mut self, tenant: &str, provider: &str, max_rps: u64, now: u64) -> Result<(), QuotaError> {
+    pub fn check(
+        &mut self,
+        tenant: &str,
+        provider: &str,
+        max_rps: u64,
+        now: u64,
+    ) -> Result<(), QuotaError> {
         let key = (tenant.to_owned(), provider.to_owned());
-        let window = self.windows.entry(key).or_insert_with(|| SlidingWindow::new(60, now));
+        let window = self
+            .windows
+            .entry(key)
+            .or_insert_with(|| SlidingWindow::new(60, now));
         window.increment(now, 1);
         if window.count > max_rps {
             let retry = window.seconds_until_reset(now).max(1);

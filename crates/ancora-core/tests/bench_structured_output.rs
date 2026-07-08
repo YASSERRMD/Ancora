@@ -23,7 +23,10 @@ const AGENT_OUTPUT_SCHEMA: OutputSchema = OutputSchema {
 };
 
 fn make_output_json(idx: usize) -> String {
-    format!(r#"{{"name":"result-{idx}","score":{:.2}}}"#, (idx % 100) as f64 / 100.0)
+    format!(
+        r#"{{"name":"result-{idx}","score":{:.2}}}"#,
+        (idx % 100) as f64 / 100.0
+    )
 }
 
 #[test]
@@ -32,10 +35,17 @@ fn test_bench_500k_structured_output_validations_under_300ms() {
     let mut valid = 0u64;
     for i in 0..SO_BENCH_N {
         let json = make_output_json(i);
-        if validate_json_fields(&json, &AGENT_OUTPUT_SCHEMA) { valid += 1; }
+        if validate_json_fields(&json, &AGENT_OUTPUT_SCHEMA) {
+            valid += 1;
+        }
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < SO_BENCH_MS, "took {}ms budget {}ms", elapsed, SO_BENCH_MS);
+    assert!(
+        elapsed < SO_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        SO_BENCH_MS
+    );
     assert_eq!(valid, SO_BENCH_N as u64);
 }
 

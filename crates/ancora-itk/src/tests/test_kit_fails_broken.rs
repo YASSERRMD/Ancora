@@ -1,5 +1,4 @@
 /// Tests that the kits correctly detect broken/non-conforming adapters.
-
 use crate::provider_kit::{Provider, ProviderKit};
 use crate::tool_kit::{Tool, ToolKit, ToolSchema};
 use crate::vectorstore_kit::{VecDoc, VectorStore, VectorStoreKit};

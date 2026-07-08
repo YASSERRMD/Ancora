@@ -11,7 +11,13 @@ struct TrackingPlugin {
 impl TrackingPlugin {
     fn new() -> Self {
         Self {
-            meta: PluginMeta::new("tracking", "Tracking Plugin", "1.0.0", "tracks calls", "test"),
+            meta: PluginMeta::new(
+                "tracking",
+                "Tracking Plugin",
+                "1.0.0",
+                "tracks calls",
+                "test",
+            ),
         }
     }
 }
@@ -22,7 +28,11 @@ impl CliPlugin for TrackingPlugin {
     }
 
     fn commands(&self) -> Vec<CommandSpec> {
-        vec![CommandSpec::new("run-me", "Execute the tracking command", "Detailed help")]
+        vec![CommandSpec::new(
+            "run-me",
+            "Execute the tracking command",
+            "Detailed help",
+        )]
     }
 
     fn execute(&self, command: &str, ctx: ExecContext) -> PluginResult<ExecOutput> {
@@ -43,7 +53,9 @@ fn test_dispatch_runs_plugin() {
     args.insert("flag".to_string(), "active".to_string());
     let ctx = ExecContext::new(args, false);
 
-    let output = registry.dispatch("run-me", ctx).expect("dispatch should succeed");
+    let output = registry
+        .dispatch("run-me", ctx)
+        .expect("dispatch should succeed");
 
     assert_eq!(output.exit_code, 0);
     assert!(output.lines.iter().any(|l| l.contains("executed: run-me")));

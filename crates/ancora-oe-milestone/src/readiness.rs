@@ -65,7 +65,7 @@ impl ReadinessChecklist {
         Self::default()
     }
 
-    pub fn add(mut self, item: ReadinessItem) -> Self {
+    pub fn add_item(mut self, item: ReadinessItem) -> Self {
         self.items.push(item);
         self
     }
@@ -110,8 +110,8 @@ mod tests {
     #[test]
     fn all_done_when_all_checked() {
         let checklist = ReadinessChecklist::new()
-            .add(ReadinessItem::new("tests green", CheckState::Done))
-            .add(ReadinessItem::new("docs complete", CheckState::Done));
+            .add_item(ReadinessItem::new("tests green", CheckState::Done))
+            .add_item(ReadinessItem::new("docs complete", CheckState::Done));
         assert!(checklist.all_done());
         assert_eq!(checklist.percent_done() as u32, 100);
     }
@@ -119,8 +119,8 @@ mod tests {
     #[test]
     fn partial_done() {
         let checklist = ReadinessChecklist::new()
-            .add(ReadinessItem::new("tests", CheckState::Done))
-            .add(ReadinessItem::new("perf", CheckState::InProgress));
+            .add_item(ReadinessItem::new("tests", CheckState::Done))
+            .add_item(ReadinessItem::new("perf", CheckState::InProgress));
         assert!(!checklist.all_done());
         assert_eq!(checklist.done_count(), 1);
     }
@@ -129,7 +129,9 @@ mod tests {
     fn blocked_item_renders_reason() {
         let item = ReadinessItem::new(
             "deploy",
-            CheckState::Blocked { reason: "waiting for infra".into() },
+            CheckState::Blocked {
+                reason: "waiting for infra".into(),
+            },
         );
         let r = item.render();
         assert!(r.contains("waiting for infra"));

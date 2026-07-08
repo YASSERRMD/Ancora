@@ -1,6 +1,18 @@
 use crate::audit::{SupplyChainAuditEntry, SupplyChainAuditLog, SupplyChainEvent};
-fn make_entry(tick: u64, tenant_id: &str, component_id: &str, success: bool) -> SupplyChainAuditEntry {
-    SupplyChainAuditEntry::new(tick, tenant_id, component_id, SupplyChainEvent::ComponentAdded, "subject", success)
+fn make_entry(
+    tick: u64,
+    tenant_id: &str,
+    component_id: &str,
+    success: bool,
+) -> SupplyChainAuditEntry {
+    SupplyChainAuditEntry::new(
+        tick,
+        tenant_id,
+        component_id,
+        SupplyChainEvent::ComponentAdded,
+        "subject",
+        success,
+    )
 }
 #[test]
 fn new_log_has_zero_count() {

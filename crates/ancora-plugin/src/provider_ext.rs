@@ -1,4 +1,4 @@
-/// Provider extension point - integrate an external LLM API.
+//! Provider extension point - integrate an external LLM API.
 
 /// A single message in a conversation.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -95,7 +95,11 @@ impl ProviderPlugin for EchoProvider {
     }
 
     fn generate(&self, req: GenerateRequest) -> Result<GenerateResponse, ProviderError> {
-        let last = req.messages.last().map(|m| m.content.as_str()).unwrap_or("");
+        let last = req
+            .messages
+            .last()
+            .map(|m| m.content.as_str())
+            .unwrap_or("");
         Ok(GenerateResponse {
             content: format!("echo: {last}"),
             model: req.model,

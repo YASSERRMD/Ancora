@@ -1,4 +1,4 @@
-use crate::multilingual::{MultilingualSuite, MultilingualOutcome};
+use crate::multilingual::{MultilingualOutcome, MultilingualSuite};
 
 #[test]
 fn multilingual_default_catalog_all_pass() {

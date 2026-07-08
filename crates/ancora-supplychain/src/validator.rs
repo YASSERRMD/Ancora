@@ -1,6 +1,6 @@
+use crate::provenance::ProvenanceStore;
 use crate::sbom::Sbom;
 use crate::signature::SignatureStore;
-use crate::provenance::ProvenanceStore;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SbomIssue {
@@ -15,7 +15,9 @@ impl std::fmt::Display for SbomIssue {
         match self {
             SbomIssue::EmptySbom => write!(f, "SBOM has no components"),
             SbomIssue::UnsignedComponent(id) => write!(f, "component {} has no signature", id),
-            SbomIssue::MissingProvenance(id) => write!(f, "component {} has no provenance record", id),
+            SbomIssue::MissingProvenance(id) => {
+                write!(f, "component {} has no provenance record", id)
+            }
             SbomIssue::EmptyDigest(id) => write!(f, "component {} has empty digest", id),
         }
     }

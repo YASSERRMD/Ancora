@@ -1,6 +1,6 @@
-/// .NET/C# sample app parity module.
-///
-/// Models the canonical .NET (Anthropic.Client) agent sample app.
+//! .NET/C# sample app parity module.
+//!
+//! Models the canonical .NET (Anthropic.Client) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct DotnetApp {
@@ -39,7 +39,10 @@ impl std::fmt::Display for DotnetAppError {
 }
 
 impl DotnetApp {
-    pub fn new(name: impl Into<String>, framework: impl Into<String>) -> Result<Self, DotnetAppError> {
+    pub fn new(
+        name: impl Into<String>,
+        framework: impl Into<String>,
+    ) -> Result<Self, DotnetAppError> {
         let framework = framework.into();
         match framework.as_str() {
             "net8.0" | "net9.0" | "net6.0" => Ok(Self {
@@ -58,7 +61,10 @@ impl DotnetApp {
             role: "user".to_string(),
             content: user_input.to_string(),
         };
-        let reply = format!("[{}/{}] response: {}", self.name, self.framework, user_input);
+        let reply = format!(
+            "[{}/{}] response: {}",
+            self.name, self.framework, user_input
+        );
         let assistant_msg = DotnetMessage {
             role: "assistant".to_string(),
             content: reply,

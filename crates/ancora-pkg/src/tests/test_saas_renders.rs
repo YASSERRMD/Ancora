@@ -21,9 +21,18 @@ fn test_saas_render_development() {
 fn test_saas_secure_defaults_present() {
     let config = SaasConfig::new("secure-saas", SaasTier::Production, "us-west-2");
     let tmpl = SaasTemplate::render(config).expect("should render");
-    assert!(tmpl.has_security_field("TLSv1.3"), "TLS version must appear");
-    assert!(tmpl.has_security_field("runAsNonRoot: true"), "non-root must be set");
-    assert!(tmpl.has_security_field("readOnlyRootFilesystem: true"), "read-only root must be set");
+    assert!(
+        tmpl.has_security_field("TLSv1.3"),
+        "TLS version must appear"
+    );
+    assert!(
+        tmpl.has_security_field("runAsNonRoot: true"),
+        "non-root must be set"
+    );
+    assert!(
+        tmpl.has_security_field("readOnlyRootFilesystem: true"),
+        "read-only root must be set"
+    );
 }
 
 #[test]

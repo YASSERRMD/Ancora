@@ -12,7 +12,9 @@ pub struct OfflineJudge {
 
 impl Default for OfflineJudge {
     fn default() -> Self {
-        Self { overlap_threshold: 0.5 }
+        Self {
+            overlap_threshold: 0.5,
+        }
     }
 }
 
@@ -44,7 +46,11 @@ impl OfflineJudge {
 impl Grader for OfflineJudge {
     fn grade(&self, candidate: &str, expected: &str) -> Score {
         let raw = Self::local_score(candidate, expected);
-        let value = if raw >= self.overlap_threshold { raw } else { 0.0 };
+        let value = if raw >= self.overlap_threshold {
+            raw
+        } else {
+            0.0
+        };
         Score::new(value.clamp(0.0, 1.0)).with_rationale(format!(
             "Offline heuristic: {:.3} (threshold: {:.3})",
             raw, self.overlap_threshold

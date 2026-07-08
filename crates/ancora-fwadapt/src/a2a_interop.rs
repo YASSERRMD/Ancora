@@ -1,9 +1,9 @@
-/// Agent-to-Agent (A2A) interoperability with external frameworks.
-///
-/// Provides a protocol-neutral message envelope and a dispatcher that routes
-/// messages between Ancora agents and external agents (simulated locally).
-/// No network I/O is required - all external agents are represented by
-/// in-process function pointers for testing.
+//! Agent-to-Agent (A2A) interoperability with external frameworks.
+//!
+//! Provides a protocol-neutral message envelope and a dispatcher that routes
+//! messages between Ancora agents and external agents (simulated locally).
+//! No network I/O is required - all external agents are represented by
+//! in-process function pointers for testing.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct A2AMessage {
@@ -44,7 +44,9 @@ pub struct A2ADispatcher {
 
 impl A2ADispatcher {
     pub fn new() -> Self {
-        Self { handlers: Vec::new() }
+        Self {
+            handlers: Vec::new(),
+        }
     }
 
     /// Register an external agent handler.
@@ -74,11 +76,7 @@ impl Default for A2ADispatcher {
 }
 
 /// Build an A2A message with a generated correlation ID.
-pub fn build_message(
-    sender: &str,
-    recipient: &str,
-    content: &str,
-) -> A2AMessage {
+pub fn build_message(sender: &str, recipient: &str, content: &str) -> A2AMessage {
     A2AMessage {
         sender_id: sender.to_string(),
         recipient_id: recipient.to_string(),
@@ -112,6 +110,9 @@ mod tests {
     fn dispatch_unknown_returns_error() {
         let d = A2ADispatcher::new();
         let msg = build_message("ancora", "ghost", "hi");
-        assert!(matches!(d.dispatch(&msg), Err(A2AError::UnknownRecipient(_))));
+        assert!(matches!(
+            d.dispatch(&msg),
+            Err(A2AError::UnknownRecipient(_))
+        ));
     }
 }

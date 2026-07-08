@@ -1,7 +1,7 @@
-/// Boot-to-ready performance measurement for the headless agent.
-///
-/// Tracks and reports the time from process start to the point where
-/// the agent signals readiness (socket open, models loaded, API serving).
+//! Boot-to-ready performance measurement for the headless agent.
+//!
+//! Tracks and reports the time from process start to the point where
+//! the agent signals readiness (socket open, models loaded, API serving).
 
 use std::time::{Duration, Instant};
 
@@ -14,7 +14,10 @@ pub struct TimingSample {
 
 impl TimingSample {
     pub fn new(label: impl Into<String>, duration: Duration) -> Self {
-        TimingSample { label: label.into(), duration }
+        TimingSample {
+            label: label.into(),
+            duration,
+        }
     }
 
     pub fn ms(&self) -> u64 {
@@ -32,7 +35,11 @@ pub struct BootTimingReport {
 
 impl BootTimingReport {
     pub fn new(samples: Vec<TimingSample>, total: Duration, target_ms: u64) -> Self {
-        BootTimingReport { samples, total, target_ms }
+        BootTimingReport {
+            samples,
+            total,
+            target_ms,
+        }
     }
 
     pub fn total_ms(&self) -> u64 {
@@ -66,7 +73,10 @@ pub struct PhaseStopwatch {
 
 impl PhaseStopwatch {
     pub fn start(label: impl Into<String>) -> Self {
-        PhaseStopwatch { label: label.into(), start: Instant::now() }
+        PhaseStopwatch {
+            label: label.into(),
+            start: Instant::now(),
+        }
     }
 
     pub fn stop(self) -> TimingSample {

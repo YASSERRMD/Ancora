@@ -22,18 +22,29 @@ impl SemanticGrader {
 
     fn tokenize(text: &str) -> std::collections::HashSet<String> {
         text.split_whitespace()
-            .map(|w| w.to_lowercase().trim_matches(|c: char| !c.is_alphanumeric()).to_string())
+            .map(|w| {
+                w.to_lowercase()
+                    .trim_matches(|c: char| !c.is_alphanumeric())
+                    .to_string()
+            })
             .filter(|w| !w.is_empty())
             .collect()
     }
 
-    fn jaccard(a: &std::collections::HashSet<String>, b: &std::collections::HashSet<String>) -> f64 {
+    fn jaccard(
+        a: &std::collections::HashSet<String>,
+        b: &std::collections::HashSet<String>,
+    ) -> f64 {
         if a.is_empty() && b.is_empty() {
             return 1.0;
         }
         let intersection = a.intersection(b).count() as f64;
         let union = a.union(b).count() as f64;
-        if union == 0.0 { 0.0 } else { intersection / union }
+        if union == 0.0 {
+            0.0
+        } else {
+            intersection / union
+        }
     }
 }
 

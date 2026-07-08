@@ -1,4 +1,4 @@
-use crate::incident::{Incident, Severity, IncidentStatus};
+use crate::incident::{Incident, IncidentStatus, Severity};
 use crate::store::IncidentStore;
 
 #[test]
@@ -44,6 +44,11 @@ fn store_active() {
 fn store_get_mut() {
     let mut s = IncidentStore::new();
     s.insert(Incident::new("i1", "t1", "Test", Severity::Low, 1));
-    if let Some(i) = s.get_mut("i1") { i.triage(); }
-    assert_eq!(s.get("i1").map(|i| i.status.clone()), Some(IncidentStatus::Triaged));
+    if let Some(i) = s.get_mut("i1") {
+        i.triage();
+    }
+    assert_eq!(
+        s.get("i1").map(|i| i.status.clone()),
+        Some(IncidentStatus::Triaged)
+    );
 }

@@ -1,12 +1,25 @@
-use crate::fewshot::{
-    format_few_shot_block, inject_few_shots, FewShotExample, FewShotLibrary,
-};
+use crate::fewshot::{format_few_shot_block, inject_few_shots, FewShotExample, FewShotLibrary};
 
 fn make_lib() -> FewShotLibrary {
     let mut lib = FewShotLibrary::new();
-    lib.add(FewShotExample::new("ner", "Sentence: 'Alice works at ACME.'", r#"{"entities": ["Alice", "ACME"]}"#, 0.95));
-    lib.add(FewShotExample::new("ner", "Sentence: 'Bob is in London.'", r#"{"entities": ["Bob", "London"]}"#, 0.80));
-    lib.add(FewShotExample::new("ner", "Sentence: 'No entities here.'", r#"{"entities": []}"#, 0.70));
+    lib.add(FewShotExample::new(
+        "ner",
+        "Sentence: 'Alice works at ACME.'",
+        r#"{"entities": ["Alice", "ACME"]}"#,
+        0.95,
+    ));
+    lib.add(FewShotExample::new(
+        "ner",
+        "Sentence: 'Bob is in London.'",
+        r#"{"entities": ["Bob", "London"]}"#,
+        0.80,
+    ));
+    lib.add(FewShotExample::new(
+        "ner",
+        "Sentence: 'No entities here.'",
+        r#"{"entities": []}"#,
+        0.70,
+    ));
     lib.add(FewShotExample::new("qa", "Q: What is 2+2?", "A: 4", 1.0));
     lib
 }
@@ -51,7 +64,10 @@ fn test_inject_few_shots_prepends_examples() {
         augmented.contains("Example 1:"),
         "augmented prompt should contain example header"
     );
-    assert!(augmented.contains(prompt), "original prompt should be preserved");
+    assert!(
+        augmented.contains(prompt),
+        "original prompt should be preserved"
+    );
 }
 
 #[test]
@@ -77,5 +93,8 @@ fn test_format_few_shot_block_numbered() {
 #[test]
 fn test_format_few_shot_block_empty() {
     let block = format_few_shot_block(&[]);
-    assert!(block.is_empty(), "empty examples should produce empty block");
+    assert!(
+        block.is_empty(),
+        "empty examples should produce empty block"
+    );
 }

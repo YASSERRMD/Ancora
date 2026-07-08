@@ -35,8 +35,14 @@ fn test_in_flight_run_keeps_pinned_model() {
     rt.swap(m2.clone());
 
     // Run still sees its original model version.
-    let run_ver = rt.run_model_version(run).expect("run should have a version");
-    assert_eq!(run_ver, m1.version(), "run must be pinned to the original model");
+    let run_ver = rt
+        .run_model_version(run)
+        .expect("run should have a version");
+    assert_eq!(
+        run_ver,
+        m1.version(),
+        "run must be pinned to the original model"
+    );
 
     rt.finish_run(run);
 }
@@ -104,7 +110,10 @@ fn test_memory_reclaimed_after_unload() {
     // No in-flight runs on m1, so draining model can be reclaimed immediately.
     let reclaimed = rt.reclaim_unloaded();
     assert_eq!(reclaimed, 1, "one model should be reclaimed");
-    assert!(!rt.is_draining(), "drain slot should be empty after reclaim");
+    assert!(
+        !rt.is_draining(),
+        "drain slot should be empty after reclaim"
+    );
 }
 
 #[test]
@@ -167,5 +176,8 @@ fn test_graceful_drain_old_runs_finish_after_swap() {
     // After finishing, drain should be cleared (either eagerly or on next reclaim call).
     // Call reclaim to ensure any remaining drain is swept.
     let _ = rt.reclaim_unloaded();
-    assert!(!rt.is_draining(), "drain slot should be empty after run finished");
+    assert!(
+        !rt.is_draining(),
+        "drain slot should be empty after run finished"
+    );
 }

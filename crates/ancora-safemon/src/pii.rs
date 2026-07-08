@@ -1,7 +1,7 @@
-/// PII (Personally Identifiable Information) detection for agent outputs.
-///
-/// Uses simple pattern-based heuristics to detect common PII types
-/// such as email addresses, phone numbers, SSNs, and credit card numbers.
+//! PII (Personally Identifiable Information) detection for agent outputs.
+//!
+//! Uses simple pattern-based heuristics to detect common PII types
+//! such as email addresses, phone numbers, SSNs, and credit card numbers.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PiiKind {
@@ -89,7 +89,9 @@ impl PiiDetector {
                     .unwrap_or(0);
                 let rest = &text[i + 1..];
                 let end_offset = rest
-                    .find(|c: char| c.is_whitespace() || c == ',' || c == ';' || c == '"' || c == '\'')
+                    .find(|c: char| {
+                        c.is_whitespace() || c == ',' || c == ';' || c == '"' || c == '\''
+                    })
                     .unwrap_or(rest.len());
                 if end_offset > 0 {
                     let end = i + 1 + end_offset;

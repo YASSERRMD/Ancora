@@ -4,7 +4,6 @@
 /// It exposes a REST API that this module targets without requiring a live server.
 ///
 /// Requires the `chroma` feature: `ancora-memory = { features = ["chroma"] }`.
-
 use serde_json::{json, Value};
 
 // ---- connection config ---------------------------------------------------
@@ -30,14 +29,18 @@ impl ChromaConfig {
     }
 
     pub fn with_api_key(mut self, key: impl Into<String>) -> Self {
-        self.api_key = Some(key.into()); self
+        self.api_key = Some(key.into());
+        self
     }
 
     pub fn with_tenant(mut self, t: impl Into<String>) -> Self {
-        self.tenant = t.into(); self
+        self.tenant = t.into();
+        self
     }
 
-    pub fn local() -> Self { Self::new("http://localhost:8000") }
+    pub fn local() -> Self {
+        Self::new("http://localhost:8000")
+    }
 
     pub fn auth_header(&self) -> Option<String> {
         self.api_key.as_ref().map(|k| format!("Bearer {k}"))
@@ -70,7 +73,9 @@ pub fn get_url(base: &str, tenant: &str, db: &str, collection_id: &str) -> Strin
     format!("{base}/api/v2/tenants/{tenant}/databases/{db}/collections/{collection_id}/get")
 }
 
-pub fn heartbeat_url(base: &str) -> String { format!("{base}/api/v2/heartbeat") }
+pub fn heartbeat_url(base: &str) -> String {
+    format!("{base}/api/v2/heartbeat")
+}
 
 // ---- request body builders -----------------------------------------------
 
@@ -269,7 +274,10 @@ mod chroma_tests {
             collections_url(base, "default_tenant", "default_database"),
             "http://localhost:8000/api/v2/tenants/default_tenant/databases/default_database/collections"
         );
-        assert_eq!(heartbeat_url(base), "http://localhost:8000/api/v2/heartbeat");
+        assert_eq!(
+            heartbeat_url(base),
+            "http://localhost:8000/api/v2/heartbeat"
+        );
     }
 
     #[test]

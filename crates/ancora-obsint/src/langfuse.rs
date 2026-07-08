@@ -1,5 +1,4 @@
 /// Langfuse exporter: maps Ancora spans/events to Langfuse trace/observation payloads.
-
 use crate::otlp::OtlpSpan;
 
 #[derive(Debug, Clone)]

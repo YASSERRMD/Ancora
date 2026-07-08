@@ -12,8 +12,12 @@ struct ResidencyPolicy {
 }
 
 impl ResidencyPolicy {
-    fn new(allowed: Vec<Region>) -> Self { Self { allowed } }
-    fn is_allowed(&self, region: &Region) -> bool { self.allowed.contains(region) }
+    fn new(allowed: Vec<Region>) -> Self {
+        Self { allowed }
+    }
+    fn is_allowed(&self, region: &Region) -> bool {
+        self.allowed.contains(region)
+    }
     fn check(&self, region: &Region) -> Result<(), String> {
         if self.is_allowed(region) {
             Ok(())

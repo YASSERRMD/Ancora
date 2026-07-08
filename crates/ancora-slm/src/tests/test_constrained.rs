@@ -35,7 +35,10 @@ fn test_validate_json_output_invalid() {
 
 #[test]
 fn test_constrained_decoding_yields_valid_json_on_first_try() {
-    let config = ConstrainedConfig { max_retries: 2, add_json_fence_instruction: false };
+    let config = ConstrainedConfig {
+        max_retries: 2,
+        add_json_fence_instruction: false,
+    };
     let model_fn = |_: &str| -> String { r#"{"result": "ok"}"#.to_string() };
     let v = run_constrained("Give me JSON", &config, model_fn).expect("should succeed");
     assert_eq!(v["result"], "ok");
@@ -44,7 +47,10 @@ fn test_constrained_decoding_yields_valid_json_on_first_try() {
 #[test]
 fn test_constrained_decoding_retries_on_failure() {
     use std::cell::Cell;
-    let config = ConstrainedConfig { max_retries: 3, add_json_fence_instruction: false };
+    let config = ConstrainedConfig {
+        max_retries: 3,
+        add_json_fence_instruction: false,
+    };
     let call_count = Cell::new(0usize);
     // First two calls return prose, third returns valid JSON.
     let model_fn = |_: &str| -> String {
@@ -64,6 +70,12 @@ fn test_constrained_decoding_retries_on_failure() {
 fn test_json_fence_instruction_added_to_prompt() {
     let prompt = "Extract entities.";
     let augmented = add_json_fence_instruction(prompt);
-    assert!(augmented.contains("Extract entities."), "original prompt should be retained");
-    assert!(augmented.contains("```json"), "should include JSON fence hint");
+    assert!(
+        augmented.contains("Extract entities."),
+        "original prompt should be retained"
+    );
+    assert!(
+        augmented.contains("```json"),
+        "should include JSON fence hint"
+    );
 }

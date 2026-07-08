@@ -200,7 +200,10 @@ mod tests {
         assert_eq!(comp_counter.load(Ordering::SeqCst), 1);
 
         let r2 = run_compensating_action("run-w2", &action, &store).unwrap();
-        assert_eq!(r2, r#""compensated""#, "replay must return journaled result");
+        assert_eq!(
+            r2, r#""compensated""#,
+            "replay must return journaled result"
+        );
         assert_eq!(
             comp_counter.load(Ordering::SeqCst),
             1,

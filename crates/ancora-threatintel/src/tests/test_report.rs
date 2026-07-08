@@ -17,8 +17,24 @@ fn report_empty() {
 
 #[test]
 fn report_with_data() {
-    let i1 = Indicator::new("i1", "t1", IndicatorKind::Domain, "x", ThreatLevel::High, "f", 1);
-    let i2 = Indicator::new("i2", "t1", IndicatorKind::IpAddress, "y", ThreatLevel::Medium, "f", 1);
+    let i1 = Indicator::new(
+        "i1",
+        "t1",
+        IndicatorKind::Domain,
+        "x",
+        ThreatLevel::High,
+        "f",
+        1,
+    );
+    let i2 = Indicator::new(
+        "i2",
+        "t1",
+        IndicatorKind::IpAddress,
+        "y",
+        ThreatLevel::Medium,
+        "f",
+        1,
+    );
     let feeds = FeedStore::new();
     let alerts = AlertStore::new();
     let audit = ThreatIntelAuditLog::new();

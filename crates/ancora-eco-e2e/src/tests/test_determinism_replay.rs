@@ -1,13 +1,22 @@
+use crate::builder_e2e::{Node, PluginGraph};
 /// Determinism with plugins on replay: same inputs produce same outputs.
-
 use crate::plugin_e2e::{Plugin, PluginState, PluginTemplate};
 use crate::recipe_e2e::{Recipe, RecipeRunner, RecipeStep, StepResult};
-use crate::builder_e2e::{Node, PluginGraph};
 
 fn run_recipe_once() -> Vec<StepResult> {
     let mut recipe = Recipe::new("det-recipe", "1.0.0");
-    recipe.add_step(RecipeStep::new("step-a", "plugin-a", "run", vec!["--seed", "42"]));
-    recipe.add_step(RecipeStep::new("step-b", "plugin-b", "process", vec!["--mode", "strict"]));
+    recipe.add_step(RecipeStep::new(
+        "step-a",
+        "plugin-a",
+        "run",
+        vec!["--seed", "42"],
+    ));
+    recipe.add_step(RecipeStep::new(
+        "step-b",
+        "plugin-b",
+        "process",
+        vec!["--mode", "strict"],
+    ));
     let mut runner = RecipeRunner::new();
     runner.install(recipe).unwrap();
     runner.run("det-recipe").unwrap()

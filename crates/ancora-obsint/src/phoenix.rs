@@ -1,5 +1,4 @@
 /// Phoenix (Arize) exporter: maps spans/traces to Phoenix's OpenInference schema.
-
 use crate::otlp::OtlpSpan;
 
 #[derive(Debug, Clone)]
@@ -35,7 +34,7 @@ pub enum SpanKind {
 }
 
 impl SpanKind {
-    pub fn from_str(s: &str) -> SpanKind {
+    pub fn from_raw(s: &str) -> SpanKind {
         match s {
             "chain" | "CHAIN" => SpanKind::Chain,
             "llm" | "LLM" => SpanKind::Llm,
@@ -76,7 +75,7 @@ pub fn map_span_to_phoenix(span: &OtlpSpan) -> PhoenixSpan {
         .attributes
         .iter()
         .find(|(k, _)| k == "openinference.span.kind")
-        .map(|(_, v)| SpanKind::from_str(v))
+        .map(|(_, v)| SpanKind::from_raw(v))
         .unwrap_or(SpanKind::Unknown);
 
     let status_message = if span.status_code != 0 {

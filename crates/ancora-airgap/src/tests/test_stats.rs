@@ -3,7 +3,15 @@ use crate::stats::AirGapStats;
 use crate::transfer::{TransferDirection, TransferRequest};
 
 fn make(id: &str) -> TransferRequest {
-    TransferRequest::new(id, "t1", "alice", MediaType::UsbDrive, TransferDirection::Inbound, "", 1)
+    TransferRequest::new(
+        id,
+        "t1",
+        "alice",
+        MediaType::UsbDrive,
+        TransferDirection::Inbound,
+        "",
+        1,
+    )
 }
 
 #[test]

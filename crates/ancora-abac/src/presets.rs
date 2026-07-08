@@ -1,5 +1,5 @@
-use crate::condition::Condition;
 use crate::attribute::AttributeValue;
+use crate::condition::Condition;
 use crate::policy::{Effect, Policy};
 
 pub fn allow_if_department(dept: impl Into<String>) -> Policy {
@@ -18,7 +18,8 @@ pub fn deny_if_blocked() -> Policy {
         Effect::Deny,
         vec!["*".into()],
         Condition::Eq("blocked".into(), AttributeValue::Bool(true)),
-    ).with_priority(1)
+    )
+    .with_priority(1)
 }
 
 pub fn allow_if_classification_at_most(max_level: i64) -> Policy {

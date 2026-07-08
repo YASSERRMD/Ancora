@@ -3,48 +3,54 @@
 const SDK_LANGUAGES: &[&str] = &["rust", "go", "python", "typescript", "dotnet", "java"];
 
 const SDK_COVERAGE: &[(&str, &str)] = &[
-    ("rust",       "xlang_single_agent_rust"),
-    ("go",         "xlang_single_agent_go"),
-    ("python",     "xlang_single_agent_python"),
+    ("rust", "xlang_single_agent_rust"),
+    ("go", "xlang_single_agent_go"),
+    ("python", "xlang_single_agent_python"),
     ("typescript", "xlang_single_agent_typescript"),
-    ("dotnet",     "xlang_single_agent_dotnet"),
-    ("java",       "xlang_single_agent_java"),
+    ("dotnet", "xlang_single_agent_dotnet"),
+    ("java", "xlang_single_agent_java"),
 ];
 
 const SDK_VERIFIER_COVERAGE: &[(&str, &str)] = &[
-    ("rust",       "xlang_verifier_rust"),
-    ("go",         "xlang_verifier_go"),
-    ("python",     "xlang_verifier_python"),
+    ("rust", "xlang_verifier_rust"),
+    ("go", "xlang_verifier_go"),
+    ("python", "xlang_verifier_python"),
     ("typescript", "xlang_verifier_typescript"),
-    ("dotnet",     "xlang_verifier_dotnet"),
-    ("java",       "xlang_verifier_java"),
+    ("dotnet", "xlang_verifier_dotnet"),
+    ("java", "xlang_verifier_java"),
 ];
 
 const SDK_HIL_COVERAGE: &[(&str, &str)] = &[
-    ("rust",       "xlang_humaninloop_rust"),
-    ("go",         "xlang_humaninloop_go"),
-    ("python",     "xlang_humaninloop_python"),
+    ("rust", "xlang_humaninloop_rust"),
+    ("go", "xlang_humaninloop_go"),
+    ("python", "xlang_humaninloop_python"),
     ("typescript", "xlang_humaninloop_typescript"),
-    ("dotnet",     "xlang_humaninloop_dotnet"),
-    ("java",       "xlang_humaninloop_java"),
+    ("dotnet", "xlang_humaninloop_dotnet"),
+    ("java", "xlang_humaninloop_java"),
 ];
 
 #[test]
 fn test_all_languages_have_single_agent_coverage() {
     let langs: Vec<&str> = SDK_COVERAGE.iter().map(|(l, _)| *l).collect();
-    for lang in SDK_LANGUAGES { assert!(langs.contains(lang), "no single-agent coverage for {lang}"); }
+    for lang in SDK_LANGUAGES {
+        assert!(langs.contains(lang), "no single-agent coverage for {lang}");
+    }
 }
 
 #[test]
 fn test_all_languages_have_verifier_coverage() {
     let langs: Vec<&str> = SDK_VERIFIER_COVERAGE.iter().map(|(l, _)| *l).collect();
-    for lang in SDK_LANGUAGES { assert!(langs.contains(lang), "no verifier coverage for {lang}"); }
+    for lang in SDK_LANGUAGES {
+        assert!(langs.contains(lang), "no verifier coverage for {lang}");
+    }
 }
 
 #[test]
 fn test_all_languages_have_hil_coverage() {
     let langs: Vec<&str> = SDK_HIL_COVERAGE.iter().map(|(l, _)| *l).collect();
-    for lang in SDK_LANGUAGES { assert!(langs.contains(lang), "no hil coverage for {lang}"); }
+    for lang in SDK_LANGUAGES {
+        assert!(langs.contains(lang), "no hil coverage for {lang}");
+    }
 }
 
 #[test]

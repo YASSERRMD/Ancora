@@ -2,7 +2,6 @@
 ///
 /// Supports multiple alert channels (in-memory callbacks, log-based)
 /// with configurable thresholds per severity level.
-
 use crate::incident_log::{Incident, IncidentSeverity};
 
 #[derive(Debug, Clone)]

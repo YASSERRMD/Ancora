@@ -1,8 +1,7 @@
 use ancora_supplychain::{
-    ComponentBuilder, ComponentKind, ComponentQuery, License,
-    ProvenanceKind, ProvenanceRecord, ProvenanceStore,
-    SbomFormat, SbomStats, Sbom, SupplyChainAuditEntry, SupplyChainAuditLog, SupplyChainEvent,
-    ComponentSignature, SignatureAlgorithm, SignatureStore,
+    ComponentBuilder, ComponentKind, ComponentQuery, ComponentSignature, License, ProvenanceKind,
+    ProvenanceRecord, ProvenanceStore, Sbom, SbomFormat, SbomStats, SignatureAlgorithm,
+    SignatureStore, SupplyChainAuditEntry, SupplyChainAuditLog, SupplyChainEvent,
     SupplyChainPolicy, SupplyChainReport,
 };
 
@@ -27,12 +26,36 @@ fn main() {
     sbom.add_component(custom_lib);
 
     let mut sigs = SignatureStore::new();
-    sigs.register(ComponentSignature::new("openssl-3.0", SignatureAlgorithm::Ed25519, "ci-bot", "sig-abc", 1001));
-    sigs.register(ComponentSignature::new("acme-auth", SignatureAlgorithm::Ed25519, "ci-bot", "sig-def", 1001));
+    sigs.register(ComponentSignature::new(
+        "openssl-3.0",
+        SignatureAlgorithm::Ed25519,
+        "ci-bot",
+        "sig-abc",
+        1001,
+    ));
+    sigs.register(ComponentSignature::new(
+        "acme-auth",
+        SignatureAlgorithm::Ed25519,
+        "ci-bot",
+        "sig-def",
+        1001,
+    ));
 
     let mut prov = ProvenanceStore::new();
-    prov.record(ProvenanceRecord::new("openssl-3.0", ProvenanceKind::Registry, "crates.io", "build-1", 1000));
-    prov.record(ProvenanceRecord::new("acme-auth", ProvenanceKind::BuildSystem, "jenkins", "build-42", 1000));
+    prov.record(ProvenanceRecord::new(
+        "openssl-3.0",
+        ProvenanceKind::Registry,
+        "crates.io",
+        "build-1",
+        1000,
+    ));
+    prov.record(ProvenanceRecord::new(
+        "acme-auth",
+        ProvenanceKind::BuildSystem,
+        "jenkins",
+        "build-42",
+        1000,
+    ));
 
     let policy = SupplyChainPolicy::new("tenant-acme").require_signature();
 
@@ -44,14 +67,33 @@ fn main() {
 
     let stats = SbomStats::from(&sbom);
     println!("OSS rate: {:.0}%", stats.oss_rate() * 100.0);
-    println!("Libraries: {}", stats.by_kind.get("LIBRARY").copied().unwrap_or(0));
+    println!(
+        "Libraries: {}",
+        stats.by_kind.get("LIBRARY").copied().unwrap_or(0)
+    );
 
-    let oss = ComponentQuery::new().open_source_only().run(sbom.components.iter());
+    let oss = ComponentQuery::new()
+        .open_source_only()
+        .run(sbom.components.iter());
     println!("Open source components: {}", oss.len());
 
     let mut audit = SupplyChainAuditLog::new();
-    audit.record(SupplyChainAuditEntry::new(1001, "tenant-acme", "openssl-3.0", SupplyChainEvent::ComponentSigned, "ci-bot", true));
-    audit.record(SupplyChainAuditEntry::new(1002, "tenant-acme", "acme-auth", SupplyChainEvent::ComponentSigned, "ci-bot", true));
+    audit.record(SupplyChainAuditEntry::new(
+        1001,
+        "tenant-acme",
+        "openssl-3.0",
+        SupplyChainEvent::ComponentSigned,
+        "ci-bot",
+        true,
+    ));
+    audit.record(SupplyChainAuditEntry::new(
+        1002,
+        "tenant-acme",
+        "acme-auth",
+        SupplyChainEvent::ComponentSigned,
+        "ci-bot",
+        true,
+    ));
     println!("Audit entries: {}", audit.count());
     println!("done");
 }

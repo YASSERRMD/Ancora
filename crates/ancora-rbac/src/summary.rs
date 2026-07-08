@@ -1,5 +1,5 @@
 use crate::assignment::AssignmentStore;
-use crate::policy::{default_permissions, RolePolicy};
+use crate::policy::RolePolicy;
 
 pub struct SubjectSummary {
     pub subject: String,
@@ -8,7 +8,12 @@ pub struct SubjectSummary {
     pub permission_count: usize,
 }
 
-pub fn summarize(store: &AssignmentStore, policy: &RolePolicy, subject: &str, tenant_id: &str) -> SubjectSummary {
+pub fn summarize(
+    store: &AssignmentStore,
+    policy: &RolePolicy,
+    subject: &str,
+    tenant_id: &str,
+) -> SubjectSummary {
     let role = store.role_of(subject, tenant_id);
     let permission_count = role.map(|r| policy.permissions_for(r).len()).unwrap_or(0);
     SubjectSummary {

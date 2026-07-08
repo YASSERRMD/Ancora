@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::rule::{Effect, NetworkRule};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DefaultPosture {
@@ -36,18 +36,28 @@ impl NetworkPolicy {
         self.rules.sort_by_key(|r| r.priority);
     }
 
-    pub fn rule_count(&self) -> usize { self.rules.len() }
+    pub fn rule_count(&self) -> usize {
+        self.rules.len()
+    }
 
     pub fn allow_rules(&self) -> Vec<&NetworkRule> {
-        self.rules.iter().filter(|r| r.effect == Effect::Allow).collect()
+        self.rules
+            .iter()
+            .filter(|r| r.effect == Effect::Allow)
+            .collect()
     }
 
     pub fn deny_rules(&self) -> Vec<&NetworkRule> {
-        self.rules.iter().filter(|r| r.effect == Effect::Deny).collect()
+        self.rules
+            .iter()
+            .filter(|r| r.effect == Effect::Deny)
+            .collect()
     }
 
     pub fn bulk_add_rules(&mut self, rules: impl IntoIterator<Item = NetworkRule>) {
-        for r in rules { self.rules.push(r); }
+        for r in rules {
+            self.rules.push(r);
+        }
         self.rules.sort_by_key(|r| r.priority);
     }
 
@@ -77,18 +87,30 @@ pub struct PolicyStore {
 }
 
 impl PolicyStore {
-    pub fn new() -> Self { Self { policies: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            policies: HashMap::new(),
+        }
+    }
 
     pub fn insert(&mut self, policy: NetworkPolicy) {
         self.policies.insert(policy.tenant_id.clone(), policy);
     }
 
-    pub fn get(&self, tenant_id: &str) -> Option<&NetworkPolicy> { self.policies.get(tenant_id) }
-    pub fn get_mut(&mut self, tenant_id: &str) -> Option<&mut NetworkPolicy> { self.policies.get_mut(tenant_id) }
+    pub fn get(&self, tenant_id: &str) -> Option<&NetworkPolicy> {
+        self.policies.get(tenant_id)
+    }
+    pub fn get_mut(&mut self, tenant_id: &str) -> Option<&mut NetworkPolicy> {
+        self.policies.get_mut(tenant_id)
+    }
 
-    pub fn count(&self) -> usize { self.policies.len() }
+    pub fn count(&self) -> usize {
+        self.policies.len()
+    }
 }
 
 impl Default for PolicyStore {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

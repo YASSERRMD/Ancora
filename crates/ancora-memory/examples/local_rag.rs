@@ -1,3 +1,8 @@
+use ancora_memory::embedders::citation::{build_citations, filter_by_score, format_footnote_block};
+use ancora_memory::embedders::context::ContextAssembler;
+use ancora_memory::embedders::local::HashEmbedder;
+use ancora_memory::embedders::pipeline::{PipelineConfig, RetrievalPipeline};
+use ancora_memory::embedders::rerank::CosineReranker;
 /// End-to-end local RAG (Retrieval-Augmented Generation) example.
 ///
 /// Demonstrates the full offline retrieval pipeline:
@@ -9,16 +14,7 @@
 ///   6. Attach citation records.
 ///
 /// No network calls, no API keys required.
-
 use std::sync::Arc;
-use ancora_memory::embedders::pipeline::{RetrievalPipeline, PipelineConfig};
-use ancora_memory::embedders::local::HashEmbedder;
-use ancora_memory::embedders::loader::{load_texts, split_markdown_sections};
-use ancora_memory::embedders::chunker::SemanticChunker;
-use ancora_memory::embedders::rerank::{CosineReranker, sort_by_score, ScoredPassage};
-use ancora_memory::embedders::context::ContextAssembler;
-use ancora_memory::embedders::citation::{build_citations, filter_by_score, format_footnote_block};
-use ancora_memory::embedders::embedder::Embedder;
 
 fn main() {
     println!("=== Local RAG Pipeline Demo ===\n");
@@ -35,7 +31,8 @@ fn main() {
     ];
 
     // 2. Load and display document counts
-    let embedder: Arc<dyn ancora_memory::embedders::embedder::Embedder> = Arc::new(HashEmbedder::new(128));
+    let embedder: Arc<dyn ancora_memory::embedders::embedder::Embedder> =
+        Arc::new(HashEmbedder::new(128));
     let config = PipelineConfig::new(20, 4, 5);
     let mut pipeline = RetrievalPipeline::new(Arc::clone(&embedder), config);
 
@@ -52,7 +49,8 @@ fn main() {
 
     // 4. Rerank with cosine similarity
     let q_emb = embedder.embed(query).unwrap();
-    let passage_embs: Vec<_> = results.iter()
+    let passage_embs: Vec<_> = results
+        .iter()
         .map(|r| embedder.embed(&r.text).unwrap())
         .collect();
     let reranker = CosineReranker::new(q_emb, passage_embs);
@@ -62,32 +60,54 @@ fn main() {
     for (rank, (idx, score)) in reranked_top.iter().enumerate() {
         let text = &results[*idx].text;
         let preview = if text.len() > 80 { &text[..80] } else { text };
-        println!("  [{rank_n}] score={score:.4} -- {preview}...", rank_n = rank + 1);
+        println!(
+            "  [{rank_n}] score={score:.4} -- {preview}...",
+            rank_n = rank + 1
+        );
     }
     println!();
 
     // 5. Assemble context
-    let top_passages: Vec<&str> = reranked_top.iter()
+    let top_passages: Vec<&str> = reranked_top
+        .iter()
         .map(|(idx, _)| results[*idx].text.as_str())
         .collect();
     let ctx = ContextAssembler::new(1000)
         .with_separator("\n---\n")
         .assemble(&top_passages);
-    println!("Context assembled: {} passages, ~{} tokens", ctx.passages_included, ctx.estimated_tokens);
+    println!(
+        "Context assembled: {} passages, ~{} tokens",
+        ctx.passages_included, ctx.estimated_tokens
+    );
     println!("Budget exhausted: {}", ctx.is_budget_exhausted());
     println!("\nContext preview (first 200 chars):");
-    let preview = if ctx.text.len() > 200 { &ctx.text[..200] } else { &ctx.text };
+    let preview = if ctx.text.len() > 200 {
+        &ctx.text[..200]
+    } else {
+        &ctx.text
+    };
     println!("{preview}...\n");
 
     // 6. Citations
-    let citations_input: Vec<(&str, f32, &str)> = reranked_top.iter()
-        .map(|(idx, score)| (results[*idx].text.as_str(), *score, results[*idx].text.as_str()))
+    let citations_input: Vec<(&str, f32, &str)> = reranked_top
+        .iter()
+        .map(|(idx, score)| {
+            (
+                results[*idx].text.as_str(),
+                *score,
+                results[*idx].text.as_str(),
+            )
+        })
         .collect();
     // Map back to source; for demo just use placeholder.
-    let cit_triples: Vec<(&str, f32, &str)> = citations_input.iter()
+    let cit_triples: Vec<(&str, f32, &str)> = citations_input
+        .iter()
         .enumerate()
         .map(|(i, (_, score, text))| {
-            let src = docs_raw.get(i % docs_raw.len()).map(|(s, _)| *s).unwrap_or("unknown");
+            let src = docs_raw
+                .get(i % docs_raw.len())
+                .map(|(s, _)| *s)
+                .unwrap_or("unknown");
             (src, *score, *text)
         })
         .collect();

@@ -1,4 +1,4 @@
-use crate::guardrail::{OutputGuardrail, GuardrailOutcome};
+use crate::guardrail::{GuardrailOutcome, OutputGuardrail};
 
 /// Validates that output starts and ends with JSON braces.
 pub struct SchemaOutputGuardrail;

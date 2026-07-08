@@ -1,5 +1,4 @@
 /// test_offline_backend - Test that the runner works fully offline without any network calls.
-
 use crate::import::{GraphSpec, SpecEdge, SpecNode};
 use crate::runner::{run_spec, LocalBackendConfig, RunStatus};
 use std::collections::HashMap;
@@ -46,11 +45,7 @@ fn offline_run_completes() {
 #[test]
 fn offline_run_no_network_url_required() {
     // In offline mode, the base_url is irrelevant and should not cause failures.
-    let spec = make_spec(
-        "offline_no_url",
-        &[("x", "agent.classifier")],
-        &[],
-    );
+    let spec = make_spec("offline_no_url", &[("x", "agent.classifier")], &[]);
     let config = LocalBackendConfig {
         offline: true,
         base_url: "http://offline-does-not-exist.local:9999".into(),
@@ -78,7 +73,10 @@ fn offline_multi_node_pipeline() {
             ("verify", "sink", "data_flow"),
         ],
     );
-    let config = LocalBackendConfig { offline: true, ..Default::default() };
+    let config = LocalBackendConfig {
+        offline: true,
+        ..Default::default()
+    };
     let result = run_spec(&spec, &config).unwrap();
     assert_eq!(result.status, RunStatus::Completed);
     assert_eq!(result.steps.len(), 5);
@@ -91,10 +89,17 @@ fn offline_all_steps_produce_output() {
         &[("a", "agent.llm"), ("b", "tool.file_reader")],
         &[("a", "b", "data_flow")],
     );
-    let config = LocalBackendConfig { offline: true, ..Default::default() };
+    let config = LocalBackendConfig {
+        offline: true,
+        ..Default::default()
+    };
     let result = run_spec(&spec, &config).unwrap();
     for step in &result.steps {
-        assert!(step.output.is_some(), "step {} should have output", step.node_id);
+        assert!(
+            step.output.is_some(),
+            "step {} should have output",
+            step.node_id
+        );
     }
 }
 
@@ -105,7 +110,10 @@ fn offline_run_duration_tracked() {
         &[("a", "agent.llm"), ("b", "verifier.json_schema")],
         &[("a", "b", "data_flow")],
     );
-    let config = LocalBackendConfig { offline: true, ..Default::default() };
+    let config = LocalBackendConfig {
+        offline: true,
+        ..Default::default()
+    };
     let result = run_spec(&spec, &config).unwrap();
     // Total duration should be sum of step durations.
     let step_total: u64 = result.steps.iter().map(|s| s.duration_ms).sum();

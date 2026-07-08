@@ -29,7 +29,12 @@ fn arm64_agent_run_produces_response() {
     let mut memory = MemoryStore::new();
 
     // Record a step in the journal.
-    journal.append("agent-arm64", 1, "2026-01-01T00:00:00Z", json!({"step": "start"}));
+    journal.append(
+        "agent-arm64",
+        1,
+        "2026-01-01T00:00:00Z",
+        json!({"step": "start"}),
+    );
 
     // Store a memory record.
     memory.upsert(MemoryRecord {
@@ -42,7 +47,9 @@ fn arm64_agent_run_produces_response() {
 
     // Run local inference.
     let engine = LocalInferenceEngine::new(
-        ModelBackend::LocalGguf { model_path: "/models/phi3.gguf".to_string() },
+        ModelBackend::LocalGguf {
+            model_path: "/models/phi3.gguf".to_string(),
+        },
         true,
     )
     .unwrap();
@@ -125,7 +132,9 @@ fn offline_run_no_network() {
     // does not attempt any network I/O (by construction: no networking code
     // exists in the local path).
     let engine = LocalInferenceEngine::new(
-        ModelBackend::LocalGguf { model_path: "/models/phi3.gguf".to_string() },
+        ModelBackend::LocalGguf {
+            model_path: "/models/phi3.gguf".to_string(),
+        },
         true,
     )
     .unwrap();
@@ -143,7 +152,9 @@ fn offline_run_no_network() {
 #[test]
 fn remote_backend_blocked_offline() {
     let result = LocalInferenceEngine::new(
-        ModelBackend::RemoteApi { url: "https://api.example.com".to_string() },
+        ModelBackend::RemoteApi {
+            url: "https://api.example.com".to_string(),
+        },
         true,
     );
     assert!(result.is_err());
@@ -191,7 +202,10 @@ fn memory_store_search_works_on_device() {
     let q = seed_embedding(2, EMBEDDING_DIM);
     let results = store.search(&q, 2);
     assert_eq!(results.len(), 2);
-    assert!((results[0].score - 1.0).abs() < 1e-5, "top result should be exact match");
+    assert!(
+        (results[0].score - 1.0).abs() < 1e-5,
+        "top result should be exact match"
+    );
 }
 
 #[test]

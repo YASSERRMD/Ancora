@@ -3,9 +3,15 @@ use crate::builder_e2e::{Node, PluginGraph};
 #[test]
 fn test_graph_builder_produces_running_graph() {
     let mut graph = PluginGraph::new();
-    graph.add_node(Node::new(1, "Ingest", "ingest-plugin")).unwrap();
-    graph.add_node(Node::new(2, "Process", "process-plugin")).unwrap();
-    graph.add_node(Node::new(3, "Output", "output-plugin")).unwrap();
+    graph
+        .add_node(Node::new(1, "Ingest", "ingest-plugin"))
+        .unwrap();
+    graph
+        .add_node(Node::new(2, "Process", "process-plugin"))
+        .unwrap();
+    graph
+        .add_node(Node::new(3, "Output", "output-plugin"))
+        .unwrap();
     graph.add_edge(1, 2).unwrap();
     graph.add_edge(2, 3).unwrap();
     assert_eq!(graph.node_count(), 3);

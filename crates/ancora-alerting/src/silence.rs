@@ -15,7 +15,12 @@ impl MaintenanceWindow {
         end_secs: u64,
         rule_filter: Option<String>,
     ) -> Self {
-        Self { name: name.into(), start_secs, end_secs, rule_filter }
+        Self {
+            name: name.into(),
+            start_secs,
+            end_secs,
+            rule_filter,
+        }
     }
 
     pub fn is_active(&self, now: u64) -> bool {

@@ -1,6 +1,6 @@
-/// Python sample app parity module.
-///
-/// Models the canonical Python (anthropic-sdk) agent sample app.
+//! Python sample app parity module.
+//!
+//! Models the canonical Python (anthropic-sdk) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PythonApp {

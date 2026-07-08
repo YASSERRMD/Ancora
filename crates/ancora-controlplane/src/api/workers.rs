@@ -21,18 +21,30 @@ impl<'a> WorkersApi<'a> {
         WorkersApi { store, auth }
     }
 
-    pub fn register(&mut self, token: Option<&str>, concurrency: usize) -> Result<Worker, WorkersApiError> {
+    pub fn register(
+        &mut self,
+        token: Option<&str>,
+        concurrency: usize,
+    ) -> Result<Worker, WorkersApiError> {
         self.auth.verify(token)?;
         Ok(self.store.register_worker(concurrency))
     }
 
-    pub fn heartbeat(&mut self, token: Option<&str>, worker_id: &str) -> Result<(), WorkersApiError> {
+    pub fn heartbeat(
+        &mut self,
+        token: Option<&str>,
+        worker_id: &str,
+    ) -> Result<(), WorkersApiError> {
         self.auth.verify(token)?;
         self.store.heartbeat_worker(worker_id)?;
         Ok(())
     }
 
-    pub fn claim_run(&mut self, token: Option<&str>, worker_id: &str) -> Result<Option<Run>, WorkersApiError> {
+    pub fn claim_run(
+        &mut self,
+        token: Option<&str>,
+        worker_id: &str,
+    ) -> Result<Option<Run>, WorkersApiError> {
         self.auth.verify(token)?;
         Ok(self.store.claim_run(worker_id)?)
     }

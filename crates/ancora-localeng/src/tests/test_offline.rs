@@ -1,16 +1,15 @@
 /// Offline integration tests validating that all mocked engine paths
 /// execute correctly without any network access.
-
 use crate::capability::Capabilities;
 use crate::health::{HealthChecker, MockHealthChecker};
 use crate::llama_embedded::{EmbeddedEngine, MockEmbeddedBackend};
 use crate::model::{CompletionRequest, EngineConfig, EngineKind};
-use crate::runtime::{HardwareProfile, SelectionCriteria, select_engine};
+use crate::runtime::{select_engine, HardwareProfile, SelectionCriteria};
 
 #[test]
 fn offline_llama_embedded_round_trip() {
-    let config = EngineConfig::new(EngineKind::LlamaCppEmbedded)
-        .with_model_path("/fake/llama.gguf");
+    let config =
+        EngineConfig::new(EngineKind::LlamaCppEmbedded).with_model_path("/fake/llama.gguf");
     let backend = MockEmbeddedBackend::new().with_fixed_response("42");
     let mut engine = EmbeddedEngine::new(config, backend);
     engine.load().expect("mock load should succeed");
@@ -35,11 +34,7 @@ fn offline_health_all_engines() {
     for engine in &engines {
         let checker = MockHealthChecker::healthy(engine.clone());
         let status = checker.check();
-        assert!(
-            status.is_ready(),
-            "engine {} should report healthy",
-            engine
-        );
+        assert!(status.is_ready(), "engine {} should report healthy", engine);
     }
 }
 

@@ -12,21 +12,24 @@ const POLICY_PROPERTIES: &[&str] = &[
 ];
 
 const POLICY_TEST_MAP: &[(&str, &str)] = &[
-    ("data_residency",   "policy_data_residency"),
-    ("model_allowlist",  "policy_model_allowlist"),
-    ("cost_ceiling",     "policy_cost_ceiling"),
-    ("data_retention",   "policy_retention"),
+    ("data_residency", "policy_data_residency"),
+    ("model_allowlist", "policy_model_allowlist"),
+    ("cost_ceiling", "policy_cost_ceiling"),
+    ("data_retention", "policy_retention"),
     ("data_sovereignty", "policy_sovereignty"),
-    ("consent_gate",     "policy_consent"),
-    ("gdpr_erasure",     "policy_gdpr_erasure"),
-    ("offline_mode",     "policy_offline_mode"),
+    ("consent_gate", "policy_consent"),
+    ("gdpr_erasure", "policy_gdpr_erasure"),
+    ("offline_mode", "policy_offline_mode"),
 ];
 
 #[test]
 fn test_all_policy_properties_covered() {
     let covered: Vec<&str> = POLICY_TEST_MAP.iter().map(|(p, _)| *p).collect();
     for prop in POLICY_PROPERTIES {
-        assert!(covered.contains(prop), "no test for policy property: {prop}");
+        assert!(
+            covered.contains(prop),
+            "no test for policy property: {prop}"
+        );
     }
 }
 
@@ -38,7 +41,10 @@ fn test_policy_properties_count_is_8() {
 #[test]
 fn test_all_test_names_start_with_policy() {
     for (_, test) in POLICY_TEST_MAP {
-        assert!(test.starts_with("policy_"), "policy test should start with policy_: {test}");
+        assert!(
+            test.starts_with("policy_"),
+            "policy test should start with policy_: {test}"
+        );
     }
 }
 

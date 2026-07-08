@@ -96,8 +96,7 @@ mod tests {
 
     #[test]
     fn perf_note_unacceptable_latency() {
-        let note = AdapterPerfNote::new(AdapterId::new("a1"))
-            .with_latency(100.0);
+        let note = AdapterPerfNote::new(AdapterId::new("a1")).with_latency(100.0);
         assert!(!note.is_acceptable());
     }
 

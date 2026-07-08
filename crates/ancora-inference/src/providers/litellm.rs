@@ -13,16 +13,51 @@ pub fn build_litellm_profile(base_url: impl Into<String>) -> ProviderProfile {
     ProviderProfile::new(
         "litellm",
         base_url,
-        AuthStrategy::BearerToken { env_var: "LITELLM_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "LITELLM_API_KEY".to_owned(),
+        },
     )
     // Pre-registered virtual model IDs for common routing targets.
-    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("openai/gpt-4o-mini", 128_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("anthropic/claude-3-5-haiku", 200_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("anthropic/claude-3-7-sonnet", 200_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("gemini/gemini-2.0-flash", 1_048_576).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("mistral/mistral-small-latest", 32_768).with_tools().with_streaming())
-    .add_model(ModelMeta::new("groq/llama3-8b-8192", 8_192).with_tools().with_streaming())
+    .add_model(
+        ModelMeta::new("openai/gpt-4o", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("openai/gpt-4o-mini", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("anthropic/claude-3-5-haiku", 200_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("anthropic/claude-3-7-sonnet", 200_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("gemini/gemini-2.0-flash", 1_048_576)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("mistral/mistral-small-latest", 32_768)
+            .with_tools()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("groq/llama3-8b-8192", 8_192)
+            .with_tools()
+            .with_streaming(),
+    )
     .add_model(ModelMeta::new("together_ai/meta-llama/Llama-3-8b-chat-hf", 8_192).with_streaming())
     .add_alias("gpt-4o", "openai/gpt-4o")
     .add_alias("gpt-4o-mini", "openai/gpt-4o-mini")
@@ -41,24 +76,37 @@ pub fn build_litellm_tagged_profile(base_url: impl Into<String>, tags: &[&str]) 
     ProviderProfile::new(
         "litellm",
         base_url,
-        AuthStrategy::BearerToken { env_var: "LITELLM_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "LITELLM_API_KEY".to_owned(),
+        },
     )
     .with_extra_header("X-Litellm-Tags", tag_header)
-    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
+    .add_model(
+        ModelMeta::new("openai/gpt-4o", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
     .add_alias("gpt-4o", "openai/gpt-4o")
 }
 
 /// Build a LiteLLM profile with no authentication (local dev / trusted network).
 pub fn build_litellm_noauth_profile(base_url: impl Into<String>) -> ProviderProfile {
-    ProviderProfile::new(
-        "litellm-local",
-        base_url,
-        AuthStrategy::None,
-    )
-    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("anthropic/claude-3-5-haiku", 200_000).with_tools().with_vision().with_streaming())
-    .add_alias("gpt-4o", "openai/gpt-4o")
-    .add_alias("haiku", "anthropic/claude-3-5-haiku")
+    ProviderProfile::new("litellm-local", base_url, AuthStrategy::None)
+        .add_model(
+            ModelMeta::new("openai/gpt-4o", 128_000)
+                .with_tools()
+                .with_vision()
+                .with_streaming(),
+        )
+        .add_model(
+            ModelMeta::new("anthropic/claude-3-5-haiku", 200_000)
+                .with_tools()
+                .with_vision()
+                .with_streaming(),
+        )
+        .add_alias("gpt-4o", "openai/gpt-4o")
+        .add_alias("haiku", "anthropic/claude-3-5-haiku")
 }
 
 /// Return true if the model ID uses LiteLLM's `provider/model` routing format.
@@ -85,19 +133,22 @@ mod tests {
 
     fn llm_client() -> crate::openai::OpenAiClient {
         use std::sync::Arc;
-        crate::openai::OpenAiClient::new(Arc::new(
-            build_litellm_profile(LITELLM_DEFAULT_URL),
-        ))
+        crate::openai::OpenAiClient::new(Arc::new(build_litellm_profile(LITELLM_DEFAULT_URL)))
     }
 
     #[test]
     fn litellm_provider_name() {
-        assert_eq!(build_litellm_profile("http://localhost:4000").name, "litellm");
+        assert_eq!(
+            build_litellm_profile("http://localhost:4000").name,
+            "litellm"
+        );
     }
 
     #[test]
     fn litellm_recorded_fixture_completes() {
-        let resp = llm_client().parse_response(LITELLM_FIXTURE, "openai/gpt-4o").unwrap();
+        let resp = llm_client()
+            .parse_response(LITELLM_FIXTURE, "openai/gpt-4o")
+            .unwrap();
         assert_eq!(resp.content, "Hello from LiteLLM");
         assert_eq!(resp.tokens_in, 10);
         assert_eq!(resp.tokens_out, 6);
@@ -105,7 +156,10 @@ mod tests {
 
     #[test]
     fn litellm_noauth_profile_name() {
-        assert_eq!(build_litellm_noauth_profile("http://localhost:4000").name, "litellm-local");
+        assert_eq!(
+            build_litellm_noauth_profile("http://localhost:4000").name,
+            "litellm-local"
+        );
     }
 
     #[test]

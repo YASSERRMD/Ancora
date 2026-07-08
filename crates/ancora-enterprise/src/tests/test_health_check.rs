@@ -18,7 +18,14 @@ fn warn_check() {
 
 #[test]
 fn fail_check() {
-    let c = HealthCheck::new("c1", "License", "licensing", CheckStatus::Fail, "Expired", 1);
+    let c = HealthCheck::new(
+        "c1",
+        "License",
+        "licensing",
+        CheckStatus::Fail,
+        "Expired",
+        1,
+    );
     assert!(!c.is_healthy());
     assert!(c.is_failing());
     assert!(!c.is_warning());

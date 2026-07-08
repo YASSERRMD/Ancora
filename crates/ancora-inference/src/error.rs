@@ -42,7 +42,10 @@ impl InferenceError {
             429 => Self::RateLimit {
                 retry_after: retry_after.and_then(Self::parse_retry_after),
             },
-            _ => Self::Http { status, body: body.to_owned() },
+            _ => Self::Http {
+                status,
+                body: body.to_owned(),
+            },
         }
     }
 }
@@ -90,7 +93,9 @@ mod tests {
     fn from_http_429_with_retry_after_parses_duration() {
         let e = InferenceError::from_http(429, "too many", Some("45"));
         match e {
-            InferenceError::RateLimit { retry_after: Some(d) } => assert_eq!(d.as_secs(), 45),
+            InferenceError::RateLimit {
+                retry_after: Some(d),
+            } => assert_eq!(d.as_secs(), 45),
             other => panic!("unexpected: {other:?}"),
         }
     }
@@ -103,7 +108,9 @@ mod tests {
 
     #[test]
     fn rate_limit_display_includes_retry_seconds() {
-        let e = InferenceError::RateLimit { retry_after: Some(Duration::from_secs(30)) };
+        let e = InferenceError::RateLimit {
+            retry_after: Some(Duration::from_secs(30)),
+        };
         let s = e.to_string();
         assert!(s.contains("30s"), "expected retry seconds in: {s}");
     }

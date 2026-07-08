@@ -1,6 +1,5 @@
 use ancora_core::journal::{JournalStore, MemoryStore};
 use ancora_core::run::{Run, RunStatus};
-use std::sync::Arc;
 
 #[test]
 fn run_generates_unique_id() {

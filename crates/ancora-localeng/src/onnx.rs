@@ -3,7 +3,6 @@
 /// ONNX Runtime can run models exported to the ONNX format.  This module
 /// provides abstractions for session management, input tensor preparation,
 /// and output decoding.  A mock session is provided for offline tests.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Errors from the ONNX integration.
@@ -140,10 +139,7 @@ impl<S: OnnxSession> OnnxEngine<S> {
         "onnx decoded response".to_string()
     }
 
-    pub fn complete(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, OnnxError> {
+    pub fn complete(&self, request: &CompletionRequest) -> Result<CompletionResult, OnnxError> {
         let input_ids = Self::tokenize(&request.prompt);
         let logits = self.session.run(&input_ids)?;
         let text = Self::decode_logits(&logits);

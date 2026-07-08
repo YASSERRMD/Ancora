@@ -4,7 +4,10 @@ use crate::queue::ReviewQueue;
 fn low_confidence_run_queued() {
     let mut q = ReviewQueue::with_threshold(0.75);
     let added = q.submit("run-low", 0.3);
-    assert!(added, "Run with confidence 0.3 should be queued at threshold 0.75");
+    assert!(
+        added,
+        "Run with confidence 0.3 should be queued at threshold 0.75"
+    );
     assert_eq!(q.pending().len(), 1);
 }
 
@@ -12,7 +15,10 @@ fn low_confidence_run_queued() {
 fn high_confidence_run_not_queued() {
     let mut q = ReviewQueue::with_threshold(0.75);
     let added = q.submit("run-high", 0.95);
-    assert!(!added, "Run with confidence 0.95 should not be queued at threshold 0.75");
+    assert!(
+        !added,
+        "Run with confidence 0.95 should not be queued at threshold 0.75"
+    );
     assert!(q.pending().is_empty());
 }
 

@@ -1,5 +1,5 @@
-use crate::java_helpers::{JavaCostAccessor, JavaTraceAccessor};
 use crate::context::CostRecord;
+use crate::java_helpers::{JavaCostAccessor, JavaTraceAccessor};
 
 #[test]
 fn java_trace_accessor_returns_spans() {

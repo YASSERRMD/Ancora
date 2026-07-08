@@ -8,7 +8,10 @@ fn flaky_eval_majority_pass_is_not_blocked() {
     let mut call_count = 0usize;
     let outcome = evaluate_with_retry(&policy, |_| {
         let r = if call_count == 0 {
-            RegressionResult::Regression { delta: 0.15, threshold: 0.02 }
+            RegressionResult::Regression {
+                delta: 0.15,
+                threshold: 0.02,
+            }
         } else {
             RegressionResult::Improvement { delta: -0.01 }
         };
@@ -28,7 +31,10 @@ fn flaky_eval_majority_block_fails() {
     let mut call_count = 0usize;
     let outcome = evaluate_with_retry(&policy, |_| {
         let r = if call_count < 2 {
-            RegressionResult::Regression { delta: 0.15, threshold: 0.02 }
+            RegressionResult::Regression {
+                delta: 0.15,
+                threshold: 0.02,
+            }
         } else {
             RegressionResult::Improvement { delta: -0.01 }
         };

@@ -1,4 +1,4 @@
-use crate::privacy_e2e::{assert_no_sensitive_data, default_redactor, Redactor, RedactionPattern};
+use crate::privacy_e2e::{assert_no_sensitive_data, default_redactor, RedactionPattern, Redactor};
 use std::collections::HashMap;
 
 #[test]
@@ -8,9 +8,15 @@ fn telemetry_redaction_holds() {
 
     let redacted = redactor.redact(text_with_pii);
 
-    assert!(!redacted.contains("user@example.com"), "email must be redacted");
+    assert!(
+        !redacted.contains("user@example.com"),
+        "email must be redacted"
+    );
     assert!(!redacted.contains("+1-555-0100"), "phone must be redacted");
-    assert!(!redacted.contains("sk-secret-12345"), "api key must be redacted");
+    assert!(
+        !redacted.contains("sk-secret-12345"),
+        "api key must be redacted"
+    );
     assert!(redacted.contains("[REDACTED_EMAIL]"));
     assert!(redacted.contains("[REDACTED_PHONE]"));
     assert!(redacted.contains("[REDACTED_KEY]"));

@@ -1,7 +1,7 @@
-use crate::crd::cluster::{AncoraCluster, AncoraClusterStatus, ConditionStatus};
-use crate::crd::tenant::{AncoraTenant, AncoraTenantStatus};
+use crate::crd::cluster::AncoraCluster;
+use crate::crd::tenant::AncoraTenant;
 use crate::fake_k8s::FakeK8s;
-use crate::status::{degraded_condition, ready_condition};
+use crate::status::ready_condition;
 use serde_json::json;
 use thiserror::Error;
 use tracing::info;
@@ -93,9 +93,11 @@ impl Reconciler {
 
     pub fn delete_cluster(&mut self, cluster: &mut AncoraCluster) -> Result<(), ReconcileError> {
         let name = &cluster.metadata.name;
-        self.k8s.delete("Deployment", &format!("{}-control-plane", name));
+        self.k8s
+            .delete("Deployment", &format!("{}-control-plane", name));
         self.k8s.delete("Deployment", &format!("{}-worker", name));
-        self.k8s.delete("HorizontalPodAutoscaler", &format!("{}-worker-hpa", name));
+        self.k8s
+            .delete("HorizontalPodAutoscaler", &format!("{}-worker-hpa", name));
         self.k8s.delete("ConfigMap", &format!("{}-journal", name));
         cluster.metadata.finalizers.retain(|f| f != FINALIZER);
         info!(name = %name, "cluster deleted via finalizer");
@@ -113,11 +115,8 @@ impl Reconciler {
         }
 
         let ns = format!("ancora-{}", name);
-        self.k8s.apply(
-            "Namespace",
-            &ns,
-            json!({ "kind": "Namespace" }),
-        );
+        self.k8s
+            .apply("Namespace", &ns, json!({ "kind": "Namespace" }));
 
         if let Some(ref role) = tenant.spec.admin_role_binding {
             self.k8s.apply(

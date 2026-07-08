@@ -1,5 +1,4 @@
 /// Compare two eval runs and highlight deltas.
-
 use crate::aggregate::AggregateMetrics;
 use crate::executor::RunId;
 
@@ -28,8 +27,7 @@ pub fn compare_runs(
 ) -> RunDelta {
     let pass_rate_delta = metrics_b.pass_rate - metrics_a.pass_rate;
     let latency_delta_ms = metrics_b.mean_latency_ms - metrics_a.mean_latency_ms;
-    let cost_delta_tokens =
-        metrics_b.total_cost_tokens as i64 - metrics_a.total_cost_tokens as i64;
+    let cost_delta_tokens = metrics_b.total_cost_tokens as i64 - metrics_a.total_cost_tokens as i64;
     let significant = pass_rate_delta.abs() >= SIGNIFICANCE_THRESHOLD;
 
     RunDelta {
@@ -80,11 +78,6 @@ impl RunDelta {
 }
 
 /// Compare confidence intervals: do they overlap?
-pub fn ci_overlap(
-    a_lower: f64,
-    a_upper: f64,
-    b_lower: f64,
-    b_upper: f64,
-) -> bool {
+pub fn ci_overlap(a_lower: f64, a_upper: f64, b_lower: f64, b_upper: f64) -> bool {
     !(b_lower > a_upper || a_lower > b_upper)
 }

@@ -49,7 +49,9 @@ fn journal_stores_token_events_in_order() {
         .unwrap();
 
     for (i, tok) in ["Hi", " there"].iter().enumerate() {
-        store.append(run_id, token_event(run_id, i as u64 + 1, tok)).unwrap();
+        store
+            .append(run_id, token_event(run_id, i as u64 + 1, tok))
+            .unwrap();
     }
 
     store

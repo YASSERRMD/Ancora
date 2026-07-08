@@ -9,8 +9,8 @@ fn no_expiry_always_valid() {
 
 #[test]
 fn expired_after_tick() {
-    let lic = EnterpriseLicense::new("l1", "t1", LicenseTier::Enterprise, 100, 1, 1)
-        .with_expiry(100);
+    let lic =
+        EnterpriseLicense::new("l1", "t1", LicenseTier::Enterprise, 100, 1, 1).with_expiry(100);
     assert!(!lic.is_expired(100));
     assert!(lic.is_expired(101));
     assert!(!lic.is_valid(101));

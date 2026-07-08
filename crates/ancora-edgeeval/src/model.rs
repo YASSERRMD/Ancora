@@ -60,7 +60,12 @@ pub struct SampleResult {
 }
 
 impl SampleResult {
-    pub fn new(sample_id: impl Into<String>, category: TaskCategory, passed: bool, score: f64) -> Self {
+    pub fn new(
+        sample_id: impl Into<String>,
+        category: TaskCategory,
+        passed: bool,
+        score: f64,
+    ) -> Self {
         let score = score.clamp(0.0, 1.0);
         Self {
             sample_id: sample_id.into(),
@@ -96,7 +101,10 @@ impl SmallModelSuite {
     pub fn evaluate_exact(&self, outputs: &[(&str, &str)]) -> Vec<SampleResult> {
         let mut results = Vec::new();
         for sample in &self.samples {
-            let output = outputs.iter().find(|(id, _)| *id == sample.id).map(|(_, o)| *o);
+            let output = outputs
+                .iter()
+                .find(|(id, _)| *id == sample.id)
+                .map(|(_, o)| *o);
             let (passed, score) = match output {
                 Some(o) => {
                     let passed = o.trim().to_lowercase() == sample.expected.trim().to_lowercase();
@@ -105,7 +113,12 @@ impl SmallModelSuite {
                 }
                 None => (false, 0.0),
             };
-            results.push(SampleResult::new(sample.id.clone(), sample.category.clone(), passed, score));
+            results.push(SampleResult::new(
+                sample.id.clone(),
+                sample.category.clone(),
+                passed,
+                score,
+            ));
         }
         results
     }

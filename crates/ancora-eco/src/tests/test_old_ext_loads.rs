@@ -1,5 +1,4 @@
 use crate::semver::SemVer;
-use crate::stability_policy::StabilityLevel;
 use crate::version_negotiation::{negotiate, CoreApiVersion, ExtensionManifest, NegotiationResult};
 
 /// Verifies that an old extension (targeting an earlier minor version)

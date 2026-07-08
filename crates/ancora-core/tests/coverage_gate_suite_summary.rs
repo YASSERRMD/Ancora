@@ -1,9 +1,10 @@
 // Coverage gate: final summary -- all suites, gates, and constraints in one place.
 
-const TOTAL_RUST_TEST_FILES: usize = 78;  // as of phase-156
+const TOTAL_RUST_TEST_FILES: usize = 78; // as of phase-156
 const TOTAL_GATE_FILES: usize = 18;
 const TOTAL_CI_WORKFLOW_FILES: usize = 10; // across all phases
-const TOTAL_DOC_PAGES: usize = 10;        // under docs/testing/
+#[allow(dead_code)]
+const TOTAL_DOC_PAGES: usize = 10; // under docs/testing/
 
 const CONSTRAINTS: &[&str] = &[
     "all_tests_offline",
@@ -18,8 +19,12 @@ const CONSTRAINTS: &[&str] = &[
 ];
 
 #[test]
+#[allow(clippy::assertions_on_constants)]
 fn test_total_rust_test_files_at_least_78() {
-    assert!(TOTAL_RUST_TEST_FILES >= 78, "expected >= 78 Rust test files, got {TOTAL_RUST_TEST_FILES}");
+    assert!(
+        TOTAL_RUST_TEST_FILES >= 78,
+        "expected >= 78 Rust test files, got {TOTAL_RUST_TEST_FILES}"
+    );
 }
 
 #[test]
@@ -28,6 +33,7 @@ fn test_coverage_gate_count_is_18() {
 }
 
 #[test]
+#[allow(clippy::assertions_on_constants)]
 fn test_ten_ci_workflow_files() {
     assert!(TOTAL_CI_WORKFLOW_FILES >= 10);
 }

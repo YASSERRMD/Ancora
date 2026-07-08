@@ -1,8 +1,8 @@
-use criterion::{criterion_group, criterion_main, Criterion};
 use ancora_controlplane::model::RunPriority;
 use ancora_controlplane::store::ControlPlaneStore;
-use ancora_worker::pool::WorkerPool;
 use ancora_worker::lifecycle::run_to_idle;
+use ancora_worker::pool::WorkerPool;
+use criterion::{criterion_group, criterion_main, Criterion};
 
 fn claim_and_execute_throughput(c: &mut Criterion) {
     c.bench_function("claim_execute_100_runs", |b| {

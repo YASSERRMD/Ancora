@@ -29,30 +29,68 @@ pub struct FeatureFlag {
 }
 
 impl FeatureFlag {
-    pub fn new(name: impl Into<String>, state: FeatureState, description: impl Into<String>) -> Self {
-        Self { name: name.into(), state, description: description.into() }
+    pub fn new(
+        name: impl Into<String>,
+        state: FeatureState,
+        description: impl Into<String>,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            state,
+            description: description.into(),
+        }
     }
 
-    pub fn is_active(&self) -> bool { self.state == FeatureState::Enabled }
-    pub fn is_beta(&self) -> bool { self.state == FeatureState::BetaOnly }
+    pub fn is_active(&self) -> bool {
+        self.state == FeatureState::Enabled
+    }
+    pub fn is_beta(&self) -> bool {
+        self.state == FeatureState::BetaOnly
+    }
 }
 
 pub struct FeatureRegistry {
     flags: HashMap<String, FeatureFlag>,
 }
 
+impl Default for FeatureRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FeatureRegistry {
-    pub fn new() -> Self { Self { flags: HashMap::new() } }
-    pub fn register(&mut self, flag: FeatureFlag) { self.flags.insert(flag.name.clone(), flag); }
-    pub fn get(&self, name: &str) -> Option<&FeatureFlag> { self.flags.get(name) }
-    pub fn is_enabled(&self, name: &str) -> bool { self.get(name).map(|f| f.is_active()).unwrap_or(false) }
+    pub fn new() -> Self {
+        Self {
+            flags: HashMap::new(),
+        }
+    }
+    pub fn register(&mut self, flag: FeatureFlag) {
+        self.flags.insert(flag.name.clone(), flag);
+    }
+    pub fn get(&self, name: &str) -> Option<&FeatureFlag> {
+        self.flags.get(name)
+    }
+    pub fn is_enabled(&self, name: &str) -> bool {
+        self.get(name).map(|f| f.is_active()).unwrap_or(false)
+    }
     pub fn enable(&mut self, name: &str) {
-        if let Some(f) = self.flags.get_mut(name) { f.state = FeatureState::Enabled; }
+        if let Some(f) = self.flags.get_mut(name) {
+            f.state = FeatureState::Enabled;
+        }
     }
     pub fn disable(&mut self, name: &str) {
-        if let Some(f) = self.flags.get_mut(name) { f.state = FeatureState::Disabled; }
+        if let Some(f) = self.flags.get_mut(name) {
+            f.state = FeatureState::Disabled;
+        }
     }
-    pub fn count(&self) -> usize { self.flags.len() }
-    pub fn enabled_count(&self) -> usize { self.flags.values().filter(|f| f.is_active()).count() }
-    pub fn all(&self) -> impl Iterator<Item = &FeatureFlag> { self.flags.values() }
+    pub fn count(&self) -> usize {
+        self.flags.len()
+    }
+    pub fn enabled_count(&self) -> usize {
+        self.flags.values().filter(|f| f.is_active()).count()
+    }
+    pub fn all(&self) -> impl Iterator<Item = &FeatureFlag> {
+        self.flags.values()
+    }
 }

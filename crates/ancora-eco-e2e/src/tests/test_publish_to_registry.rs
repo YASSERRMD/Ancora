@@ -21,8 +21,12 @@ fn test_publish_duplicate_version_fails() {
 #[test]
 fn test_publish_multiple_versions() {
     let mut registry = LocalRegistry::new();
-    registry.publish(RegistryEntry::new("versioned", "0.1.0", "org")).unwrap();
-    registry.publish(RegistryEntry::new("versioned", "0.2.0", "org")).unwrap();
+    registry
+        .publish(RegistryEntry::new("versioned", "0.1.0", "org"))
+        .unwrap();
+    registry
+        .publish(RegistryEntry::new("versioned", "0.2.0", "org"))
+        .unwrap();
     let versions = registry.all_versions("versioned");
     assert_eq!(versions.len(), 2);
     let latest = registry.latest("versioned").unwrap();
@@ -32,7 +36,11 @@ fn test_publish_multiple_versions() {
 #[test]
 fn test_list_all_published() {
     let mut registry = LocalRegistry::new();
-    registry.publish(RegistryEntry::new("alpha", "1.0.0", "org")).unwrap();
-    registry.publish(RegistryEntry::new("beta", "1.0.0", "org")).unwrap();
+    registry
+        .publish(RegistryEntry::new("alpha", "1.0.0", "org"))
+        .unwrap();
+    registry
+        .publish(RegistryEntry::new("beta", "1.0.0", "org"))
+        .unwrap();
     assert_eq!(registry.list_all().len(), 2);
 }

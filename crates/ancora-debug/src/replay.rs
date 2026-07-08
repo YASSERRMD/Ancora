@@ -4,7 +4,6 @@
 /// advance the cursor one step at a time, jump to an arbitrary sequence
 /// number, or reset to the beginning.  No live LLM or tool calls are ever
 /// made during replay.
-
 use crate::loader::{Journal, JournalEntry, Seq};
 
 /// Direction of replay stepping.
@@ -33,7 +32,10 @@ pub struct Replayer<'j> {
 impl<'j> Replayer<'j> {
     /// Create a new replayer positioned before the first entry.
     pub fn new(journal: &'j Journal) -> Self {
-        Self { journal, cursor: None }
+        Self {
+            journal,
+            cursor: None,
+        }
     }
 
     /// Return the current cursor position.
@@ -111,11 +113,8 @@ impl<'j> Replayer<'j> {
     where
         F: FnMut(&'j JournalEntry),
     {
-        loop {
-            match self.step_forward() {
-                StepResult::Stepped(entry) => f(entry),
-                StepResult::AtBoundary => break,
-            }
+        while let StepResult::Stepped(entry) = self.step_forward() {
+            f(entry);
         }
     }
 }

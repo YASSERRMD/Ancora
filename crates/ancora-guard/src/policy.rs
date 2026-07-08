@@ -1,4 +1,4 @@
-use crate::guardrail::{GuardrailOutcome, InputGuardrail, OutputGuardrail, ActionGuardrail};
+use crate::guardrail::{ActionGuardrail, GuardrailOutcome, InputGuardrail, OutputGuardrail};
 use crate::journal::GuardrailJournal;
 
 /// A composable guardrail policy attached to an agent.
@@ -10,7 +10,11 @@ pub struct GuardrailPolicy {
 
 impl GuardrailPolicy {
     pub fn new() -> Self {
-        Self { input_guards: Vec::new(), output_guards: Vec::new(), action_guards: Vec::new() }
+        Self {
+            input_guards: Vec::new(),
+            output_guards: Vec::new(),
+            action_guards: Vec::new(),
+        }
     }
 
     pub fn add_input<G: InputGuardrail + 'static>(&mut self, g: G) {
@@ -25,7 +29,12 @@ impl GuardrailPolicy {
         self.action_guards.push(Box::new(g));
     }
 
-    pub fn check_input(&self, input: &str, journal: &mut GuardrailJournal, tick: u64) -> GuardrailOutcome {
+    pub fn check_input(
+        &self,
+        input: &str,
+        journal: &mut GuardrailJournal,
+        tick: u64,
+    ) -> GuardrailOutcome {
         for g in &self.input_guards {
             let outcome = g.check_input(input);
             if outcome != GuardrailOutcome::Pass {
@@ -36,7 +45,12 @@ impl GuardrailPolicy {
         GuardrailOutcome::Pass
     }
 
-    pub fn check_output(&self, output: &str, journal: &mut GuardrailJournal, tick: u64) -> GuardrailOutcome {
+    pub fn check_output(
+        &self,
+        output: &str,
+        journal: &mut GuardrailJournal,
+        tick: u64,
+    ) -> GuardrailOutcome {
         for g in &self.output_guards {
             let outcome = g.check_output(output);
             if outcome != GuardrailOutcome::Pass {
@@ -47,7 +61,13 @@ impl GuardrailPolicy {
         GuardrailOutcome::Pass
     }
 
-    pub fn check_action(&self, tool: &str, input: &str, journal: &mut GuardrailJournal, tick: u64) -> GuardrailOutcome {
+    pub fn check_action(
+        &self,
+        tool: &str,
+        input: &str,
+        journal: &mut GuardrailJournal,
+        tick: u64,
+    ) -> GuardrailOutcome {
         for g in &self.action_guards {
             let outcome = g.check_action(tool, input);
             if outcome != GuardrailOutcome::Pass {

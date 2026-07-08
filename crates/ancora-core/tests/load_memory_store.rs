@@ -6,6 +6,7 @@ const STORE_N: usize = 1_000;
 const STORE_BUDGET_MS: u128 = 500;
 
 struct InMemChunk {
+    #[allow(dead_code)]
     id: String,
     text: String,
     embedding: Vec<f32>,
@@ -16,22 +17,36 @@ struct InMemStore {
 }
 
 impl InMemStore {
-    fn new() -> Self { Self { chunks: Vec::new() } }
+    fn new() -> Self {
+        Self { chunks: Vec::new() }
+    }
 
     fn insert(&mut self, id: String, text: String, embedding: Vec<f32>) {
-        self.chunks.push(InMemChunk { id, text, embedding });
+        self.chunks.push(InMemChunk {
+            id,
+            text,
+            embedding,
+        });
     }
 
     fn search_cosine(&self, query: &[f32], top_k: usize) -> Vec<&str> {
-        let mut scored: Vec<(f32, &InMemChunk)> = self.chunks.iter().map(|c| {
-            let dot: f32 = c.embedding.iter().zip(query).map(|(a, b)| a * b).sum();
-            let na: f32 = c.embedding.iter().map(|x| x * x).sum::<f32>().sqrt();
-            let nb: f32 = query.iter().map(|x| x * x).sum::<f32>().sqrt();
-            let score = if na * nb == 0.0 { 0.0 } else { dot / (na * nb) };
-            (score, c)
-        }).collect();
+        let mut scored: Vec<(f32, &InMemChunk)> = self
+            .chunks
+            .iter()
+            .map(|c| {
+                let dot: f32 = c.embedding.iter().zip(query).map(|(a, b)| a * b).sum();
+                let na: f32 = c.embedding.iter().map(|x| x * x).sum::<f32>().sqrt();
+                let nb: f32 = query.iter().map(|x| x * x).sum::<f32>().sqrt();
+                let score = if na * nb == 0.0 { 0.0 } else { dot / (na * nb) };
+                (score, c)
+            })
+            .collect();
         scored.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap());
-        scored.iter().take(top_k).map(|(_, c)| c.text.as_str()).collect()
+        scored
+            .iter()
+            .take(top_k)
+            .map(|(_, c)| c.text.as_str())
+            .collect()
     }
 }
 
@@ -51,7 +66,12 @@ fn test_insert_and_search_1k_within_budget() {
     let q = vec![500.0, 501.0, 1.0];
     let results = store.search_cosine(&q, 5);
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < STORE_BUDGET_MS, "took {}ms budget {}ms", elapsed, STORE_BUDGET_MS);
+    assert!(
+        elapsed < STORE_BUDGET_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        STORE_BUDGET_MS
+    );
     assert!(!results.is_empty());
 }
 

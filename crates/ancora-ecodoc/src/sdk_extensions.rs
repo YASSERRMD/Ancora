@@ -52,12 +52,7 @@ impl PluginMetaBuilder {
 }
 
 /// Convenience: create a `PluginMeta` in a single expression.
-pub fn quick_meta(
-    name: &str,
-    version: &str,
-    author: &str,
-    description: &str,
-) -> PluginMeta {
+pub fn quick_meta(name: &str, version: &str, author: &str, description: &str) -> PluginMeta {
     PluginMeta {
         name: name.into(),
         version: version.into(),

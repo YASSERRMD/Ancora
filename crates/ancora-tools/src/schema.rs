@@ -12,7 +12,9 @@ pub fn validate_input(
     for field in &required {
         let key = field.as_str().unwrap_or("");
         if input.get(key).is_none() {
-            return Err(ToolError::ValidationFailed(format!("missing required field '{key}'")));
+            return Err(ToolError::ValidationFailed(format!(
+                "missing required field '{key}'"
+            )));
         }
     }
     Ok(())

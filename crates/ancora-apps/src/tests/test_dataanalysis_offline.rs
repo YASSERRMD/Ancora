@@ -4,7 +4,11 @@ use crate::data_analysis::{DataAnalyzer, DataSet};
 fn data_analysis_summarise_offline() {
     let mut ds = DataSet::new(
         "monthly_revenue",
-        vec!["month".to_string(), "revenue".to_string(), "costs".to_string()],
+        vec![
+            "month".to_string(),
+            "revenue".to_string(),
+            "costs".to_string(),
+        ],
     );
     ds.add_row(vec![1.0, 120_000.0, 80_000.0]).unwrap();
     ds.add_row(vec![2.0, 135_000.0, 82_000.0]).unwrap();
@@ -19,17 +23,17 @@ fn data_analysis_summarise_offline() {
 
 #[test]
 fn top_n_returns_sorted_rows() {
-    let mut ds = DataSet::new(
-        "scores",
-        vec!["id".to_string(), "score".to_string()],
-    );
+    let mut ds = DataSet::new("scores", vec!["id".to_string(), "score".to_string()]);
     ds.add_row(vec![1.0, 70.0]).unwrap();
     ds.add_row(vec![2.0, 90.0]).unwrap();
     ds.add_row(vec![3.0, 55.0]).unwrap();
 
     let top2 = DataAnalyzer::top_n(&ds, "score", 2).unwrap();
     assert_eq!(top2.len(), 2);
-    assert!((top2[0][1] - 90.0).abs() < 1e-9, "first row should be highest score");
+    assert!(
+        (top2[0][1] - 90.0).abs() < 1e-9,
+        "first row should be highest score"
+    );
 }
 
 #[test]

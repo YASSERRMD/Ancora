@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::{attribution::CostAttributor, budget::TenantBudget};
+use serde::{Deserialize, Serialize};
 
 /// Cost API response for a tenant.
 #[derive(Debug, Serialize, Deserialize)]

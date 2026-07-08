@@ -1,7 +1,7 @@
-/// Rolling quality metrics over a sliding time window.
-///
-/// Keeps a fixed-size ring buffer of quality scores and computes
-/// mean, min, max, and standard deviation over the window.
+//! Rolling quality metrics over a sliding time window.
+//!
+//! Keeps a fixed-size ring buffer of quality scores and computes
+//! mean, min, max, and standard deviation over the window.
 
 /// A single quality observation with a timestamp (epoch seconds).
 #[derive(Debug, Clone)]
@@ -32,7 +32,8 @@ impl RollingMetric {
         if self.observations.len() == self.capacity {
             self.observations.remove(0);
         }
-        self.observations.push(QualityObservation { timestamp, score });
+        self.observations
+            .push(QualityObservation { timestamp, score });
     }
 
     /// Number of observations currently stored.

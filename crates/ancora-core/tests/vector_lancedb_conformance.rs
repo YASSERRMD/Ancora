@@ -62,7 +62,9 @@ fn lancedb_activity_key_contains_lancedb() {
     let events = build_lancedb_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.activity_key.contains("lancedb"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -71,7 +73,9 @@ fn lancedb_input_has_uri_and_table() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.input_json.contains("uri"));
         assert!(a.input_json.contains("table"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -79,7 +83,9 @@ fn lancedb_result_has_distance_field() {
     let events = build_lancedb_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("_distance"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -88,7 +94,9 @@ fn lancedb_result_has_two_chunks() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v.as_array().unwrap().len(), 2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

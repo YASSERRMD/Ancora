@@ -1,4 +1,4 @@
-use crate::guardrail::{OutputGuardrail, GuardrailOutcome};
+use crate::guardrail::{GuardrailOutcome, OutputGuardrail};
 
 const UNSAFE_PATTERNS: &[&str] = &["<script", "DROP TABLE", "rm -rf", "HARM:"];
 

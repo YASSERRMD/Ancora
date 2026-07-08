@@ -1,6 +1,6 @@
 use crate::grader_parity::{
-    ExactMatchGrader, ContainsGrader, F1Grader, Grader,
-    reference_grader_results, check_grader_parity,
+    check_grader_parity, reference_grader_results, ContainsGrader, ExactMatchGrader, F1Grader,
+    Grader,
 };
 
 #[test]
@@ -38,7 +38,11 @@ fn test_f1_grader_perfect() {
 fn test_f1_grader_partial() {
     let g = F1Grader;
     let score = g.grade("the cat sat on the mat", "the cat");
-    assert!(score > 0.0 && score < 1.0, "f1 score should be partial: {}", score);
+    assert!(
+        score > 0.0 && score < 1.0,
+        "f1 score should be partial: {}",
+        score
+    );
 }
 
 #[test]

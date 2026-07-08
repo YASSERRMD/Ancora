@@ -8,7 +8,11 @@ pub struct SemVer {
 
 impl SemVer {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        SemVer { major, minor, patch }
+        SemVer {
+            major,
+            minor,
+            patch,
+        }
     }
 
     /// Returns true if this version is compatible with `other` (same major, this >= other).

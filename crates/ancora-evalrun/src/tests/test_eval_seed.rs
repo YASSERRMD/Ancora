@@ -1,9 +1,9 @@
-use crate::executor::{EvalCase, Executor, RunConfig, RunId, exact_match};
+use crate::executor::{exact_match, EvalCase, Executor, RunConfig, RunId};
 use crate::rollout::RolloutRunner;
 
 /// A deterministic infer that returns different answers based on seed parity.
 fn seed_sensitive_infer(input: &str, seed: u64) -> (String, u64, u64) {
-    if seed % 2 == 0 {
+    if seed.is_multiple_of(2) {
         (input.to_uppercase(), 10, 5)
     } else {
         (input.to_lowercase(), 10, 5)
@@ -12,9 +12,11 @@ fn seed_sensitive_infer(input: &str, seed: u64) -> (String, u64, u64) {
 
 #[test]
 fn eval_reproducible_with_same_seed() {
-    let cases = vec![
-        EvalCase { id: "s1".into(), input: "Hello".into(), expected: "HELLO".into() },
-    ];
+    let cases = vec![EvalCase {
+        id: "s1".into(),
+        input: "Hello".into(),
+        expected: "HELLO".into(),
+    }];
 
     let run = |seed: u64| {
         let config = RunConfig {
@@ -30,14 +32,20 @@ fn eval_reproducible_with_same_seed() {
     let r1 = run(100);
     let r2 = run(100);
     // Same seed -> same pass counts.
-    assert_eq!(r1[0].pass_count(), r2[0].pass_count(), "same seed must yield same result");
+    assert_eq!(
+        r1[0].pass_count(),
+        r2[0].pass_count(),
+        "same seed must yield same result"
+    );
 }
 
 #[test]
 fn eval_different_seeds_may_differ() {
-    let cases = vec![
-        EvalCase { id: "s2".into(), input: "Test".into(), expected: "TEST".into() },
-    ];
+    let cases = vec![EvalCase {
+        id: "s2".into(),
+        input: "Test".into(),
+        expected: "TEST".into(),
+    }];
 
     let run = |seed: u64| {
         let config = RunConfig {
@@ -65,9 +73,11 @@ fn eval_different_seeds_may_differ() {
 #[test]
 fn rollout_seed_varies_per_rollout() {
     // Verify that within a single run each rollout gets a distinct seed.
-    let cases = vec![
-        EvalCase { id: "s3".into(), input: "x".into(), expected: "X".into() },
-    ];
+    let cases = vec![EvalCase {
+        id: "s3".into(),
+        input: "x".into(),
+        expected: "X".into(),
+    }];
 
     let config = RunConfig {
         run_id: RunId("seed-var".into()),
@@ -79,5 +89,9 @@ fn rollout_seed_varies_per_rollout() {
     let rollouts = runner.rollout_suite(&executor, &cases, &seed_sensitive_infer);
 
     // Seeds 0,1,2,3 -> pass, fail, pass, fail -> 2 passes.
-    assert_eq!(rollouts[0].pass_count(), 2, "alternating seeds -> half pass");
+    assert_eq!(
+        rollouts[0].pass_count(),
+        2,
+        "alternating seeds -> half pass"
+    );
 }

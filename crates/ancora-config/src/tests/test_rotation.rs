@@ -1,11 +1,8 @@
 #[cfg(test)]
 mod tests {
     use crate::{
-        env_provider::EnvSecretProvider,
-        error::ConfigError,
-        resolver::SecretResolver,
-        rotation::RotationLog,
-        secret_provider::SecretProvider,
+        env_provider::EnvSecretProvider, error::ConfigError, resolver::SecretResolver,
+        rotation::RotationLog, secret_provider::SecretProvider,
     };
 
     #[test]
@@ -42,6 +39,9 @@ mod tests {
         res.register("env", Box::new(p));
         assert!(res.resolve("env:K").is_ok());
         res.notify_rotation("env", "K").unwrap();
-        assert!(matches!(res.resolve("env:K").unwrap_err(), ConfigError::SecretUnresolvable { .. }));
+        assert!(matches!(
+            res.resolve("env:K").unwrap_err(),
+            ConfigError::SecretUnresolvable { .. }
+        ));
     }
 }

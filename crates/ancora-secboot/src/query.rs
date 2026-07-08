@@ -6,9 +6,19 @@ pub struct MeasurementQuery {
     name_contains: Option<String>,
 }
 
+impl Default for MeasurementQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MeasurementQuery {
     pub fn new() -> Self {
-        Self { kind: None, digest_prefix: None, name_contains: None }
+        Self {
+            kind: None,
+            digest_prefix: None,
+            name_contains: None,
+        }
     }
 
     pub fn kind(mut self, kind: MeasurementKind) -> Self {
@@ -26,18 +36,29 @@ impl MeasurementQuery {
         self
     }
 
-    pub fn run<'a>(&self, measurements: impl Iterator<Item = &'a Measurement>) -> Vec<&'a Measurement> {
-        measurements.filter(|m| {
-            if let Some(k) = &self.kind {
-                if format!("{}", m.kind) != *k { return false; }
-            }
-            if let Some(prefix) = &self.digest_prefix {
-                if !m.digest.starts_with(prefix.as_str()) { return false; }
-            }
-            if let Some(frag) = &self.name_contains {
-                if !m.name.contains(frag.as_str()) { return false; }
-            }
-            true
-        }).collect()
+    pub fn run<'a>(
+        &self,
+        measurements: impl Iterator<Item = &'a Measurement>,
+    ) -> Vec<&'a Measurement> {
+        measurements
+            .filter(|m| {
+                if let Some(k) = &self.kind {
+                    if format!("{}", m.kind) != *k {
+                        return false;
+                    }
+                }
+                if let Some(prefix) = &self.digest_prefix {
+                    if !m.digest.starts_with(prefix.as_str()) {
+                        return false;
+                    }
+                }
+                if let Some(frag) = &self.name_contains {
+                    if !m.name.contains(frag.as_str()) {
+                        return false;
+                    }
+                }
+                true
+            })
+            .collect()
     }
 }

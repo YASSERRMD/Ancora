@@ -13,20 +13,15 @@ fn contradiction_detected_between_steps() {
 
 #[test]
 fn no_contradiction_in_consistent_steps() {
-    let steps = StepDecomposer::decompose(vec![
-        "the sky is blue".into(),
-        "water is wet".into(),
-    ]);
+    let steps = StepDecomposer::decompose(vec!["the sky is blue".into(), "water is wet".into()]);
     let pairs = ContradictionDetector::detect(&steps);
     assert!(pairs.is_empty());
 }
 
 #[test]
 fn contradiction_detected_in_reverse_order() {
-    let steps = StepDecomposer::decompose(vec![
-        "gravity exists".into(),
-        "NOT: gravity exists".into(),
-    ]);
+    let steps =
+        StepDecomposer::decompose(vec!["gravity exists".into(), "NOT: gravity exists".into()]);
     let pairs = ContradictionDetector::detect(&steps);
     assert_eq!(pairs, vec![(0, 1)]);
 }

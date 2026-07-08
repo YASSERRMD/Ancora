@@ -1,6 +1,6 @@
-use crate::skill::SkillDescriptor;
-use crate::registry::SkillRegistry;
 use crate::error::SkillError;
+use crate::registry::SkillRegistry;
+use crate::skill::SkillDescriptor;
 
 /// A composed crew of skills that run sequentially.
 #[derive(Debug, Clone)]
@@ -17,7 +17,13 @@ impl Crew {
         }
     }
 
-    pub fn resolve<'a>(&self, registry: &'a SkillRegistry) -> Result<Vec<&'a SkillDescriptor>, SkillError> {
-        self.skill_names.iter().map(|n| registry.lookup(n)).collect()
+    pub fn resolve<'a>(
+        &self,
+        registry: &'a SkillRegistry,
+    ) -> Result<Vec<&'a SkillDescriptor>, SkillError> {
+        self.skill_names
+            .iter()
+            .map(|n| registry.lookup(n))
+            .collect()
     }
 }

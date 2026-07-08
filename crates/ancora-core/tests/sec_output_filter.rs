@@ -2,7 +2,11 @@
 
 use std::collections::BTreeMap;
 
-fn redact(value: &str, fields: &[&str], json_map: &BTreeMap<String, String>) -> BTreeMap<String, String> {
+fn redact(
+    value: &str,
+    fields: &[&str],
+    json_map: &BTreeMap<String, String>,
+) -> BTreeMap<String, String> {
     let _ = value;
     let mut out = json_map.clone();
     for &field in fields {

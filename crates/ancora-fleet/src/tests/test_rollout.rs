@@ -1,5 +1,5 @@
-use crate::rollout::*;
 use crate::registration::DeviceId;
+use crate::rollout::*;
 
 #[test]
 fn test_staged_rollout_proceeds() {
@@ -33,7 +33,9 @@ fn test_rollout_rollback() {
     let mut plan = RolloutPlan::new("rollout-2", "model-v2");
 
     let mut phase = RolloutPhase::new("all", 100);
-    let ids: Vec<DeviceId> = (0..3).map(|i| DeviceId::new(format!("dev-{}", i))).collect();
+    let ids: Vec<DeviceId> = (0..3)
+        .map(|i| DeviceId::new(format!("dev-{}", i)))
+        .collect();
     for id in &ids {
         phase.add_device(id.clone());
     }

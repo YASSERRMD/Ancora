@@ -104,13 +104,27 @@ fn make_consolidation_job() -> ConsolidationJob {
 
 fn bench_memory_consolidation() -> BenchResult {
     let turns: Vec<Turn> = (0..10)
-        .map(|i| Turn { index: i, role: "user".into(), content: format!("turn {i}") })
+        .map(|i| Turn {
+            index: i,
+            role: "user".into(),
+            content: format!("turn {i}"),
+        })
         .collect();
     let episodic: Vec<EpisodicEntry> = (0u32..50)
-        .map(|i| EpisodicEntry { key: format!("k{i}"), content: format!("c{i}"), occurrences: 2 })
+        .map(|i| EpisodicEntry {
+            key: format!("k{i}"),
+            content: format!("c{i}"),
+            occurrences: 2,
+        })
         .collect();
     let salience_items: Vec<SalienceItem> = (0..50)
-        .map(|i| SalienceItem { key: format!("k{i}"), content: format!("c{i}"), importance: 1, access_count: 1, age_secs: 0 })
+        .map(|i| SalienceItem {
+            key: format!("k{i}"),
+            content: format!("c{i}"),
+            importance: 1,
+            access_count: 1,
+            age_secs: 0,
+        })
         .collect();
 
     let mut journal = ConsolidationJournal::default();
@@ -124,8 +138,7 @@ fn bench_memory_consolidation() -> BenchResult {
 
     let output = make_consolidation_job().run(&turns, salience_items, &episodic, 1, &mut journal);
 
-    BenchResult::new("memory_consolidation", elapsed)
-        .with_token_units(output.promoted.len() as u64)
+    BenchResult::new("memory_consolidation", elapsed).with_token_units(output.promoted.len() as u64)
 }
 
 fn bench_coordination() -> BenchResult {
@@ -137,8 +150,7 @@ fn bench_coordination() -> BenchResult {
     }
     let elapsed = t.elapsed().as_nanos() as u64;
 
-    BenchResult::new("coordination", elapsed)
-        .with_token_units(journal.events().len() as u64)
+    BenchResult::new("coordination", elapsed).with_token_units(journal.events().len() as u64)
 }
 
 fn bench_guardrail() -> BenchResult {
@@ -166,8 +178,7 @@ fn bench_guardrail() -> BenchResult {
     }
     let elapsed = t.elapsed().as_nanos() as u64;
 
-    BenchResult::new("guardrail", elapsed)
-        .with_token_units(journal.blocked_count() as u64)
+    BenchResult::new("guardrail", elapsed).with_token_units(journal.blocked_count() as u64)
 }
 
 fn bench_reasoning() -> BenchResult {
@@ -181,13 +192,15 @@ fn bench_reasoning() -> BenchResult {
         cs.add(&claim, citation.clone());
         journal.record(
             i,
-            ReasoningEvent::CitationAdded { claim: claim.clone(), citation },
+            ReasoningEvent::CitationAdded {
+                claim: claim.clone(),
+                citation,
+            },
         );
     }
     let elapsed = t.elapsed().as_nanos() as u64;
 
-    BenchResult::new("reasoning", elapsed)
-        .with_token_units(cs.all_cited_claims().len() as u64)
+    BenchResult::new("reasoning", elapsed).with_token_units(cs.all_cited_claims().len() as u64)
 }
 
 fn bench_lh_checkpoint() -> BenchResult {
@@ -202,8 +215,7 @@ fn bench_lh_checkpoint() -> BenchResult {
     }
     let elapsed = t.elapsed().as_nanos() as u64;
 
-    BenchResult::new("lh_checkpoint", elapsed)
-        .with_token_units(ckpts.len() as u64)
+    BenchResult::new("lh_checkpoint", elapsed).with_token_units(ckpts.len() as u64)
 }
 
 fn bench_skills_jit() -> BenchResult {
@@ -218,6 +230,5 @@ fn bench_skills_jit() -> BenchResult {
     }
     let elapsed = t.elapsed().as_nanos() as u64;
 
-    BenchResult::new("skills_jit", elapsed)
-        .with_token_units(200)
+    BenchResult::new("skills_jit", elapsed).with_token_units(200)
 }

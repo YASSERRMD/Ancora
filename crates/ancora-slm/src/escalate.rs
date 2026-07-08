@@ -19,7 +19,10 @@ pub struct EscalationPolicy {
 
 impl Default for EscalationPolicy {
     fn default() -> Self {
-        Self { max_slm_attempts: 2, escalation_tier: ModelTier::Large }
+        Self {
+            max_slm_attempts: 2,
+            escalation_tier: ModelTier::Large,
+        }
     }
 }
 

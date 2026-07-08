@@ -1,6 +1,13 @@
 use std::path::PathBuf;
 
 fn main() {
+    if std::env::var_os("PROTOC").is_none() {
+        std::env::set_var(
+            "PROTOC",
+            protoc_bin_vendored::protoc_bin_path().expect("failed to locate vendored protoc"),
+        );
+    }
+
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"));
     let descriptor_path = out_dir.join("ancora_descriptor.bin");
 

@@ -28,10 +28,16 @@ impl SkillJournal {
     }
 
     pub fn records_for_skill(&self, name: &str) -> Vec<&SkillInvocationRecord> {
-        self.records.iter().filter(|r| r.skill_name == name).collect()
+        self.records
+            .iter()
+            .filter(|r| r.skill_name == name)
+            .collect()
     }
 
     pub fn replay(&self) -> Vec<(&str, u32)> {
-        self.records.iter().map(|r| (r.skill_name.as_str(), r.version)).collect()
+        self.records
+            .iter()
+            .map(|r| (r.skill_name.as_str(), r.version))
+            .collect()
     }
 }

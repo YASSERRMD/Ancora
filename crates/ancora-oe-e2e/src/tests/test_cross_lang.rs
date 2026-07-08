@@ -1,16 +1,13 @@
 /// Cross-language trace stitching tests.
 /// Simulates traces that originate from multiple language runtimes (e.g. Python + Rust)
 /// and verifies they can be stitched by a shared trace_id and span parent references.
-
 use crate::trace_e2e::{Span, Trace};
 
 /// Simulates spans emitted by a Python orchestrator.
 fn python_spans(trace_id: &str) -> Vec<Span> {
-    vec![
-        Span::new("py-root", "python.orchestrate", 0, 2_000_000)
-            .with_attribute("lang", "python")
-            .with_attribute("trace.id", trace_id),
-    ]
+    vec![Span::new("py-root", "python.orchestrate", 0, 2_000_000)
+        .with_attribute("lang", "python")
+        .with_attribute("trace.id", trace_id)]
 }
 
 /// Simulates spans emitted by a Rust agent.
@@ -47,7 +44,11 @@ fn cross_language_trace_stitching_produces_complete_trace() {
     let trace = stitch_trace(trace_id, &[py, rs]);
 
     assert_eq!(trace.trace_id, trace_id);
-    assert_eq!(trace.spans.len(), 3, "must have all 3 spans (1 python + 2 rust)");
+    assert_eq!(
+        trace.spans.len(),
+        3,
+        "must have all 3 spans (1 python + 2 rust)"
+    );
 
     let root = trace.root_span().expect("must have a root span");
     assert_eq!(root.span_id, "py-root");

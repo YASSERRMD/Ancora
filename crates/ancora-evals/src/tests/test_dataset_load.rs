@@ -30,8 +30,14 @@ fn test_example_with_metadata() {
     let ex = Example::new("e1", "input", "output")
         .with_metadata("source", "manual")
         .with_metadata("difficulty", "easy");
-    assert_eq!(ex.metadata.get("source").map(|s| s.as_str()), Some("manual"));
-    assert_eq!(ex.metadata.get("difficulty").map(|s| s.as_str()), Some("easy"));
+    assert_eq!(
+        ex.metadata.get("source").map(|s| s.as_str()),
+        Some("manual")
+    );
+    assert_eq!(
+        ex.metadata.get("difficulty").map(|s| s.as_str()),
+        Some("easy")
+    );
 }
 
 #[test]

@@ -41,7 +41,12 @@ pub struct JournalEntry {
 
 impl JournalEntry {
     /// Create a new pending journal entry.
-    pub fn new(seq: SeqNo, device_id: impl Into<String>, key: impl Into<String>, payload: Vec<u8>) -> Self {
+    pub fn new(
+        seq: SeqNo,
+        device_id: impl Into<String>,
+        key: impl Into<String>,
+        payload: Vec<u8>,
+    ) -> Self {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map(|d| d.as_secs())

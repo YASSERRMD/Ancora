@@ -7,7 +7,9 @@ struct IsolatedEnv {
 
 impl IsolatedEnv {
     fn new() -> Self {
-        IsolatedEnv { plugins: Vec::new() }
+        IsolatedEnv {
+            plugins: Vec::new(),
+        }
     }
 
     fn add(&mut self, name: &str, id: u64) {

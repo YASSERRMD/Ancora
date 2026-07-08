@@ -14,7 +14,12 @@ impl EvalCase {
         expected: impl Into<String>,
         scorer: impl Into<String>,
     ) -> Self {
-        Self { id: id.into(), input: input.into(), expected: expected.into(), scorer: scorer.into() }
+        Self {
+            id: id.into(),
+            input: input.into(),
+            expected: expected.into(),
+            scorer: scorer.into(),
+        }
     }
 }
 
@@ -29,9 +34,15 @@ pub trait EvalScorer: Send + Sync {
 pub struct ExactMatchScorer;
 
 impl EvalScorer for ExactMatchScorer {
-    fn name(&self) -> &str { "exact_match" }
+    fn name(&self) -> &str {
+        "exact_match"
+    }
     fn score(&self, candidate: &str, expected: &str) -> f64 {
-        if candidate.trim() == expected.trim() { 1.0 } else { 0.0 }
+        if candidate.trim() == expected.trim() {
+            1.0
+        } else {
+            0.0
+        }
     }
 }
 
@@ -46,8 +57,12 @@ fn edit_distance(a: &str, b: &str) -> usize {
     let b: Vec<char> = b.chars().collect();
     let (m, n) = (a.len(), b.len());
     let mut dp = vec![vec![0usize; n + 1]; m + 1];
-    for i in 0..=m { dp[i][0] = i; }
-    for j in 0..=n { dp[0][j] = j; }
+    for (i, row) in dp.iter_mut().enumerate().take(m + 1) {
+        row[0] = i;
+    }
+    for (j, val) in dp[0].iter_mut().enumerate().take(n + 1) {
+        *val = j;
+    }
     for i in 1..=m {
         for j in 1..=n {
             dp[i][j] = if a[i - 1] == b[j - 1] {
@@ -61,18 +76,28 @@ fn edit_distance(a: &str, b: &str) -> usize {
 }
 
 impl EvalScorer for NormalizedEditScorer {
-    fn name(&self) -> &str { "normalized_edit" }
+    fn name(&self) -> &str {
+        "normalized_edit"
+    }
     fn score(&self, candidate: &str, expected: &str) -> f64 {
         let max_len = candidate.len().max(expected.len());
-        if max_len == 0 { return 1.0; }
+        if max_len == 0 {
+            return 1.0;
+        }
         1.0 - edit_distance(candidate, expected) as f64 / max_len as f64
     }
 }
 
 impl EvalScorer for ContainsScorer {
-    fn name(&self) -> &str { "contains" }
+    fn name(&self) -> &str {
+        "contains"
+    }
     fn score(&self, candidate: &str, expected: &str) -> f64 {
-        if candidate.contains(expected) { 1.0 } else { 0.0 }
+        if candidate.contains(expected) {
+            1.0
+        } else {
+            0.0
+        }
     }
 }
 
@@ -129,7 +154,7 @@ mod tests {
     fn normalized_edit_scorer_completely_different_less_than_one() {
         let s = NormalizedEditScorer;
         let v = s.score("abc", "xyz");
-        assert!(v < 1.0 && v >= 0.0);
+        assert!((0.0..1.0).contains(&v));
     }
 
     #[test]

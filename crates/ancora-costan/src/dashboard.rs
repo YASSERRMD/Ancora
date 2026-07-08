@@ -1,15 +1,8 @@
 /// Cost dashboard - aggregates all dimensions into a JSON-serializable summary.
-
 use crate::{
-    anomaly::AnomalyAlert,
-    by_capability::CapabilityCostBreakdown,
-    by_model::ModelCostBreakdown,
-    by_provider::ProviderCostBreakdown,
-    by_tenant::TenantCostBreakdown,
-    by_tool::ToolCostBreakdown,
-    cache_savings::CacheSavingsTracker,
-    suggestions::Suggestion,
-    timeseries::CostTimeSeries,
+    anomaly::AnomalyAlert, by_capability::CapabilityCostBreakdown, by_model::ModelCostBreakdown,
+    by_provider::ProviderCostBreakdown, by_tenant::TenantCostBreakdown, by_tool::ToolCostBreakdown,
+    cache_savings::CacheSavingsTracker, suggestions::Suggestion, timeseries::CostTimeSeries,
 };
 
 /// A simple key-value pair for JSON output.
@@ -21,7 +14,10 @@ pub struct KV {
 
 impl KV {
     pub fn new(key: impl Into<String>, value: impl Into<String>) -> Self {
-        Self { key: key.into(), value: value.into() }
+        Self {
+            key: key.into(),
+            value: value.into(),
+        }
     }
 }
 
@@ -45,7 +41,10 @@ impl DashboardSnapshot {
     /// Render snapshot as a minimal JSON string (no external deps).
     pub fn to_json(&self) -> String {
         let mut out = String::from("{\n");
-        out.push_str(&format!("  \"total_cost_usd\": {:.6},\n", self.total_cost_usd));
+        out.push_str(&format!(
+            "  \"total_cost_usd\": {:.6},\n",
+            self.total_cost_usd
+        ));
         out.push_str(&format!("  \"period\": \"{}\",\n", self.period_label));
         out.push_str(&format!(
             "  \"cache_hit_rate\": {:.4},\n",
@@ -59,7 +58,11 @@ impl DashboardSnapshot {
         // top_models
         out.push_str("  \"top_models\": [\n");
         for (i, (m, c)) in self.top_models.iter().enumerate() {
-            let comma = if i + 1 < self.top_models.len() { "," } else { "" };
+            let comma = if i + 1 < self.top_models.len() {
+                ","
+            } else {
+                ""
+            };
             out.push_str(&format!(
                 "    {{\"model\": \"{}\", \"cost\": {:.6}}}{}",
                 m, c, comma
@@ -71,7 +74,11 @@ impl DashboardSnapshot {
         // top_providers
         out.push_str("  \"top_providers\": [\n");
         for (i, (p, c)) in self.top_providers.iter().enumerate() {
-            let comma = if i + 1 < self.top_providers.len() { "," } else { "" };
+            let comma = if i + 1 < self.top_providers.len() {
+                ","
+            } else {
+                ""
+            };
             out.push_str(&format!(
                 "    {{\"provider\": \"{}\", \"cost\": {:.6}}}{}",
                 p, c, comma
@@ -83,9 +90,12 @@ impl DashboardSnapshot {
         // anomalies
         out.push_str("  \"anomalies\": [\n");
         for (i, a) in self.anomalies.iter().enumerate() {
-            let comma = if i + 1 < self.anomalies.len() { "," } else { "" };
-            out.push_str(&format!("    \"{}\"{}",
-                a.replace('"', "\\\""), comma));
+            let comma = if i + 1 < self.anomalies.len() {
+                ","
+            } else {
+                ""
+            };
+            out.push_str(&format!("    \"{}\"{}", a.replace('"', "\\\""), comma));
             out.push('\n');
         }
         out.push_str("  ],\n");
@@ -93,9 +103,12 @@ impl DashboardSnapshot {
         // suggestions
         out.push_str("  \"suggestions\": [\n");
         for (i, s) in self.suggestions.iter().enumerate() {
-            let comma = if i + 1 < self.suggestions.len() { "," } else { "" };
-            out.push_str(&format!("    \"{}\"{}",
-                s.replace('"', "\\\""), comma));
+            let comma = if i + 1 < self.suggestions.len() {
+                ","
+            } else {
+                ""
+            };
+            out.push_str(&format!("    \"{}\"{}", s.replace('"', "\\\""), comma));
             out.push('\n');
         }
         out.push_str("  ]\n");
@@ -186,11 +199,7 @@ impl DashboardBuilder {
                 .iter()
                 .map(|a| a.description.clone())
                 .collect(),
-            suggestions: self
-                .suggestions
-                .iter()
-                .map(|s| s.detail.clone())
-                .collect(),
+            suggestions: self.suggestions.iter().map(|s| s.detail.clone()).collect(),
             hourly_buckets: self.timeseries.hourly_buckets(),
         }
     }

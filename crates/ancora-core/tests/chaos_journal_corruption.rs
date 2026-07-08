@@ -14,12 +14,18 @@ struct JournalEntry {
 
 impl JournalEntry {
     fn compute_checksum(payload: &[u8]) -> u32 {
-        payload.iter().fold(0u32, |acc, &b| acc.wrapping_add(b as u32))
+        payload
+            .iter()
+            .fold(0u32, |acc, &b| acc.wrapping_add(b as u32))
     }
 
     fn new(seq: u64, payload: Vec<u8>) -> Self {
         let checksum = Self::compute_checksum(&payload);
-        Self { seq, checksum, payload }
+        Self {
+            seq,
+            checksum,
+            payload,
+        }
     }
 
     fn verify(&self) -> Integrity {

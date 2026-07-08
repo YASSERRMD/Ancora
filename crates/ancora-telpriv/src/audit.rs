@@ -1,8 +1,8 @@
-/// Redaction audit log.
-///
-/// Every redaction decision is recorded in an in-memory audit log so that
-/// operators can replay why a particular value was scrubbed, which policy
-/// fired, and when the decision was made.
+//! Redaction audit log.
+//!
+//! Every redaction decision is recorded in an in-memory audit log so that
+//! operators can replay why a particular value was scrubbed, which policy
+//! fired, and when the decision was made.
 
 /// The reason a field was redacted.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -107,7 +107,10 @@ impl RedactionAuditLog {
 
     /// Filter entries by reason.
     pub fn by_reason(&self, reason: &RedactionReason) -> Vec<&RedactionEntry> {
-        self.entries.iter().filter(|e| &e.reason == reason).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.reason == reason)
+            .collect()
     }
 }
 

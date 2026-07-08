@@ -3,7 +3,6 @@
 /// Annotations are stored separately from the journal so that the original
 /// run data is never modified.  They are keyed by (run_id, seq) and can be
 /// retrieved, updated, or deleted independently.
-
 use std::collections::HashMap;
 
 use crate::loader::{RunId, Seq};
@@ -21,7 +20,12 @@ pub struct Annotation {
 
 impl Annotation {
     pub fn new(run_id: RunId, seq: Seq, text: impl Into<String>) -> Self {
-        Self { run_id, seq, text: text.into(), tag: None }
+        Self {
+            run_id,
+            seq,
+            text: text.into(),
+            tag: None,
+        }
     }
 
     pub fn with_tag(mut self, tag: impl Into<String>) -> Self {
@@ -168,7 +172,10 @@ mod tests {
         let mut store = AnnotationStore::new();
         store.upsert(Annotation::new(RunId::new("r1"), Seq(0), "first"));
         store.upsert(Annotation::new(RunId::new("r1"), Seq(0), "updated"));
-        assert_eq!(store.get(&RunId::new("r1"), Seq(0)).unwrap().text, "updated");
+        assert_eq!(
+            store.get(&RunId::new("r1"), Seq(0)).unwrap().text,
+            "updated"
+        );
         assert_eq!(store.count(), 1);
     }
 }

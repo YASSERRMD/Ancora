@@ -16,7 +16,9 @@ pub struct InMemoryExporter {
 
 impl InMemoryExporter {
     pub fn new() -> Self {
-        Self { spans: Arc::new(Mutex::new(Vec::new())) }
+        Self {
+            spans: Arc::new(Mutex::new(Vec::new())),
+        }
     }
 
     pub fn spans(&self) -> Vec<Span> {
@@ -113,8 +115,12 @@ mod tests {
         let a2 = a.clone();
         let b2 = b.clone();
         let multi = MultiEmitter::new(vec![
-            Box::new(InMemoryExporter { spans: a2.spans.clone() }),
-            Box::new(InMemoryExporter { spans: b2.spans.clone() }),
+            Box::new(InMemoryExporter {
+                spans: a2.spans.clone(),
+            }),
+            Box::new(InMemoryExporter {
+                spans: b2.spans.clone(),
+            }),
         ]);
         multi.emit(Span::new("fanned"));
         assert_eq!(a.len(), 1);

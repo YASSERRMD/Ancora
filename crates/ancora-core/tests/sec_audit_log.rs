@@ -1,7 +1,5 @@
 // Security: audit log -- every sensitive operation produces an immutable audit entry.
 
-use std::collections::BTreeMap;
-
 #[derive(Debug, Clone)]
 struct AuditEntry {
     operation: &'static str,
@@ -17,18 +15,41 @@ struct AuditLog {
 }
 
 impl AuditLog {
-    fn new() -> Self { Self { entries: Vec::new(), seq: 0 } }
+    fn new() -> Self {
+        Self {
+            entries: Vec::new(),
+            seq: 0,
+        }
+    }
 
-    fn record(&mut self, operation: &'static str, actor: &str, resource: &str, allowed: bool) -> u64 {
+    fn record(
+        &mut self,
+        operation: &'static str,
+        actor: &str,
+        resource: &str,
+        allowed: bool,
+    ) -> u64 {
         let s = self.seq;
-        self.entries.push(AuditEntry { operation, actor: actor.to_string(), resource: resource.to_string(), allowed, seq: s });
+        self.entries.push(AuditEntry {
+            operation,
+            actor: actor.to_string(),
+            resource: resource.to_string(),
+            allowed,
+            seq: s,
+        });
         self.seq += 1;
         s
     }
 
-    fn denied(&self) -> Vec<&AuditEntry> { self.entries.iter().filter(|e| !e.allowed).collect() }
-    fn count(&self) -> usize { self.entries.len() }
-    fn get(&self, seq: u64) -> Option<&AuditEntry> { self.entries.iter().find(|e| e.seq == seq) }
+    fn denied(&self) -> Vec<&AuditEntry> {
+        self.entries.iter().filter(|e| !e.allowed).collect()
+    }
+    fn count(&self) -> usize {
+        self.entries.len()
+    }
+    fn get(&self, seq: u64) -> Option<&AuditEntry> {
+        self.entries.iter().find(|e| e.seq == seq)
+    }
 }
 
 #[test]

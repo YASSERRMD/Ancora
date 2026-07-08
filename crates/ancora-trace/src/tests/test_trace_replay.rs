@@ -1,6 +1,5 @@
 /// Tests: trace is reproducible when replayed from the same journal.
-
-use crate::journal::{JournalEvent, JournalEventKind, JournalMetadata, spans_from_journal};
+use crate::journal::{spans_from_journal, JournalEvent, JournalEventKind, JournalMetadata};
 use crate::span::{SpanId, TraceId};
 use crate::trace::build_trace_from_spans;
 

@@ -1,7 +1,11 @@
 use crate::conflict::{Claim, ConflictPolicy, ConflictResolver};
 
 fn claim(agent_id: &str, priority: u32, arrived_at: u64) -> Claim {
-    Claim { agent_id: agent_id.to_string(), priority, arrived_at }
+    Claim {
+        agent_id: agent_id.to_string(),
+        priority,
+        arrived_at,
+    }
 }
 
 #[test]

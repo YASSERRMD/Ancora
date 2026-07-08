@@ -59,12 +59,18 @@ fn from_json_fails_on_missing_pending_input() {
 
 #[test]
 fn from_json_fails_on_empty_string() {
-    assert!(SuspendedRun::from_json("").is_err(), "empty string must be rejected");
+    assert!(
+        SuspendedRun::from_json("").is_err(),
+        "empty string must be rejected"
+    );
 }
 
 #[test]
 fn from_json_fails_on_malformed_json() {
-    assert!(SuspendedRun::from_json("{bad json}").is_err(), "malformed JSON must be rejected");
+    assert!(
+        SuspendedRun::from_json("{bad json}").is_err(),
+        "malformed JSON must be rejected"
+    );
 }
 
 #[test]

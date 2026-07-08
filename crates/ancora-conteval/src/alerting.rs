@@ -2,7 +2,6 @@
 ///
 /// Generates alerts when quality metrics cross configured thresholds
 /// or when negative trends are detected.
-
 use std::time::SystemTime;
 
 /// Severity of an alert.
@@ -31,7 +30,11 @@ pub enum AlertReason {
     /// A degrading trend was detected.
     DegradingTrend { slope: f64 },
     /// Score dropped sharply between consecutive observations.
-    SuddenDrop { previous: f64, current: f64, drop: f64 },
+    SuddenDrop {
+        previous: f64,
+        current: f64,
+        drop: f64,
+    },
 }
 
 /// A quality alert.
@@ -183,13 +186,7 @@ impl AlertEngine {
     }
 
     /// Raise an alert for a detected degrading trend.
-    pub fn raise_trend_alert(
-        &mut self,
-        model: &str,
-        provider: &str,
-        slope: f64,
-        now: SystemTime,
-    ) {
+    pub fn raise_trend_alert(&mut self, model: &str, provider: &str, slope: f64, now: SystemTime) {
         let config = match &self.config {
             Some(c) => c.clone(),
             None => return,

@@ -6,7 +6,6 @@
 /// without requiring a live server.
 ///
 /// Requires the `vespa` feature: `ancora-memory = { features = ["vespa"] }`.
-
 use serde_json::{json, Value};
 
 // ---- connection config ---------------------------------------------------
@@ -21,14 +20,22 @@ pub struct VespaConfig {
 
 impl VespaConfig {
     pub fn new(url: impl Into<String>, application: impl Into<String>) -> Self {
-        Self { url: url.into(), application: application.into(), api_key: None, timeout_secs: 30 }
+        Self {
+            url: url.into(),
+            application: application.into(),
+            api_key: None,
+            timeout_secs: 30,
+        }
     }
 
     pub fn with_api_key(mut self, key: impl Into<String>) -> Self {
-        self.api_key = Some(key.into()); self
+        self.api_key = Some(key.into());
+        self
     }
 
-    pub fn local() -> Self { Self::new("http://localhost:8080", "default") }
+    pub fn local() -> Self {
+        Self::new("http://localhost:8080", "default")
+    }
 
     pub fn auth_header(&self) -> Option<String> {
         self.api_key.as_ref().map(|k| format!("Bearer {k}"))
@@ -41,15 +48,21 @@ pub fn document_v1_url(base: &str, namespace: &str, doc_type: &str, doc_id: &str
     format!("{base}/document/v1/{namespace}/{doc_type}/docid/{doc_id}")
 }
 
-pub fn query_url(base: &str) -> String { format!("{base}/search/") }
+pub fn query_url(base: &str) -> String {
+    format!("{base}/search/")
+}
 
-pub fn feed_url(base: &str) -> String { format!("{base}/document/v1/") }
+pub fn feed_url(base: &str) -> String {
+    format!("{base}/document/v1/")
+}
 
 pub fn delete_url(base: &str, namespace: &str, doc_type: &str, doc_id: &str) -> String {
     format!("{base}/document/v1/{namespace}/{doc_type}/docid/{doc_id}")
 }
 
-pub fn status_url(base: &str) -> String { format!("{base}/state/v1/health") }
+pub fn status_url(base: &str) -> String {
+    format!("{base}/state/v1/health")
+}
 
 // ---- document body builders ---------------------------------------------
 
@@ -85,7 +98,9 @@ pub fn ann_query(
 }
 
 /// Build a BM25 keyword query.
-pub fn bm25_query(doc_type: &str, field: &str, text: &str, hits: usize) -> Value {
+// TODO(#follow-up): this doesn't scope the query to `field` yet (userQuery()
+// searches all fields). See follow-up task on vespa field-scoped BM25.
+pub fn bm25_query(doc_type: &str, _field: &str, text: &str, hits: usize) -> Value {
     json!({
         "yql": format!("select * from {doc_type} where userQuery()"),
         "query": text,
@@ -176,7 +191,13 @@ impl VespaError {
             .unwrap_or_else(|| body.to_owned());
         match status {
             401 | 403 => Self::Unauthorized,
-            400 | 404 => if status == 404 { Self::NotFound(msg) } else { Self::BadRequest(msg) },
+            400 | 404 => {
+                if status == 404 {
+                    Self::NotFound(msg)
+                } else {
+                    Self::BadRequest(msg)
+                }
+            }
             500..=599 => Self::InternalError(msg),
             _ => Self::Unknown(status, msg),
         }

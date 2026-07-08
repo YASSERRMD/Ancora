@@ -14,7 +14,8 @@ pub fn redact_if_required(
     text: &str,
 ) -> Result<String, PolicyError> {
     if policy.require_pii_redaction {
-        let r = redactor.ok_or_else(|| PolicyError::PiiDetected("no redactor configured".into()))?;
+        let r =
+            redactor.ok_or_else(|| PolicyError::PiiDetected("no redactor configured".into()))?;
         return Ok(r.redact(text));
     }
     Ok(text.to_owned())

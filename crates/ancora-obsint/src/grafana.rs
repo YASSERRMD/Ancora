@@ -1,5 +1,4 @@
 /// Grafana backend exporter: maps spans to Tempo and log records to Loki.
-
 use crate::otlp::{OtlpMetricPoint, OtlpSpan};
 
 #[derive(Debug, Clone)]
@@ -11,10 +10,7 @@ pub struct GrafanaConfig {
 }
 
 impl GrafanaConfig {
-    pub fn new(
-        tempo_endpoint: impl Into<String>,
-        loki_endpoint: impl Into<String>,
-    ) -> Self {
+    pub fn new(tempo_endpoint: impl Into<String>, loki_endpoint: impl Into<String>) -> Self {
         GrafanaConfig {
             tempo_endpoint: tempo_endpoint.into(),
             loki_endpoint: loki_endpoint.into(),

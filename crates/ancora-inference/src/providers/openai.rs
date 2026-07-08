@@ -7,7 +7,9 @@ pub fn build_openai_profile() -> ProviderProfile {
     ProviderProfile::new(
         "openai",
         "https://api.openai.com",
-        AuthStrategy::BearerToken { env_var: "OPENAI_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "OPENAI_API_KEY".to_owned(),
+        },
     )
     // GPT-4o family
     .add_model(

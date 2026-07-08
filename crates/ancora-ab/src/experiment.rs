@@ -1,4 +1,4 @@
-/// Defines an A/B experiment: its variants and the primary metric to optimize.
+//! Defines an A/B experiment: its variants and the primary metric to optimize.
 
 /// A single variant in an experiment.
 #[derive(Debug, Clone, PartialEq)]
@@ -36,7 +36,10 @@ pub struct Metric {
 
 impl Metric {
     pub fn new(name: impl Into<String>, kind: MetricKind) -> Self {
-        Metric { name: name.into(), kind }
+        Metric {
+            name: name.into(),
+            kind,
+        }
     }
 }
 

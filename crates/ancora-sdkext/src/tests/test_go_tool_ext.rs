@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use crate::go_interfaces::{
     canonical_go_interface, validate_go_return, GoCallEnvelope, GoExtensionAdapter, GoMethod,
 };
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
+use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -26,9 +26,7 @@ fn test_go_method_display() {
 fn test_go_adapter_dispatch_registered_handler() {
     let meta = ToolMeta::new("go_test_tool", "A test Go tool.", "1.0.0");
     let mut adapter = GoExtensionAdapter::new(meta);
-    adapter.register_handler("execute", |payload| {
-        Ok(format!("echoed: {payload}"))
-    });
+    adapter.register_handler("execute", |payload| Ok(format!("echoed: {payload}")));
 
     let envelope = GoCallEnvelope {
         extension_name: "go_test_tool".to_string(),

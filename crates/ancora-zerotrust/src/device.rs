@@ -45,7 +45,8 @@ impl DevicePosture {
     }
 
     pub fn compute_trust(&mut self) {
-        let score = self.os_up_to_date as u8 + self.antivirus_active as u8 + self.disk_encrypted as u8;
+        let score =
+            self.os_up_to_date as u8 + self.antivirus_active as u8 + self.disk_encrypted as u8;
         self.trust_level = match score {
             3 => TrustLevel::FullyTrusted,
             2 => TrustLevel::Trusted,
@@ -54,21 +55,46 @@ impl DevicePosture {
         };
     }
 
-    pub fn is_trusted(&self) -> bool { self.trust_level >= TrustLevel::Trusted }
+    pub fn is_trusted(&self) -> bool {
+        self.trust_level >= TrustLevel::Trusted
+    }
 }
 
 pub struct DeviceStore {
     devices: std::collections::HashMap<String, DevicePosture>,
 }
 
-impl DeviceStore {
-    pub fn new() -> Self { Self { devices: std::collections::HashMap::new() } }
-    pub fn upsert(&mut self, posture: DevicePosture) { self.devices.insert(posture.device_id.clone(), posture); }
-    pub fn get(&self, device_id: &str) -> Option<&DevicePosture> { self.devices.get(device_id) }
-    pub fn get_mut(&mut self, device_id: &str) -> Option<&mut DevicePosture> { self.devices.get_mut(device_id) }
-    pub fn trusted(&self) -> Vec<&DevicePosture> { self.devices.values().filter(|d| d.is_trusted()).collect() }
-    pub fn for_tenant(&self, tenant_id: &str) -> Vec<&DevicePosture> {
-        self.devices.values().filter(|d| d.tenant_id == tenant_id).collect()
+impl Default for DeviceStore {
+    fn default() -> Self {
+        Self::new()
     }
-    pub fn count(&self) -> usize { self.devices.len() }
+}
+
+impl DeviceStore {
+    pub fn new() -> Self {
+        Self {
+            devices: std::collections::HashMap::new(),
+        }
+    }
+    pub fn upsert(&mut self, posture: DevicePosture) {
+        self.devices.insert(posture.device_id.clone(), posture);
+    }
+    pub fn get(&self, device_id: &str) -> Option<&DevicePosture> {
+        self.devices.get(device_id)
+    }
+    pub fn get_mut(&mut self, device_id: &str) -> Option<&mut DevicePosture> {
+        self.devices.get_mut(device_id)
+    }
+    pub fn trusted(&self) -> Vec<&DevicePosture> {
+        self.devices.values().filter(|d| d.is_trusted()).collect()
+    }
+    pub fn for_tenant(&self, tenant_id: &str) -> Vec<&DevicePosture> {
+        self.devices
+            .values()
+            .filter(|d| d.tenant_id == tenant_id)
+            .collect()
+    }
+    pub fn count(&self) -> usize {
+        self.devices.len()
+    }
 }

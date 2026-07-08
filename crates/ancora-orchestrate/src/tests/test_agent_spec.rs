@@ -16,7 +16,7 @@ fn agent_task_with_parent() {
 
 #[test]
 fn agent_spec_with_tools() {
-    let spec = AgentSpec::new("a1", AgentRole::Critic, "critique")
-        .with_tools(vec!["search", "read"]);
+    let spec =
+        AgentSpec::new("a1", AgentRole::Critic, "critique").with_tools(vec!["search", "read"]);
     assert_eq!(spec.tools.len(), 2);
 }

@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::component::{Component, License};
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PolicyDecision {
@@ -8,7 +8,9 @@ pub enum PolicyDecision {
 }
 
 impl PolicyDecision {
-    pub fn is_allow(&self) -> bool { matches!(self, PolicyDecision::Allow) }
+    pub fn is_allow(&self) -> bool {
+        matches!(self, PolicyDecision::Allow)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -47,24 +49,40 @@ impl SupplyChainPolicy {
     }
 
     pub fn allow_supplier(mut self, supplier: impl Into<String>) -> Self {
-        self.allowed_suppliers.get_or_insert_with(HashSet::new).insert(supplier.into());
+        self.allowed_suppliers
+            .get_or_insert_with(HashSet::new)
+            .insert(supplier.into());
         self
     }
 
-    pub fn check_component(&self, component: &Component, has_sig: bool, has_prov: bool) -> PolicyDecision {
+    pub fn check_component(
+        &self,
+        component: &Component,
+        has_sig: bool,
+        has_prov: bool,
+    ) -> PolicyDecision {
         let lic_str = format!("{}", component.license);
         if self.deny_licenses.contains(&lic_str) {
             return PolicyDecision::Deny(format!("license {} is denied", lic_str));
         }
         if self.require_signature && !has_sig {
-            return PolicyDecision::Deny(format!("component {} lacks required signature", component.id));
+            return PolicyDecision::Deny(format!(
+                "component {} lacks required signature",
+                component.id
+            ));
         }
         if self.require_provenance && !has_prov {
-            return PolicyDecision::Deny(format!("component {} lacks required provenance", component.id));
+            return PolicyDecision::Deny(format!(
+                "component {} lacks required provenance",
+                component.id
+            ));
         }
         if let Some(allowed) = &self.allowed_suppliers {
             if !allowed.contains(component.supplier.as_str()) {
-                return PolicyDecision::Deny(format!("supplier {} not in allowlist", component.supplier));
+                return PolicyDecision::Deny(format!(
+                    "supplier {} not in allowlist",
+                    component.supplier
+                ));
             }
         }
         PolicyDecision::Allow

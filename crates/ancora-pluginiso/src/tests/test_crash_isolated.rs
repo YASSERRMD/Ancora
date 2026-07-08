@@ -8,7 +8,10 @@ fn plugin_crash_does_not_crash_host_in_isolated_mode() {
     let should_crash_host = handle.record_crash("null pointer dereference");
 
     // Host must NOT be told to crash.
-    assert!(!should_crash_host, "isolated crash must not propagate to host");
+    assert!(
+        !should_crash_host,
+        "isolated crash must not propagate to host"
+    );
     // Plugin should be marked as faulted.
     assert!(!handle.is_healthy());
     assert!(matches!(handle.health, PluginHealth::Faulted { .. }));

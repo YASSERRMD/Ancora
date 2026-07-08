@@ -1,4 +1,4 @@
-/// Evaluation module for scoring agent outputs against a test suite.
+//! Evaluation module for scoring agent outputs against a test suite.
 
 /// A single evaluation case with an expected outcome.
 #[derive(Debug, Clone)]
@@ -9,7 +9,11 @@ pub struct EvalCase {
 }
 
 impl EvalCase {
-    pub fn new(id: impl Into<String>, input: impl Into<String>, expected: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        input: impl Into<String>,
+        expected: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             input: input.into(),
@@ -28,11 +32,19 @@ pub struct EvalScore {
 
 impl EvalScore {
     pub fn pass(case_id: impl Into<String>) -> Self {
-        Self { case_id: case_id.into(), passed: true, score: 1.0 }
+        Self {
+            case_id: case_id.into(),
+            passed: true,
+            score: 1.0,
+        }
     }
 
     pub fn fail(case_id: impl Into<String>, score: f64) -> Self {
-        Self { case_id: case_id.into(), passed: false, score }
+        Self {
+            case_id: case_id.into(),
+            passed: false,
+            score,
+        }
     }
 }
 
@@ -104,7 +116,13 @@ pub fn run_eval_suite(suite_id: &str, cases: &[(EvalCase, String)]) -> EvalResul
 pub fn default_eval_suite() -> Vec<(EvalCase, String)> {
     vec![
         (EvalCase::new("c1", "What is 2+2?", "4"), "4".to_string()),
-        (EvalCase::new("c2", "Capital of France?", "Paris"), "Paris".to_string()),
-        (EvalCase::new("c3", "Opposite of hot?", "cold"), "cold".to_string()),
+        (
+            EvalCase::new("c2", "Capital of France?", "Paris"),
+            "Paris".to_string(),
+        ),
+        (
+            EvalCase::new("c3", "Opposite of hot?", "cold"),
+            "cold".to_string(),
+        ),
     ]
 }

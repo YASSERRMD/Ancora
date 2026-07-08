@@ -1,14 +1,28 @@
 use crate::component::{Component, ComponentKind, License};
+use crate::policy::SupplyChainPolicy;
+use crate::provenance::{ProvenanceKind, ProvenanceRecord, ProvenanceStore};
+use crate::report::SupplyChainReport;
 use crate::sbom::{Sbom, SbomFormat};
 use crate::signature::{ComponentSignature, SignatureAlgorithm, SignatureStore};
-use crate::provenance::{ProvenanceKind, ProvenanceRecord, ProvenanceStore};
-use crate::policy::SupplyChainPolicy;
-use crate::report::SupplyChainReport;
 fn make_component(id: &str, license: License) -> Component {
-    Component::new(id, "lib", "1.0", ComponentKind::Library, license, "vendor", "sha")
+    Component::new(
+        id,
+        "lib",
+        "1.0",
+        ComponentKind::Library,
+        license,
+        "vendor",
+        "sha",
+    )
 }
 fn make_sig(component_id: &str) -> ComponentSignature {
-    ComponentSignature::new(component_id, SignatureAlgorithm::Ed25519, "signer", "sig", 0)
+    ComponentSignature::new(
+        component_id,
+        SignatureAlgorithm::Ed25519,
+        "signer",
+        "sig",
+        0,
+    )
 }
 #[test]
 fn report_signed_count() {
@@ -33,7 +47,7 @@ fn report_denied_count_with_deny_policy() {
     let policy = SupplyChainPolicy::new("t1").deny_license(License::Gpl3);
     let report = SupplyChainReport::generate(&sbom, &sigs, &prov, &policy, 1);
     assert_eq!(report.denied_count, 1);
-    assert!(report.is_compliant() == false);
+    assert!(!report.is_compliant());
 }
 #[test]
 fn report_provenance_count() {
@@ -42,7 +56,13 @@ fn report_provenance_count() {
     sbom.add_component(make_component("c2", License::Apache2));
     let sigs = SignatureStore::new();
     let mut prov = ProvenanceStore::new();
-    prov.record(ProvenanceRecord::new("c1", ProvenanceKind::BuildSystem, "ci", "b1", 0));
+    prov.record(ProvenanceRecord::new(
+        "c1",
+        ProvenanceKind::BuildSystem,
+        "ci",
+        "b1",
+        0,
+    ));
     let policy = SupplyChainPolicy::new("t1");
     let report = SupplyChainReport::generate(&sbom, &sigs, &prov, &policy, 1);
     assert_eq!(report.provenance_count, 1);

@@ -1,7 +1,7 @@
 use crate::incident::{Incident, Severity};
+use crate::postmortem::Postmortem;
 use crate::runbook::{Runbook, RunbookStep};
 use crate::timeline::{IncidentTimeline, TimelineEvent, TimelineEventKind};
-use crate::postmortem::Postmortem;
 
 #[test]
 fn postmortem_no_runbook() {
@@ -21,7 +21,9 @@ fn postmortem_with_runbook() {
     let mut rb = Runbook::new("rb1", "Test", "i1");
     rb.add_step(RunbookStep::new("s1", "A", "Desc"));
     rb.add_step(RunbookStep::new("s2", "B", "Desc"));
-    if let Some(s) = rb.get_step_mut("s1") { s.complete(5); }
+    if let Some(s) = rb.get_step_mut("s1") {
+        s.complete(5);
+    }
     let tl = IncidentTimeline::new();
     let pm = Postmortem::generate(&i, Some(&rb), &tl, 100, "Bug", "Fix");
     assert_eq!(pm.steps_total, 2);
@@ -33,9 +35,27 @@ fn postmortem_with_runbook() {
 fn postmortem_timeline_events() {
     let i = Incident::new("i1", "t1", "Test", Severity::Low, 0);
     let mut tl = IncidentTimeline::new();
-    tl.add(TimelineEvent::new("i1", TimelineEventKind::Note, "u", "Note", 1));
-    tl.add(TimelineEvent::new("i1", TimelineEventKind::Note, "u", "Note2", 2));
-    tl.add(TimelineEvent::new("i2", TimelineEventKind::Note, "u", "Other", 3));
+    tl.add(TimelineEvent::new(
+        "i1",
+        TimelineEventKind::Note,
+        "u",
+        "Note",
+        1,
+    ));
+    tl.add(TimelineEvent::new(
+        "i1",
+        TimelineEventKind::Note,
+        "u",
+        "Note2",
+        2,
+    ));
+    tl.add(TimelineEvent::new(
+        "i2",
+        TimelineEventKind::Note,
+        "u",
+        "Other",
+        3,
+    ));
     let pm = Postmortem::generate(&i, None, &tl, 100, "R", "R");
     assert_eq!(pm.timeline_event_count, 2);
 }

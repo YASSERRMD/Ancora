@@ -18,9 +18,11 @@ pub fn render<T: Serialize>(value: &T, format: &OutputFormat) -> String {
 fn table_from_json<T: Serialize>(value: &T) -> String {
     let v = serde_json::to_value(value).unwrap_or(serde_json::Value::Null);
     match &v {
-        serde_json::Value::Array(arr) => {
-            arr.iter().map(|item| json_object_row(item)).collect::<Vec<_>>().join("\n")
-        }
+        serde_json::Value::Array(arr) => arr
+            .iter()
+            .map(json_object_row)
+            .collect::<Vec<_>>()
+            .join("\n"),
         serde_json::Value::Object(_) => json_object_row(&v),
         _ => v.to_string(),
     }

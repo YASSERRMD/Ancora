@@ -1,4 +1,4 @@
-use crate::long_context::{LongContextSuite, LongContextOutcome};
+use crate::long_context::{LongContextOutcome, LongContextSuite};
 
 #[test]
 fn long_context_default_catalog_all_pass() {

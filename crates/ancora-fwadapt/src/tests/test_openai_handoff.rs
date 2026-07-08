@@ -1,6 +1,4 @@
-use crate::openai_agents::{
-    build_handoff, HandoffBridge, HandoffError, OpenAIAgentResult,
-};
+use crate::openai_agents::{build_handoff, HandoffBridge, HandoffError, OpenAIAgentResult};
 
 fn translator_agent(ctx: &str) -> Result<OpenAIAgentResult, HandoffError> {
     Ok(OpenAIAgentResult {

@@ -40,8 +40,23 @@ impl AuditEvent {
         let actor = actor.into();
         let resource = resource.into();
         let decision = decision.into();
-        let signature = sign(&tenant_id, &actor, &resource, &decision, timestamp_secs, signing_key);
-        Self { timestamp_secs, kind, tenant_id, actor, resource, decision, signature }
+        let signature = sign(
+            &tenant_id,
+            &actor,
+            &resource,
+            &decision,
+            timestamp_secs,
+            signing_key,
+        );
+        Self {
+            timestamp_secs,
+            kind,
+            tenant_id,
+            actor,
+            resource,
+            decision,
+            signature,
+        }
     }
 
     pub fn verify(&self, signing_key: &[u8]) -> bool {

@@ -1,7 +1,7 @@
-/// Boot-time agent service logic for headless OS integration.
-///
-/// Handles the ordered boot sequence: config load, cgroup setup,
-/// model preload, socket bind, and readiness signal.
+//! Boot-time agent service logic for headless OS integration.
+//!
+//! Handles the ordered boot sequence: config load, cgroup setup,
+//! model preload, socket bind, and readiness signal.
 
 use std::time::{Duration, Instant};
 
@@ -78,7 +78,11 @@ pub struct BootRecord {
 impl BootRecord {
     pub fn new(phases: Vec<PhaseResult>, total_duration: Duration) -> Self {
         let boot_to_ready_ms = total_duration.as_millis() as u64;
-        BootRecord { phases, total_duration, boot_to_ready_ms }
+        BootRecord {
+            phases,
+            total_duration,
+            boot_to_ready_ms,
+        }
     }
 
     pub fn all_succeeded(&self) -> bool {
@@ -90,7 +94,10 @@ impl BootRecord {
     }
 
     pub fn phase_duration(&self, phase: &BootPhase) -> Option<Duration> {
-        self.phases.iter().find(|p| &p.phase == phase).map(|p| p.duration)
+        self.phases
+            .iter()
+            .find(|p| &p.phase == phase)
+            .map(|p| p.duration)
     }
 }
 

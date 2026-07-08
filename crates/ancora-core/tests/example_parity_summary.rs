@@ -22,12 +22,12 @@ const PARITY_TEST_FILES: &[&str] = &[
 ];
 
 const SCENARIOS_PER_LANGUAGE: &[(&str, usize)] = &[
-    ("rust",       17),
-    ("go",         15),
-    ("python",     14),
+    ("rust", 17),
+    ("go", 15),
+    ("python", 14),
     ("typescript", 13),
-    ("dotnet",     11),
-    ("java",       10),
+    ("dotnet", 11),
+    ("java", 10),
 ];
 
 #[test]
@@ -38,7 +38,10 @@ fn test_18_parity_test_files() {
 #[test]
 fn test_all_test_files_start_with_example_parity() {
     for f in PARITY_TEST_FILES {
-        assert!(f.starts_with("example_parity_"), "file should start with example_parity_: {f}");
+        assert!(
+            f.starts_with("example_parity_"),
+            "file should start with example_parity_: {f}"
+        );
     }
 }
 
@@ -52,7 +55,10 @@ fn test_no_duplicate_parity_test_files() {
 
 #[test]
 fn test_rust_covered_by_most_scenarios() {
-    let rust = SCENARIOS_PER_LANGUAGE.iter().find(|(l, _)| *l == "rust").unwrap();
+    let rust = SCENARIOS_PER_LANGUAGE
+        .iter()
+        .find(|(l, _)| *l == "rust")
+        .unwrap();
     for (_, count) in SCENARIOS_PER_LANGUAGE {
         assert!(rust.1 >= *count, "rust should have most coverage");
     }
@@ -66,6 +72,9 @@ fn test_all_six_languages_in_summary() {
 #[test]
 fn test_all_languages_covered_by_at_least_10_scenarios() {
     for (lang, count) in SCENARIOS_PER_LANGUAGE {
-        assert!(*count >= 10, "lang {lang} covered by only {count} parity scenarios");
+        assert!(
+            *count >= 10,
+            "lang {lang} covered by only {count} parity scenarios"
+        );
     }
 }

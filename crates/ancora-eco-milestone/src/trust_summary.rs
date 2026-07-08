@@ -15,7 +15,11 @@ pub struct TrustDimension {
 
 impl TrustDimension {
     pub const fn new(name: &'static str, level: TrustLevel, evidence: &'static str) -> Self {
-        Self { name, level, evidence }
+        Self {
+            name,
+            level,
+            evidence,
+        }
     }
 
     pub fn is_high(&self) -> bool {

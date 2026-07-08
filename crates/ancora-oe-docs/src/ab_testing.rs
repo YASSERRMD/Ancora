@@ -69,7 +69,10 @@ pub struct ExperimentResults {
 
 impl ExperimentResults {
     pub fn record(&mut self, variant: impl Into<String>, score: f64) {
-        self.metrics.entry(variant.into()).or_default().record(score);
+        self.metrics
+            .entry(variant.into())
+            .or_default()
+            .record(score);
     }
 
     /// Returns the variant with the highest mean score, if any.

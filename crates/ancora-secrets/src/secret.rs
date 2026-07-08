@@ -42,7 +42,9 @@ impl SecretVersion {
         self
     }
 
-    pub fn is_active(&self) -> bool { self.status == SecretStatus::Active }
+    pub fn is_active(&self) -> bool {
+        self.status == SecretStatus::Active
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -57,7 +59,13 @@ pub struct Secret {
 }
 
 impl Secret {
-    pub fn new(path: impl Into<String>, tenant_id: impl Into<String>, kind: SecretKind, initial_value: impl Into<String>, tick: u64) -> Self {
+    pub fn new(
+        path: impl Into<String>,
+        tenant_id: impl Into<String>,
+        kind: SecretKind,
+        initial_value: impl Into<String>,
+        tick: u64,
+    ) -> Self {
         let v = SecretVersion::new(1, initial_value, tick);
         Self {
             path: path.into(),
@@ -76,12 +84,15 @@ impl Secret {
     }
 
     pub fn active_value(&self) -> Option<&str> {
-        self.versions.iter()
+        self.versions
+            .iter()
             .find(|v| v.version == self.active_version && v.is_active())
             .map(|v| v.value.as_str())
     }
 
-    pub fn version_count(&self) -> usize { self.versions.len() }
+    pub fn version_count(&self) -> usize {
+        self.versions.len()
+    }
 
     pub fn is_expired(&self, current_tick: u64) -> bool {
         if let Some(ttl) = self.ttl_ticks {

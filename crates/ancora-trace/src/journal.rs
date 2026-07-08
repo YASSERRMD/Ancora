@@ -1,11 +1,10 @@
+use crate::genai_attrs;
 /// Journal-to-span bridge.
 ///
 /// Journal events record the ground truth of what happened during an agent
 /// run.  This module converts raw journal records into structured `Span`
 /// instances so the trace model can be assembled from persisted data.
-
 use crate::span::{Span, SpanId, SpanKind, SpanStatus, TraceId};
-use crate::genai_attrs;
 
 /// The kind of event recorded in the journal.
 #[derive(Debug, Clone, PartialEq)]
@@ -76,14 +75,10 @@ pub fn journal_event_to_span(event: &JournalEvent) -> Span {
 
 fn journal_kind_to_span_kind(kind: &JournalEventKind) -> SpanKind {
     match kind {
-        JournalEventKind::ToolCallStarted | JournalEventKind::ToolCallFinished => {
-            SpanKind::Client
-        }
+        JournalEventKind::ToolCallStarted | JournalEventKind::ToolCallFinished => SpanKind::Client,
         JournalEventKind::AgentHandoffStarted => SpanKind::Producer,
         JournalEventKind::AgentHandoffFinished => SpanKind::Consumer,
-        JournalEventKind::LlmCallStarted | JournalEventKind::LlmCallFinished => {
-            SpanKind::Client
-        }
+        JournalEventKind::LlmCallStarted | JournalEventKind::LlmCallFinished => SpanKind::Client,
         _ => SpanKind::Internal,
     }
 }
@@ -100,31 +95,20 @@ fn derive_status(meta: &JournalMetadata) -> SpanStatus {
 }
 
 fn apply_metadata_to_span(span: &mut Span, meta: &JournalMetadata) {
-    if let (Some(tid), Some(rid), Some(aid)) =
-        (&meta.tenant_id, &meta.run_id, &meta.agent_id)
-    {
+    if let (Some(tid), Some(rid), Some(aid)) = (&meta.tenant_id, &meta.run_id, &meta.agent_id) {
         genai_attrs::set_run_attrs(span, tid, rid, aid);
     }
     if let (Some(provider), Some(model)) = (&meta.provider, &meta.model) {
         genai_attrs::set_request_attrs(span, provider, model, None, None);
     }
     if let (Some(it), Some(ot)) = (meta.input_tokens, meta.output_tokens) {
-        genai_attrs::set_response_attrs(
-            span,
-            meta.model.as_deref().unwrap_or(""),
-            it,
-            ot,
-        );
+        genai_attrs::set_response_attrs(span, meta.model.as_deref().unwrap_or(""), it, ot);
     }
     if let Some(cost) = meta.cost_usd {
         genai_attrs::set_cost_attr(span, cost);
     }
     if let Some(ref ek) = meta.error_kind {
-        genai_attrs::set_error_attr(
-            span,
-            ek,
-            meta.retry_count.unwrap_or(0),
-        );
+        genai_attrs::set_error_attr(span, ek, meta.retry_count.unwrap_or(0));
     }
     if let Some(ref tn) = meta.tool_name {
         span.set_attr_str(genai_attrs::ANCORA_TOOL_NAME, tn.as_str());

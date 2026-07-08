@@ -22,12 +22,21 @@ struct ConsentGate {
 
 impl ConsentGate {
     fn new(required_for: Vec<ActionKind>) -> Self {
-        Self { state: ConsentState::NotRequested, required_for }
+        Self {
+            state: ConsentState::NotRequested,
+            required_for,
+        }
     }
 
-    fn request(&mut self) { self.state = ConsentState::Pending; }
-    fn grant(&mut self) { self.state = ConsentState::Granted; }
-    fn deny(&mut self) { self.state = ConsentState::Denied; }
+    fn request(&mut self) {
+        self.state = ConsentState::Pending;
+    }
+    fn grant(&mut self) {
+        self.state = ConsentState::Granted;
+    }
+    fn deny(&mut self) {
+        self.state = ConsentState::Denied;
+    }
 
     fn check(&self, action: &ActionKind) -> Result<(), String> {
         if self.required_for.contains(action) {

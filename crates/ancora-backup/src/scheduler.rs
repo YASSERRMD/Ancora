@@ -7,7 +7,10 @@ pub struct BackupSchedule {
 
 impl BackupSchedule {
     pub fn new(interval_secs: u64) -> Self {
-        Self { interval_secs, last_run_at: 0 }
+        Self {
+            interval_secs,
+            last_run_at: 0,
+        }
     }
 
     pub fn is_due(&self, now: u64) -> bool {

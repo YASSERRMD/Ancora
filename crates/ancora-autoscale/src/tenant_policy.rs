@@ -1,6 +1,5 @@
 use crate::bounds::TenantCap;
 use crate::decision::ScaleDecision;
-use crate::metrics::TenantMetrics;
 use std::collections::HashMap;
 
 /// Applies per-tenant caps on top of global scaling decisions.
@@ -36,7 +35,9 @@ impl TenantPolicyEngine {
             ScaleDecision::ScaleUp { by } => {
                 let desired = (current + by).min(cap);
                 if desired > current {
-                    ScaleDecision::ScaleUp { by: desired - current }
+                    ScaleDecision::ScaleUp {
+                        by: desired - current,
+                    }
                 } else {
                     ScaleDecision::NoOp {
                         reason: format!("tenant {} at cap {}", tenant_id, cap),

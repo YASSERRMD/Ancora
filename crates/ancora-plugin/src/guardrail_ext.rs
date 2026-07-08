@@ -1,4 +1,4 @@
-/// Guardrail extension point - intercept and filter agent inputs and outputs.
+//! Guardrail extension point - intercept and filter agent inputs and outputs.
 
 /// The kind of content being checked.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -66,7 +66,10 @@ pub struct BannedWordGuardrail {
 
 impl BannedWordGuardrail {
     pub fn new(id: impl Into<String>, banned: Vec<String>) -> Self {
-        Self { id: id.into(), banned }
+        Self {
+            id: id.into(),
+            banned,
+        }
     }
 }
 

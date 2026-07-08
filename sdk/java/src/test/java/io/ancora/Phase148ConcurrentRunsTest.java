@@ -95,10 +95,14 @@ class Phase148ConcurrentRunsTest {
             List<Future<Boolean>> futures = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
                 futures.add(pool.submit(() -> {
-                    Agent a = new Agent(rt);
-                    List<RunEvent> events = a.run(new AgentSpec("llama3", null, null, null, null)).collectAll();
-                    a.close();
-                    return events.get(events.size() - 1) instanceof RunEvent.Completed;
+                    try {
+                        Agent a = new Agent(rt);
+                        List<RunEvent> events = a.run(new AgentSpec("llama3", null, null, null, null)).collectAll();
+                        a.close();
+                        return events.get(events.size() - 1) instanceof RunEvent.Completed;
+                    } catch (Throwable t) {
+                        throw new RuntimeException(t);
+                    }
                 }));
             }
             pool.shutdown();
@@ -121,9 +125,13 @@ class Phase148ConcurrentRunsTest {
             ExecutorService pool = Executors.newFixedThreadPool(4);
             for (int i = 0; i < 10; i++) {
                 pool.submit(() -> {
-                    Agent a = new Agent(rt);
-                    ids.add(a.run(new AgentSpec("llama3", null, null, null, null)).runId());
-                    a.close();
+                    try {
+                        Agent a = new Agent(rt);
+                        ids.add(a.run(new AgentSpec("llama3", null, null, null, null)).runId());
+                        a.close();
+                    } catch (Throwable t) {
+                        throw new RuntimeException(t);
+                    }
                 });
             }
             pool.shutdown();

@@ -62,7 +62,9 @@ fn pinecone_activity_key_contains_pinecone() {
     let events = build_pinecone_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.activity_key.contains("pinecone"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -72,7 +74,9 @@ fn pinecone_input_has_index_namespace_environment() {
         assert!(a.input_json.contains("index_name"));
         assert!(a.input_json.contains("namespace"));
         assert!(a.input_json.contains("environment"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -83,7 +87,9 @@ fn pinecone_result_uses_id_and_score_fields() {
         let first = &v.as_array().unwrap()[0];
         assert!(first["id"].is_string());
         assert!(first["score"].is_number());
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -91,7 +97,9 @@ fn pinecone_result_metadata_has_text_field() {
     let events = build_pinecone_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("\"text\""));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -100,7 +108,9 @@ fn pinecone_result_has_two_matches() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v.as_array().unwrap().len(), 2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

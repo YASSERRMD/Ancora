@@ -14,7 +14,11 @@ pub struct AppStatus {
 
 impl AppStatus {
     pub fn ok(app_name: impl Into<String>, version: impl Into<String>) -> Self {
-        Self { app_name: app_name.into(), version: version.into(), result: AppRunResult::Ok }
+        Self {
+            app_name: app_name.into(),
+            version: version.into(),
+            result: AppRunResult::Ok,
+        }
     }
 
     pub fn is_ok(&self) -> bool {

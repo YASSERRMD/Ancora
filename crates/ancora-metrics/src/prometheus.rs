@@ -1,4 +1,8 @@
-use crate::{counter::RunCounters, gauge::{QueueDepthGauge, WorkerUtilizationGauge}, histogram::Histogram};
+use crate::{
+    counter::RunCounters,
+    gauge::{QueueDepthGauge, WorkerUtilizationGauge},
+    histogram::Histogram,
+};
 
 /// Render metrics in Prometheus text exposition format.
 pub fn render_counters(counters: &RunCounters, tenant: &str) -> String {

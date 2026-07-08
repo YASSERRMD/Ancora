@@ -17,7 +17,11 @@ fn quota_update_leaves_unset_fields_unchanged() {
 #[test]
 fn quota_update_applies_multiple_fields() {
     let mut quota = ResourceQuota::standard();
-    QuotaUpdate::new().agents(50).tasks(500).memory_mb(8192).apply(&mut quota);
+    QuotaUpdate::new()
+        .agents(50)
+        .tasks(500)
+        .memory_mb(8192)
+        .apply(&mut quota);
     assert_eq!(quota.max_agents, 50);
     assert_eq!(quota.max_tasks, 500);
     assert_eq!(quota.max_memory_mb, 8192);

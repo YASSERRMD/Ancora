@@ -53,7 +53,9 @@ struct AnthropicResponse {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 enum AnthropicStreamEvent {
-    ContentBlockDelta { delta: AnthropicDelta },
+    ContentBlockDelta {
+        delta: AnthropicDelta,
+    },
     MessageDelta,
     MessageStop,
     #[serde(other)]
@@ -82,8 +84,14 @@ pub(crate) struct AnthropicToolDef {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub(crate) enum AnthropicResponseBlock {
-    Text { text: String },
-    ToolUse { id: String, name: String, input: serde_json::Value },
+    Text {
+        text: String,
+    },
+    ToolUse {
+        id: String,
+        name: String,
+        input: serde_json::Value,
+    },
     #[serde(other)]
     Unknown,
 }
@@ -136,10 +144,16 @@ pub fn parse_sse_line(line: &str) -> Option<TokenEvent> {
     let event: AnthropicStreamEvent = serde_json::from_str(data).ok()?;
     match event {
         AnthropicStreamEvent::ContentBlockDelta { delta } if delta.kind == "text_delta" => {
-            Some(TokenEvent { text: delta.text, finished: false })
+            Some(TokenEvent {
+                text: delta.text,
+                finished: false,
+            })
         }
         AnthropicStreamEvent::MessageDelta | AnthropicStreamEvent::MessageStop => {
-            Some(TokenEvent { text: String::new(), finished: true })
+            Some(TokenEvent {
+                text: String::new(),
+                finished: true,
+            })
         }
         _ => None,
     }
@@ -151,7 +165,10 @@ pub fn parse_sse_line(line: &str) -> Option<TokenEvent> {
 /// not inside the `messages` array. The first `role=="system"` message is
 /// extracted; remaining messages are returned in order.
 pub(crate) fn extract_system(messages: &[Message]) -> (Option<String>, Vec<&Message>) {
-    let system = messages.iter().find(|m| m.role == "system").map(|m| m.content.clone());
+    let system = messages
+        .iter()
+        .find(|m| m.role == "system")
+        .map(|m| m.content.clone());
     let rest: Vec<&Message> = messages.iter().filter(|m| m.role != "system").collect();
     (system, rest)
 }
@@ -169,7 +186,10 @@ pub(crate) fn encode_message(msg: &Message) -> AnthropicRequestMessage {
             "tool_use_id": "",
             "content": msg.content
         }]);
-        return AnthropicRequestMessage { role: "user".to_owned(), content: block };
+        return AnthropicRequestMessage {
+            role: "user".to_owned(),
+            content: block,
+        };
     }
     if msg.content_parts.is_empty() {
         AnthropicRequestMessage {
@@ -177,27 +197,31 @@ pub(crate) fn encode_message(msg: &Message) -> AnthropicRequestMessage {
             content: serde_json::json!(msg.content),
         }
     } else {
-        let parts: Vec<serde_json::Value> = msg.content_parts.iter().map(|p| match p {
-            ContentPart::Text { text } => serde_json::json!({"type": "text", "text": text}),
-            ContentPart::ImageUrl { image_url } => {
-                // data: URLs are base64-encoded; Anthropic accepts them via the
-                // "base64" source type. Plain URLs use the "url" source type.
-                if let Some(rest) = image_url.url.strip_prefix("data:") {
-                    if let Some(idx) = rest.find(";base64,") {
-                        let media_type = &rest[..idx];
-                        let data = &rest[idx + 8..];
-                        return serde_json::json!({
-                            "type": "image",
-                            "source": {"type": "base64", "media_type": media_type, "data": data}
-                        });
+        let parts: Vec<serde_json::Value> = msg
+            .content_parts
+            .iter()
+            .map(|p| match p {
+                ContentPart::Text { text } => serde_json::json!({"type": "text", "text": text}),
+                ContentPart::ImageUrl { image_url } => {
+                    // data: URLs are base64-encoded; Anthropic accepts them via the
+                    // "base64" source type. Plain URLs use the "url" source type.
+                    if let Some(rest) = image_url.url.strip_prefix("data:") {
+                        if let Some(idx) = rest.find(";base64,") {
+                            let media_type = &rest[..idx];
+                            let data = &rest[idx + 8..];
+                            return serde_json::json!({
+                                "type": "image",
+                                "source": {"type": "base64", "media_type": media_type, "data": data}
+                            });
+                        }
                     }
+                    serde_json::json!({
+                        "type": "image",
+                        "source": {"type": "url", "url": image_url.url}
+                    })
                 }
-                serde_json::json!({
-                    "type": "image",
-                    "source": {"type": "url", "url": image_url.url}
-                })
-            }
-        }).collect();
+            })
+            .collect();
         AnthropicRequestMessage {
             role: msg.role.clone(),
             content: serde_json::json!(parts),
@@ -240,8 +264,8 @@ impl AnthropicClient {
             tools,
             stream: if stream { Some(true) } else { None },
         };
-        let mut body = serde_json::to_value(&wire)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let mut body =
+            serde_json::to_value(&wire).map_err(|e| InferenceError::Parse(e.to_string()))?;
         self.profile.request_transforms.apply(&mut body);
         Ok(body)
     }
@@ -260,8 +284,7 @@ impl AnthropicClient {
 
     fn post(&self, body: &serde_json::Value) -> Result<String, InferenceError> {
         let url = self.profile.completions_url(None);
-        let json = serde_json::to_string(body)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let json = serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let req = self.apply_auth(ureq::post(&url))?;
         req.set("Content-Type", "application/json")
             .send_string(&json)
@@ -276,8 +299,7 @@ impl AnthropicClient {
         on_token: &mut dyn FnMut(TokenEvent),
     ) -> Result<(), InferenceError> {
         let url = self.profile.completions_url(None);
-        let json = serde_json::to_string(body)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let json = serde_json::to_string(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let req = self.apply_auth(ureq::post(&url))?;
         let resp = req
             .set("Content-Type", "application/json")
@@ -303,8 +325,8 @@ impl AnthropicClient {
         body: &str,
         model_id: &str,
     ) -> Result<CompletionResponse, InferenceError> {
-        let wire: AnthropicResponse = serde_json::from_str(body)
-            .map_err(|e| InferenceError::Parse(e.to_string()))?;
+        let wire: AnthropicResponse =
+            serde_json::from_str(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
         let (content, tool_calls) = decode_tool_calls(wire.content);
         let tokens_in = wire.usage.input_tokens;
         let tokens_out = wire.usage.output_tokens;
@@ -312,7 +334,13 @@ impl AnthropicClient {
             .profile
             .model_meta(model_id)
             .and_then(|m| m.compute_cost(tokens_in, tokens_out, 0));
-        Ok(CompletionResponse { content, tokens_in, tokens_out, cost_usd, tool_calls })
+        Ok(CompletionResponse {
+            content,
+            tokens_in,
+            tokens_out,
+            cost_usd,
+            tool_calls,
+        })
     }
 }
 
@@ -424,13 +452,11 @@ mod tests {
 
     #[test]
     fn decode_tool_calls_extracts_tool_use_block() {
-        let blocks = vec![
-            AnthropicResponseBlock::ToolUse {
-                id: "toolu_01".to_owned(),
-                name: "get_weather".to_owned(),
-                input: serde_json::json!({"city": "Paris"}),
-            },
-        ];
+        let blocks = vec![AnthropicResponseBlock::ToolUse {
+            id: "toolu_01".to_owned(),
+            name: "get_weather".to_owned(),
+            input: serde_json::json!({"city": "Paris"}),
+        }];
         let (text, calls) = decode_tool_calls(blocks);
         assert!(text.is_empty());
         assert_eq!(calls.len(), 1);
@@ -442,8 +468,12 @@ mod tests {
     #[test]
     fn decode_tool_calls_collects_text_blocks() {
         let blocks = vec![
-            AnthropicResponseBlock::Text { text: "hello".to_owned() },
-            AnthropicResponseBlock::Text { text: " world".to_owned() },
+            AnthropicResponseBlock::Text {
+                text: "hello".to_owned(),
+            },
+            AnthropicResponseBlock::Text {
+                text: " world".to_owned(),
+            },
         ];
         let (text, calls) = decode_tool_calls(blocks);
         assert_eq!(text, "hello world");

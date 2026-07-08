@@ -1,5 +1,4 @@
 /// Additional crash isolation detail tests.
-
 use crate::plugin_e2e::{Plugin, PluginState, PluginTemplate};
 
 fn running_plugin(id: u64) -> Plugin {
@@ -13,9 +12,9 @@ fn running_plugin(id: u64) -> Plugin {
 
 #[test]
 fn test_crash_leaves_others_running() {
-    let mut p1 = running_plugin(100);
+    let p1 = running_plugin(100);
     let mut p2 = running_plugin(101);
-    let mut p3 = running_plugin(102);
+    let p3 = running_plugin(102);
     // Simulate crash of p2.
     p2.state = PluginState::Failed("oom".to_string());
     assert_eq!(p1.state, PluginState::Running);

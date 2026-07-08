@@ -1,9 +1,14 @@
 use crate::registry::SynthRegistry;
-use crate::spec::{ToolSpec, EffectClass};
+use crate::spec::{EffectClass, ToolSpec};
 use serde_json::json;
 
 fn make_spec(name: &str) -> ToolSpec {
-    ToolSpec::new(name, "desc", json!({ "type": "object" }), EffectClass::ReadOnly)
+    ToolSpec::new(
+        name,
+        "desc",
+        json!({ "type": "object" }),
+        EffectClass::ReadOnly,
+    )
 }
 
 #[test]

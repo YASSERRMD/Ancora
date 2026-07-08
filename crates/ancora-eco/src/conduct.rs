@@ -79,7 +79,9 @@ pub struct ConductRegistry {
 
 impl ConductRegistry {
     pub fn new() -> Self {
-        ConductRegistry { reports: Vec::new() }
+        ConductRegistry {
+            reports: Vec::new(),
+        }
     }
 
     pub fn submit(&mut self, report: ConductReport) {
@@ -118,13 +120,7 @@ mod tests {
 
     #[test]
     fn cannot_close_pending_report() {
-        let mut report = ConductReport::new(
-            2,
-            "r",
-            "a",
-            ViolationCategory::Harassment,
-            "Details",
-        );
+        let mut report = ConductReport::new(2, "r", "a", ViolationCategory::Harassment, "Details");
         assert!(report.close(false).is_err());
     }
 }

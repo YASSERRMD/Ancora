@@ -43,7 +43,8 @@ fn test_decommissioned_device_not_active() {
     let mut svc = DecommissionService::new();
 
     let id = DeviceId::new("dev-002");
-    svc.decommission(&mut registry, &id, DecommissionReason::Replaced).unwrap();
+    svc.decommission(&mut registry, &id, DecommissionReason::Replaced)
+        .unwrap();
 
     let identity = registry.get(&id).unwrap();
     assert!(!identity.is_active());

@@ -45,10 +45,6 @@ impl ThroughputTracker {
     }
 
     pub fn peak_rps(&self) -> f64 {
-        self.buckets
-            .values()
-            .copied()
-            .max()
-            .unwrap_or(0) as f64 / self.bucket_secs as f64
+        self.buckets.values().copied().max().unwrap_or(0) as f64 / self.bucket_secs as f64
     }
 }

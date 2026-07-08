@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::label::{DataCategory, SensitivityLevel};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct DataRecord {

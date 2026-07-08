@@ -1,7 +1,6 @@
 /// ancora-itk - Interop Test Kit
 ///
 /// Certifies extensions against conformance with pass-fail reports and badges.
-
 pub mod badge;
 pub mod exporter_kit;
 pub mod grader_kit;

@@ -2,7 +2,6 @@
 ///
 /// Encodes and decodes the W3C traceparent header format so that
 /// trace context can cross agent boundaries without external crates.
-
 use crate::span::{SpanId, TraceId};
 
 /// The propagated context passed in / out of an a2a boundary.
@@ -17,12 +16,20 @@ pub struct TraceContext {
 impl TraceContext {
     /// Create a sampled context.
     pub fn sampled(trace_id: TraceId, parent_span_id: SpanId) -> Self {
-        TraceContext { trace_id, parent_span_id, flags: 0x01 }
+        TraceContext {
+            trace_id,
+            parent_span_id,
+            flags: 0x01,
+        }
     }
 
     /// Create an unsampled context.
     pub fn unsampled(trace_id: TraceId, parent_span_id: SpanId) -> Self {
-        TraceContext { trace_id, parent_span_id, flags: 0x00 }
+        TraceContext {
+            trace_id,
+            parent_span_id,
+            flags: 0x00,
+        }
     }
 
     /// Returns true if the sampled flag is set.
@@ -55,7 +62,11 @@ impl TraceContext {
         let trace_id = TraceId(parts[1].to_owned());
         let parent_span_id = SpanId(parts[2].to_owned());
         let flags = u8::from_str_radix(parts[3], 16).ok()?;
-        Some(TraceContext { trace_id, parent_span_id, flags })
+        Some(TraceContext {
+            trace_id,
+            parent_span_id,
+            flags,
+        })
     }
 }
 
@@ -67,7 +78,9 @@ pub struct HeaderCarrier {
 
 impl HeaderCarrier {
     pub fn new() -> Self {
-        HeaderCarrier { headers: std::collections::HashMap::new() }
+        HeaderCarrier {
+            headers: std::collections::HashMap::new(),
+        }
     }
 
     /// Inject a context into the carrier.
@@ -101,10 +114,7 @@ mod tests {
 
     #[test]
     fn round_trip_traceparent() {
-        let ctx = TraceContext::sampled(
-            TraceId("abc123".into()),
-            SpanId("def456".into()),
-        );
+        let ctx = TraceContext::sampled(TraceId("abc123".into()), SpanId("def456".into()));
         let header = ctx.to_traceparent();
         let parsed = TraceContext::from_traceparent(&header).unwrap();
         assert_eq!(parsed, ctx);
@@ -112,10 +122,7 @@ mod tests {
 
     #[test]
     fn unsampled_flag() {
-        let ctx = TraceContext::unsampled(
-            TraceId("t1".into()),
-            SpanId("s1".into()),
-        );
+        let ctx = TraceContext::unsampled(TraceId("t1".into()), SpanId("s1".into()));
         assert!(!ctx.is_sampled());
     }
 

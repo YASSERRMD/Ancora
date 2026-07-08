@@ -1,10 +1,9 @@
+use crate::embedders::embedder::{EmbedError, EmbedResult, Embedder, Embedding, Reranker};
 /// Cohere embedding and reranking API helpers.
 ///
 /// Covers `POST /v2/embed` for embeddings and `POST /v2/rerank` for reranking.
 /// All helpers return descriptor `Value`s; no live HTTP calls are made here.
-
 use serde_json::{json, Value};
-use crate::embedders::embedder::{Embedding, EmbedError, EmbedResult, Embedder, Reranker};
 
 // ---- input type constants -----------------------------------------------
 
@@ -36,15 +35,20 @@ impl CohereConfig {
     }
 
     pub fn with_model(mut self, m: impl Into<String>) -> Self {
-        self.model = m.into(); self
+        self.model = m.into();
+        self
     }
 
     pub fn auth_header(&self) -> String {
         format!("Bearer {}", self.api_key)
     }
 
-    pub fn embed_url(&self) -> &'static str { "https://api.cohere.ai/v2/embed" }
-    pub fn rerank_url(&self) -> &'static str { "https://api.cohere.ai/v2/rerank" }
+    pub fn embed_url(&self) -> &'static str {
+        "https://api.cohere.ai/v2/embed"
+    }
+    pub fn rerank_url(&self) -> &'static str {
+        "https://api.cohere.ai/v2/rerank"
+    }
 }
 
 // ---- request body helpers -----------------------------------------------
@@ -76,12 +80,15 @@ pub fn parse_cohere_embeddings(body: &Value) -> EmbedResult<Vec<Embedding>> {
         .as_array()
         .ok_or_else(|| EmbedError::ParseError("missing embeddings.float".to_owned()))
         .map(|arr| {
-            arr.iter().map(|row| {
-                row.as_array().unwrap_or(&vec![])
-                    .iter()
-                    .map(|v| v.as_f64().unwrap_or(0.0) as f32)
-                    .collect()
-            }).collect()
+            arr.iter()
+                .map(|row| {
+                    row.as_array()
+                        .unwrap_or(&vec![])
+                        .iter()
+                        .map(|v| v.as_f64().unwrap_or(0.0) as f32)
+                        .collect()
+                })
+                .collect()
         })
 }
 
@@ -124,8 +131,12 @@ impl Embedder for CohereEmbedder {
         v[(h as usize) % self.dims] = 1.0;
         Ok(v)
     }
-    fn model_name(&self) -> &str { &self.config.model }
-    fn dims(&self) -> usize { self.dims }
+    fn model_name(&self) -> &str {
+        &self.config.model
+    }
+    fn dims(&self) -> usize {
+        self.dims
+    }
 }
 
 /// Offline stub implementing the Reranker trait for Cohere.
@@ -135,7 +146,9 @@ pub struct CohereReranker {
 }
 
 impl CohereReranker {
-    pub fn new(config: CohereConfig) -> Self { Self { config } }
+    pub fn new(config: CohereConfig) -> Self {
+        Self { config }
+    }
 }
 
 impl Reranker for CohereReranker {
@@ -143,7 +156,9 @@ impl Reranker for CohereReranker {
         // Offline stub: return descending scores.
         Ok((0..passages.len()).map(|i| 1.0 / (i + 1) as f32).collect())
     }
-    fn model_name(&self) -> &str { &self.config.rerank_model }
+    fn model_name(&self) -> &str {
+        &self.config.rerank_model
+    }
 }
 
 // ---- tests ---------------------------------------------------------------

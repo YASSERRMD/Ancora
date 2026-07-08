@@ -1,9 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 
 use ancora_core::journal::{JournalStore, MemoryStore};
-use ancora_proto::ancora::{
-    journal_event::Event, JournalEvent, RunStartedEvent,
-};
+use ancora_proto::ancora::{journal_event::Event, JournalEvent, RunStartedEvent};
 
 fn make_event(run_id: &str, seq: u64) -> JournalEvent {
     JournalEvent {
@@ -26,7 +24,9 @@ fn bench_journal_append(c: &mut Criterion) {
             b.iter(|| {
                 let store = MemoryStore::new();
                 for i in 0..n {
-                    store.append("bench-run", make_event("bench-run", i)).unwrap();
+                    store
+                        .append("bench-run", make_event("bench-run", i))
+                        .unwrap();
                 }
                 black_box(store.read("bench-run").unwrap().len())
             })

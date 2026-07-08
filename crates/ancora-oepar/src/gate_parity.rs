@@ -62,7 +62,11 @@ impl GateResult {
         }
     }
 
-    pub fn fail(language: impl Into<String>, gate_name: impl Into<String>, reason: impl Into<String>) -> Self {
+    pub fn fail(
+        language: impl Into<String>,
+        gate_name: impl Into<String>,
+        reason: impl Into<String>,
+    ) -> Self {
         Self {
             language: language.into(),
             gate_name: gate_name.into(),
@@ -89,9 +93,7 @@ pub fn check_gate_parity(results: &[GateResult]) -> Vec<String> {
                 if first.passed != other.passed {
                     issues.push(format!(
                         "gate {:?} outcome mismatch: {:?}={} vs {:?}={}",
-                        gate,
-                        first.language, first.passed,
-                        other.language, other.passed
+                        gate, first.language, first.passed, other.language, other.passed
                     ));
                 }
             }
@@ -119,7 +121,11 @@ pub fn run_gates(language: impl Into<String>, scores: &[(&str, f64)]) -> Vec<Gat
     gates
         .iter()
         .map(|gate| match score_map.get(gate.metric.as_str()) {
-            None => GateResult::fail(&lang, &gate.name, format!("metric {:?} not present", gate.metric)),
+            None => GateResult::fail(
+                &lang,
+                &gate.name,
+                format!("metric {:?} not present", gate.metric),
+            ),
             Some(&val) => match gate.check(val) {
                 Ok(()) => GateResult::pass(&lang, &gate.name),
                 Err(reason) => GateResult::fail(&lang, &gate.name, reason),

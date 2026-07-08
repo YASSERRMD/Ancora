@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
+    use crate::lifecycle::run_with_shutdown;
+    use crate::pool::WorkerPool;
+    use crate::shutdown::ShutdownSignal;
     use ancora_controlplane::model::RunPriority;
     use ancora_controlplane::store::ControlPlaneStore;
-    use crate::pool::WorkerPool;
-    use crate::lifecycle::run_with_shutdown;
-    use crate::shutdown::ShutdownSignal;
 
     #[test]
     fn graceful_shutdown_drains_active_runs() {

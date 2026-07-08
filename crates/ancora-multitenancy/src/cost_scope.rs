@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::tenant::TenantId;
+use std::collections::HashMap;
 
 /// In-memory cost ledger scoped per tenant.
 #[derive(Default)]

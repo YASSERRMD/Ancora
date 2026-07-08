@@ -11,5 +11,5 @@ pub mod tenant_policy;
 #[cfg(test)]
 mod tests;
 
-pub use policy::{ScalePolicy, ScaleDirection};
 pub use decision::ScaleDecision;
+pub use policy::{ScaleDirection, ScalePolicy};

@@ -1,8 +1,11 @@
-use ancora_preset::{assemble, coding_agent, customer_support, data_analysis, government_compliant, research_assistant};
+use ancora_preset::{
+    assemble, coding_agent, customer_support, data_analysis, government_compliant,
+    research_assistant,
+};
 
 #[test]
 fn all_five_presets_listed_in_catalog() {
-    let presets = vec![
+    let presets = [
         research_assistant(),
         coding_agent(),
         customer_support(),
@@ -19,7 +22,7 @@ fn all_five_presets_listed_in_catalog() {
 
 #[test]
 fn all_five_presets_assemble() {
-    let presets = vec![
+    let presets = [
         research_assistant(),
         coding_agent(),
         customer_support(),
@@ -27,6 +30,10 @@ fn all_five_presets_assemble() {
         government_compliant("us-gov-east-1"),
     ];
     for p in &presets {
-        assert!(assemble(p).is_ok(), "preset '{}' failed to assemble", p.name);
+        assert!(
+            assemble(p).is_ok(),
+            "preset '{}' failed to assemble",
+            p.name
+        );
     }
 }

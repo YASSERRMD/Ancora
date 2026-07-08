@@ -38,7 +38,7 @@ fn main() {
 
     let req = build_extraction_request(news_excerpt);
 
-    println!("Provider: {}", "glm");
+    println!("Provider: glm");
     println!("Model: {}", req.model_id);
     println!("JSON mode: active (response_format injected by profile transform)");
     println!();
@@ -49,7 +49,10 @@ fn main() {
 
     // Demonstrate the is_json_object validator
     let sample_output = r#"{"company_name":"Apple Inc.","founded_year":1976,"founder":"Steve Jobs","headquarters":"Cupertino, CA","products":["iPhone","Mac","iPad","Apple Watch"]}"#;
-    println!("Sample expected output validates as JSON object: {}", is_json_object(sample_output));
+    println!(
+        "Sample expected output validates as JSON object: {}",
+        is_json_object(sample_output)
+    );
     println!();
     println!("// To send the request (requires ZHIPU_API_KEY):");
     println!("// let resp = client.complete(&req)?;");

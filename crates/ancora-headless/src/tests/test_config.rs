@@ -19,13 +19,19 @@ fn test_config_json_roundtrip() {
 
 #[test]
 fn test_config_invalid_cpu() {
-    let cfg = HeadlessConfig { cgroup_cpu_percent: 0, ..HeadlessConfig::default() };
+    let cfg = HeadlessConfig {
+        cgroup_cpu_percent: 0,
+        ..HeadlessConfig::default()
+    };
     assert!(cfg.validate().is_err());
 }
 
 #[test]
 fn test_config_invalid_memory() {
-    let cfg = HeadlessConfig { cgroup_memory_mb: 32, ..HeadlessConfig::default() };
+    let cfg = HeadlessConfig {
+        cgroup_memory_mb: 32,
+        ..HeadlessConfig::default()
+    };
     assert!(cfg.validate().is_err());
 }
 

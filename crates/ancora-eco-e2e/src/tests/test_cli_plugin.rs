@@ -12,8 +12,12 @@ fn fail_handler(_args: &[&str]) -> Result<String, String> {
 fn test_cli_plugin_registers_and_runs() {
     let mut plugin = CliPlugin::new("my-cli");
     let cmd = CliCommand::new("echo", "Echoes arguments back");
-    plugin.register(cmd, echo_handler).expect("register must succeed");
-    let result = plugin.run("echo", &["hello", "world"]).expect("run must succeed");
+    plugin
+        .register(cmd, echo_handler)
+        .expect("register must succeed");
+    let result = plugin
+        .run("echo", &["hello", "world"])
+        .expect("run must succeed");
     assert_eq!(result, "hello world");
 }
 
@@ -27,7 +31,9 @@ fn test_cli_plugin_unknown_command() {
 #[test]
 fn test_cli_plugin_duplicate_command_fails() {
     let mut plugin = CliPlugin::new("dup-cli");
-    plugin.register(CliCommand::new("cmd", "first"), echo_handler).unwrap();
+    plugin
+        .register(CliCommand::new("cmd", "first"), echo_handler)
+        .unwrap();
     let result = plugin.register(CliCommand::new("cmd", "second"), echo_handler);
     assert!(result.is_err());
 }
@@ -35,7 +41,9 @@ fn test_cli_plugin_duplicate_command_fails() {
 #[test]
 fn test_cli_plugin_command_error_propagated() {
     let mut plugin = CliPlugin::new("err-cli");
-    plugin.register(CliCommand::new("fail", "always fails"), fail_handler).unwrap();
+    plugin
+        .register(CliCommand::new("fail", "always fails"), fail_handler)
+        .unwrap();
     let result = plugin.run("fail", &[]);
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("intentional failure"));
@@ -44,8 +52,12 @@ fn test_cli_plugin_command_error_propagated() {
 #[test]
 fn test_cli_plugin_list_commands() {
     let mut plugin = CliPlugin::new("list-cli");
-    plugin.register(CliCommand::new("z-cmd", "last"), echo_handler).unwrap();
-    plugin.register(CliCommand::new("a-cmd", "first"), echo_handler).unwrap();
+    plugin
+        .register(CliCommand::new("z-cmd", "last"), echo_handler)
+        .unwrap();
+    plugin
+        .register(CliCommand::new("a-cmd", "first"), echo_handler)
+        .unwrap();
     let cmds = plugin.list_commands();
     assert_eq!(cmds[0].name, "a-cmd");
     assert_eq!(cmds[1].name, "z-cmd");

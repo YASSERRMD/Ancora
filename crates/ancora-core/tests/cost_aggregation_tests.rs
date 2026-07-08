@@ -1,7 +1,10 @@
 use ancora_core::cost::{CostTracker, TokenUsage};
 
 fn usage(tokens_in: u64, tokens_out: u64) -> TokenUsage {
-    TokenUsage { tokens_in, tokens_out }
+    TokenUsage {
+        tokens_in,
+        tokens_out,
+    }
 }
 
 #[test]
@@ -24,8 +27,15 @@ fn single_node_cost_computed_correctly() {
     assert_eq!(summary.total_tokens_out, 50);
 
     let expected = 100.0 * 0.001 + 50.0 * 0.002;
-    let node = summary.nodes.iter().find(|n| n.node_id == "node-a").unwrap();
-    assert!((node.cost_usd - expected).abs() < 1e-9, "cost must match exact formula");
+    let node = summary
+        .nodes
+        .iter()
+        .find(|n| n.node_id == "node-a")
+        .unwrap();
+    assert!(
+        (node.cost_usd - expected).abs() < 1e-9,
+        "cost must match exact formula"
+    );
     assert!((summary.total_cost_usd - expected).abs() < 1e-9);
 }
 
@@ -50,7 +60,11 @@ fn repeated_records_for_same_node_accumulate() {
 
     assert_eq!(summary.total_tokens_in, 100);
     assert_eq!(summary.total_tokens_out, 50);
-    assert_eq!(summary.nodes.len(), 1, "same node must produce one NodeCost");
+    assert_eq!(
+        summary.nodes.len(),
+        1,
+        "same node must produce one NodeCost"
+    );
 }
 
 #[test]
@@ -98,9 +112,12 @@ fn cost_aggregation_is_accurate_for_large_counts() {
 fn node_cost_sum_equals_total_cost() {
     let mut tracker = CostTracker::new(0.01, 0.02);
     for i in 0..5 {
-        tracker.record(&format!("n{}", i), usage(100, 50));
+        tracker.record(format!("n{}", i), usage(100, 50));
     }
     let summary = tracker.summary();
     let node_sum: f64 = summary.nodes.iter().map(|n| n.cost_usd).sum();
-    assert!((node_sum - summary.total_cost_usd).abs() < 1e-9, "node sum must equal total");
+    assert!(
+        (node_sum - summary.total_cost_usd).abs() < 1e-9,
+        "node sum must equal total"
+    );
 }

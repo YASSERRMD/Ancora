@@ -11,7 +11,9 @@ pub fn build_mimo_profile(base_url: impl Into<String>) -> ProviderProfile {
     ProviderProfile::new(
         "mimo",
         base_url,
-        AuthStrategy::BearerToken { env_var: "MIMO_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "MIMO_API_KEY".to_owned(),
+        },
     )
     // MiMo-7B-RL -- RL-tuned reasoning variant
     .add_model(
@@ -49,23 +51,19 @@ pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
 
 /// Build a MiMo profile for a local no-auth endpoint (e.g., plain vLLM without token auth).
 pub fn build_mimo_noauth_profile(base_url: impl Into<String>) -> ProviderProfile {
-    ProviderProfile::new(
-        "mimo-local",
-        base_url,
-        AuthStrategy::None,
-    )
-    .add_model(
-        ModelMeta::new("mimo-7b-rl", 32_768)
-            .with_pricing(0.0, 0.0)
-            .with_streaming(),
-    )
-    .add_model(
-        ModelMeta::new("mimo-7b", 32_768)
-            .with_pricing(0.0, 0.0)
-            .with_streaming(),
-    )
-    .add_alias("rl", "mimo-7b-rl")
-    .add_alias("base", "mimo-7b")
+    ProviderProfile::new("mimo-local", base_url, AuthStrategy::None)
+        .add_model(
+            ModelMeta::new("mimo-7b-rl", 32_768)
+                .with_pricing(0.0, 0.0)
+                .with_streaming(),
+        )
+        .add_model(
+            ModelMeta::new("mimo-7b", 32_768)
+                .with_pricing(0.0, 0.0)
+                .with_streaming(),
+        )
+        .add_alias("rl", "mimo-7b-rl")
+        .add_alias("base", "mimo-7b")
 }
 
 /// Normalize a MiMo HTTP error to `InferenceError`.
@@ -82,9 +80,7 @@ mod tests {
 
     fn mimo_client() -> crate::openai::OpenAiClient {
         use std::sync::Arc;
-        crate::openai::OpenAiClient::new(Arc::new(
-            build_mimo_profile("http://localhost:8000/v1"),
-        ))
+        crate::openai::OpenAiClient::new(Arc::new(build_mimo_profile("http://localhost:8000/v1")))
     }
 
     #[test]
@@ -94,7 +90,9 @@ mod tests {
 
     #[test]
     fn mimo_recorded_fixture_completes() {
-        let resp = mimo_client().parse_response(MIMO_FIXTURE, "mimo-7b-rl").unwrap();
+        let resp = mimo_client()
+            .parse_response(MIMO_FIXTURE, "mimo-7b-rl")
+            .unwrap();
         assert_eq!(resp.content, "Hello from MiMo");
         assert_eq!(resp.tokens_in, 8);
         assert_eq!(resp.tokens_out, 5);

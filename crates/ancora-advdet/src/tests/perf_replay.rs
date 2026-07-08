@@ -1,7 +1,7 @@
-use ancora_ageval::{PlanningMetric, RoutingMetric};
+use ancora_ageval::RoutingMetric;
 use ancora_coord::CoordJournal;
 use ancora_orchestrate::fan_out;
-use ancora_reason::{ContradictionDetector, StepDecomposer};
+use ancora_reason::StepDecomposer;
 use serde_json::json;
 use std::time::Instant;
 
@@ -15,7 +15,11 @@ fn perf_fan_out_100_tasks_replay() {
 
     assert_eq!(tasks1.len(), 100);
     assert_eq!(tasks1.len(), tasks2.len());
-    assert!(elapsed.as_millis() < 500, "replay took {}ms", elapsed.as_millis());
+    assert!(
+        elapsed.as_millis() < 500,
+        "replay took {}ms",
+        elapsed.as_millis()
+    );
 }
 
 #[test]
@@ -28,7 +32,11 @@ fn perf_50_reasoning_steps_replay() {
 
     assert_eq!(s1.len(), 50);
     assert_eq!(s1.len(), s2.len());
-    assert!(elapsed.as_millis() < 200, "replay took {}ms", elapsed.as_millis());
+    assert!(
+        elapsed.as_millis() < 200,
+        "replay took {}ms",
+        elapsed.as_millis()
+    );
 }
 
 #[test]
@@ -45,7 +53,11 @@ fn perf_100_coord_journal_entries_replay() {
     let elapsed = start.elapsed();
 
     assert_eq!(r1.len(), r2.len());
-    assert!(elapsed.as_millis() < 100, "replay took {}ms", elapsed.as_millis());
+    assert!(
+        elapsed.as_millis() < 100,
+        "replay took {}ms",
+        elapsed.as_millis()
+    );
 }
 
 #[test]
@@ -57,5 +69,9 @@ fn perf_routing_score_1000_calls_stable() {
     }
     let elapsed = start.elapsed();
     assert_eq!(scores.len(), 1000);
-    assert!(elapsed.as_millis() < 100, "1000 routing scores took {}ms", elapsed.as_millis());
+    assert!(
+        elapsed.as_millis() < 100,
+        "1000 routing scores took {}ms",
+        elapsed.as_millis()
+    );
 }

@@ -1,11 +1,11 @@
-/// ancora-contrib: template scaffolding command
-///
-/// Provides a programmatic API for generating contribution scaffolds
-/// (directory layout, source stubs, test stubs, docs stub).
-///
-/// In a real CLI this would write files to disk; here the logic produces
-/// `ScaffoldOutput` values that can be inspected in tests without touching
-/// the filesystem.
+//! ancora-contrib: template scaffolding command
+//!
+//! Provides a programmatic API for generating contribution scaffolds
+//! (directory layout, source stubs, test stubs, docs stub).
+//!
+//! In a real CLI this would write files to disk; here the logic produces
+//! `ScaffoldOutput` values that can be inspected in tests without touching
+//! the filesystem.
 
 /// The kind of extension point to scaffold.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -31,8 +31,12 @@ impl ScaffoldKind {
             ScaffoldKind::Plugin => "plugin",
         }
     }
+}
 
-    pub fn from_str(s: &str) -> Result<Self, ScaffoldError> {
+impl std::str::FromStr for ScaffoldKind {
+    type Err = ScaffoldError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "provider" => Ok(ScaffoldKind::Provider),
             "vectorstore" | "vector_store" | "vector-store" => Ok(ScaffoldKind::VectorStore),
@@ -59,7 +63,11 @@ pub struct ScaffoldRequest {
 
 impl ScaffoldRequest {
     pub fn new(kind: ScaffoldKind, name: impl Into<String>) -> Self {
-        Self { kind, name: name.into(), author: None }
+        Self {
+            kind,
+            name: name.into(),
+            author: None,
+        }
     }
 
     pub fn with_author(mut self, author: impl Into<String>) -> Self {
@@ -173,12 +181,30 @@ pub fn scaffold(req: &ScaffoldRequest) -> Result<ScaffoldOutput, ScaffoldError> 
 
     Ok(ScaffoldOutput {
         files: vec![
-            GeneratedFile { path: "Cargo.toml".to_string(), content: cargo_toml },
-            GeneratedFile { path: format!("src/lib.rs"), content: src_lib },
-            GeneratedFile { path: format!("src/{snake}.rs"), content: src_impl },
-            GeneratedFile { path: "src/tests.rs".to_string(), content: src_test },
-            GeneratedFile { path: "docs/README.md".to_string(), content: docs_stub },
-            GeneratedFile { path: "src/conformance.rs".to_string(), content: conformance_stub },
+            GeneratedFile {
+                path: "Cargo.toml".to_string(),
+                content: cargo_toml,
+            },
+            GeneratedFile {
+                path: "src/lib.rs".to_string(),
+                content: src_lib,
+            },
+            GeneratedFile {
+                path: format!("src/{snake}.rs"),
+                content: src_impl,
+            },
+            GeneratedFile {
+                path: "src/tests.rs".to_string(),
+                content: src_test,
+            },
+            GeneratedFile {
+                path: "docs/README.md".to_string(),
+                content: docs_stub,
+            },
+            GeneratedFile {
+                path: "src/conformance.rs".to_string(),
+                content: conformance_stub,
+            },
         ],
     })
 }

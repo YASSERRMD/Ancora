@@ -1,7 +1,7 @@
-/// Local-first model registry.
-///
-/// Each sample app resolves its model through this registry so that
-/// no remote endpoint is ever contacted during offline or air-gapped runs.
+//! Local-first model registry.
+//!
+//! Each sample app resolves its model through this registry so that
+//! no remote endpoint is ever contacted during offline or air-gapped runs.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ModelBackend {
@@ -19,11 +19,7 @@ pub struct ModelDescriptor {
 }
 
 impl ModelDescriptor {
-    pub fn new(
-        id: impl Into<String>,
-        backend: ModelBackend,
-        context_tokens: usize,
-    ) -> Self {
+    pub fn new(id: impl Into<String>, backend: ModelBackend, context_tokens: usize) -> Self {
         Self {
             id: id.into(),
             backend,
@@ -104,12 +100,16 @@ mod tests {
         let mut registry = ModelRegistry::new();
         registry.register(ModelDescriptor::new(
             "qa-model",
-            ModelBackend::Stub { name: "qa-stub".to_string() },
+            ModelBackend::Stub {
+                name: "qa-stub".to_string(),
+            },
             4096,
         ));
         registry.register(ModelDescriptor::new(
             "code-model",
-            ModelBackend::LocalFile { path: "/models/code.gguf".to_string() },
+            ModelBackend::LocalFile {
+                path: "/models/code.gguf".to_string(),
+            },
             8192,
         ));
         assert_eq!(registry.local_models().len(), registry.count());

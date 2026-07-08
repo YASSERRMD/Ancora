@@ -1,4 +1,4 @@
-/// Drift detection module for detecting distribution shifts in inputs or outputs.
+//! Drift detection module for detecting distribution shifts in inputs or outputs.
 
 /// A simple numeric distribution summary.
 #[derive(Debug, Clone)]
@@ -17,7 +17,11 @@ impl DistributionStats {
         let mean = samples.iter().sum::<f64>() / count as f64;
         let variance = samples.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / count as f64;
         let std_dev = variance.sqrt();
-        Some(Self { mean, std_dev, count })
+        Some(Self {
+            mean,
+            std_dev,
+            count,
+        })
     }
 }
 
@@ -31,12 +35,18 @@ pub enum DriftStatus {
 }
 
 /// Detects drift between a baseline and a candidate distribution using mean z-score.
-pub fn detect_drift(baseline: &DistributionStats, candidate_mean: f64, threshold: f64) -> DriftStatus {
+pub fn detect_drift(
+    baseline: &DistributionStats,
+    candidate_mean: f64,
+    threshold: f64,
+) -> DriftStatus {
     if baseline.std_dev == 0.0 {
         if (candidate_mean - baseline.mean).abs() < f64::EPSILON {
             return DriftStatus::NoDrift;
         }
-        return DriftStatus::DriftDetected { z_score: f64::INFINITY };
+        return DriftStatus::DriftDetected {
+            z_score: f64::INFINITY,
+        };
     }
     let z = (candidate_mean - baseline.mean).abs() / baseline.std_dev;
     if z > threshold {
@@ -55,11 +65,17 @@ pub struct CategoryDriftDetector {
 
 impl CategoryDriftDetector {
     pub fn new(baseline_freq: std::collections::HashMap<String, f64>, threshold: f64) -> Self {
-        Self { baseline_freq, threshold }
+        Self {
+            baseline_freq,
+            threshold,
+        }
     }
 
     /// Returns the categories whose frequency shift exceeds the threshold.
-    pub fn shifted_categories(&self, candidate_freq: &std::collections::HashMap<String, f64>) -> Vec<String> {
+    pub fn shifted_categories(
+        &self,
+        candidate_freq: &std::collections::HashMap<String, f64>,
+    ) -> Vec<String> {
         let mut drifted = Vec::new();
         for (k, &base) in &self.baseline_freq {
             let cand = candidate_freq.get(k).copied().unwrap_or(0.0);

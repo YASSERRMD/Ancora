@@ -94,20 +94,27 @@ impl ControlPlaneStore {
             .runs
             .values()
             .filter(|r| {
-                tenant_filter.map_or(true, |t| r.tenant_id == t)
-                    && state_filter.map_or(true, |s| &r.state == s)
+                tenant_filter.is_none_or(|t| r.tenant_id == t)
+                    && state_filter.is_none_or(|s| &r.state == s)
             })
             .collect();
-        runs.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        runs.sort_by_key(|b| std::cmp::Reverse(b.created_at));
 
         let start = cursor
             .and_then(|c| runs.iter().position(|r| r.id == c.after_id))
             .map(|i| i + 1)
             .unwrap_or(0);
 
-        let items: Vec<Run> = runs.iter().skip(start).take(limit).map(|r| (*r).clone()).collect();
+        let items: Vec<Run> = runs
+            .iter()
+            .skip(start)
+            .take(limit)
+            .map(|r| (*r).clone())
+            .collect();
         let next_cursor = if start + limit < runs.len() {
-            items.last().map(|r| PageCursor { after_id: r.id.clone() })
+            items.last().map(|r| PageCursor {
+                after_id: r.id.clone(),
+            })
         } else {
             None
         };
@@ -115,7 +122,10 @@ impl ControlPlaneStore {
     }
 
     pub fn cancel_run(&mut self, id: &str) -> Result<(), StoreError> {
-        let run = self.runs.get_mut(id).ok_or_else(|| StoreError::RunNotFound(id.to_string()))?;
+        let run = self
+            .runs
+            .get_mut(id)
+            .ok_or_else(|| StoreError::RunNotFound(id.to_string()))?;
         match run.state {
             RunState::Queued | RunState::Assigned | RunState::Running | RunState::Paused => {
                 run.state = RunState::Cancelled;
@@ -127,7 +137,10 @@ impl ControlPlaneStore {
     }
 
     pub fn pause_run(&mut self, id: &str) -> Result<(), StoreError> {
-        let run = self.runs.get_mut(id).ok_or_else(|| StoreError::RunNotFound(id.to_string()))?;
+        let run = self
+            .runs
+            .get_mut(id)
+            .ok_or_else(|| StoreError::RunNotFound(id.to_string()))?;
         match run.state {
             RunState::Running => {
                 run.state = RunState::Paused;
@@ -139,7 +152,10 @@ impl ControlPlaneStore {
     }
 
     pub fn resume_run(&mut self, id: &str, decision: ResumeDecision) -> Result<(), StoreError> {
-        let run = self.runs.get_mut(id).ok_or_else(|| StoreError::RunNotFound(id.to_string()))?;
+        let run = self
+            .runs
+            .get_mut(id)
+            .ok_or_else(|| StoreError::RunNotFound(id.to_string()))?;
         if !decision.approved {
             run.state = RunState::Cancelled;
             run.updated_at = Utc::now();

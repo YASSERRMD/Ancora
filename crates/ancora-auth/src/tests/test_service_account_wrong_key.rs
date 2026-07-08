@@ -3,8 +3,15 @@ use crate::{ServiceAccount, ServiceAccountError, ServiceAccountRegistry};
 #[test]
 fn wrong_key_returns_invalid_key_error() {
     let mut reg = ServiceAccountRegistry::new();
-    reg.register(ServiceAccount::new("svc-2", "tenant-y", "correct-hash", "desc"));
-    let err = reg.authenticate("svc-2", "wrong-hash", 1000, 0).unwrap_err();
+    reg.register(ServiceAccount::new(
+        "svc-2",
+        "tenant-y",
+        "correct-hash",
+        "desc",
+    ));
+    let err = reg
+        .authenticate("svc-2", "wrong-hash", 1000, 0)
+        .unwrap_err();
     assert_eq!(err, ServiceAccountError::InvalidKey);
 }
 

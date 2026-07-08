@@ -1,5 +1,5 @@
-use std::collections::{HashMap, HashSet};
 use crate::measurement::MeasurementKind;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PolicyEffect {
@@ -49,7 +49,7 @@ impl BootPolicy {
         }
         self.allowed_digests
             .get(name)
-            .map_or(false, |s| s.contains(digest))
+            .is_some_and(|s| s.contains(digest))
     }
 
     pub fn required_kinds_met(&self, present_kinds: &HashSet<String>) -> bool {
@@ -62,10 +62,28 @@ pub struct PolicyStore {
     policies: HashMap<String, BootPolicy>,
 }
 
+impl Default for PolicyStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PolicyStore {
-    pub fn new() -> Self { Self { policies: HashMap::new() } }
-    pub fn insert(&mut self, policy: BootPolicy) { self.policies.insert(policy.tenant_id.clone(), policy); }
-    pub fn get(&self, tenant_id: &str) -> Option<&BootPolicy> { self.policies.get(tenant_id) }
-    pub fn remove(&mut self, tenant_id: &str) -> Option<BootPolicy> { self.policies.remove(tenant_id) }
-    pub fn count(&self) -> usize { self.policies.len() }
+    pub fn new() -> Self {
+        Self {
+            policies: HashMap::new(),
+        }
+    }
+    pub fn insert(&mut self, policy: BootPolicy) {
+        self.policies.insert(policy.tenant_id.clone(), policy);
+    }
+    pub fn get(&self, tenant_id: &str) -> Option<&BootPolicy> {
+        self.policies.get(tenant_id)
+    }
+    pub fn remove(&mut self, tenant_id: &str) -> Option<BootPolicy> {
+        self.policies.remove(tenant_id)
+    }
+    pub fn count(&self) -> usize {
+        self.policies.len()
+    }
 }

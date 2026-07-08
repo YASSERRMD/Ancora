@@ -1,6 +1,6 @@
 use ancora_netpol::{
-    ConnectionRequest, EvaluationRecord, NetpolAuditLog, NetpolStats,
-    NetworkPolicy, PolicyEvaluator, PolicyValidator, RuleBuilder, presets,
+    presets, ConnectionRequest, EvaluationRecord, NetpolAuditLog, NetpolStats, NetworkPolicy,
+    PolicyEvaluator, PolicyValidator, RuleBuilder,
 };
 
 fn main() {
@@ -34,10 +34,12 @@ fn main() {
     if issues.is_empty() {
         println!("Policy is valid: {} rules", policy.rule_count());
     } else {
-        for issue in &issues { println!("Issue: {}", issue.description); }
+        for issue in &issues {
+            println!("Issue: {}", issue.description);
+        }
     }
 
-    let requests = vec![
+    let requests = [
         ConnectionRequest::tcp(tenant, "agent-01", "api.stripe.com", 443),
         ConnectionRequest::tcp(tenant, "agent-01", "db.internal.acme.corp", 80),
         ConnectionRequest::tcp(tenant, "agent-02", "malware.example.com", 443),
@@ -70,7 +72,13 @@ fn main() {
     println!("\nPreset: HTTPS-only policy");
     let https_policy = presets::allow_https_only("demo-tenant");
     let test_req = ConnectionRequest::tcp("demo-tenant", "agent", "api.example.com", 443);
-    println!("  443 allowed: {}", PolicyEvaluator::is_allowed(&https_policy, &test_req));
+    println!(
+        "  443 allowed: {}",
+        PolicyEvaluator::is_allowed(&https_policy, &test_req)
+    );
     let http_req = ConnectionRequest::tcp("demo-tenant", "agent", "api.example.com", 80);
-    println!("   80 denied: {}", !PolicyEvaluator::is_allowed(&https_policy, &http_req));
+    println!(
+        "   80 denied: {}",
+        !PolicyEvaluator::is_allowed(&https_policy, &http_req)
+    );
 }

@@ -51,5 +51,8 @@ fn error_contains_version_information() {
     let m = make_manifest(SemVer::new(2, 0, 0), SemVer::new(3, 0, 0));
     let err = check_compatibility(&m, &SemVer::new(1, 0, 0)).unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("1.0.0"), "error should mention the sdk version: {msg}");
+    assert!(
+        msg.contains("1.0.0"),
+        "error should mention the sdk version: {msg}"
+    );
 }

@@ -69,7 +69,14 @@ impl RuleBuilder {
     }
 
     pub fn build(self) -> NetworkRule {
-        NetworkRule::new(self.id, self.host_pattern, self.port, self.protocol, self.effect, self.priority)
-            .with_description(self.description)
+        NetworkRule::new(
+            self.id,
+            self.host_pattern,
+            self.port,
+            self.protocol,
+            self.effect,
+            self.priority,
+        )
+        .with_description(self.description)
     }
 }

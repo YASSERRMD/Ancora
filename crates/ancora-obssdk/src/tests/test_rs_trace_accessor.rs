@@ -1,5 +1,5 @@
-use crate::rs_helpers::{RsCostAccessor, RsTraceAccessor};
 use crate::context::CostRecord;
+use crate::rs_helpers::{RsCostAccessor, RsTraceAccessor};
 
 #[test]
 fn rs_trace_accessor_returns_spans() {

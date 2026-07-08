@@ -6,7 +6,6 @@
 ///
 /// No live LLM or tool calls are made.  The "re-run" is a purely structural
 /// operation on in-memory journal data.
-
 use crate::branch::{Branch, BranchError};
 use crate::loader::{EntryKind, Journal, JournalEntry, RunId, Seq};
 
@@ -108,7 +107,10 @@ mod tests {
         JournalEntry::new(
             RunId::new(run),
             seq,
-            EntryKind::StateChange { from: from.into(), to: to.into() },
+            EntryKind::StateChange {
+                from: from.into(),
+                to: to.into(),
+            },
         )
     }
 

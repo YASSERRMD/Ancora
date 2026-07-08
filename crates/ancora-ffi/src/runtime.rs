@@ -8,19 +8,26 @@ use crate::tool_registry::ToolRegistry;
 
 /// Allocate a new runtime. The caller owns the returned pointer.
 /// Returns null on allocation failure.
+///
+/// # Safety
+/// The caller must eventually free the returned pointer exactly once with
+/// `ancora_free_runtime` (if non-null), and must not use it afterward.
 #[no_mangle]
-pub extern "C" fn ancora_create_runtime() -> *mut AncorRuntime {
-    let boxed: Box<InnerRuntime> = Box::new(InnerRuntime::new());
+pub unsafe extern "C" fn ancora_create_runtime() -> *mut AncorRuntime {
+    let boxed: Box<InnerRuntime> = Box::default();
     Box::into_raw(boxed).cast()
 }
 
 /// Allocate a runtime and write the pointer to `out`. Returns `NullPtr` if `out` is null.
+///
+/// # Safety
+/// `out` must point to valid, writable memory for a pointer.
 #[no_mangle]
-pub extern "C" fn ancora_runtime_new(out: *mut *mut AncorRuntime) -> AncorErrorCode {
+pub unsafe extern "C" fn ancora_runtime_new(out: *mut *mut AncorRuntime) -> AncorErrorCode {
     if out.is_null() {
         return AncorErrorCode::NullPtr;
     }
-    let boxed: Box<InnerRuntime> = Box::new(InnerRuntime::new());
+    let boxed: Box<InnerRuntime> = Box::default();
     unsafe { *out = Box::into_raw(boxed).cast() };
     AncorErrorCode::Ok
 }
@@ -28,8 +35,11 @@ pub extern "C" fn ancora_runtime_new(out: *mut *mut AncorRuntime) -> AncorErrorC
 /// Allocate a runtime with serialized config bytes and write pointer to `out`.
 /// Config bytes are currently ignored (reserved for future use).
 /// Returns `NullPtr` if `out` is null.
+///
+/// # Safety
+/// `out` must point to valid, writable memory for a pointer.
 #[no_mangle]
-pub extern "C" fn ancora_runtime_new_with_config(
+pub unsafe extern "C" fn ancora_runtime_new_with_config(
     _config_bytes: *const u8,
     _config_len: usize,
     out: *mut *mut AncorRuntime,
@@ -39,8 +49,12 @@ pub extern "C" fn ancora_runtime_new_with_config(
 
 /// Free a runtime previously created by `ancora_create_runtime`.
 /// Passing null is a no-op.
+///
+/// # Safety
+/// `ptr` must have been returned by `ancora_create_runtime`/`ancora_runtime_new`
+/// (or be null), must not be freed more than once, and must not be used afterward.
 #[no_mangle]
-pub extern "C" fn ancora_free_runtime(ptr: *mut AncorRuntime) {
+pub unsafe extern "C" fn ancora_free_runtime(ptr: *mut AncorRuntime) {
     if ptr.is_null() {
         return;
     }
@@ -53,6 +67,12 @@ pub(crate) struct InnerRuntime {
     pub runs: Mutex<HashMap<String, InnerRun>>,
     pub tools: Mutex<ToolRegistry>,
     _store: ancora_core::journal::MemoryStore,
+}
+
+impl Default for InnerRuntime {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl InnerRuntime {

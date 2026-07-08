@@ -15,7 +15,11 @@ pub struct AutoRequeue {
 
 impl AutoRequeue {
     pub fn new(max_attempts: u32) -> Self {
-        Self { max_attempts, queue: VecDeque::new(), counters: Default::default() }
+        Self {
+            max_attempts,
+            queue: VecDeque::new(),
+            counters: Default::default(),
+        }
     }
 
     pub fn enqueue(&mut self, run_id: &str, now: u64, backoff_secs: u64) -> bool {

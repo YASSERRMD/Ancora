@@ -1,11 +1,10 @@
 //! Tests: plugin overhead within target thresholds.
 
 use crate::plugin_load::{load_plugin, within_target as load_within_target, LOAD_TARGET_US};
-use crate::plugin_wasm::{call_wasm, WasmModule, WasmPayload, within_target as wasm_within_target};
 use crate::plugin_subprocess::{
-    call_subprocess, SubprocessConfig, SubprocessHandle,
-    within_target as subprocess_within_target,
+    call_subprocess, within_target as subprocess_within_target, SubprocessConfig, SubprocessHandle,
 };
+use crate::plugin_wasm::{call_wasm, within_target as wasm_within_target, WasmModule, WasmPayload};
 
 #[test]
 fn plugin_load_within_target() {
@@ -24,11 +23,7 @@ fn wasm_call_within_target() {
     let m = WasmModule::new("bench-wasm", 2);
     let payload = WasmPayload::new(b"benchmark-input");
     let r = call_wasm(&m, "execute", payload).expect("wasm call should succeed");
-    assert!(
-        wasm_within_target(&r),
-        "wasm call took {:?}",
-        r.elapsed
-    );
+    assert!(wasm_within_target(&r), "wasm call took {:?}", r.elapsed);
 }
 
 #[test]

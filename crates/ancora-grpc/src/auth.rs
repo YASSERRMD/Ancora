@@ -7,7 +7,9 @@ pub struct AuthConfig {
 
 impl AuthConfig {
     pub fn new(token: impl Into<String>) -> Self {
-        Self { token: token.into() }
+        Self {
+            token: token.into(),
+        }
     }
 }
 
@@ -19,7 +21,9 @@ pub struct AuthInterceptor {
 
 impl AuthInterceptor {
     pub fn new(token: impl Into<String>) -> Self {
-        Self { expected: token.into() }
+        Self {
+            expected: token.into(),
+        }
     }
 }
 
@@ -49,10 +53,8 @@ mod tests {
 
     fn req_with_token(token: &str) -> Request<()> {
         let mut req = Request::new(());
-        req.metadata_mut().insert(
-            "authorization",
-            format!("Bearer {token}").parse().unwrap(),
-        );
+        req.metadata_mut()
+            .insert("authorization", format!("Bearer {token}").parse().unwrap());
         req
     }
 
@@ -81,7 +83,8 @@ mod tests {
     fn token_without_bearer_prefix_returns_unauthenticated() {
         let mut interceptor = AuthInterceptor::new("secret");
         let mut req = Request::new(());
-        req.metadata_mut().insert("authorization", "secret".parse().unwrap());
+        req.metadata_mut()
+            .insert("authorization", "secret".parse().unwrap());
         let err = interceptor.call(req).unwrap_err();
         assert_eq!(err.code(), tonic::Code::Unauthenticated);
     }

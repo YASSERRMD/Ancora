@@ -1,5 +1,5 @@
-use crate::tenant::Tenant;
 use crate::quota::ResourceQuota;
+use crate::tenant::Tenant;
 
 pub struct TenantBuilder {
     id: String,
@@ -32,7 +32,9 @@ impl TenantBuilder {
 
     pub fn build(self) -> (Tenant, ResourceQuota) {
         let mut tenant = Tenant::new(self.id, self.name, self.created_tick);
-        for (k, v) in self.metadata { tenant = tenant.with_metadata(k, v); }
+        for (k, v) in self.metadata {
+            tenant = tenant.with_metadata(k, v);
+        }
         let quota = self.quota.unwrap_or_else(ResourceQuota::standard);
         (tenant, quota)
     }

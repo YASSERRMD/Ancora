@@ -1,4 +1,4 @@
-use crate::cli::{CliOutput, run_command, parse_command, CliCommand};
+use crate::cli::{parse_command, run_command, CliCommand, CliOutput};
 use crate::service::{RegistryConfig, RegistryService};
 use crate::versioning::Version;
 
@@ -38,14 +38,22 @@ fn cli_fetch_missing_returns_error() {
 #[test]
 fn cli_search_returns_lines() {
     let mut svc = RegistryService::new(RegistryConfig::default());
-    let _ = run_command(&mut svc, CliCommand::Publish {
-        name: "searchable-tool".to_string(),
-        version: Version::new(1, 0, 0),
-        payload: b"x".to_vec(),
-        publisher: "ci".to_string(),
-        signature: None,
-    });
-    let out = run_command(&mut svc, CliCommand::Search { term: "searchable".to_string() });
+    let _ = run_command(
+        &mut svc,
+        CliCommand::Publish {
+            name: "searchable-tool".to_string(),
+            version: Version::new(1, 0, 0),
+            payload: b"x".to_vec(),
+            publisher: "ci".to_string(),
+            signature: None,
+        },
+    );
+    let out = run_command(
+        &mut svc,
+        CliCommand::Search {
+            term: "searchable".to_string(),
+        },
+    );
     assert!(matches!(out, CliOutput::Lines(_)));
     if let CliOutput::Lines(lines) = out {
         assert!(!lines.is_empty());
@@ -72,14 +80,22 @@ fn parse_command_unknown_returns_err() {
 #[test]
 fn cli_versions_command() {
     let mut svc = RegistryService::new(RegistryConfig::default());
-    let _ = run_command(&mut svc, CliCommand::Publish {
-        name: "versioned-tool".to_string(),
-        version: Version::new(1, 0, 0),
-        payload: b"v1".to_vec(),
-        publisher: "ci".to_string(),
-        signature: None,
-    });
-    let out = run_command(&mut svc, CliCommand::Versions { name: "versioned-tool".to_string() });
+    let _ = run_command(
+        &mut svc,
+        CliCommand::Publish {
+            name: "versioned-tool".to_string(),
+            version: Version::new(1, 0, 0),
+            payload: b"v1".to_vec(),
+            publisher: "ci".to_string(),
+            signature: None,
+        },
+    );
+    let out = run_command(
+        &mut svc,
+        CliCommand::Versions {
+            name: "versioned-tool".to_string(),
+        },
+    );
     if let CliOutput::Lines(lines) = out {
         assert!(lines.contains(&"1.0.0".to_string()));
     } else {

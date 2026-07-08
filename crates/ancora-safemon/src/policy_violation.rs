@@ -1,7 +1,7 @@
-/// Policy violation detection for agent outputs.
-///
-/// Checks text against a configurable set of policy rules.
-/// Rules can be keyword-based or pattern-based.
+//! Policy violation detection for agent outputs.
+//!
+//! Checks text against a configurable set of policy rules.
+//! Rules can be keyword-based or pattern-based.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ViolationKind {
@@ -27,7 +27,12 @@ pub struct PolicyRule {
 }
 
 impl PolicyRule {
-    pub fn new(id: impl Into<String>, kind: ViolationKind, keywords: Vec<&str>, description: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        kind: ViolationKind,
+        keywords: Vec<&str>,
+        description: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             kind,
@@ -52,7 +57,12 @@ impl PolicyViolationDetector {
             PolicyRule::new(
                 "POL-001",
                 ViolationKind::ConfidentialDataExposure,
-                vec!["confidential", "proprietary", "trade secret", "internal only"],
+                vec![
+                    "confidential",
+                    "proprietary",
+                    "trade secret",
+                    "internal only",
+                ],
                 "Confidential data exposure",
             ),
             PolicyRule::new(
@@ -64,7 +74,11 @@ impl PolicyViolationDetector {
             PolicyRule::new(
                 "POL-003",
                 ViolationKind::RestrictedInstruction,
-                vec!["bypass security", "disable firewall", "disable authentication"],
+                vec![
+                    "bypass security",
+                    "disable firewall",
+                    "disable authentication",
+                ],
                 "Restricted instruction - security bypass",
             ),
             PolicyRule::new(

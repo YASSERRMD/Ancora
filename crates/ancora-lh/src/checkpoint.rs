@@ -10,7 +10,11 @@ pub struct Checkpoint {
 
 impl Checkpoint {
     pub fn new(run_id: &str, tick: u64) -> Self {
-        Self { run_id: run_id.to_string(), tick, data: HashMap::new() }
+        Self {
+            run_id: run_id.to_string(),
+            tick,
+            data: HashMap::new(),
+        }
     }
 
     pub fn set(&mut self, key: &str, value: &str) {
@@ -30,7 +34,10 @@ pub struct CheckpointCadence {
 
 impl CheckpointCadence {
     pub fn new(interval_ticks: u64) -> Self {
-        Self { interval_ticks, last_checkpoint_tick: 0 }
+        Self {
+            interval_ticks,
+            last_checkpoint_tick: 0,
+        }
     }
 
     pub fn should_checkpoint(&mut self, now: u64) -> bool {

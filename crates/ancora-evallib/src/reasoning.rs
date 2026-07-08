@@ -111,18 +111,8 @@ impl ReasoningSuite {
     pub fn default_catalog() -> Self {
         ReasoningSuite {
             cases: vec![
-                ReasoningCase::new(
-                    "re-001",
-                    ReasoningCategory::Arithmetic,
-                    "42 + 58",
-                    "100",
-                ),
-                ReasoningCase::new(
-                    "re-002",
-                    ReasoningCategory::Arithmetic,
-                    "100 - 37",
-                    "63",
-                ),
+                ReasoningCase::new("re-001", ReasoningCategory::Arithmetic, "42 + 58", "100"),
+                ReasoningCase::new("re-002", ReasoningCategory::Arithmetic, "100 - 37", "63"),
                 ReasoningCase::new(
                     "re-003",
                     ReasoningCategory::Logical,

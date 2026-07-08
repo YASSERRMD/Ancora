@@ -3,11 +3,6 @@
 const STREAMING_TEXT: &str = "The capital of France is Paris.";
 const STREAMING_TOKEN_COUNT: usize = 7;
 
-struct StreamingTokens {
-    lang: &'static str,
-    tokens: Vec<&'static str>,
-}
-
 fn make_streaming_tokens(lang: &str) -> Vec<&'static str> {
     let _ = lang;
     vec!["The", " capital", " of", " France", " is", " Paris", "."]
@@ -33,7 +28,11 @@ fn test_joined_tokens_match_streaming_text() {
 fn test_all_six_langs_produce_same_text() {
     for lang in ["rust", "go", "python", "ts", "dotnet", "java"] {
         let tokens = make_streaming_tokens(lang);
-        assert_eq!(join_tokens(&tokens), STREAMING_TEXT, "lang {lang} joined text differs");
+        assert_eq!(
+            join_tokens(&tokens),
+            STREAMING_TEXT,
+            "lang {lang} joined text differs"
+        );
     }
 }
 
@@ -50,6 +49,7 @@ fn test_last_token_is_period() {
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn test_streaming_text_non_empty() {
     assert!(!STREAMING_TEXT.is_empty());
 }

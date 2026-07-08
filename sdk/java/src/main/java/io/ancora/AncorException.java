@@ -3,7 +3,7 @@ package io.ancora;
 import io.ancora.ffi.AncorErrorCode;
 
 /** Exception raised when an ancora-ffi function returns a non-OK error code. */
-public final class AncorException extends Exception {
+public final class AncorException extends RuntimeException {
 
     private final int errorCode;
 

@@ -15,24 +15,27 @@ const SECURITY_PROPERTIES: &[&str] = &[
 ];
 
 const SECURITY_TEST_MAP: &[(&str, &str)] = &[
-    ("prompt_injection_detection",  "sec_prompt_injection"),
-    ("pii_exfiltration_guard",      "sec_data_exfiltration"),
-    ("tool_allowlist_enforcement",  "sec_tool_allowlist"),
-    ("output_redaction",            "sec_output_filter"),
-    ("key_rotation",                "sec_key_rotation"),
-    ("audit_log_immutability",      "sec_audit_log"),
-    ("rbac_enforcement",            "sec_rbac"),
-    ("no_live_keys_in_fixtures",    "sec_no_live_keys"),
-    ("input_size_limit",            "sec_input_size_limit"),
-    ("tls_minimum_version",         "sec_tls_config"),
-    ("no_live_urls_in_tests",       "sec_no_network_in_tests"),
+    ("prompt_injection_detection", "sec_prompt_injection"),
+    ("pii_exfiltration_guard", "sec_data_exfiltration"),
+    ("tool_allowlist_enforcement", "sec_tool_allowlist"),
+    ("output_redaction", "sec_output_filter"),
+    ("key_rotation", "sec_key_rotation"),
+    ("audit_log_immutability", "sec_audit_log"),
+    ("rbac_enforcement", "sec_rbac"),
+    ("no_live_keys_in_fixtures", "sec_no_live_keys"),
+    ("input_size_limit", "sec_input_size_limit"),
+    ("tls_minimum_version", "sec_tls_config"),
+    ("no_live_urls_in_tests", "sec_no_network_in_tests"),
 ];
 
 #[test]
 fn test_all_security_properties_covered() {
     let covered: Vec<&str> = SECURITY_TEST_MAP.iter().map(|(p, _)| *p).collect();
     for prop in SECURITY_PROPERTIES {
-        assert!(covered.contains(prop), "no test for security property: {prop}");
+        assert!(
+            covered.contains(prop),
+            "no test for security property: {prop}"
+        );
     }
 }
 
@@ -52,7 +55,10 @@ fn test_no_duplicate_security_properties() {
 #[test]
 fn test_all_test_names_start_with_sec() {
     for (_, test) in SECURITY_TEST_MAP {
-        assert!(test.starts_with("sec_"), "security test name should start with sec_: {test}");
+        assert!(
+            test.starts_with("sec_"),
+            "security test name should start with sec_: {test}"
+        );
     }
 }
 

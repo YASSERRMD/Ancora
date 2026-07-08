@@ -1,5 +1,4 @@
 /// Recipe end-to-end: recipe definition, installation, and execution.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]

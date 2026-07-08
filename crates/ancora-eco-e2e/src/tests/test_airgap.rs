@@ -2,8 +2,20 @@ use crate::airgap_e2e::{AirgapBundle, AirgapRegistry, BundledPlugin};
 
 fn build_bundle() -> AirgapBundle {
     let mut bundle = AirgapBundle::new();
-    bundle.add(BundledPlugin::new("alpha-plugin", "1.0.0", b"alpha payload".to_vec())).unwrap();
-    bundle.add(BundledPlugin::new("beta-plugin", "2.0.0", b"beta payload v2".to_vec())).unwrap();
+    bundle
+        .add(BundledPlugin::new(
+            "alpha-plugin",
+            "1.0.0",
+            b"alpha payload".to_vec(),
+        ))
+        .unwrap();
+    bundle
+        .add(BundledPlugin::new(
+            "beta-plugin",
+            "2.0.0",
+            b"beta payload v2".to_vec(),
+        ))
+        .unwrap();
     bundle
 }
 
@@ -11,7 +23,8 @@ fn build_bundle() -> AirgapBundle {
 fn test_airgap_bundle_install() {
     let bundle = build_bundle();
     let mut reg = AirgapRegistry::new(bundle);
-    reg.install("alpha-plugin", "1.0.0").expect("install must succeed");
+    reg.install("alpha-plugin", "1.0.0")
+        .expect("install must succeed");
     assert!(reg.is_installed("alpha-plugin", "1.0.0"));
 }
 
@@ -32,7 +45,9 @@ fn test_airgap_checksum_integrity() {
 #[test]
 fn test_airgap_duplicate_in_bundle_fails() {
     let mut bundle = AirgapBundle::new();
-    bundle.add(BundledPlugin::new("dup", "1.0.0", b"v1".to_vec())).unwrap();
+    bundle
+        .add(BundledPlugin::new("dup", "1.0.0", b"v1".to_vec()))
+        .unwrap();
     let result = bundle.add(BundledPlugin::new("dup", "1.0.0", b"v1".to_vec()));
     assert!(result.is_err());
 }

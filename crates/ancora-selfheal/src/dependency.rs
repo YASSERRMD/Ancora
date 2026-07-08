@@ -13,7 +13,9 @@ pub struct DependencyHealth {
 
 impl DependencyHealth {
     pub fn new() -> Self {
-        Self { statuses: HashMap::new() }
+        Self {
+            statuses: HashMap::new(),
+        }
     }
 
     pub fn report(&mut self, name: &str, status: DepStatus) {
@@ -21,15 +23,23 @@ impl DependencyHealth {
     }
 
     pub fn is_all_healthy(&self) -> bool {
-        self.statuses.values().all(|s| matches!(s, DepStatus::Healthy))
+        self.statuses
+            .values()
+            .all(|s| matches!(s, DepStatus::Healthy))
     }
 
     pub fn degraded_count(&self) -> usize {
-        self.statuses.values().filter(|s| matches!(s, DepStatus::Degraded { .. })).count()
+        self.statuses
+            .values()
+            .filter(|s| matches!(s, DepStatus::Degraded { .. }))
+            .count()
     }
 
     pub fn down_count(&self) -> usize {
-        self.statuses.values().filter(|s| matches!(s, DepStatus::Down { .. })).count()
+        self.statuses
+            .values()
+            .filter(|s| matches!(s, DepStatus::Down { .. }))
+            .count()
     }
 
     pub fn get(&self, name: &str) -> Option<&DepStatus> {

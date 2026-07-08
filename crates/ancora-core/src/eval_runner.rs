@@ -24,7 +24,11 @@ pub struct CaseResult {
 
 impl CaseResult {
     pub fn pass_rate(&self) -> f64 {
-        if self.n == 0 { 0.0 } else { self.pass_count as f64 / self.n as f64 }
+        if self.n == 0 {
+            0.0
+        } else {
+            self.pass_count as f64 / self.n as f64
+        }
     }
 }
 
@@ -39,7 +43,10 @@ pub struct EvalRunner {
 
 impl EvalRunner {
     pub fn new(n: usize) -> Self {
-        Self { scorers: HashMap::new(), n }
+        Self {
+            scorers: HashMap::new(),
+            n,
+        }
     }
 
     pub fn register_scorer(&mut self, scorer: Arc<dyn EvalScorer>) -> &mut Self {
@@ -48,7 +55,10 @@ impl EvalRunner {
     }
 
     pub fn run(&self, cases: &[EvalCase], generate: &GenerateFn) -> Vec<CaseResult> {
-        cases.iter().map(|case| self.run_case(case, generate)).collect()
+        cases
+            .iter()
+            .map(|case| self.run_case(case, generate))
+            .collect()
     }
 
     fn run_case(&self, case: &EvalCase, generate: &GenerateFn) -> CaseResult {
@@ -56,7 +66,9 @@ impl EvalRunner {
         let mut rollouts = Vec::with_capacity(self.n);
         for i in 0..self.n {
             let candidate = generate(&case.input);
-            let score = scorer.map(|s| s.score(&candidate, &case.expected)).unwrap_or(0.0);
+            let score = scorer
+                .map(|s| s.score(&candidate, &case.expected))
+                .unwrap_or(0.0);
             rollouts.push(RolloutResult {
                 case_id: case.id.clone(),
                 rollout: i,
@@ -66,7 +78,12 @@ impl EvalRunner {
             });
         }
         let pass_count = rollouts.iter().filter(|r| r.passed).count();
-        CaseResult { case_id: case.id.clone(), rollouts, pass_count, n: self.n }
+        CaseResult {
+            case_id: case.id.clone(),
+            rollouts,
+            pass_count,
+            n: self.n,
+        }
     }
 }
 
@@ -87,7 +104,11 @@ mod tests {
         let mut runner = EvalRunner::new(3);
         runner.register_scorer(Arc::new(ExactMatchScorer));
         let generate: GenerateFn = Arc::new(|input| {
-            if input.contains("1+1") { "2".into() } else { "blue".into() }
+            if input.contains("1+1") {
+                "2".into()
+            } else {
+                "blue".into()
+            }
         });
         let results = runner.run(&fixture_cases(), &generate);
         assert_eq!(results.len(), 2);
@@ -98,7 +119,11 @@ mod tests {
         let mut runner = EvalRunner::new(4);
         runner.register_scorer(Arc::new(ExactMatchScorer));
         let generate: GenerateFn = Arc::new(|input| {
-            if input.contains("1+1") { "2".into() } else { "blue".into() }
+            if input.contains("1+1") {
+                "2".into()
+            } else {
+                "blue".into()
+            }
         });
         let results = runner.run(&fixture_cases(), &generate);
         for r in &results {

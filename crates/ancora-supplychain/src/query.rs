@@ -7,9 +7,20 @@ pub struct ComponentQuery {
     open_source_only: bool,
 }
 
+impl Default for ComponentQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ComponentQuery {
     pub fn new() -> Self {
-        Self { kind: None, license: None, supplier: None, open_source_only: false }
+        Self {
+            kind: None,
+            license: None,
+            supplier: None,
+            open_source_only: false,
+        }
     }
 
     pub fn kind(mut self, kind: ComponentKind) -> Self {
@@ -33,18 +44,28 @@ impl ComponentQuery {
     }
 
     pub fn run<'a>(&self, components: impl Iterator<Item = &'a Component>) -> Vec<&'a Component> {
-        components.filter(|c| {
-            if self.open_source_only && !c.is_open_source() { return false; }
-            if let Some(k) = &self.kind {
-                if format!("{}", c.kind) != *k { return false; }
-            }
-            if let Some(l) = &self.license {
-                if format!("{}", c.license) != *l { return false; }
-            }
-            if let Some(s) = &self.supplier {
-                if &c.supplier != s { return false; }
-            }
-            true
-        }).collect()
+        components
+            .filter(|c| {
+                if self.open_source_only && !c.is_open_source() {
+                    return false;
+                }
+                if let Some(k) = &self.kind {
+                    if format!("{}", c.kind) != *k {
+                        return false;
+                    }
+                }
+                if let Some(l) = &self.license {
+                    if format!("{}", c.license) != *l {
+                        return false;
+                    }
+                }
+                if let Some(s) = &self.supplier {
+                    if &c.supplier != s {
+                        return false;
+                    }
+                }
+                true
+            })
+            .collect()
     }
 }

@@ -1,4 +1,4 @@
-use crate::signing::{CatalogSignature, SignedCatalog, SigningKey};
+use crate::signing::{SignedCatalog, SigningKey};
 
 fn make_key() -> SigningKey {
     SigningKey::new("test-key-1", b"super-secret-passphrase-12345".to_vec())

@@ -1,4 +1,4 @@
-use ancora_lh::{BackgroundRun, Checkpoint, CheckpointCadence, ScheduledWakeup};
+use ancora_lh::{BackgroundRun, CheckpointCadence, ScheduledWakeup};
 
 fn build_run(tick: u64) -> BackgroundRun {
     let mut run = BackgroundRun::new("r1", tick);
@@ -19,8 +19,14 @@ fn lh_run_effects_idempotent_stable() {
 
 #[test]
 fn lh_wakeup_fires_at_same_tick() {
-    let w1 = ScheduledWakeup { run_id: "r1".into(), wake_at_tick: 100 };
-    let w2 = ScheduledWakeup { run_id: "r1".into(), wake_at_tick: 100 };
+    let w1 = ScheduledWakeup {
+        run_id: "r1".into(),
+        wake_at_tick: 100,
+    };
+    let w2 = ScheduledWakeup {
+        run_id: "r1".into(),
+        wake_at_tick: 100,
+    };
     assert_eq!(w1.should_fire(99), w2.should_fire(99));
     assert_eq!(w1.should_fire(100), w2.should_fire(100));
     assert!(!w1.should_fire(99));

@@ -42,7 +42,10 @@ fn main() {
 
     println!("Model: {}", req.model_id);
     println!("Messages: {}", req.messages.len());
-    println!("System context length: {} chars", req.messages[0].content.len());
+    println!(
+        "System context length: {} chars",
+        req.messages[0].content.len()
+    );
     println!();
     println!("// To send the request:");
     println!("// let resp = client.complete(&req)?;");

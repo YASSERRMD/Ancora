@@ -12,7 +12,9 @@ pub fn build_ernie_profile() -> ProviderProfile {
     ProviderProfile::new(
         "ernie",
         ERNIE_URL,
-        AuthStrategy::BearerToken { env_var: "ERNIE_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "ERNIE_API_KEY".to_owned(),
+        },
     )
     // ERNIE 4.0 -- flagship, tools, 8k context
     .add_model(
@@ -51,6 +53,19 @@ pub fn normalize_error(status: u16, body: &str) -> crate::error::InferenceError 
     crate::error::InferenceError::from_http(status, body, None)
 }
 
+/// Return a note about the legacy Baidu OAuth auth flow.
+///
+/// The new Qianfan endpoint (`qianfan.baidubce.com/v2`) accepts API keys
+/// directly. The legacy flow (used by older `aip.baidubce.com` endpoints)
+/// requires exchanging a `client_id` and `client_secret` for a temporary
+/// access_token via a separate HTTP call. This library uses the modern
+/// API-key flow only.
+pub fn ernie_oauth_note() -> &'static str {
+    "Legacy flow: POST https://aip.baidubce.com/oauth/2.0/token \
+     ?grant_type=client_credentials&client_id=<AK>&client_secret=<SK>. \
+     Use the Qianfan API key flow instead."
+}
+
 #[cfg(test)]
 const ERNIE_FIXTURE: &str = r#"{"id":"chatcmpl-ernie-01","choices":[{"message":{"role":"assistant","content":"Hello from ERNIE 4.0","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":7}}"#;
 
@@ -65,7 +80,9 @@ mod tests {
 
     #[test]
     fn ernie_recorded_fixture_completes() {
-        let resp = ernie_client().parse_response(ERNIE_FIXTURE, "ernie-4.0-8k").unwrap();
+        let resp = ernie_client()
+            .parse_response(ERNIE_FIXTURE, "ernie-4.0-8k")
+            .unwrap();
         assert_eq!(resp.content, "Hello from ERNIE 4.0");
         assert_eq!(resp.tokens_in, 9);
         assert_eq!(resp.tokens_out, 7);
@@ -86,17 +103,4 @@ mod tests {
         let p = build_ernie_profile();
         assert!(p.model_meta("ernie-4.0-8k").unwrap().capabilities.tools);
     }
-}
-
-/// Return a note about the legacy Baidu OAuth auth flow.
-///
-/// The new Qianfan endpoint (`qianfan.baidubce.com/v2`) accepts API keys
-/// directly. The legacy flow (used by older `aip.baidubce.com` endpoints)
-/// requires exchanging a `client_id` and `client_secret` for a temporary
-/// access_token via a separate HTTP call. This library uses the modern
-/// API-key flow only.
-pub fn ernie_oauth_note() -> &'static str {
-    "Legacy flow: POST https://aip.baidubce.com/oauth/2.0/token \
-     ?grant_type=client_credentials&client_id=<AK>&client_secret=<SK>. \
-     Use the Qianfan API key flow instead."
 }

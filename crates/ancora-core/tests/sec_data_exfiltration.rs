@@ -20,13 +20,16 @@ impl PiiGuard {
 
     fn scan(&self, payload: &str) -> Vec<String> {
         let lower = payload.to_lowercase();
-        self.patterns.iter()
+        self.patterns
+            .iter()
             .filter(|p| lower.contains(*p))
             .map(|p| format!("pii-detected: {p}"))
             .collect()
     }
 
-    fn is_safe(&self, payload: &str) -> bool { self.scan(payload).is_empty() }
+    fn is_safe(&self, payload: &str) -> bool {
+        self.scan(payload).is_empty()
+    }
 }
 
 #[test]

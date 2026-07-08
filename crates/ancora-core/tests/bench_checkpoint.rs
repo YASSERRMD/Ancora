@@ -13,7 +13,11 @@ struct Checkpoint {
 
 impl Checkpoint {
     fn save(step: u32, state: u64) -> Self {
-        Checkpoint { step, state, committed: true }
+        Checkpoint {
+            step,
+            state,
+            committed: true,
+        }
     }
     fn restore(ckpt: &Checkpoint) -> (u32, u64) {
         (ckpt.step, ckpt.state)
@@ -33,7 +37,12 @@ fn test_bench_100k_checkpoint_round_trips_under_500ms() {
         total_state = total_state.wrapping_add(state);
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < CKPT_BENCH_MS, "took {}ms budget {}ms", elapsed, CKPT_BENCH_MS);
+    assert!(
+        elapsed < CKPT_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        CKPT_BENCH_MS
+    );
     assert!(total_state > 0);
 }
 
@@ -53,6 +62,10 @@ fn test_checkpoint_is_valid_after_save() {
 
 #[test]
 fn test_checkpoint_not_valid_when_uncommitted() {
-    let ckpt = Checkpoint { step: 0, state: 0, committed: false };
+    let ckpt = Checkpoint {
+        step: 0,
+        state: 0,
+        committed: false,
+    };
     assert!(!ckpt.is_valid());
 }

@@ -3,7 +3,12 @@ mod tests {
     use crate::worker_ops::{WorkerRegistry, WorkerState, WorkerStatus};
 
     fn worker(id: &str, active: u32) -> WorkerStatus {
-        WorkerStatus { worker_id: id.into(), state: WorkerState::Active, active_runs: active, last_heartbeat_secs: 0 }
+        WorkerStatus {
+            worker_id: id.into(),
+            state: WorkerState::Active,
+            active_runs: active,
+            last_heartbeat_secs: 0,
+        }
     }
 
     #[test]

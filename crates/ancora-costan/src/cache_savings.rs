@@ -1,4 +1,4 @@
-/// Cache-hit savings tracking - measures cost avoided through cache hits.
+//! Cache-hit savings tracking - measures cost avoided through cache hits.
 
 #[derive(Debug, Clone, Default)]
 pub struct CacheSavingsTracker {

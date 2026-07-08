@@ -1,5 +1,4 @@
 /// Performance measurement for plugin overhead.
-
 use std::time::{Duration, Instant};
 
 #[derive(Debug, Clone)]

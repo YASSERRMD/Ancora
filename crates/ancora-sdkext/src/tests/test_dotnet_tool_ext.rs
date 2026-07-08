@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use crate::dotnet_interfaces::{
     canonical_dotnet_interface, rust_value_to_dotnet_type, DotNetExtensionAdapter, DotNetType,
 };
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
+use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -34,15 +34,28 @@ fn test_canonical_dotnet_interface() {
     assert_eq!(iface.methods.len(), 3);
 
     let async_methods: Vec<_> = iface.methods.iter().filter(|m| m.is_async).collect();
-    assert_eq!(async_methods.len(), 2, "ExecuteAsync and HealthCheckAsync should be async");
+    assert_eq!(
+        async_methods.len(),
+        2,
+        "ExecuteAsync and HealthCheckAsync should be async"
+    );
 }
 
 #[test]
 fn test_rust_value_to_dotnet_type() {
-    assert_eq!(rust_value_to_dotnet_type(&Value::string("x")), DotNetType::String);
+    assert_eq!(
+        rust_value_to_dotnet_type(&Value::string("x")),
+        DotNetType::String
+    );
     assert_eq!(rust_value_to_dotnet_type(&Value::Int(1)), DotNetType::Int64);
-    assert_eq!(rust_value_to_dotnet_type(&Value::Float(1.0)), DotNetType::Double);
-    assert_eq!(rust_value_to_dotnet_type(&Value::Bool(true)), DotNetType::Bool);
+    assert_eq!(
+        rust_value_to_dotnet_type(&Value::Float(1.0)),
+        DotNetType::Double
+    );
+    assert_eq!(
+        rust_value_to_dotnet_type(&Value::Bool(true)),
+        DotNetType::Bool
+    );
     assert_eq!(rust_value_to_dotnet_type(&Value::Null), DotNetType::Object);
 }
 

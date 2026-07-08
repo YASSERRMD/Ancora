@@ -17,7 +17,9 @@ fn privilege_dataset_has_safe_baseline() {
 #[test]
 fn privilege_scenarios_categorized_correctly() {
     let scenarios = privilege_scenarios();
-    assert!(scenarios.iter().all(|s| s.category == AttackCategory::PrivilegeEscalation));
+    assert!(scenarios
+        .iter()
+        .all(|s| s.category == AttackCategory::PrivilegeEscalation));
 }
 
 #[test]

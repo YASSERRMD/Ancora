@@ -4,7 +4,6 @@
 /// regardless of source language, satisfies the same behavioural contract.
 /// Any adapter registered in the extension registry is expected to pass
 /// all checks in `InteropKit::run_all`.
-
 use std::collections::HashMap;
 
 use crate::registration::{ExtensionRegistry, Language};
@@ -83,9 +82,8 @@ impl InteropKit {
     /// check that the function is callable (not panicking).
     pub fn check_execute_returns_value(ext: &dyn ToolExtension) -> CheckResult {
         // An empty args map is the minimal valid call.
-        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            ext.execute(HashMap::new())
-        }));
+        let result =
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ext.execute(HashMap::new())));
         match result {
             Ok(_) => CheckResult::pass("execute_returns_value"),
             Err(_) => CheckResult::fail("execute_returns_value", "execute() panicked"),
@@ -99,9 +97,8 @@ impl InteropKit {
             "__invalid_key_xyz__".to_string(),
             Value::Str("garbage".to_string()),
         );
-        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            ext.execute(bad_args)
-        }));
+        let result =
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ext.execute(bad_args)));
         match result {
             Ok(_) => CheckResult::pass("invalid_arg_no_panic"),
             Err(_) => CheckResult::fail("invalid_arg_no_panic", "execute() panicked on bad args"),

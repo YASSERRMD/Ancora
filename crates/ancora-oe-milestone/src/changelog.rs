@@ -47,10 +47,7 @@ impl ChangelogEntry {
     }
 
     pub fn render(&self) -> String {
-        let pr_part = self
-            .pr
-            .map(|n| format!(" (#{n})"))
-            .unwrap_or_default();
+        let pr_part = self.pr.map(|n| format!(" (#{n})")).unwrap_or_default();
         format!("- [{}] {}{}", self.kind, self.description, pr_part)
     }
 }
@@ -71,7 +68,7 @@ impl ChangelogSection {
         }
     }
 
-    pub fn add(mut self, entry: ChangelogEntry) -> Self {
+    pub fn add_entry(mut self, entry: ChangelogEntry) -> Self {
         self.entries.push(entry);
         self
     }
@@ -100,8 +97,14 @@ mod tests {
     #[test]
     fn section_renders_all_entries() {
         let s = ChangelogSection::new("0.6.0", "2026-06-29")
-            .add(ChangelogEntry::new(EntryKind::Fixed, "Race in metric flush"))
-            .add(ChangelogEntry::new(EntryKind::Performance, "Reduced allocations in tracer"));
+            .add_entry(ChangelogEntry::new(
+                EntryKind::Fixed,
+                "Race in metric flush",
+            ))
+            .add_entry(ChangelogEntry::new(
+                EntryKind::Performance,
+                "Reduced allocations in tracer",
+            ));
         let r = s.render();
         assert!(r.contains("0.6.0"));
         assert!(r.contains("[Fixed]"));

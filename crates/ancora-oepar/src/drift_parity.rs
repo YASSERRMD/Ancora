@@ -36,8 +36,8 @@ impl MetricWindow {
 
     pub fn std_dev(&self) -> Option<f64> {
         let mean = self.mean()?;
-        let variance = self.values.iter().map(|v| (v - mean).powi(2)).sum::<f64>()
-            / self.values.len() as f64;
+        let variance =
+            self.values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / self.values.len() as f64;
         Some(variance.sqrt())
     }
 
@@ -117,11 +117,16 @@ impl DriftReport {
     }
 
     pub fn has_critical(&self) -> bool {
-        self.results.iter().any(|r| r.severity == DriftSeverity::Critical)
+        self.results
+            .iter()
+            .any(|r| r.severity == DriftSeverity::Critical)
     }
 
     pub fn critical_count(&self) -> usize {
-        self.results.iter().filter(|r| r.severity == DriftSeverity::Critical).count()
+        self.results
+            .iter()
+            .filter(|r| r.severity == DriftSeverity::Critical)
+            .count()
     }
 }
 

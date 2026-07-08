@@ -15,7 +15,11 @@ pub struct ReadinessItem {
 
 impl ReadinessItem {
     pub const fn done(id: &'static str, description: &'static str) -> Self {
-        Self { id, description, status: CheckStatus::Done }
+        Self {
+            id,
+            description,
+            status: CheckStatus::Done,
+        }
     }
 
     pub fn is_done(&self) -> bool {

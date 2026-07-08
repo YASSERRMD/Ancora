@@ -1,5 +1,5 @@
-use std::collections::{HashMap, HashSet};
 use crate::error::CoordError;
+use std::collections::{HashMap, HashSet};
 
 /// Detects and breaks deadlocks in agent wait-for graphs.
 pub struct DeadlockDetector {
@@ -8,11 +8,14 @@ pub struct DeadlockDetector {
 
 impl DeadlockDetector {
     pub fn new() -> Self {
-        Self { wait_for: HashMap::new() }
+        Self {
+            wait_for: HashMap::new(),
+        }
     }
 
     pub fn add_wait(&mut self, waiter: &str, waited_on: &str) {
-        self.wait_for.insert(waiter.to_string(), waited_on.to_string());
+        self.wait_for
+            .insert(waiter.to_string(), waited_on.to_string());
     }
 
     pub fn has_deadlock(&self) -> bool {

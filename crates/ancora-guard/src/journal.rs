@@ -30,10 +30,16 @@ impl GuardrailJournal {
     }
 
     pub fn blocked_count(&self) -> usize {
-        self.decisions.iter().filter(|d| matches!(d.outcome, GuardrailOutcome::Block(_))).count()
+        self.decisions
+            .iter()
+            .filter(|d| matches!(d.outcome, GuardrailOutcome::Block(_)))
+            .count()
     }
 
     pub fn repaired_count(&self) -> usize {
-        self.decisions.iter().filter(|d| matches!(d.outcome, GuardrailOutcome::Repair(_))).count()
+        self.decisions
+            .iter()
+            .filter(|d| matches!(d.outcome, GuardrailOutcome::Repair(_)))
+            .count()
     }
 }

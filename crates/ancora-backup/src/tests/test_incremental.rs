@@ -5,7 +5,13 @@ mod tests {
     fn journal_with_entries(n: u64) -> Journal {
         let mut j = Journal::new();
         for i in 1..=n {
-            j.append(JournalEntry { seq: i, run_id: format!("r{}", i), tenant_id: "t".into(), kind: "step".into(), payload: "{}".into() });
+            j.append(JournalEntry {
+                seq: i,
+                run_id: format!("r{}", i),
+                tenant_id: "t".into(),
+                kind: "step".into(),
+                payload: "{}".into(),
+            });
         }
         j
     }
@@ -15,7 +21,9 @@ mod tests {
         let eng = BackupEngine::plaintext();
         let src = journal_with_entries(5);
         // Snapshot first 3
-        let snap = eng.snapshot(&journal_with_entries(3), vec![], vec![], 0).unwrap();
+        let snap = eng
+            .snapshot(&journal_with_entries(3), vec![], vec![], 0)
+            .unwrap();
         // Incremental for entries 4..5
         let incr = eng.incremental(&src, 3, 0).unwrap();
 

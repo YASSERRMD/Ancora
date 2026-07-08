@@ -17,7 +17,10 @@ mod tests {
     fn tenant_overlay_merges_concurrency() {
         let base = AncoraCfg::default();
         let overlay = AncoraCfg {
-            worker: WorkerCfg { concurrency: 32, ..Default::default() },
+            worker: WorkerCfg {
+                concurrency: 32,
+                ..Default::default()
+            },
             ..Default::default()
         };
         let mut reg = TenantOverlayRegistry::default();
@@ -39,7 +42,10 @@ mod tests {
         let mut reg = TenantOverlayRegistry::default();
         reg.register("tenant-a", overlay);
         let resolved = reg.resolve_for("tenant-a", &base);
-        assert_eq!(resolved.worker.api_key_ref.as_deref(), Some("env:TENANT_A_KEY"));
+        assert_eq!(
+            resolved.worker.api_key_ref.as_deref(),
+            Some("env:TENANT_A_KEY")
+        );
     }
 
     #[test]

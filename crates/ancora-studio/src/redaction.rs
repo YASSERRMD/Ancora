@@ -1,4 +1,4 @@
-/// Redaction - ensures sensitive fields are hidden before rendering in the UI.
+//! Redaction - ensures sensitive fields are hidden before rendering in the UI.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RedactionPolicy {
@@ -93,10 +93,7 @@ mod tests {
     fn engine() -> RedactionEngine {
         RedactionEngine::new(vec![
             FieldRedactionRule::new("prompt", RedactionPolicy::AlwaysRedact),
-            FieldRedactionRule::new(
-                "response",
-                RedactionPolicy::RequireRole("admin".into()),
-            ),
+            FieldRedactionRule::new("response", RedactionPolicy::RequireRole("admin".into())),
             FieldRedactionRule::new("label", RedactionPolicy::NeverRedact),
         ])
     }

@@ -7,12 +7,15 @@ pub struct Sampler {
 
 impl Sampler {
     pub fn new(rate: u64) -> Self {
-        Self { rate: rate.max(1), counter: 0 }
+        Self {
+            rate: rate.max(1),
+            counter: 0,
+        }
     }
 
     pub fn should_sample(&mut self) -> bool {
         self.counter += 1;
-        self.counter % self.rate == 0
+        self.counter.is_multiple_of(self.rate)
     }
 
     pub fn reset(&mut self) {

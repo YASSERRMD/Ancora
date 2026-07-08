@@ -52,7 +52,11 @@ pub struct PolicyStore {
 }
 
 impl PolicyStore {
-    pub fn new() -> Self { Self { policies: std::collections::HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            policies: std::collections::HashMap::new(),
+        }
+    }
 
     pub fn insert(&mut self, policy: ClassificationPolicy) {
         self.policies.insert(policy.tenant_id.clone(), policy);
@@ -62,9 +66,13 @@ impl PolicyStore {
         self.policies.get(tenant_id)
     }
 
-    pub fn count(&self) -> usize { self.policies.len() }
+    pub fn count(&self) -> usize {
+        self.policies.len()
+    }
 }
 
 impl Default for PolicyStore {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

@@ -1,8 +1,8 @@
-/// Extended chunker boundary and coverage tests -- all offline.
+//! Extended chunker boundary and coverage tests -- all offline.
 
 #[cfg(test)]
 mod chunker_ext_tests {
-    use crate::embedders::chunker::{FixedSizeChunker, SemanticChunker, SemanticBoundary};
+    use crate::embedders::chunker::{FixedSizeChunker, SemanticBoundary, SemanticChunker};
 
     // ---- FixedSizeChunker edge cases -----------------------------------
 
@@ -61,7 +61,10 @@ mod chunker_ext_tests {
     fn fixed_only_whitespace_text_produces_no_chunks() {
         let c = FixedSizeChunker::new(5, 0);
         let chunks = c.chunk("   \t  \n  ");
-        assert!(chunks.is_empty(), "whitespace-only should produce no chunks");
+        assert!(
+            chunks.is_empty(),
+            "whitespace-only should produce no chunks"
+        );
     }
 
     #[test]
@@ -108,7 +111,10 @@ mod chunker_ext_tests {
         let text = "Sentence one. Sentence two. Sentence three.";
         let c = SemanticChunker::sentence().with_limits(1, 9999);
         let chunks = c.chunk(text);
-        assert!(chunks.iter().all(|s| !s.is_empty()), "empty chunk: {chunks:?}");
+        assert!(
+            chunks.iter().all(|s| !s.is_empty()),
+            "empty chunk: {chunks:?}"
+        );
     }
 
     #[test]

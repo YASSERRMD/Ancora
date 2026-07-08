@@ -17,7 +17,10 @@ fn docqa_returns_answer_without_network() {
     let engine = DocumentQaEngine::new(store);
 
     let answer = engine.ask("retention");
-    assert!(!answer.source_ids.is_empty(), "should find relevant documents");
+    assert!(
+        !answer.source_ids.is_empty(),
+        "should find relevant documents"
+    );
     assert!(answer.source_ids.contains(&"policy-001".to_string()));
     assert!(!answer.excerpts.is_empty(), "should extract excerpts");
 }

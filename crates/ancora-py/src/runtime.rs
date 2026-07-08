@@ -13,7 +13,10 @@ impl InnerRun {
     pub fn new(id: &str, spec: &str) -> Self {
         let escaped_spec = spec.replace('\\', "\\\\").replace('"', "\\\"");
         let mut events = VecDeque::new();
-        events.push_back(format!(r#"{{"kind":"started","run_id":"{}","spec":"{}"}}"#, id, escaped_spec));
+        events.push_back(format!(
+            r#"{{"kind":"started","run_id":"{}","spec":"{}"}}"#,
+            id, escaped_spec
+        ));
         for token in &["Hello", " ", "world"] {
             events.push_back(format!(
                 r#"{{"kind":"token","run_id":"{}","text":"{}"}}"#,
@@ -21,7 +24,10 @@ impl InnerRun {
             ));
         }
         events.push_back(format!(r#"{{"kind":"completed","run_id":"{}"}}"#, id));
-        Self { id: id.to_string(), events }
+        Self {
+            id: id.to_string(),
+            events,
+        }
     }
 
     pub fn poll_event(&mut self) -> Option<String> {
@@ -33,13 +39,20 @@ impl InnerRun {
             r#"{{"kind":"resumed","run_id":"{}","decision":"{}"}}"#,
             self.id, decision
         ));
-        self.events.push_back(format!(r#"{{"kind":"completed","run_id":"{}"}}"#, self.id));
+        self.events
+            .push_back(format!(r#"{{"kind":"completed","run_id":"{}"}}"#, self.id));
     }
 }
 
 pub(crate) struct InnerRuntime {
     pub runs: Mutex<HashMap<String, InnerRun>>,
     pub _store: ancora_core::journal::MemoryStore,
+}
+
+impl Default for InnerRuntime {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl InnerRuntime {
@@ -83,9 +96,10 @@ impl PyRuntime {
 
     /// Start a new agent run from JSON spec bytes. Returns the run ID string.
     pub fn start_run(&mut self, spec_bytes: &[u8]) -> PyResult<String> {
-        let inner = self.inner.as_mut().ok_or_else(|| {
-            PyRuntimeError::new_err("Runtime has been freed")
-        })?;
+        let inner = self
+            .inner
+            .as_mut()
+            .ok_or_else(|| PyRuntimeError::new_err("Runtime has been freed"))?;
         let spec_str = String::from_utf8_lossy(spec_bytes).into_owned();
         let run_id = uuid::Uuid::new_v4().to_string();
         let run = InnerRun::new(&run_id, &spec_str);
@@ -95,9 +109,10 @@ impl PyRuntime {
 
     /// Poll the next event for a run. Returns None when all events are consumed.
     pub fn poll_run(&mut self, run_id: &str) -> PyResult<Option<Vec<u8>>> {
-        let inner = self.inner.as_mut().ok_or_else(|| {
-            PyRuntimeError::new_err("Runtime has been freed")
-        })?;
+        let inner = self
+            .inner
+            .as_mut()
+            .ok_or_else(|| PyRuntimeError::new_err("Runtime has been freed"))?;
         let mut guard = inner.runs.lock().unwrap();
         let event = guard.get_mut(run_id).and_then(|r| r.poll_event());
         Ok(event.map(|s| s.into_bytes()))
@@ -105,9 +120,10 @@ impl PyRuntime {
 
     /// Resume a suspended run with a decision payload.
     pub fn resume_run(&mut self, run_id: &str, decision: &[u8]) -> PyResult<()> {
-        let inner = self.inner.as_mut().ok_or_else(|| {
-            PyRuntimeError::new_err("Runtime has been freed")
-        })?;
+        let inner = self
+            .inner
+            .as_mut()
+            .ok_or_else(|| PyRuntimeError::new_err("Runtime has been freed"))?;
         let decision_str = String::from_utf8_lossy(decision).into_owned();
         let mut guard = inner.runs.lock().unwrap();
         if let Some(run) = guard.get_mut(run_id) {

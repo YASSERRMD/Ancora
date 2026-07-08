@@ -1,8 +1,8 @@
 // Device decommission for edge fleet
 
+use crate::registration::{DeviceId, DeviceRegistry};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
-use crate::registration::{DeviceId, DeviceRegistry};
 
 /// Reason for decommissioning a device
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

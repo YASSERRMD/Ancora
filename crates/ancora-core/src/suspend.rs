@@ -32,22 +32,32 @@ impl SuspendedRun {
 
     /// Deserialize from a JSON string produced by `to_json`.
     pub fn from_json(s: &str) -> Result<Self, AncoraError> {
-        let v: serde_json::Value = serde_json::from_str(s)
-            .map_err(|e| AncoraError::Storage(e.to_string()))?;
-        let run_id = v["run_id"].as_str()
+        let v: serde_json::Value =
+            serde_json::from_str(s).map_err(|e| AncoraError::Storage(e.to_string()))?;
+        let run_id = v["run_id"]
+            .as_str()
             .ok_or_else(|| AncoraError::Storage("missing run_id".to_string()))?
             .to_string();
-        let node_id = v["node_id"].as_str()
+        let node_id = v["node_id"]
+            .as_str()
             .ok_or_else(|| AncoraError::Storage("missing node_id".to_string()))?
             .to_string();
-        let pending_input = v["pending_input"].as_str()
+        let pending_input = v["pending_input"]
+            .as_str()
             .ok_or_else(|| AncoraError::Storage("missing pending_input".to_string()))?
             .to_string();
         let deadline_ms = match &v["deadline_ms"] {
             serde_json::Value::Null => None,
-            n => Some(n.as_u64()
-                .ok_or_else(|| AncoraError::Storage("deadline_ms must be a u64".to_string()))?),
+            n => Some(
+                n.as_u64()
+                    .ok_or_else(|| AncoraError::Storage("deadline_ms must be a u64".to_string()))?,
+            ),
         };
-        Ok(SuspendedRun { run_id, node_id, pending_input, deadline_ms })
+        Ok(SuspendedRun {
+            run_id,
+            node_id,
+            pending_input,
+            deadline_ms,
+        })
     }
 }

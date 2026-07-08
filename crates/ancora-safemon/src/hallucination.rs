@@ -1,7 +1,7 @@
-/// Hallucination heuristic detection for agent outputs.
-///
-/// Uses confidence-marker analysis, hedging language, and statistical
-/// improbability signals to flag potential hallucinations.
+//! Hallucination heuristic detection for agent outputs.
+//!
+//! Uses confidence-marker analysis, hedging language, and statistical
+//! improbability signals to flag potential hallucinations.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum HallucinationSignal {

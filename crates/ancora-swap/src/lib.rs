@@ -9,7 +9,6 @@
 /// * rollback to previous model
 /// * warmup new model before swap
 /// * memory reclaim on unload
-
 pub mod drain;
 pub mod journal;
 pub mod model;

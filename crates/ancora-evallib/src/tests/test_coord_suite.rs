@@ -1,4 +1,4 @@
-use crate::coordination::{CoordinationSuite, CoordOutcome};
+use crate::coordination::{CoordOutcome, CoordinationSuite};
 
 #[test]
 fn coordination_default_catalog_all_pass() {

@@ -76,14 +76,41 @@ pub struct FeatureRegistry {
 impl FeatureRegistry {
     /// Create the minimal registry (only required features enabled).
     pub fn minimal() -> Self {
-        let mut r = Self { entries: HashMap::new() };
-        r.register(Feature::LocalOnlyInference, true, FeaturePriority::Required, 0);
-        r.register(Feature::SqliteJournal, false, FeaturePriority::High, 512 * 1024);
-        r.register(Feature::LanceDbMemory, false, FeaturePriority::High, 1024 * 1024);
-        r.register(Feature::ColdStartPerfMonitor, false, FeaturePriority::Low, 64 * 1024);
+        let mut r = Self {
+            entries: HashMap::new(),
+        };
+        r.register(
+            Feature::LocalOnlyInference,
+            true,
+            FeaturePriority::Required,
+            0,
+        );
+        r.register(
+            Feature::SqliteJournal,
+            false,
+            FeaturePriority::High,
+            512 * 1024,
+        );
+        r.register(
+            Feature::LanceDbMemory,
+            false,
+            FeaturePriority::High,
+            1024 * 1024,
+        );
+        r.register(
+            Feature::ColdStartPerfMonitor,
+            false,
+            FeaturePriority::Low,
+            64 * 1024,
+        );
         r.register(Feature::AndroidJni, false, FeaturePriority::High, 32 * 1024);
         r.register(Feature::IosCabi, false, FeaturePriority::High, 32 * 1024);
-        r.register(Feature::StructuredLogging, false, FeaturePriority::Low, 128 * 1024);
+        r.register(
+            Feature::StructuredLogging,
+            false,
+            FeaturePriority::Low,
+            128 * 1024,
+        );
         r.register(Feature::NeonSimd, false, FeaturePriority::Low, 16 * 1024);
         r
     }
@@ -107,7 +134,12 @@ impl FeatureRegistry {
         let key = f.to_string();
         self.entries.insert(
             key,
-            FeatureEntry { feature: f, enabled, priority, size_contribution_bytes: size_bytes },
+            FeatureEntry {
+                feature: f,
+                enabled,
+                priority,
+                size_contribution_bytes: size_bytes,
+            },
         );
     }
 
@@ -144,7 +176,11 @@ impl FeatureRegistry {
 
     /// Estimated total binary contribution of enabled features in bytes.
     pub fn total_size_bytes(&self) -> usize {
-        self.entries.values().filter(|e| e.enabled).map(|e| e.size_contribution_bytes).sum()
+        self.entries
+            .values()
+            .filter(|e| e.enabled)
+            .map(|e| e.size_contribution_bytes)
+            .sum()
     }
 
     /// Trim low-priority features until the total size is within `budget_bytes`.

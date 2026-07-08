@@ -1,5 +1,4 @@
 /// Replay support: reconstruct the model-version sequence from a journal.
-
 use crate::journal::{SwapEvent, SwapJournal};
 use crate::model::ModelVersion;
 

@@ -17,8 +17,8 @@
     "url": "https://github.com/YASSERRMD/Ancora"
   },
   "scripts": {
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform",
+    "build": "napi build --manifest-path ../../crates/ancora-napi/Cargo.toml --output-dir . --platform --release",
+    "build:debug": "napi build --manifest-path ../../crates/ancora-napi/Cargo.toml --output-dir . --platform",
     "build:dts": "tsc --declaration --emitDeclarationOnly --outDir .",
     "build:wasm": "node wasm/esbuild.config.mjs",
     "test": "jest",
@@ -27,11 +27,7 @@
   "napi": {
     "name": "ancora",
     "triples": {
-      "defaults": true,
-      "additional": [
-        "aarch64-apple-darwin",
-        "aarch64-unknown-linux-gnu"
-      ]
+      "defaults": true
     }
   },
   "devDependencies": {

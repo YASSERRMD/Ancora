@@ -1,5 +1,4 @@
 /// panels - Node configuration panels: read and write node properties.
-
 use crate::scaffold::Id;
 use std::collections::HashMap;
 
@@ -98,48 +97,103 @@ impl PanelRegistry {
 
         r.register(
             ConfigPanel::new("agent.llm", "LLM Agent Settings")
-                .add_field(FieldDescriptor::new("model", "Model", FieldType::Text).required().with_default("default"))
-                .add_field(FieldDescriptor::new("temperature", "Temperature", FieldType::Number).with_default("0.7").with_hint("0.0 = deterministic, 1.0 = creative"))
-                .add_field(FieldDescriptor::new("system_prompt", "System Prompt", FieldType::TextArea)),
+                .add_field(
+                    FieldDescriptor::new("model", "Model", FieldType::Text)
+                        .required()
+                        .with_default("default"),
+                )
+                .add_field(
+                    FieldDescriptor::new("temperature", "Temperature", FieldType::Number)
+                        .with_default("0.7")
+                        .with_hint("0.0 = deterministic, 1.0 = creative"),
+                )
+                .add_field(FieldDescriptor::new(
+                    "system_prompt",
+                    "System Prompt",
+                    FieldType::TextArea,
+                )),
         );
 
         r.register(
             ConfigPanel::new("agent.retrieval", "Retrieval Agent Settings")
-                .add_field(FieldDescriptor::new("top_k", "Top-K Results", FieldType::Number).with_default("5"))
-                .add_field(FieldDescriptor::new("store_url", "Vector Store URL", FieldType::Text).required()),
+                .add_field(
+                    FieldDescriptor::new("top_k", "Top-K Results", FieldType::Number)
+                        .with_default("5"),
+                )
+                .add_field(
+                    FieldDescriptor::new("store_url", "Vector Store URL", FieldType::Text)
+                        .required(),
+                ),
         );
 
         r.register(
             ConfigPanel::new("tool.web_search", "Web Search Settings")
-                .add_field(FieldDescriptor::new("max_results", "Max Results", FieldType::Number).with_default("10"))
-                .add_field(FieldDescriptor::new("safe_search", "Safe Search", FieldType::Bool).with_default("true")),
+                .add_field(
+                    FieldDescriptor::new("max_results", "Max Results", FieldType::Number)
+                        .with_default("10"),
+                )
+                .add_field(
+                    FieldDescriptor::new("safe_search", "Safe Search", FieldType::Bool)
+                        .with_default("true"),
+                ),
         );
 
         r.register(
             ConfigPanel::new("tool.code_exec", "Code Executor Settings")
-                .add_field(FieldDescriptor::new("language", "Language", FieldType::Select(vec!["python".into(), "javascript".into(), "bash".into()])).with_default("python"))
-                .add_field(FieldDescriptor::new("timeout_ms", "Timeout (ms)", FieldType::Number).with_default("5000")),
+                .add_field(
+                    FieldDescriptor::new(
+                        "language",
+                        "Language",
+                        FieldType::Select(vec![
+                            "python".into(),
+                            "javascript".into(),
+                            "bash".into(),
+                        ]),
+                    )
+                    .with_default("python"),
+                )
+                .add_field(
+                    FieldDescriptor::new("timeout_ms", "Timeout (ms)", FieldType::Number)
+                        .with_default("5000"),
+                ),
         );
 
         r.register(
-            ConfigPanel::new("verifier.json_schema", "JSON Schema Verifier")
-                .add_field(FieldDescriptor::new("schema", "JSON Schema", FieldType::TextArea).required()),
+            ConfigPanel::new("verifier.json_schema", "JSON Schema Verifier").add_field(
+                FieldDescriptor::new("schema", "JSON Schema", FieldType::TextArea).required(),
+            ),
         );
 
         r.register(
-            ConfigPanel::new("verifier.hallucination", "Hallucination Detector")
-                .add_field(FieldDescriptor::new("threshold", "Threshold", FieldType::Number).with_default("0.5")),
+            ConfigPanel::new("verifier.hallucination", "Hallucination Detector").add_field(
+                FieldDescriptor::new("threshold", "Threshold", FieldType::Number)
+                    .with_default("0.5"),
+            ),
         );
 
         r.register(
-            ConfigPanel::new("control.router", "Router Settings")
-                .add_field(FieldDescriptor::new("strategy", "Strategy", FieldType::Select(vec!["first_match".into(), "round_robin".into(), "random".into()]))),
+            ConfigPanel::new("control.router", "Router Settings").add_field(FieldDescriptor::new(
+                "strategy",
+                "Strategy",
+                FieldType::Select(vec![
+                    "first_match".into(),
+                    "round_robin".into(),
+                    "random".into(),
+                ]),
+            )),
         );
 
         r.register(
             ConfigPanel::new("control.loop", "Loop Settings")
-                .add_field(FieldDescriptor::new("max_iterations", "Max Iterations", FieldType::Number).with_default("10").required())
-                .add_field(FieldDescriptor::new("condition", "Break Condition", FieldType::Text).with_hint("Expression that returns true to break the loop")),
+                .add_field(
+                    FieldDescriptor::new("max_iterations", "Max Iterations", FieldType::Number)
+                        .with_default("10")
+                        .required(),
+                )
+                .add_field(
+                    FieldDescriptor::new("condition", "Break Condition", FieldType::Text)
+                        .with_hint("Expression that returns true to break the loop"),
+                ),
         );
 
         r
@@ -166,7 +220,11 @@ pub struct PanelEditSession {
 }
 
 impl PanelEditSession {
-    pub fn new(node_id: Id, node_kind: impl Into<String>, initial: HashMap<String, String>) -> Self {
+    pub fn new(
+        node_id: Id,
+        node_kind: impl Into<String>,
+        initial: HashMap<String, String>,
+    ) -> Self {
         PanelEditSession {
             node_id,
             node_kind: node_kind.into(),

@@ -1,3 +1,10 @@
+pub mod batch;
+pub mod chunker;
+pub mod chunker_tests;
+pub mod citation;
+pub mod cohere;
+pub mod context;
+pub mod context_tests;
 /// Pluggable embedding providers and retrieval pipeline for ancora-memory.
 ///
 /// Modules:
@@ -13,22 +20,14 @@
 /// - `rerank`         -- optional rerank stage
 /// - `context`        -- context assembly with token budget
 /// - `citation`       -- citation metadata passthrough
-
 pub mod embedder;
-pub mod openai;
-pub mod local;
-pub mod cohere;
-pub mod qwen_glm;
-pub mod batch;
-pub mod chunker;
-pub mod loader;
-pub mod pipeline;
-pub mod rerank;
-pub mod context;
-pub mod citation;
 pub mod embedder_tests;
-pub mod chunker_tests;
-pub mod pipeline_tests;
-pub mod rerank_tests;
-pub mod context_tests;
+pub mod loader;
 pub mod loader_tests;
+pub mod local;
+pub mod openai;
+pub mod pipeline;
+pub mod pipeline_tests;
+pub mod qwen_glm;
+pub mod rerank;
+pub mod rerank_tests;

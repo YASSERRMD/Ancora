@@ -3,7 +3,6 @@
 /// TypeScript / Node.js extensions communicate with Ancora via the `ancora-napi`
 /// N-API binding.  This module contains the Rust-side mirror of the TypeScript
 /// interface contract plus validation helpers used by the binding layer.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
@@ -87,10 +86,7 @@ pub fn canonical_ts_interface() -> TsInterfaceDescriptor {
                 name: "execute".to_string(),
                 params: vec![(
                     "args".to_string(),
-                    TsType::Record(
-                        Box::new(TsType::String),
-                        Box::new(TsType::Unknown),
-                    ),
+                    TsType::Record(Box::new(TsType::String), Box::new(TsType::Unknown)),
                 )],
                 return_type: TsType::Unknown,
                 is_async: true,
@@ -109,13 +105,14 @@ pub fn canonical_ts_interface() -> TsInterfaceDescriptor {
 // TypeScript extension adapter
 // ---------------------------------------------------------------------------
 
+type ExecuteFn = Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>;
+
 /// Adapter that wraps a TypeScript extension and exposes it as a Rust
 /// `ToolExtension`.  In production the execute closure calls into the N-API
 /// binding; in tests we inject a plain closure.
 pub struct TsExtensionAdapter {
     meta: ToolMeta,
-    execute_fn:
-        Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
+    execute_fn: ExecuteFn,
 }
 
 impl TsExtensionAdapter {
@@ -148,14 +145,14 @@ impl TsExtensionAdapter {
 /// Check that a `Value` returned from a TypeScript extension matches the
 /// expected TypeScript return type annotation.
 pub fn validate_ts_value(value: &Value, expected: &TsType) -> bool {
-    match (value, expected) {
-        (Value::Str(_), TsType::String) => true,
-        (Value::Int(_) | Value::Float(_), TsType::Number) => true,
-        (Value::Bool(_), TsType::Boolean) => true,
-        (Value::Null, TsType::Null | TsType::Undefined) => true,
-        (Value::Array(_), TsType::Array(_)) => true,
-        (Value::Map(_), TsType::Record(_, _)) => true,
-        (_, TsType::Any | TsType::Unknown) => true,
-        _ => false,
-    }
+    matches!(
+        (value, expected),
+        (Value::Str(_), TsType::String)
+            | (Value::Int(_) | Value::Float(_), TsType::Number)
+            | (Value::Bool(_), TsType::Boolean)
+            | (Value::Null, TsType::Null | TsType::Undefined)
+            | (Value::Array(_), TsType::Array(_))
+            | (Value::Map(_), TsType::Record(_, _))
+            | (_, TsType::Any | TsType::Unknown)
+    )
 }

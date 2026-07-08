@@ -70,7 +70,9 @@ pub struct AlertPolicy {
 
 impl Default for AlertPolicy {
     fn default() -> Self {
-        Self { min_severity: Severity::Warning }
+        Self {
+            min_severity: Severity::Warning,
+        }
     }
 }
 

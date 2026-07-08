@@ -12,34 +12,53 @@ fn test_command_appears_in_help_section() {
     let section = build_plugin_help_section(&specs, "Plugin Commands", &config);
     let rendered = section.render();
 
-    assert!(rendered.contains("Plugin Commands"), "section title should appear");
+    assert!(
+        rendered.contains("Plugin Commands"),
+        "section title should appear"
+    );
     assert!(rendered.contains("do-thing"), "command name should appear");
-    assert!(rendered.contains("Does the thing"), "short help should appear");
-    assert!(rendered.contains("other-cmd"), "second command should appear");
+    assert!(
+        rendered.contains("Does the thing"),
+        "short help should appear"
+    );
+    assert!(
+        rendered.contains("other-cmd"),
+        "second command should appear"
+    );
 }
 
 #[test]
 fn test_aliases_appear_in_help_when_enabled() {
     let spec = CommandSpec::new("greet", "Greet someone", "Long").with_alias("hello");
-    let mut config = HelpConfig::default();
-    config.show_aliases = true;
+    let config = HelpConfig {
+        show_aliases: true,
+        ..Default::default()
+    };
 
     let section = build_plugin_help_section(&[spec], "Plugin Commands", &config);
     let rendered = section.render();
 
-    assert!(rendered.contains("hello"), "alias should appear when show_aliases is true");
+    assert!(
+        rendered.contains("hello"),
+        "alias should appear when show_aliases is true"
+    );
 }
 
 #[test]
 fn test_aliases_hidden_when_disabled() {
     let spec = CommandSpec::new("greet", "Greet someone", "Long").with_alias("hello");
-    let mut config = HelpConfig::default();
-    config.show_aliases = false;
+    let config = HelpConfig {
+        show_aliases: false,
+        ..Default::default()
+    };
 
     let section = build_plugin_help_section(&[spec], "Plugin Commands", &config);
     let rendered = section.render();
 
-    assert!(!rendered.contains("hello"), "alias should be hidden when show_aliases is false");
+    assert!(
+        !rendered.contains("hello"),
+        "alias should be hidden when show_aliases is false"
+    );
 }
 
 #[test]
@@ -51,7 +70,16 @@ fn test_compose_help_merges_builtin_and_plugin_sections() {
 
     let composed = compose_help(builtin, &[section]);
 
-    assert!(composed.contains("Usage: ancora"), "builtin help should be present");
-    assert!(composed.contains("Plugin Commands"), "plugin section should be present");
-    assert!(composed.contains("plugin-cmd"), "plugin command should appear in composed help");
+    assert!(
+        composed.contains("Usage: ancora"),
+        "builtin help should be present"
+    );
+    assert!(
+        composed.contains("Plugin Commands"),
+        "plugin section should be present"
+    );
+    assert!(
+        composed.contains("plugin-cmd"),
+        "plugin command should appear in composed help"
+    );
 }

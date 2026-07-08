@@ -14,7 +14,9 @@ mod tests {
     #[test]
     fn error_budget_full_when_all_success() {
         let mut b = ErrorBudget::new(target_99_9());
-        for _ in 0..1000 { b.record(true); }
+        for _ in 0..1000 {
+            b.record(true);
+        }
         assert!((b.budget_remaining_fraction() - 1.0).abs() < 1e-6);
     }
 
@@ -23,8 +25,12 @@ mod tests {
         let mut b = ErrorBudget::new(target_99_9());
         // 1000 requests, 0.5 * allowed_errors consumed
         // allowed error rate = 0.001, 0.0005 observed = 50% consumed
-        for _ in 0..9995 { b.record(true); }
-        for _ in 0..5 { b.record(false); }
+        for _ in 0..9995 {
+            b.record(true);
+        }
+        for _ in 0..5 {
+            b.record(false);
+        }
         // 5/10000 = 0.0005 error rate, allowed 0.001 -> 50% consumed -> 50% remaining
         let remaining = b.budget_remaining_fraction();
         assert!(remaining > 0.4 && remaining < 0.6, "remaining={remaining}");
@@ -33,8 +39,12 @@ mod tests {
     #[test]
     fn slo_breached_when_below_target() {
         let mut b = ErrorBudget::new(target_99_9());
-        for _ in 0..990 { b.record(true); }
-        for _ in 0..10 { b.record(false); }
+        for _ in 0..990 {
+            b.record(true);
+        }
+        for _ in 0..10 {
+            b.record(false);
+        }
         assert!(b.is_breached());
     }
 

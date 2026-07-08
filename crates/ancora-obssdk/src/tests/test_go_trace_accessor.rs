@@ -1,5 +1,5 @@
-use crate::go_helpers::{GoCostAccessor, GoTraceAccessor};
 use crate::context::CostRecord;
+use crate::go_helpers::{GoCostAccessor, GoTraceAccessor};
 
 #[test]
 fn go_trace_accessor_returns_spans() {

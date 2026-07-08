@@ -18,15 +18,39 @@ fn structural_key(ev: &JournalEvent) -> String {
 
 fn make_lang_journal(run_id: &str, lang: &str) -> Vec<JournalEvent> {
     vec![
-        JournalEvent { event_id: format!("{}-{}-0", run_id, lang), run_id: run_id.into(), seq: 0, recorded_at_ns: 0,
-            event: Some(Event::RunStarted(RunStartedEvent { run_id: run_id.into(), spec_bytes: vec![], spec_type: "AgentSpec".into() })) },
-        JournalEvent { event_id: format!("{}-{}-1", run_id, lang), run_id: run_id.into(), seq: 1, recorded_at_ns: 1_000,
+        JournalEvent {
+            event_id: format!("{}-{}-0", run_id, lang),
+            run_id: run_id.into(),
+            seq: 0,
+            recorded_at_ns: 0,
+            event: Some(Event::RunStarted(RunStartedEvent {
+                run_id: run_id.into(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".into(),
+            })),
+        },
+        JournalEvent {
+            event_id: format!("{}-{}-1", run_id, lang),
+            run_id: run_id.into(),
+            seq: 1,
+            recorded_at_ns: 1_000,
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
-                activity_key: "main-agent".into(), activity_kind: "agent-output".into(),
+                activity_key: "main-agent".into(),
+                activity_kind: "agent-output".into(),
                 input_json: r#"{"task":"conformance"}"#.into(),
-                result_json: format!(r#"{{"text":"{} result"}}"#, lang), replayed: false })) },
-        JournalEvent { event_id: format!("{}-{}-2", run_id, lang), run_id: run_id.into(), seq: 2, recorded_at_ns: 2_000,
-            event: Some(Event::RunCompleted(RunCompletedEvent { output_json: format!(r#"{{"lang":"{}","ok":true}}"#, lang) })) },
+                result_json: format!(r#"{{"text":"{} result"}}"#, lang),
+                replayed: false,
+            })),
+        },
+        JournalEvent {
+            event_id: format!("{}-{}-2", run_id, lang),
+            run_id: run_id.into(),
+            seq: 2,
+            recorded_at_ns: 2_000,
+            event: Some(Event::RunCompleted(RunCompletedEvent {
+                output_json: format!(r#"{{"lang":"{}","ok":true}}"#, lang),
+            })),
+        },
     ]
 }
 
@@ -49,7 +73,9 @@ fn journals_have_identical_structural_keys_across_languages() {
 #[test]
 fn journals_have_same_event_count_across_languages() {
     let count = make_lang_journal(RUN_ID, LANGS[0]).len();
-    for lang in LANGS { assert_eq!(make_lang_journal(RUN_ID, lang).len(), count); }
+    for lang in LANGS {
+        assert_eq!(make_lang_journal(RUN_ID, lang).len(), count);
+    }
 }
 
 #[test]
@@ -64,21 +90,33 @@ fn journals_have_same_seq_sequence() {
 #[test]
 fn journals_have_same_run_id() {
     for lang in LANGS {
-        for ev in &make_lang_journal(RUN_ID, lang) { assert_eq!(ev.run_id, RUN_ID); }
+        for ev in &make_lang_journal(RUN_ID, lang) {
+            assert_eq!(ev.run_id, RUN_ID);
+        }
     }
 }
 
 #[test]
 fn result_json_differs_across_languages() {
-    let jsons: std::collections::HashSet<String> = LANGS.iter().map(|l| {
-        let j = make_lang_journal(RUN_ID, l);
-        if let Some(Event::ActivityRecorded(a)) = &j[1].event { a.result_json.clone() } else { String::new() }
-    }).collect();
+    let jsons: std::collections::HashSet<String> = LANGS
+        .iter()
+        .map(|l| {
+            let j = make_lang_journal(RUN_ID, l);
+            if let Some(Event::ActivityRecorded(a)) = &j[1].event {
+                a.result_json.clone()
+            } else {
+                String::new()
+            }
+        })
+        .collect();
     assert!(jsons.len() > 1);
 }
 
 #[test]
 fn structural_keys_are_three_events() {
     let keys = structural_keys(&make_lang_journal(RUN_ID, "rust"));
-    assert_eq!(keys, vec!["RunStarted", "ActivityRecorded:main-agent", "RunCompleted"]);
+    assert_eq!(
+        keys,
+        vec!["RunStarted", "ActivityRecorded:main-agent", "RunCompleted"]
+    );
 }

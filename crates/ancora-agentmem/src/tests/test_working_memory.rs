@@ -15,7 +15,9 @@ fn ring_buffer_evicts_oldest() {
 #[test]
 fn peek_recent_respects_n() {
     let mut wm = WorkingMemory::new(10);
-    for i in 0..5 { wm.push(i.to_string()); }
+    for i in 0..5 {
+        wm.push(i.to_string());
+    }
     assert_eq!(wm.peek_recent(2).len(), 2);
 }
 

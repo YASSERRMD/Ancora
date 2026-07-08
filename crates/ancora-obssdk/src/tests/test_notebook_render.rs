@@ -4,7 +4,11 @@ use crate::notebook::{NotebookOutputFormat, NotebookTraceRenderer};
 fn make_trace() -> Trace {
     let mut t = Trace::new("nb-test-trace");
     t.add_span(Span::new("s1", "root.op", 0).finish(2000));
-    t.add_span(Span::new("s2", "sub.op", 200).with_parent("s1").finish(1800));
+    t.add_span(
+        Span::new("s2", "sub.op", 200)
+            .with_parent("s1")
+            .finish(1800),
+    );
     t
 }
 

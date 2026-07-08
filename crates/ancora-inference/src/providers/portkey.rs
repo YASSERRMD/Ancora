@@ -18,11 +18,36 @@ pub fn build_portkey_profile() -> ProviderProfile {
             header: "x-portkey-api-key".to_owned(),
         },
     )
-    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("openai/gpt-4o-mini", 128_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("anthropic/claude-3-5-haiku", 200_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("anthropic/claude-3-7-sonnet", 200_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("gemini/gemini-2.0-flash", 1_048_576).with_tools().with_vision().with_streaming())
+    .add_model(
+        ModelMeta::new("openai/gpt-4o", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("openai/gpt-4o-mini", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("anthropic/claude-3-5-haiku", 200_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("anthropic/claude-3-7-sonnet", 200_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("gemini/gemini-2.0-flash", 1_048_576)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
     .add_alias("gpt-4o", "openai/gpt-4o")
     .add_alias("gpt-4o-mini", "openai/gpt-4o-mini")
     .add_alias("haiku", "anthropic/claude-3-5-haiku")
@@ -47,7 +72,12 @@ pub fn build_portkey_virtual_key_profile(virtual_key_env: impl Into<String>) -> 
         },
     )
     .with_extra_header("x-portkey-virtual-key", format!("${{{}}}", vk_env))
-    .add_model(ModelMeta::new("default", 200_000).with_tools().with_vision().with_streaming())
+    .add_model(
+        ModelMeta::new("default", 200_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
 }
 
 /// Configuration builder for Portkey gateway routing options.
@@ -62,16 +92,21 @@ pub struct PortkeyConfig {
 }
 
 impl PortkeyConfig {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn with_config(mut self, config_id: impl Into<String>) -> Self {
-        self.config_id = Some(config_id.into()); self
+        self.config_id = Some(config_id.into());
+        self
     }
     pub fn with_virtual_key_env(mut self, env_var: impl Into<String>) -> Self {
-        self.virtual_key_env = Some(env_var.into()); self
+        self.virtual_key_env = Some(env_var.into());
+        self
     }
     pub fn with_trace_id(mut self, trace_id: impl Into<String>) -> Self {
-        self.trace_id = Some(trace_id.into()); self
+        self.trace_id = Some(trace_id.into());
+        self
     }
 }
 
@@ -111,7 +146,9 @@ mod tests {
 
     #[test]
     fn portkey_recorded_fixture_completes() {
-        let resp = pk_client().parse_response(PORTKEY_FIXTURE, "openai/gpt-4o").unwrap();
+        let resp = pk_client()
+            .parse_response(PORTKEY_FIXTURE, "openai/gpt-4o")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Portkey");
         assert_eq!(resp.tokens_in, 11);
         assert_eq!(resp.tokens_out, 4);
@@ -146,7 +183,9 @@ mod tests {
         let cfg = PortkeyConfig::new().with_trace_id("req-abc123");
         let p = build_portkey_from_config(cfg);
         assert_eq!(
-            p.extra_headers.get("x-portkey-trace-id").map(|s| s.as_str()),
+            p.extra_headers
+                .get("x-portkey-trace-id")
+                .map(|s| s.as_str()),
             Some("req-abc123")
         );
     }

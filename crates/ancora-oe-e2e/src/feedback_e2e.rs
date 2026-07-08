@@ -1,4 +1,4 @@
-/// Feedback module: collects user feedback and feeds it into eval datasets.
+//! Feedback module: collects user feedback and feeds it into eval datasets.
 
 /// A single feedback item from a user or reviewer.
 #[derive(Debug, Clone)]
@@ -90,12 +90,15 @@ pub fn feedback_to_eval_entries(
 ) -> FeedbackEvalDataset {
     let mut dataset = FeedbackEvalDataset::new();
     for item in feedback {
-        if let (Some(input), Some(output)) = (
-            run_inputs.get(&item.run_id),
-            run_outputs.get(&item.run_id),
-        ) {
+        if let (Some(input), Some(output)) =
+            (run_inputs.get(&item.run_id), run_outputs.get(&item.run_id))
+        {
             let label = item.label.clone().unwrap_or_else(|| {
-                if item.is_positive() { "positive".to_string() } else { "negative".to_string() }
+                if item.is_positive() {
+                    "positive".to_string()
+                } else {
+                    "negative".to_string()
+                }
             });
             dataset.add(EvalDatasetEntry {
                 source_run_id: item.run_id.clone(),

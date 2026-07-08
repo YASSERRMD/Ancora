@@ -167,8 +167,7 @@ impl DeviceRecommender {
             recommended_model_name: Some(best.model.name.clone()),
             reason: format!(
                 "largest model fitting {:.0}MiB RAM and {:.0}ms latency constraint",
-                device.ram_mib,
-                device.max_latency_per_token_ms,
+                device.ram_mib, device.max_latency_per_token_ms,
             ),
             candidates_evaluated: eligible.len(),
         }

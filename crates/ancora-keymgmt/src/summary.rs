@@ -13,10 +13,16 @@ pub struct TenantKeySummary {
 }
 
 impl TenantKeySummary {
-    pub fn generate(store: &KeyStore, tenant_id: &str, current_tick: u64, warning_ticks: u64) -> Self {
+    pub fn generate(
+        store: &KeyStore,
+        tenant_id: &str,
+        current_tick: u64,
+        warning_ticks: u64,
+    ) -> Self {
         let stats = KeyStats::for_tenant(store, tenant_id);
         let expired = ExpiryChecker::expired_keys(store, tenant_id, current_tick);
-        let expiring_soon = ExpiryChecker::expiring_soon(store, tenant_id, current_tick, warning_ticks);
+        let expiring_soon =
+            ExpiryChecker::expiring_soon(store, tenant_id, current_tick, warning_ticks);
         let issues = KeyValidator::validate_tenant(store, tenant_id, current_tick);
         Self {
             tenant_id: tenant_id.to_string(),

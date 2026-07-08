@@ -1,9 +1,9 @@
 /// Kimi (Moonshot AI) provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const KIMI_V1_5: &str         = "moonshot-v1-128k";
-const KIMI_V1_8K: &str        = "moonshot-v1-8k";
-const KIMI_V1_32K: &str       = "moonshot-v1-32k";
+const KIMI_V1_5: &str = "moonshot-v1-128k";
+const KIMI_V1_8K: &str = "moonshot-v1-8k";
+const KIMI_V1_32K: &str = "moonshot-v1-32k";
 
 fn kimi_router() -> ModelRouter {
     let mut r = ModelRouter::new(KIMI_V1_5);
@@ -35,7 +35,10 @@ fn kimi_unbound_falls_back_to_128k() {
 #[test]
 fn kimi_model_strings_start_with_moonshot() {
     for m in [KIMI_V1_5, KIMI_V1_8K, KIMI_V1_32K] {
-        assert!(m.starts_with("moonshot-"), "Expected moonshot- prefix in {m}");
+        assert!(
+            m.starts_with("moonshot-"),
+            "Expected moonshot- prefix in {m}"
+        );
     }
 }
 

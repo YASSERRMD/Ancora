@@ -8,8 +8,15 @@ fn replacing_override_updates_value() {
     let updated = apply_overrides(preset, vec![("budget".to_string(), "500".to_string())]);
     assert_eq!(get_override(&updated, "budget"), Some("500"));
     // Confirm only one entry for the key
-    let count = updated.overrides.iter().filter(|(k, _)| k == "budget").count();
-    assert_eq!(count, 1, "should have exactly one budget entry after replace");
+    let count = updated
+        .overrides
+        .iter()
+        .filter(|(k, _)| k == "budget")
+        .count();
+    assert_eq!(
+        count, 1,
+        "should have exactly one budget entry after replace"
+    );
 }
 
 #[test]

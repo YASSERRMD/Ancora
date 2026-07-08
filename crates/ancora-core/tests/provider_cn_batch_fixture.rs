@@ -2,23 +2,23 @@
 use ancora_core::routing::ModelRouter;
 
 // StepFun
-const STEP_2: &str       = "step-2-16k";
-const STEP_1_V: &str     = "step-1v-32k";
+const STEP_2: &str = "step-2-16k";
+const STEP_1_V: &str = "step-1v-32k";
 
 // Baidu Ernie
-const ERNIE_SPEED: &str  = "ernie-speed-128k";
-const ERNIE_4: &str      = "ernie-4.0-8k";
+const ERNIE_SPEED: &str = "ernie-speed-128k";
+const ERNIE_4: &str = "ernie-4.0-8k";
 
 // Tencent Hunyuan
-const HUNYUAN_PRO: &str  = "hunyuan-pro";
+const HUNYUAN_PRO: &str = "hunyuan-pro";
 const HUNYUAN_LITE: &str = "hunyuan-lite";
 
 // Doubao (ByteDance)
-const DOUBAO_PRO: &str   = "doubao-pro-32k";
-const DOUBAO_LITE: &str  = "doubao-lite-4k";
+const DOUBAO_PRO: &str = "doubao-pro-32k";
+const DOUBAO_LITE: &str = "doubao-lite-4k";
 
 // Mimo (placeholder)
-const MIMO_7B: &str      = "mimo-7b";
+const MIMO_7B: &str = "mimo-7b";
 
 fn cn_router() -> ModelRouter {
     let mut r = ModelRouter::new(ERNIE_4);
@@ -81,8 +81,15 @@ fn mimo_7b_binding_resolves() {
 #[test]
 fn all_cn_models_distinct() {
     let models = [
-        STEP_2, STEP_1_V, ERNIE_SPEED, ERNIE_4,
-        HUNYUAN_PRO, HUNYUAN_LITE, DOUBAO_PRO, DOUBAO_LITE, MIMO_7B,
+        STEP_2,
+        STEP_1_V,
+        ERNIE_SPEED,
+        ERNIE_4,
+        HUNYUAN_PRO,
+        HUNYUAN_LITE,
+        DOUBAO_PRO,
+        DOUBAO_LITE,
+        MIMO_7B,
     ];
     let unique: std::collections::HashSet<&str> = models.iter().copied().collect();
     assert_eq!(unique.len(), 9);
@@ -90,7 +97,17 @@ fn all_cn_models_distinct() {
 
 #[test]
 fn all_cn_models_no_whitespace() {
-    for m in [STEP_2, STEP_1_V, ERNIE_SPEED, ERNIE_4, HUNYUAN_PRO, HUNYUAN_LITE, DOUBAO_PRO, DOUBAO_LITE, MIMO_7B] {
+    for m in [
+        STEP_2,
+        STEP_1_V,
+        ERNIE_SPEED,
+        ERNIE_4,
+        HUNYUAN_PRO,
+        HUNYUAN_LITE,
+        DOUBAO_PRO,
+        DOUBAO_LITE,
+        MIMO_7B,
+    ] {
         assert_eq!(m.trim(), m);
     }
 }

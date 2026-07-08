@@ -8,7 +8,10 @@ pub struct WebhookRouter {
 
 impl WebhookRouter {
     pub fn new(endpoint: impl Into<String>) -> Self {
-        Self { endpoint: endpoint.into(), sent: Vec::new() }
+        Self {
+            endpoint: endpoint.into(),
+            sent: Vec::new(),
+        }
     }
 
     /// In production this would POST to the endpoint; here it accumulates into `sent`.

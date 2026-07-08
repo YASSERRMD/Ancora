@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::component::Component;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SbomFormat {
@@ -38,7 +38,9 @@ impl Sbom {
         self.components.push(c);
     }
 
-    pub fn component_count(&self) -> usize { self.components.len() }
+    pub fn component_count(&self) -> usize {
+        self.components.len()
+    }
 
     pub fn find_by_name(&self, name: &str) -> Option<&Component> {
         self.components.iter().find(|c| c.name == name)
@@ -49,7 +51,10 @@ impl Sbom {
     }
 
     pub fn proprietary_count(&self) -> usize {
-        self.components.iter().filter(|c| !c.is_open_source()).count()
+        self.components
+            .iter()
+            .filter(|c| !c.is_open_source())
+            .count()
     }
 }
 
@@ -57,12 +62,31 @@ pub struct SbomStore {
     sboms: HashMap<String, Sbom>,
 }
 
-impl SbomStore {
-    pub fn new() -> Self { Self { sboms: HashMap::new() } }
-    pub fn insert(&mut self, sbom: Sbom) { self.sboms.insert(sbom.id.clone(), sbom); }
-    pub fn get(&self, id: &str) -> Option<&Sbom> { self.sboms.get(id) }
-    pub fn for_tenant(&self, tenant_id: &str) -> Vec<&Sbom> {
-        self.sboms.values().filter(|s| s.tenant_id == tenant_id).collect()
+impl Default for SbomStore {
+    fn default() -> Self {
+        Self::new()
     }
-    pub fn count(&self) -> usize { self.sboms.len() }
+}
+
+impl SbomStore {
+    pub fn new() -> Self {
+        Self {
+            sboms: HashMap::new(),
+        }
+    }
+    pub fn insert(&mut self, sbom: Sbom) {
+        self.sboms.insert(sbom.id.clone(), sbom);
+    }
+    pub fn get(&self, id: &str) -> Option<&Sbom> {
+        self.sboms.get(id)
+    }
+    pub fn for_tenant(&self, tenant_id: &str) -> Vec<&Sbom> {
+        self.sboms
+            .values()
+            .filter(|s| s.tenant_id == tenant_id)
+            .collect()
+    }
+    pub fn count(&self) -> usize {
+        self.sboms.len()
+    }
 }

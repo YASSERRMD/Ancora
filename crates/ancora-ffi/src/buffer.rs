@@ -9,10 +9,16 @@ pub struct AncorBuffer {
 
 /// Allocate a buffer containing a copy of `bytes`.
 /// Returns a zero-length buffer with null ptr if `bytes` is empty.
+///
+/// # Safety
+/// If `bytes` is non-null, it must point to at least `len` valid, readable bytes.
 #[no_mangle]
-pub extern "C" fn ancora_buffer_new(bytes: *const u8, len: usize) -> AncorBuffer {
+pub unsafe extern "C" fn ancora_buffer_new(bytes: *const u8, len: usize) -> AncorBuffer {
     if len == 0 || bytes.is_null() {
-        return AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+        return AncorBuffer {
+            ptr: std::ptr::null_mut(),
+            len: 0,
+        };
     }
     let slice = unsafe { std::slice::from_raw_parts(bytes, len) };
     let mut vec = slice.to_vec();
@@ -24,8 +30,12 @@ pub extern "C" fn ancora_buffer_new(bytes: *const u8, len: usize) -> AncorBuffer
 
 /// Free a buffer previously created by `ancora_buffer_new` or `ancora_buffer_from_str`.
 /// Passing a zero-length or null-ptr buffer is a no-op.
+///
+/// # Safety
+/// `buf` must have been returned by `ancora_buffer_new`/`ancora_buffer_from_str`
+/// (or be zero-length/null), and must not be freed more than once.
 #[no_mangle]
-pub extern "C" fn ancora_buffer_free(buf: AncorBuffer) {
+pub unsafe extern "C" fn ancora_buffer_free(buf: AncorBuffer) {
     if buf.ptr.is_null() || buf.len == 0 {
         return;
     }
@@ -36,5 +46,7 @@ pub extern "C" fn ancora_buffer_free(buf: AncorBuffer) {
 
 /// Build a buffer from a Rust string slice (UTF-8 bytes, no null terminator).
 pub fn ancora_buffer_from_str(s: &str) -> AncorBuffer {
-    ancora_buffer_new(s.as_ptr(), s.len())
+    // Safety: `s.as_ptr()`/`s.len()` come from a valid `&str`, so the
+    // pointer and length are always consistent and non-dangling.
+    unsafe { ancora_buffer_new(s.as_ptr(), s.len()) }
 }

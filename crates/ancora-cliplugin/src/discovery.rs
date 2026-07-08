@@ -1,6 +1,5 @@
 /// Plugin discovery - locates plugin manifests on the file system and returns
 /// descriptors that can be used to load them.
-
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -162,7 +161,10 @@ fn scan_dir(
                 .to_string()
         });
         let name = kv.get("name").cloned().unwrap_or_else(|| id.clone());
-        let version = kv.get("version").cloned().unwrap_or_else(|| "0.0.0".to_string());
+        let version = kv
+            .get("version")
+            .cloned()
+            .unwrap_or_else(|| "0.0.0".to_string());
         let source = source_fn(candidate.clone());
         let mut desc = PluginDescriptor::new(id, name, version, candidate, source);
         for (k, v) in &kv {
@@ -200,7 +202,10 @@ pub fn discover(config: &DiscoveryConfig) -> Vec<PluginDescriptor> {
             });
             if seen_ids.insert(id.clone()) {
                 let name = kv.get("name").cloned().unwrap_or_else(|| id.clone());
-                let version = kv.get("version").cloned().unwrap_or_else(|| "0.0.0".to_string());
+                let version = kv
+                    .get("version")
+                    .cloned()
+                    .unwrap_or_else(|| "0.0.0".to_string());
                 let source = DiscoverySource::Explicit(path.clone());
                 let mut desc = PluginDescriptor::new(id, name, version, path.clone(), source);
                 for (k, v) in &kv {
@@ -216,7 +221,9 @@ pub fn discover(config: &DiscoveryConfig) -> Vec<PluginDescriptor> {
     // User dirs.
     for dir in &config.user_dirs {
         let dir_clone = dir.clone();
-        for desc in scan_dir(dir, manifest, |p| DiscoverySource::UserDir(dir_clone.clone().join(p.file_name().unwrap_or_default()))) {
+        for desc in scan_dir(dir, manifest, |p| {
+            DiscoverySource::UserDir(dir_clone.clone().join(p.file_name().unwrap_or_default()))
+        }) {
             if seen_ids.insert(desc.id.clone()) {
                 results.push(desc);
             }
@@ -226,7 +233,9 @@ pub fn discover(config: &DiscoveryConfig) -> Vec<PluginDescriptor> {
     // System dirs.
     for dir in &config.system_dirs {
         let dir_clone = dir.clone();
-        for desc in scan_dir(dir, manifest, |p| DiscoverySource::SystemDir(dir_clone.clone().join(p.file_name().unwrap_or_default()))) {
+        for desc in scan_dir(dir, manifest, |p| {
+            DiscoverySource::SystemDir(dir_clone.clone().join(p.file_name().unwrap_or_default()))
+        }) {
             if seen_ids.insert(desc.id.clone()) {
                 results.push(desc);
             }

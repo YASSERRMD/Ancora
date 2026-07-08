@@ -1,4 +1,4 @@
-/// Feedback and review view - human annotations and ratings on runs/steps.
+//! Feedback and review view - human annotations and ratings on runs/steps.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum FeedbackRating {

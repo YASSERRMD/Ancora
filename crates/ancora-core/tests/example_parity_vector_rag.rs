@@ -10,15 +10,33 @@ struct RagResult {
 }
 
 const RAG_RESULTS: &[RagResult] = &[
-    RagResult { backend: "inmemory", top_k: RAG_TOP_K, first_chunk_contains: "Paris" },
-    RagResult { backend: "sqlite",   top_k: RAG_TOP_K, first_chunk_contains: "Paris" },
-    RagResult { backend: "pgvector", top_k: RAG_TOP_K, first_chunk_contains: "Paris" },
-    RagResult { backend: "qdrant",   top_k: RAG_TOP_K, first_chunk_contains: "Paris" },
+    RagResult {
+        backend: "inmemory",
+        top_k: RAG_TOP_K,
+        first_chunk_contains: "Paris",
+    },
+    RagResult {
+        backend: "sqlite",
+        top_k: RAG_TOP_K,
+        first_chunk_contains: "Paris",
+    },
+    RagResult {
+        backend: "pgvector",
+        top_k: RAG_TOP_K,
+        first_chunk_contains: "Paris",
+    },
+    RagResult {
+        backend: "qdrant",
+        top_k: RAG_TOP_K,
+        first_chunk_contains: "Paris",
+    },
 ];
 
 fn simulated_rag(query: &str, k: usize) -> Vec<String> {
     let _ = query;
-    (0..k).map(|i| format!("Paris is the capital (chunk {})", i)).collect()
+    (0..k)
+        .map(|i| format!("Paris is the capital (chunk {})", i))
+        .collect()
 }
 
 #[test]
@@ -35,7 +53,9 @@ fn test_first_chunk_contains_paris() {
 
 #[test]
 fn test_all_backends_return_same_top_k() {
-    for r in RAG_RESULTS { assert_eq!(r.top_k, RAG_TOP_K, "backend {} top_k differs", r.backend); }
+    for r in RAG_RESULTS {
+        assert_eq!(r.top_k, RAG_TOP_K, "backend {} top_k differs", r.backend);
+    }
 }
 
 #[test]
@@ -46,12 +66,16 @@ fn test_four_backends_in_rag_parity() {
 #[test]
 fn test_all_backends_expect_paris_in_top_chunk() {
     for r in RAG_RESULTS {
-        assert!(r.first_chunk_contains.contains("Paris"),
-            "backend {} first chunk does not contain Paris", r.backend);
+        assert!(
+            r.first_chunk_contains.contains("Paris"),
+            "backend {} first chunk does not contain Paris",
+            r.backend
+        );
     }
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn test_query_is_non_empty() {
     assert!(!RAG_QUERY.is_empty());
 }

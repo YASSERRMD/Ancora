@@ -1,9 +1,9 @@
+mod test_capability;
 mod test_gguf;
-mod test_onnx;
 mod test_integrity;
+mod test_memory;
+mod test_onnx;
+mod test_prefetch;
 mod test_registry;
 mod test_runtime;
-mod test_memory;
-mod test_capability;
 mod test_tradeoff;
-mod test_prefetch;

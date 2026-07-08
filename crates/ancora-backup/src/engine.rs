@@ -23,15 +23,29 @@ impl BackupEngine {
     }
 
     fn encrypt(&self, data: Vec<u8>) -> Vec<u8> {
-        if self.key.is_empty() { data } else { xor_encrypt(&data, &self.key) }
+        if self.key.is_empty() {
+            data
+        } else {
+            xor_encrypt(&data, &self.key)
+        }
     }
 
     fn decrypt(&self, data: &[u8]) -> Vec<u8> {
-        if self.key.is_empty() { data.to_vec() } else { xor_decrypt(data, &self.key) }
+        if self.key.is_empty() {
+            data.to_vec()
+        } else {
+            xor_decrypt(data, &self.key)
+        }
     }
 
     /// Full snapshot backup.
-    pub fn snapshot(&self, journal: &Journal, memory: Vec<(String, String)>, config: Vec<(String, String)>, now: u64) -> Result<BackupArchive, BackupError> {
+    pub fn snapshot(
+        &self,
+        journal: &Journal,
+        memory: Vec<(String, String)>,
+        config: Vec<(String, String)>,
+        now: u64,
+    ) -> Result<BackupArchive, BackupError> {
         let payload = BackupPayload {
             journal: journal.snapshot(),
             memory,
@@ -41,26 +55,58 @@ impl BackupEngine {
     }
 
     /// Incremental backup (entries since `since_seq`).
-    pub fn incremental(&self, journal: &Journal, since_seq: u64, now: u64) -> Result<BackupArchive, BackupError> {
+    pub fn incremental(
+        &self,
+        journal: &Journal,
+        since_seq: u64,
+        now: u64,
+    ) -> Result<BackupArchive, BackupError> {
         let entries = journal.incremental(since_seq);
-        let payload = BackupPayload { journal: entries, memory: vec![], config: vec![] };
+        let payload = BackupPayload {
+            journal: entries,
+            memory: vec![],
+            config: vec![],
+        };
         self.build_archive(payload, journal.max_seq(), now)
     }
 
-    fn build_archive(&self, payload: BackupPayload, max_seq: u64, now: u64) -> Result<BackupArchive, BackupError> {
+    fn build_archive(
+        &self,
+        payload: BackupPayload,
+        max_seq: u64,
+        now: u64,
+    ) -> Result<BackupArchive, BackupError> {
         let raw = self.serialize_payload(&payload)?;
         let encrypted = self.encrypt(raw);
-        let manifest = BackupManifest::new(&encrypted, payload.journal.len(), max_seq, !self.key.is_empty(), now);
-        Ok(BackupArchive { manifest, payload: encrypted })
+        let manifest = BackupManifest::new(
+            &encrypted,
+            payload.journal.len(),
+            max_seq,
+            !self.key.is_empty(),
+            now,
+        );
+        Ok(BackupArchive {
+            manifest,
+            payload: encrypted,
+        })
     }
 
     /// Verify then restore a snapshot backup into `journal`.
-    pub fn restore_snapshot(&self, archive: &BackupArchive, journal: &mut Journal) -> Result<(), BackupError> {
-        self.verify_and_decode(archive).map(|p| journal.restore(p.journal))
+    pub fn restore_snapshot(
+        &self,
+        archive: &BackupArchive,
+        journal: &mut Journal,
+    ) -> Result<(), BackupError> {
+        self.verify_and_decode(archive)
+            .map(|p| journal.restore(p.journal))
     }
 
     /// Restore incremental backup by appending entries.
-    pub fn restore_incremental(&self, archive: &BackupArchive, journal: &mut Journal) -> Result<(), BackupError> {
+    pub fn restore_incremental(
+        &self,
+        archive: &BackupArchive,
+        journal: &mut Journal,
+    ) -> Result<(), BackupError> {
         let payload = self.verify_and_decode(archive)?;
         for entry in payload.journal {
             journal.append(entry);
@@ -69,9 +115,18 @@ impl BackupEngine {
     }
 
     /// Point-in-time restore: restore only entries with seq <= `up_to_seq`.
-    pub fn restore_pit(&self, archive: &BackupArchive, journal: &mut Journal, up_to_seq: u64) -> Result<(), BackupError> {
+    pub fn restore_pit(
+        &self,
+        archive: &BackupArchive,
+        journal: &mut Journal,
+        up_to_seq: u64,
+    ) -> Result<(), BackupError> {
         let payload = self.verify_and_decode(archive)?;
-        let entries: Vec<JournalEntry> = payload.journal.into_iter().filter(|e| e.seq <= up_to_seq).collect();
+        let entries: Vec<JournalEntry> = payload
+            .journal
+            .into_iter()
+            .filter(|e| e.seq <= up_to_seq)
+            .collect();
         journal.restore(entries);
         Ok(())
     }

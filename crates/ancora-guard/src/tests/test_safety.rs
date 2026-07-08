@@ -1,5 +1,5 @@
+use crate::guardrail::{GuardrailOutcome, OutputGuardrail};
 use crate::safety::SafetyOutputGuardrail;
-use crate::guardrail::{OutputGuardrail, GuardrailOutcome};
 
 #[test]
 fn unsafe_output_blocked() {
@@ -17,5 +17,8 @@ fn safe_output_passes() {
 #[test]
 fn drop_table_blocked() {
     let g = SafetyOutputGuardrail;
-    assert!(matches!(g.check_output("DROP TABLE users;"), GuardrailOutcome::Block(_)));
+    assert!(matches!(
+        g.check_output("DROP TABLE users;"),
+        GuardrailOutcome::Block(_)
+    ));
 }

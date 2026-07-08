@@ -16,7 +16,12 @@ pub struct TenantSnapshot {
 }
 
 impl TenantSnapshot {
-    pub fn capture(tick: u64, tenant: &Tenant, usage: &ResourceUsage, quota: &ResourceQuota) -> Self {
+    pub fn capture(
+        tick: u64,
+        tenant: &Tenant,
+        usage: &ResourceUsage,
+        quota: &ResourceQuota,
+    ) -> Self {
         Self {
             tick,
             id: tenant.id.clone(),
@@ -40,7 +45,9 @@ impl TenantSnapshot {
     }
 
     pub fn is_near_agent_limit(&self, threshold_pct: f64) -> bool {
-        if self.max_agents == u64::MAX { return false; }
+        if self.max_agents == u64::MAX {
+            return false;
+        }
         (self.agents as f64 / self.max_agents as f64) >= threshold_pct
     }
 }

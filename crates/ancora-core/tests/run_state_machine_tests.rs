@@ -54,7 +54,12 @@ fn running_to_pending_is_illegal() {
 
 #[test]
 fn completed_is_terminal_no_further_transitions() {
-    for next in [RunStatus::Running, RunStatus::Pending, RunStatus::Failed, RunStatus::Cancelled] {
+    for next in [
+        RunStatus::Running,
+        RunStatus::Pending,
+        RunStatus::Failed,
+        RunStatus::Cancelled,
+    ] {
         let err = RunStatus::Completed.transition(next);
         assert!(err.is_err(), "Completed must not transition to {:?}", next);
     }
@@ -62,7 +67,12 @@ fn completed_is_terminal_no_further_transitions() {
 
 #[test]
 fn cancelled_is_terminal_no_further_transitions() {
-    for next in [RunStatus::Running, RunStatus::Pending, RunStatus::Failed, RunStatus::Completed] {
+    for next in [
+        RunStatus::Running,
+        RunStatus::Pending,
+        RunStatus::Failed,
+        RunStatus::Completed,
+    ] {
         let err = RunStatus::Cancelled.transition(next);
         assert!(err.is_err(), "Cancelled must not transition to {:?}", next);
     }
@@ -70,7 +80,12 @@ fn cancelled_is_terminal_no_further_transitions() {
 
 #[test]
 fn failed_is_terminal_no_further_transitions() {
-    for next in [RunStatus::Running, RunStatus::Pending, RunStatus::Completed, RunStatus::Cancelled] {
+    for next in [
+        RunStatus::Running,
+        RunStatus::Pending,
+        RunStatus::Completed,
+        RunStatus::Cancelled,
+    ] {
         let err = RunStatus::Failed.transition(next);
         assert!(err.is_err(), "Failed must not transition to {:?}", next);
     }

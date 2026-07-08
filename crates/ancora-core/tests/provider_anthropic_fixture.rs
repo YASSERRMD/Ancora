@@ -20,7 +20,10 @@ fn anthropic_default_is_opus() {
 
 #[test]
 fn anthropic_sonnet_binding_resolves() {
-    assert_eq!(anthropic_router().resolve("sonnet-node", None), CLAUDE_SONNET);
+    assert_eq!(
+        anthropic_router().resolve("sonnet-node", None),
+        CLAUDE_SONNET
+    );
 }
 
 #[test]

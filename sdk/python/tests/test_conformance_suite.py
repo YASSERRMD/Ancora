@@ -73,5 +73,5 @@ def test_run_scenario_unknown_raises():
     rt = ancora.Runtime()
     import asyncio
     with pytest.raises(KeyError):
-        asyncio.get_event_loop().run_until_complete(suite.run_scenario("nope", rt))
+        asyncio.run(suite.run_scenario("nope", rt))
     rt.free()

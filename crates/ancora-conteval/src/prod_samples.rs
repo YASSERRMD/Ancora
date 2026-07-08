@@ -1,7 +1,7 @@
-/// Production sample management for continuous evaluation.
-///
-/// Draws samples from live production traffic (with redaction applied)
-/// to form an evaluation set that reflects real usage patterns.
+//! Production sample management for continuous evaluation.
+//!
+//! Draws samples from live production traffic (with redaction applied)
+//! to form an evaluation set that reflects real usage patterns.
 
 /// Sensitivity classification for a sample.
 #[derive(Debug, Clone, PartialEq)]
@@ -63,7 +63,10 @@ impl ProdSample {
 
     /// Returns true if this sample is safe for evaluation.
     pub fn is_eval_safe(&self) -> bool {
-        matches!(self.sensitivity, Sensitivity::Public | Sensitivity::Redacted)
+        matches!(
+            self.sensitivity,
+            Sensitivity::Public | Sensitivity::Redacted
+        )
     }
 }
 
@@ -75,7 +78,9 @@ pub struct ProdEvalSet {
 
 impl ProdEvalSet {
     pub fn new() -> Self {
-        ProdEvalSet { samples: Vec::new() }
+        ProdEvalSet {
+            samples: Vec::new(),
+        }
     }
 
     /// Add a sample to the set. Returns an error if the sample contains

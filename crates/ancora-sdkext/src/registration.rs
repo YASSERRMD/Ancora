@@ -3,7 +3,6 @@
 /// The registry is the central in-process catalogue of loaded extensions.
 /// Language adapters register their wrappers here; the runtime dispatches tool
 /// calls by looking up the registry.
-
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 

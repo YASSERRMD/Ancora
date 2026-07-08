@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::rule::{Effect, NetworkRule, Protocol};
+use std::fmt;
 
 impl fmt::Display for Protocol {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -28,7 +28,9 @@ impl fmt::Display for NetworkRule {
             self.id,
             self.effect,
             self.host_pattern,
-            self.port.map(|p| p.to_string()).unwrap_or_else(|| "*".to_string()),
+            self.port
+                .map(|p| p.to_string())
+                .unwrap_or_else(|| "*".to_string()),
             self.protocol,
             self.priority,
         )

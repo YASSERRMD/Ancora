@@ -14,7 +14,12 @@ impl UpgradeNote {
         breaking: bool,
         steps: Vec<&'static str>,
     ) -> Self {
-        Self { from_version, to_version, breaking, steps }
+        Self {
+            from_version,
+            to_version,
+            breaking,
+            steps,
+        }
     }
 
     pub fn is_breaking(&self) -> bool {
@@ -43,9 +48,7 @@ pub fn upgrade_notes() -> Vec<UpgradeNote> {
             "0.6.0",
             "0.6.x",
             false,
-            vec![
-                "Run `cargo update` to pick up patch releases",
-            ],
+            vec!["Run `cargo update` to pick up patch releases"],
         ),
     ]
 }

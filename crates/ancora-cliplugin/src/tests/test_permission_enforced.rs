@@ -76,10 +76,16 @@ fn test_custom_scope_is_recognized() {
 
 #[test]
 fn test_permission_scope_from_str() {
-    assert_eq!(PermissionScope::from_str("fs:read"), Some(PermissionScope::FsRead));
-    assert_eq!(PermissionScope::from_str("network"), Some(PermissionScope::Network));
     assert_eq!(
-        PermissionScope::from_str("custom:thing"),
+        PermissionScope::parse_str("fs:read"),
+        Some(PermissionScope::FsRead)
+    );
+    assert_eq!(
+        PermissionScope::parse_str("network"),
+        Some(PermissionScope::Network)
+    );
+    assert_eq!(
+        PermissionScope::parse_str("custom:thing"),
         Some(PermissionScope::Custom("custom:thing".to_string()))
     );
 }

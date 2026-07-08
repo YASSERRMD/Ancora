@@ -2,7 +2,6 @@
 ///
 /// This plugin registers a `greet` command that prints a greeting and an
 /// `echo` command that echoes its arguments back.
-
 use crate::interface::{
     ArgDef, CliPlugin, CommandSpec, ExecContext, ExecOutput, PluginError, PluginMeta, PluginResult,
 };

@@ -32,11 +32,23 @@ impl Tenant {
         self
     }
 
-    pub fn is_active(&self) -> bool { self.status == TenantStatus::Active }
-    pub fn is_suspended(&self) -> bool { self.status == TenantStatus::Suspended }
-    pub fn is_deleted(&self) -> bool { self.status == TenantStatus::Deleted }
+    pub fn is_active(&self) -> bool {
+        self.status == TenantStatus::Active
+    }
+    pub fn is_suspended(&self) -> bool {
+        self.status == TenantStatus::Suspended
+    }
+    pub fn is_deleted(&self) -> bool {
+        self.status == TenantStatus::Deleted
+    }
 
-    pub fn suspend(&mut self) { self.status = TenantStatus::Suspended; }
-    pub fn activate(&mut self) { self.status = TenantStatus::Active; }
-    pub fn delete(&mut self) { self.status = TenantStatus::Deleted; }
+    pub fn suspend(&mut self) {
+        self.status = TenantStatus::Suspended;
+    }
+    pub fn activate(&mut self) {
+        self.status = TenantStatus::Active;
+    }
+    pub fn delete(&mut self) {
+        self.status = TenantStatus::Deleted;
+    }
 }

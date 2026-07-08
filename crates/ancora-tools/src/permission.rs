@@ -67,9 +67,9 @@ impl PermissionBroker {
     pub fn check_call(&self, tool_name: &str) -> Result<(), ToolError> {
         if let Some(scope) = self.tool_scopes.get(tool_name) {
             if !self.granted_scopes.contains(scope) {
-                return Err(ToolError::ValidationFailed(
-                    format!("tool '{tool_name}' requires scope {scope:?} which is not granted")
-                ));
+                return Err(ToolError::ValidationFailed(format!(
+                    "tool '{tool_name}' requires scope {scope:?} which is not granted"
+                )));
             }
         }
         Ok(())
@@ -77,11 +77,14 @@ impl PermissionBroker {
 
     /// Deny access to an MCP server if no auth token is registered for it.
     pub fn check_mcp_auth(&self, server_id: &str) -> Result<&str, ToolError> {
-        self.mcp_auth_tokens.get(server_id)
+        self.mcp_auth_tokens
+            .get(server_id)
             .map(|t| t.as_str())
-            .ok_or_else(|| ToolError::ValidationFailed(
-                format!("mcp server '{server_id}' has no registered auth token")
-            ))
+            .ok_or_else(|| {
+                ToolError::ValidationFailed(format!(
+                    "mcp server '{server_id}' has no registered auth token"
+                ))
+            })
     }
 }
 

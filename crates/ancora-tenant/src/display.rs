@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::tenant::{Tenant, TenantStatus};
+use std::fmt;
 
 impl fmt::Display for TenantStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -13,6 +13,10 @@ impl fmt::Display for TenantStatus {
 
 impl fmt::Display for Tenant {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Tenant[id={} name={} status={}]", self.id, self.name, self.status)
+        write!(
+            f,
+            "Tenant[id={} name={} status={}]",
+            self.id, self.name, self.status
+        )
     }
 }

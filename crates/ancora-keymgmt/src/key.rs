@@ -102,14 +102,22 @@ impl CryptoKey {
         self
     }
 
-    pub fn is_active(&self) -> bool { self.status == KeyStatus::Active }
+    pub fn is_active(&self) -> bool {
+        self.status == KeyStatus::Active
+    }
     pub fn is_expired(&self, current_tick: u64) -> bool {
-        self.expires_tick.map_or(false, |e| current_tick >= e)
+        self.expires_tick.is_some_and(|e| current_tick >= e)
     }
 
-    pub fn deactivate(&mut self) { self.status = KeyStatus::Inactive; }
-    pub fn mark_compromised(&mut self) { self.status = KeyStatus::Compromised; }
-    pub fn schedule_deletion(&mut self) { self.status = KeyStatus::PendingDeletion; }
+    pub fn deactivate(&mut self) {
+        self.status = KeyStatus::Inactive;
+    }
+    pub fn mark_compromised(&mut self) {
+        self.status = KeyStatus::Compromised;
+    }
+    pub fn schedule_deletion(&mut self) {
+        self.status = KeyStatus::PendingDeletion;
+    }
     pub fn destroy(&mut self) {
         self.status = KeyStatus::Destroyed;
         self.key_material = String::new();

@@ -23,7 +23,12 @@ pub struct FieldSchema {
 
 impl FieldSchema {
     pub fn new(name: &str, json_type: JsonType, required: bool) -> Self {
-        Self { name: name.to_string(), json_type, required, description: String::new() }
+        Self {
+            name: name.to_string(),
+            json_type,
+            required,
+            description: String::new(),
+        }
     }
 
     pub fn with_description(mut self, desc: &str) -> Self {
@@ -40,7 +45,10 @@ pub struct OutputSchema {
 
 impl OutputSchema {
     pub fn new(name: &str) -> Self {
-        Self { name: name.to_string(), fields: vec![] }
+        Self {
+            name: name.to_string(),
+            fields: vec![],
+        }
     }
 
     pub fn add_field(mut self, field: FieldSchema) -> Self {
@@ -53,7 +61,8 @@ impl OutputSchema {
     }
 
     pub fn to_json_schema(&self) -> Value {
-        let props: serde_json::Map<String, Value> = self.fields
+        let props: serde_json::Map<String, Value> = self
+            .fields
             .iter()
             .map(|f| {
                 let type_str = match f.json_type {
@@ -64,11 +73,18 @@ impl OutputSchema {
                     JsonType::Object => "object",
                     JsonType::Null => "null",
                 };
-                (f.name.clone(), serde_json::json!({ "type": type_str, "description": f.description }))
+                (
+                    f.name.clone(),
+                    serde_json::json!({ "type": type_str, "description": f.description }),
+                )
             })
             .collect();
 
-        let required: Vec<&str> = self.required_fields().iter().map(|f| f.name.as_str()).collect();
+        let required: Vec<&str> = self
+            .required_fields()
+            .iter()
+            .map(|f| f.name.as_str())
+            .collect();
 
         serde_json::json!({
             "type": "object",

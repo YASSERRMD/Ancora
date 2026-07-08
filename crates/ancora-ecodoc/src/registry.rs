@@ -32,10 +32,7 @@ impl Registry {
 
     /// Look up all registered entries for a given plugin name.
     pub fn lookup(&self, name: &str) -> Vec<&CatalogEntry> {
-        self.entries
-            .values()
-            .filter(|e| e.name == name)
-            .collect()
+        self.entries.values().filter(|e| e.name == name).collect()
     }
 
     /// Returns the total number of registered plugins.

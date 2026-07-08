@@ -10,7 +10,12 @@ pub struct AgentContract {
 }
 
 impl AgentContract {
-    pub fn new(contract_id: &str, from_agent: &str, to_agent: &str, obligations: Vec<&str>) -> Self {
+    pub fn new(
+        contract_id: &str,
+        from_agent: &str,
+        to_agent: &str,
+        obligations: Vec<&str>,
+    ) -> Self {
         Self {
             contract_id: contract_id.to_string(),
             from_agent: from_agent.to_string(),

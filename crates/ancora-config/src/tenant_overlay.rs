@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::schema::AncoraCfg;
+use std::collections::HashMap;
 
 /// Per-tenant config overrides layered on top of global config.
 #[derive(Default)]

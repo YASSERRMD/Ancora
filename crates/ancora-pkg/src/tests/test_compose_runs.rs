@@ -14,7 +14,10 @@ fn test_compose_basic_render() {
 fn test_compose_secure_defaults() {
     let svc = ComposeService::new("secure-svc", "ancora/agent:latest");
     assert!(svc.read_only, "services should default to read_only=true");
-    assert!(svc.no_new_privileges, "services should default to no_new_privileges=true");
+    assert!(
+        svc.no_new_privileges,
+        "services should default to no_new_privileges=true"
+    );
 }
 
 #[test]
@@ -22,8 +25,14 @@ fn test_compose_readonly_in_output() {
     let svc = ComposeService::new("agent", "ancora/agent:latest");
     let config = ComposeConfig::new("proj").add_service(svc);
     let tmpl = ComposeTemplate::render(config).expect("should render");
-    assert!(tmpl.contains("read_only: true"), "read_only must appear in rendered output");
-    assert!(tmpl.contains("no-new-privileges:true"), "no-new-privileges must appear");
+    assert!(
+        tmpl.contains("read_only: true"),
+        "read_only must appear in rendered output"
+    );
+    assert!(
+        tmpl.contains("no-new-privileges:true"),
+        "no-new-privileges must appear"
+    );
 }
 
 #[test]

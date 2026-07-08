@@ -57,6 +57,9 @@ impl Incident {
     }
 
     pub fn is_resolved(&self) -> bool {
-        matches!(self.status, IncidentStatus::Resolved | IncidentStatus::PostMortem)
+        matches!(
+            self.status,
+            IncidentStatus::Resolved | IncidentStatus::PostMortem
+        )
     }
 }

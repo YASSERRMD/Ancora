@@ -110,12 +110,24 @@ pub fn parse(input: &str) -> Result<BenchRecord, String> {
 
     let name = get("name")?;
     let commit = get("commit")?;
-    let min_ns: u64 = get("min_ns")?.parse().map_err(|e| format!("min_ns: {}", e))?;
-    let max_ns: u64 = get("max_ns")?.parse().map_err(|e| format!("max_ns: {}", e))?;
-    let mean_ns: u64 = get("mean_ns")?.parse().map_err(|e| format!("mean_ns: {}", e))?;
-    let median_ns: u64 = get("median_ns")?.parse().map_err(|e| format!("median_ns: {}", e))?;
-    let sample_count: u32 = get("sample_count")?.parse().map_err(|e| format!("sample_count: {}", e))?;
-    let threshold_ns: u64 = get("threshold_ns")?.parse().map_err(|e| format!("threshold_ns: {}", e))?;
+    let min_ns: u64 = get("min_ns")?
+        .parse()
+        .map_err(|e| format!("min_ns: {}", e))?;
+    let max_ns: u64 = get("max_ns")?
+        .parse()
+        .map_err(|e| format!("max_ns: {}", e))?;
+    let mean_ns: u64 = get("mean_ns")?
+        .parse()
+        .map_err(|e| format!("mean_ns: {}", e))?;
+    let median_ns: u64 = get("median_ns")?
+        .parse()
+        .map_err(|e| format!("median_ns: {}", e))?;
+    let sample_count: u32 = get("sample_count")?
+        .parse()
+        .map_err(|e| format!("sample_count: {}", e))?;
+    let threshold_ns: u64 = get("threshold_ns")?
+        .parse()
+        .map_err(|e| format!("threshold_ns: {}", e))?;
 
     let extra: HashMap<String, String> = map
         .into_iter()

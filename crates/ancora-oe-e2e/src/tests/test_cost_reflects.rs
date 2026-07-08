@@ -1,4 +1,4 @@
-use crate::cost_e2e::{simulate_run_cost, CostReport, CostEntry, TokenUsage};
+use crate::cost_e2e::{simulate_run_cost, CostEntry, CostReport, TokenUsage};
 
 #[test]
 fn cost_analytics_reflect_a_run() {
@@ -6,7 +6,10 @@ fn cost_analytics_reflect_a_run() {
 
     assert!(!report.is_empty(), "cost report must not be empty");
     assert!(report.total_tokens() > 0, "total tokens must be positive");
-    assert!(report.total_cost_microdollars() > 0, "total cost must be positive");
+    assert!(
+        report.total_cost_microdollars() > 0,
+        "total cost must be positive"
+    );
 }
 
 #[test]
@@ -24,7 +27,10 @@ fn cost_entry_dollars_conversion_is_correct() {
     let usage = TokenUsage::new(100, 50);
     let entry = CostEntry::new("run-x", "model-a", usage, 1_000_000);
     let dollars = entry.cost_dollars();
-    assert!((dollars - 1.0).abs() < f64::EPSILON, "1_000_000 microdollars must equal $1.00");
+    assert!(
+        (dollars - 1.0).abs() < f64::EPSILON,
+        "1_000_000 microdollars must equal $1.00"
+    );
 }
 
 #[test]

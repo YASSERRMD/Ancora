@@ -3,7 +3,15 @@ use crate::store::TransferStore;
 use crate::transfer::{TransferDirection, TransferRequest, TransferStatus};
 
 fn make(id: &str, tenant_id: &str) -> TransferRequest {
-    TransferRequest::new(id, tenant_id, "alice", MediaType::UsbDrive, TransferDirection::Inbound, "", 1)
+    TransferRequest::new(
+        id,
+        tenant_id,
+        "alice",
+        MediaType::UsbDrive,
+        TransferDirection::Inbound,
+        "",
+        1,
+    )
 }
 
 #[test]

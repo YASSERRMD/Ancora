@@ -1,10 +1,16 @@
 #[cfg(test)]
 mod tests {
-    use crate::{FailoverController, JournalEntry, JournalStore, Role, replicate};
+    use crate::{replicate, FailoverController, JournalEntry, JournalStore, Role};
 
     fn synced_pair(n: u64) -> (JournalStore, JournalStore) {
         let mut p = JournalStore::new();
-        for i in 1..=n { p.append(JournalEntry { seq: i, data: format!("d{}", i) }).unwrap(); }
+        for i in 1..=n {
+            p.append(JournalEntry {
+                seq: i,
+                data: format!("d{}", i),
+            })
+            .unwrap();
+        }
         let mut s = JournalStore::new();
         replicate(&p, &mut s);
         (p, s)
@@ -22,8 +28,16 @@ mod tests {
     #[test]
     fn failover_rejected_when_lag_too_high() {
         let mut p = JournalStore::new();
-        p.append(JournalEntry { seq: 1, data: "d".into() }).unwrap();
-        p.append(JournalEntry { seq: 2, data: "d".into() }).unwrap();
+        p.append(JournalEntry {
+            seq: 1,
+            data: "d".into(),
+        })
+        .unwrap();
+        p.append(JournalEntry {
+            seq: 2,
+            data: "d".into(),
+        })
+        .unwrap();
         let mut s = JournalStore::new(); // 2 entries behind
         let mut ctrl = FailoverController::new();
         let err = ctrl.failover(&mut p, &mut s, 0);

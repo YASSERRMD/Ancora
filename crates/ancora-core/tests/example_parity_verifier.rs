@@ -3,12 +3,12 @@
 const VERIFIER_EXPECTED_VERDICT: &str = "approved";
 
 const VERIFIER_EXAMPLES: &[(&str, &str, &str)] = &[
-    ("rust",       "drafter", "verifier"),
-    ("go",         "drafter", "verifier"),
-    ("python",     "drafter", "verifier"),
+    ("rust", "drafter", "verifier"),
+    ("go", "drafter", "verifier"),
+    ("python", "drafter", "verifier"),
     ("typescript", "drafter", "verifier"),
-    ("dotnet",     "drafter", "verifier"),
-    ("java",       "drafter", "verifier"),
+    ("dotnet", "drafter", "verifier"),
+    ("java", "drafter", "verifier"),
 ];
 
 struct VerifierResult {
@@ -19,19 +19,52 @@ struct VerifierResult {
 }
 
 const VERIFIER_RESULTS: &[VerifierResult] = &[
-    VerifierResult { lang: "rust",       drafter_activity: "drafter", verifier_activity: "verifier", verdict: "approved" },
-    VerifierResult { lang: "go",         drafter_activity: "drafter", verifier_activity: "verifier", verdict: "approved" },
-    VerifierResult { lang: "python",     drafter_activity: "drafter", verifier_activity: "verifier", verdict: "approved" },
-    VerifierResult { lang: "typescript", drafter_activity: "drafter", verifier_activity: "verifier", verdict: "approved" },
-    VerifierResult { lang: "dotnet",     drafter_activity: "drafter", verifier_activity: "verifier", verdict: "approved" },
-    VerifierResult { lang: "java",       drafter_activity: "drafter", verifier_activity: "verifier", verdict: "approved" },
+    VerifierResult {
+        lang: "rust",
+        drafter_activity: "drafter",
+        verifier_activity: "verifier",
+        verdict: "approved",
+    },
+    VerifierResult {
+        lang: "go",
+        drafter_activity: "drafter",
+        verifier_activity: "verifier",
+        verdict: "approved",
+    },
+    VerifierResult {
+        lang: "python",
+        drafter_activity: "drafter",
+        verifier_activity: "verifier",
+        verdict: "approved",
+    },
+    VerifierResult {
+        lang: "typescript",
+        drafter_activity: "drafter",
+        verifier_activity: "verifier",
+        verdict: "approved",
+    },
+    VerifierResult {
+        lang: "dotnet",
+        drafter_activity: "drafter",
+        verifier_activity: "verifier",
+        verdict: "approved",
+    },
+    VerifierResult {
+        lang: "java",
+        drafter_activity: "drafter",
+        verifier_activity: "verifier",
+        verdict: "approved",
+    },
 ];
 
 #[test]
 fn test_all_verifier_examples_produce_approved() {
     for r in VERIFIER_RESULTS {
-        assert_eq!(r.verdict, VERIFIER_EXPECTED_VERDICT,
-            "lang {} produced '{}' not 'approved'", r.lang, r.verdict);
+        assert_eq!(
+            r.verdict, VERIFIER_EXPECTED_VERDICT,
+            "lang {} produced '{}' not 'approved'",
+            r.lang, r.verdict
+        );
     }
 }
 
@@ -51,7 +84,9 @@ fn test_six_language_examples() {
 
 #[test]
 fn test_verdict_is_non_empty_for_all() {
-    for r in VERIFIER_RESULTS { assert!(!r.verdict.is_empty()); }
+    for r in VERIFIER_RESULTS {
+        assert!(!r.verdict.is_empty());
+    }
 }
 
 #[test]

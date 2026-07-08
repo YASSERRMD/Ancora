@@ -23,15 +23,39 @@ impl KeyBuilder {
         }
     }
 
-    pub fn algorithm(mut self, alg: KeyAlgorithm) -> Self { self.algorithm = alg; self }
-    pub fn purpose(mut self, p: KeyPurpose) -> Self { self.purpose = p; self }
-    pub fn tick(mut self, t: u64) -> Self { self.created_tick = t; self }
-    pub fn expires_at(mut self, t: u64) -> Self { self.expires_tick = Some(t); self }
-    pub fn material(mut self, m: impl Into<String>) -> Self { self.key_material = m.into(); self }
+    pub fn algorithm(mut self, alg: KeyAlgorithm) -> Self {
+        self.algorithm = alg;
+        self
+    }
+    pub fn purpose(mut self, p: KeyPurpose) -> Self {
+        self.purpose = p;
+        self
+    }
+    pub fn tick(mut self, t: u64) -> Self {
+        self.created_tick = t;
+        self
+    }
+    pub fn expires_at(mut self, t: u64) -> Self {
+        self.expires_tick = Some(t);
+        self
+    }
+    pub fn material(mut self, m: impl Into<String>) -> Self {
+        self.key_material = m.into();
+        self
+    }
 
     pub fn build(self) -> CryptoKey {
-        let mut k = CryptoKey::new(self.id, self.tenant_id, self.algorithm, self.purpose, self.created_tick, self.key_material);
-        if let Some(e) = self.expires_tick { k = k.with_expiry(e); }
+        let mut k = CryptoKey::new(
+            self.id,
+            self.tenant_id,
+            self.algorithm,
+            self.purpose,
+            self.created_tick,
+            self.key_material,
+        );
+        if let Some(e) = self.expires_tick {
+            k = k.with_expiry(e);
+        }
         k
     }
 }

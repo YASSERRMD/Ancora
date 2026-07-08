@@ -1,4 +1,4 @@
-/// Describes the interface that every CLI plugin must implement.
+//! Describes the interface that every CLI plugin must implement.
 
 /// The result type used throughout the plugin interface.
 pub type PluginResult<T> = Result<T, PluginError>;
@@ -185,7 +185,10 @@ pub struct ExecOutput {
 impl ExecOutput {
     /// Construct a successful output.
     pub fn success(lines: Vec<String>) -> Self {
-        Self { lines, exit_code: 0 }
+        Self {
+            lines,
+            exit_code: 0,
+        }
     }
 
     /// Construct a failure output.

@@ -1,8 +1,8 @@
-/// Headless config profile for the Ancora agent.
-///
-/// A self-contained configuration that controls all headless OS integration
-/// parameters: model paths, cgroup limits, socket path, network policy, and
-/// boot targets.
+//! Headless config profile for the Ancora agent.
+//!
+//! A self-contained configuration that controls all headless OS integration
+//! parameters: model paths, cgroup limits, socket path, network policy, and
+//! boot targets.
 
 use serde::{Deserialize, Serialize};
 
@@ -106,7 +106,11 @@ impl HeadlessConfig {
         if self.boot_target_ms == 0 {
             errors.push("boot_target_ms must be > 0".to_string());
         }
-        if errors.is_empty() { Ok(()) } else { Err(errors) }
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 }
 

@@ -1,6 +1,6 @@
-/// Java sample app parity module.
-///
-/// Models the canonical Java (anthropic-java) agent sample app.
+//! Java sample app parity module.
+//!
+//! Models the canonical Java (anthropic-java) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct JavaApp {
@@ -57,7 +57,10 @@ impl JavaApp {
             role: "user".to_string(),
             content: user_input.to_string(),
         };
-        let reply = format!("[{}:java{}] answer: {}", self.name, self.java_version, user_input);
+        let reply = format!(
+            "[{}:java{}] answer: {}",
+            self.name, self.java_version, user_input
+        );
         let assistant_msg = JavaMessage {
             role: "assistant".to_string(),
             content: reply,

@@ -39,7 +39,13 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Extract crate version
         id: version
-        run: echo "version=$(cargo metadata --no-deps --format-version 1 | python3 -c \"import sys,json; pkgs=json.load(sys.stdin)['packages']; print([p['version'] for p in pkgs if p['name']=='ancora-ffi'][0])\")" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(cargo metadata --no-deps --format-version 1 | python3 -c "
+          import sys, json
+          pkgs = json.load(sys.stdin)['packages']
+          print([p['version'] for p in pkgs if p['name'] == 'ancora-ffi'][0])
+          ")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
         shell: bash
       - name: Install cross (arm64 linux only)
         if: matrix.use_cross == true

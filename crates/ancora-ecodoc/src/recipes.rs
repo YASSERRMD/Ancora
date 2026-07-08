@@ -40,24 +40,42 @@ pub fn builtin_recipes() -> Vec<Recipe> {
             name: "http-fetch",
             description: "Fetch a URL and pipe the response body into the next node",
             params: vec![
-                RecipeParam { key: "url", description: "Target URL", required: true },
-                RecipeParam { key: "timeout_secs", description: "Request timeout", required: false },
+                RecipeParam {
+                    key: "url",
+                    description: "Target URL",
+                    required: true,
+                },
+                RecipeParam {
+                    key: "timeout_secs",
+                    description: "Request timeout",
+                    required: false,
+                },
             ],
         },
         Recipe {
             name: "file-transform",
             description: "Read a file, apply a transformation, and write the result",
             params: vec![
-                RecipeParam { key: "input_path", description: "Path to input file", required: true },
-                RecipeParam { key: "output_path", description: "Path to output file", required: true },
+                RecipeParam {
+                    key: "input_path",
+                    description: "Path to input file",
+                    required: true,
+                },
+                RecipeParam {
+                    key: "output_path",
+                    description: "Path to output file",
+                    required: true,
+                },
             ],
         },
         Recipe {
             name: "parallel-fanout",
             description: "Fan a single input out to N parallel branches",
-            params: vec![
-                RecipeParam { key: "branches", description: "Comma-separated branch names", required: true },
-            ],
+            params: vec![RecipeParam {
+                key: "branches",
+                description: "Comma-separated branch names",
+                required: true,
+            }],
         },
     ]
 }

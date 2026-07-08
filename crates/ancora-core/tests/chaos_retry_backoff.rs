@@ -16,10 +16,18 @@ fn simulate_retry(fail_for: u32, max_attempts: u32, base_ms: u64) -> RetryOutcom
         let delay = backoff_ms(attempt, base_ms);
         total += delay;
         if attempt >= fail_for {
-            return RetryOutcome { attempts: attempt + 1, final_ms: total, succeeded: true };
+            return RetryOutcome {
+                attempts: attempt + 1,
+                final_ms: total,
+                succeeded: true,
+            };
         }
     }
-    RetryOutcome { attempts: max_attempts, final_ms: total, succeeded: false }
+    RetryOutcome {
+        attempts: max_attempts,
+        final_ms: total,
+        succeeded: false,
+    }
 }
 
 #[test]

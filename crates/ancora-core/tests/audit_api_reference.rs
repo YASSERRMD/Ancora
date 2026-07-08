@@ -1,19 +1,19 @@
 // Documentation audit: API reference pages document all public types.
 
 const PUBLIC_TYPES: &[(&str, &str)] = &[
-    ("RunStatus",                "sdk/rust/api-reference.md"),
-    ("MemoryStore",              "sdk/rust/api-reference.md"),
-    ("ActivityRecordedEvent",    "sdk/rust/api-reference.md"),
-    ("HumanDecisionRequested",   "sdk/rust/api-reference.md"),
-    ("ReplayResult",             "sdk/rust/api-reference.md"),
-    ("AncoraError",              "sdk/rust/api-reference.md"),
-    ("VectorStoreConfig",        "sdk/rust/api-reference.md"),
-    ("OrchestratorConfig",       "sdk/rust/api-reference.md"),
+    ("RunStatus", "sdk/rust/api-reference.md"),
+    ("MemoryStore", "sdk/rust/api-reference.md"),
+    ("ActivityRecordedEvent", "sdk/rust/api-reference.md"),
+    ("HumanDecisionRequested", "sdk/rust/api-reference.md"),
+    ("ReplayResult", "sdk/rust/api-reference.md"),
+    ("AncoraError", "sdk/rust/api-reference.md"),
+    ("VectorStoreConfig", "sdk/rust/api-reference.md"),
+    ("OrchestratorConfig", "sdk/rust/api-reference.md"),
 ];
 
 const PUBLIC_FUNCTIONS: &[(&str, &str)] = &[
-    ("replay_events",        "sdk/rust/api-reference.md"),
-    ("detect_divergence",    "sdk/rust/api-reference.md"),
+    ("replay_events", "sdk/rust/api-reference.md"),
+    ("detect_divergence", "sdk/rust/api-reference.md"),
 ];
 
 #[test]

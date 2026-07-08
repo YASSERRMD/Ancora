@@ -1,7 +1,7 @@
 // Model distribution to edge devices
 
-use std::collections::HashMap;
 use crate::registration::DeviceId;
+use std::collections::HashMap;
 
 /// Describes a model artifact to distribute
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

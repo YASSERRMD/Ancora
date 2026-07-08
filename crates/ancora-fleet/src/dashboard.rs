@@ -1,7 +1,7 @@
 // Fleet dashboard JSON output
 
-use crate::registration::DeviceRegistry;
 use crate::inventory::FleetInventory;
+use crate::registration::DeviceRegistry;
 use crate::telemetry::FleetTelemetry;
 
 /// Fleet-level aggregated dashboard data
@@ -48,7 +48,12 @@ pub fn build_dashboard(
     for identity in registry.active_devices() {
         let telemetry_sample = telemetry.latest_for(&identity.id);
         let (cpu, mem, disk, uptime) = match telemetry_sample {
-            Some(s) => (s.cpu_percent, s.memory_percent, s.disk_percent, s.uptime_secs),
+            Some(s) => (
+                s.cpu_percent,
+                s.memory_percent,
+                s.disk_percent,
+                s.uptime_secs,
+            ),
             None => (0.0, 0.0, 0.0, 0),
         };
 

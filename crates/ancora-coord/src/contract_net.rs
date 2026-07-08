@@ -11,6 +11,10 @@ pub struct ContractNet;
 
 impl ContractNet {
     pub fn assign(bids: &[Bid]) -> Option<&Bid> {
-        bids.iter().max_by(|a, b| a.score.partial_cmp(&b.score).unwrap_or(std::cmp::Ordering::Equal))
+        bids.iter().max_by(|a, b| {
+            a.score
+                .partial_cmp(&b.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
     }
 }

@@ -3,7 +3,6 @@
 /// Runs entirely in-process with no network calls, suitable for
 /// deployment in environments without internet access.
 /// Uses a simple Naive Bayes-inspired term-frequency scoring approach.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -49,39 +48,51 @@ impl LocalClassifier {
     pub fn new() -> Self {
         let mut tw: HashMap<LocalCategory, Vec<(String, f32)>> = HashMap::new();
 
-        tw.insert(LocalCategory::Pii, vec![
-            ("@".to_string(), 0.8),
-            ("ssn".to_string(), 0.9),
-            ("social security".to_string(), 0.95),
-            ("credit card".to_string(), 0.85),
-            ("passport".to_string(), 0.7),
-            ("date of birth".to_string(), 0.7),
-        ]);
+        tw.insert(
+            LocalCategory::Pii,
+            vec![
+                ("@".to_string(), 0.8),
+                ("ssn".to_string(), 0.9),
+                ("social security".to_string(), 0.95),
+                ("credit card".to_string(), 0.85),
+                ("passport".to_string(), 0.7),
+                ("date of birth".to_string(), 0.7),
+            ],
+        );
 
-        tw.insert(LocalCategory::Toxic, vec![
-            ("hate".to_string(), 0.8),
-            ("kill".to_string(), 0.9),
-            ("murder".to_string(), 0.95),
-            ("idiot".to_string(), 0.6),
-            ("stupid".to_string(), 0.5),
-            ("abuse".to_string(), 0.85),
-        ]);
+        tw.insert(
+            LocalCategory::Toxic,
+            vec![
+                ("hate".to_string(), 0.8),
+                ("kill".to_string(), 0.9),
+                ("murder".to_string(), 0.95),
+                ("idiot".to_string(), 0.6),
+                ("stupid".to_string(), 0.5),
+                ("abuse".to_string(), 0.85),
+            ],
+        );
 
-        tw.insert(LocalCategory::PolicyViolation, vec![
-            ("confidential".to_string(), 0.8),
-            ("bypass security".to_string(), 0.95),
-            ("disable authentication".to_string(), 0.9),
-            ("internal only".to_string(), 0.75),
-            ("trade secret".to_string(), 0.85),
-        ]);
+        tw.insert(
+            LocalCategory::PolicyViolation,
+            vec![
+                ("confidential".to_string(), 0.8),
+                ("bypass security".to_string(), 0.95),
+                ("disable authentication".to_string(), 0.9),
+                ("internal only".to_string(), 0.75),
+                ("trade secret".to_string(), 0.85),
+            ],
+        );
 
-        tw.insert(LocalCategory::Hallucination, vec![
-            ("definitely".to_string(), 0.5),
-            ("100%".to_string(), 0.6),
-            ("experts say".to_string(), 0.65),
-            ("it is a fact that".to_string(), 0.7),
-            ("guaranteed".to_string(), 0.55),
-        ]);
+        tw.insert(
+            LocalCategory::Hallucination,
+            vec![
+                ("definitely".to_string(), 0.5),
+                ("100%".to_string(), 0.6),
+                ("experts say".to_string(), 0.65),
+                ("it is a fact that".to_string(), 0.7),
+                ("guaranteed".to_string(), 0.55),
+            ],
+        );
 
         Self { term_weights: tw }
     }

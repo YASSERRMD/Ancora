@@ -1,16 +1,18 @@
-use serde_json::Value;
-use crate::schema::{FieldSchema, JsonType, OutputSchema};
 use crate::error::StructuredError;
+use crate::schema::{FieldSchema, JsonType, OutputSchema};
+use serde_json::Value;
 
 pub struct OutputValidator;
 
 impl OutputValidator {
     pub fn validate(schema: &OutputSchema, value: &Value) -> Result<(), StructuredError> {
-        let obj = value.as_object().ok_or_else(|| StructuredError::NotAnObject)?;
+        let obj = value.as_object().ok_or(StructuredError::NotAnObject)?;
 
         for field in &schema.fields {
             if field.required && !obj.contains_key(&field.name) {
-                return Err(StructuredError::MissingField { field: field.name.clone() });
+                return Err(StructuredError::MissingField {
+                    field: field.name.clone(),
+                });
             }
             if let Some(v) = obj.get(&field.name) {
                 Self::check_type(field, v)?;

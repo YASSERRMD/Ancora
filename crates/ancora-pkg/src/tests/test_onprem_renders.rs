@@ -1,4 +1,6 @@
-use crate::onprem_template::{NetworkIsolation, OnPremConfig, OnPremError, OnPremTemplate, SecretBackend};
+use crate::onprem_template::{
+    NetworkIsolation, OnPremConfig, OnPremError, OnPremTemplate, SecretBackend,
+};
 
 #[test]
 fn test_onprem_render_basic() {
@@ -15,7 +17,10 @@ fn test_onprem_secure_fields_present() {
     let tmpl = OnPremTemplate::render(config).expect("should render");
     assert!(tmpl.contains("tls: required"), "TLS must be required");
     assert!(tmpl.contains("mtls_internal: true"), "mTLS must be enabled");
-    assert!(tmpl.contains("firewall: enabled"), "Firewall must be enabled");
+    assert!(
+        tmpl.contains("firewall: enabled"),
+        "Firewall must be enabled"
+    );
     assert!(tmpl.contains("audit_log"), "Audit log must be present");
 }
 
@@ -29,8 +34,8 @@ fn test_onprem_air_gapped_isolation() {
 
 #[test]
 fn test_onprem_hsm_backend() {
-    let config = OnPremConfig::new("hsm-appliance", "hsm.local", 1)
-        .with_secret_backend(SecretBackend::Hsm);
+    let config =
+        OnPremConfig::new("hsm-appliance", "hsm.local", 1).with_secret_backend(SecretBackend::Hsm);
     let tmpl = OnPremTemplate::render(config).expect("should render");
     assert!(tmpl.contains("hsm"));
 }
@@ -51,8 +56,8 @@ fn test_onprem_zero_nodes_fails() {
 
 #[test]
 fn test_onprem_custom_data_path() {
-    let config = OnPremConfig::new("custom-data", "host.local", 1)
-        .with_data_path("/mnt/data/ancora");
+    let config =
+        OnPremConfig::new("custom-data", "host.local", 1).with_data_path("/mnt/data/ancora");
     assert_eq!(config.data_path, "/mnt/data/ancora");
     let tmpl = OnPremTemplate::render(config).expect("should render");
     assert!(tmpl.contains("/mnt/data/ancora"));

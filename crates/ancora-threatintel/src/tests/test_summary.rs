@@ -12,7 +12,15 @@ fn summary_healthy() {
 
 #[test]
 fn summary_unhealthy_critical() {
-    let i = Indicator::new("i1", "t1", IndicatorKind::IpAddress, "x", ThreatLevel::Critical, "f", 1);
+    let i = Indicator::new(
+        "i1",
+        "t1",
+        IndicatorKind::IpAddress,
+        "x",
+        ThreatLevel::Critical,
+        "f",
+        1,
+    );
     let alerts = AlertStore::new();
     let v: Vec<&Indicator> = vec![&i];
     let s = ThreatIntelSummary::generate(&v, &alerts, "t1");

@@ -62,7 +62,9 @@ fn vespa_activity_key_contains_vespa() {
     let events = build_vespa_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.activity_key.contains("vespa"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -70,7 +72,9 @@ fn vespa_input_has_ranking_profile() {
     let events = build_vespa_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.input_json.contains("ranking_profile"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -79,7 +83,9 @@ fn vespa_result_uses_relevance_and_fields() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("relevance"));
         assert!(a.result_json.contains("fields"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -88,7 +94,9 @@ fn vespa_result_has_two_hits() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v.as_array().unwrap().len(), 2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

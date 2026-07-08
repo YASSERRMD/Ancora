@@ -6,7 +6,10 @@ pub struct Deduplicator;
 impl Deduplicator {
     pub fn dedup(items: Vec<String>) -> Vec<String> {
         let mut seen = HashSet::new();
-        items.into_iter().filter(|s| seen.insert(s.clone())).collect()
+        items
+            .into_iter()
+            .filter(|s| seen.insert(s.clone()))
+            .collect()
     }
 
     pub fn dedup_by_key<T, K, F>(items: Vec<T>, key_fn: F) -> Vec<T>
@@ -15,6 +18,9 @@ impl Deduplicator {
         F: Fn(&T) -> K,
     {
         let mut seen = HashSet::new();
-        items.into_iter().filter(|item| seen.insert(key_fn(item))).collect()
+        items
+            .into_iter()
+            .filter(|item| seen.insert(key_fn(item)))
+            .collect()
     }
 }

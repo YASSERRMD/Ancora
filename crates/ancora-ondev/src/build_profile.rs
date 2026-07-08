@@ -6,20 +6,15 @@
 use serde::{Deserialize, Serialize};
 
 /// Build optimization level for on-device targets.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum OptLevel {
     /// Optimise for minimum binary size (`opt-level = "z"`).
+    #[default]
     Size,
     /// Balance size and speed (`opt-level = "s"`).
     SizeSpeed,
     /// Maximum speed (`opt-level = 3`).
     Speed,
-}
-
-impl Default for OptLevel {
-    fn default() -> Self {
-        Self::Size
-    }
 }
 
 impl std::fmt::Display for OptLevel {
@@ -33,35 +28,25 @@ impl std::fmt::Display for OptLevel {
 }
 
 /// Panic strategy for on-device builds.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum PanicStrategy {
     /// Unwind the stack (default, larger binary).
     Unwind,
     /// Abort immediately (smaller binary, preferred for embedded).
+    #[default]
     Abort,
 }
 
-impl Default for PanicStrategy {
-    fn default() -> Self {
-        Self::Abort
-    }
-}
-
 /// LTO (Link-Time Optimisation) mode.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum LtoMode {
     /// No LTO.
     Off,
     /// Thin LTO (fast, moderate size reduction).
     Thin,
     /// Full LTO (slow, maximum size reduction).
+    #[default]
     Full,
-}
-
-impl Default for LtoMode {
-    fn default() -> Self {
-        Self::Full
-    }
 }
 
 /// Complete build profile configuration for on-device targets.

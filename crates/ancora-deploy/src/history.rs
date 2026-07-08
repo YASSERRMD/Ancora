@@ -1,13 +1,26 @@
-use serde::{Deserialize, Serialize};
 use crate::worker::Version;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum DeployEvent {
-    BlueGreenSwitch { from: Version, to: Version, duration_ms: u64 },
-    BlueGreenRollback { to: Version },
-    CanaryStarted { version: Version, pct: f64 },
-    CanaryPromoted { version: Version },
-    CanaryRolledBack { reason: String },
+    BlueGreenSwitch {
+        from: Version,
+        to: Version,
+        duration_ms: u64,
+    },
+    BlueGreenRollback {
+        to: Version,
+    },
+    CanaryStarted {
+        version: Version,
+        pct: f64,
+    },
+    CanaryPromoted {
+        version: Version,
+    },
+    CanaryRolledBack {
+        reason: String,
+    },
 }
 
 #[derive(Default, Debug)]

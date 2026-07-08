@@ -56,8 +56,18 @@ fn graph_spec_validate_accepts_valid_graph() {
     let spec = GraphSpec {
         name: "test".into(),
         nodes: vec![
-            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
-            NodeSpec { id: "b".into(), kind: "agent".into(), model: None, depends_on: vec!["a".into()] },
+            NodeSpec {
+                id: "a".into(),
+                kind: "agent".into(),
+                model: None,
+                depends_on: vec![],
+            },
+            NodeSpec {
+                id: "b".into(),
+                kind: "agent".into(),
+                model: None,
+                depends_on: vec!["a".into()],
+            },
         ],
     };
     spec.validate().unwrap();
@@ -68,8 +78,18 @@ fn graph_spec_validate_detects_duplicate_id() {
     let spec = GraphSpec {
         name: "test".into(),
         nodes: vec![
-            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
-            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
+            NodeSpec {
+                id: "a".into(),
+                kind: "agent".into(),
+                model: None,
+                depends_on: vec![],
+            },
+            NodeSpec {
+                id: "a".into(),
+                kind: "agent".into(),
+                model: None,
+                depends_on: vec![],
+            },
         ],
     };
     assert!(spec.validate().is_err());
@@ -79,35 +99,56 @@ fn graph_spec_validate_detects_duplicate_id() {
 fn graph_spec_validate_detects_unknown_dependency() {
     let spec = GraphSpec {
         name: "test".into(),
-        nodes: vec![
-            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec!["nonexistent".into()] },
-        ],
+        nodes: vec![NodeSpec {
+            id: "a".into(),
+            kind: "agent".into(),
+            model: None,
+            depends_on: vec!["nonexistent".into()],
+        }],
     };
     assert!(spec.validate().is_err());
 }
 
 #[test]
 fn graph_spec_empty_nodes_is_valid() {
-    let spec = GraphSpec { name: "empty".into(), nodes: vec![] };
+    let spec = GraphSpec {
+        name: "empty".into(),
+        nodes: vec![],
+    };
     spec.validate().unwrap();
 }
 
 #[test]
 fn node_spec_is_agent_returns_true_for_agent_kind() {
-    let n = NodeSpec { id: "n".into(), kind: "agent".into(), model: None, depends_on: vec![] };
+    let n = NodeSpec {
+        id: "n".into(),
+        kind: "agent".into(),
+        model: None,
+        depends_on: vec![],
+    };
     assert!(n.is_agent());
     assert!(!n.is_tool());
 }
 
 #[test]
 fn node_spec_effective_model_defaults_to_default() {
-    let n = NodeSpec { id: "n".into(), kind: "agent".into(), model: None, depends_on: vec![] };
+    let n = NodeSpec {
+        id: "n".into(),
+        kind: "agent".into(),
+        model: None,
+        depends_on: vec![],
+    };
     assert_eq!(n.effective_model(), "default");
 }
 
 #[test]
 fn node_spec_effective_model_uses_explicit_model() {
-    let n = NodeSpec { id: "n".into(), kind: "agent".into(), model: Some("gpt-4o".into()), depends_on: vec![] };
+    let n = NodeSpec {
+        id: "n".into(),
+        kind: "agent".into(),
+        model: Some("gpt-4o".into()),
+        depends_on: vec![],
+    };
     assert_eq!(n.effective_model(), "gpt-4o");
 }
 
@@ -128,7 +169,10 @@ fn graph_spec_from_yaml_invalid_yaml_returns_error() {
 
 #[test]
 fn format_trace_contains_graph_name() {
-    let spec = GraphSpec { name: "my-graph".into(), nodes: vec![] };
+    let spec = GraphSpec {
+        name: "my-graph".into(),
+        nodes: vec![],
+    };
     let trace = format_trace(&spec);
     assert!(trace.contains("my-graph"));
 }
@@ -143,7 +187,10 @@ fn spec_error_duplicate_id_display_contains_id() {
 #[test]
 fn spec_error_unknown_dep_display_contains_dep_and_node() {
     use ancora_cli_lib::spec::SpecError;
-    let e = SpecError::UnknownDependency { node: "n1".into(), dep: "bad-dep".into() };
+    let e = SpecError::UnknownDependency {
+        node: "n1".into(),
+        dep: "bad-dep".into(),
+    };
     let s = e.to_string();
     assert!(s.contains("n1") && s.contains("bad-dep"));
 }
@@ -171,8 +218,18 @@ fn format_trace_lists_all_nodes() {
     let spec = GraphSpec {
         name: "g".into(),
         nodes: vec![
-            NodeSpec { id: "n1".into(), kind: "agent".into(), model: None, depends_on: vec![] },
-            NodeSpec { id: "n2".into(), kind: "tool".into(), model: None, depends_on: vec![] },
+            NodeSpec {
+                id: "n1".into(),
+                kind: "agent".into(),
+                model: None,
+                depends_on: vec![],
+            },
+            NodeSpec {
+                id: "n2".into(),
+                kind: "tool".into(),
+                model: None,
+                depends_on: vec![],
+            },
         ],
     };
     let trace = format_trace(&spec);
@@ -186,8 +243,18 @@ fn graph_spec_agent_nodes_filters_correctly() {
     let spec = GraphSpec {
         name: "test".into(),
         nodes: vec![
-            NodeSpec { id: "a".into(), kind: "agent".into(), model: None, depends_on: vec![] },
-            NodeSpec { id: "t".into(), kind: "tool".into(), model: None, depends_on: vec![] },
+            NodeSpec {
+                id: "a".into(),
+                kind: "agent".into(),
+                model: None,
+                depends_on: vec![],
+            },
+            NodeSpec {
+                id: "t".into(),
+                kind: "tool".into(),
+                model: None,
+                depends_on: vec![],
+            },
         ],
     };
     assert_eq!(spec.agent_nodes().len(), 1);

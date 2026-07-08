@@ -1,7 +1,7 @@
-/// Adapters for importing LangChain tool definitions into Ancora.
-///
-/// LangChain tools carry a name, description, and a callable string-in/string-out
-/// interface. This module wraps them in the Ancora tool model without any network I/O.
+//! Adapters for importing LangChain tool definitions into Ancora.
+//!
+//! LangChain tools carry a name, description, and a callable string-in/string-out
+//! interface. This module wraps them in the Ancora tool model without any network I/O.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LangchainToolDef {
@@ -48,14 +48,10 @@ impl AncoraToolAdapter {
 
 /// Convert a list of LangChain tool definitions into Ancora adapters using a
 /// shared echo-style handler (useful for migration testing).
-pub fn import_langchain_tools(
-    defs: Vec<LangchainToolDef>,
-) -> Vec<AncoraToolAdapter> {
+pub fn import_langchain_tools(defs: Vec<LangchainToolDef>) -> Vec<AncoraToolAdapter> {
     defs.into_iter()
         .map(|d| {
-            AncoraToolAdapter::from_langchain(d, |input| {
-                Ok(format!("ancora-echo: {}", input))
-            })
+            AncoraToolAdapter::from_langchain(d, |input| Ok(format!("ancora-echo: {}", input)))
         })
         .collect()
 }

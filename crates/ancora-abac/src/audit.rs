@@ -16,7 +16,12 @@ impl AbacDecisionRecord {
             Decision::Deny(reason) => ("deny".into(), Some(reason.clone())),
             Decision::NotApplicable => ("not_applicable".into(), None),
         };
-        Self { action: action.to_string(), decision: decision_str, policy_id, tick }
+        Self {
+            action: action.to_string(),
+            decision: decision_str,
+            policy_id,
+            tick,
+        }
     }
 }
 
@@ -27,14 +32,23 @@ pub struct AbacAuditLog {
 }
 
 impl AbacAuditLog {
-    pub fn new(max_size: usize) -> Self { Self { records: VecDeque::new(), max_size } }
+    pub fn new(max_size: usize) -> Self {
+        Self {
+            records: VecDeque::new(),
+            max_size,
+        }
+    }
 
     pub fn record(&mut self, entry: AbacDecisionRecord) {
-        if self.records.len() >= self.max_size { self.records.pop_front(); }
+        if self.records.len() >= self.max_size {
+            self.records.pop_front();
+        }
         self.records.push_back(entry);
     }
 
-    pub fn count(&self) -> usize { self.records.len() }
+    pub fn count(&self) -> usize {
+        self.records.len()
+    }
 
     pub fn deny_count(&self) -> usize {
         self.records.iter().filter(|r| r.decision == "deny").count()

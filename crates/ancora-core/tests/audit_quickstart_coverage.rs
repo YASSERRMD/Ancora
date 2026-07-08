@@ -1,11 +1,17 @@
 // Documentation audit: quickstart guides cover all languages and scenarios.
 
 const QUICKSTART_SCENARIOS: &[(&str, &[&str])] = &[
-    ("single_agent",    &["rust", "go", "python", "ts", "dotnet", "java"]),
-    ("verifier",        &["rust", "go", "python", "ts", "dotnet", "java"]),
-    ("human_in_loop",   &["rust", "go", "python", "ts"]),
-    ("vector_rag",      &["rust", "go", "python"]),
-    ("mcp_tool_use",    &["rust", "go", "ts"]),
+    (
+        "single_agent",
+        &["rust", "go", "python", "ts", "dotnet", "java"],
+    ),
+    (
+        "verifier",
+        &["rust", "go", "python", "ts", "dotnet", "java"],
+    ),
+    ("human_in_loop", &["rust", "go", "python", "ts"]),
+    ("vector_rag", &["rust", "go", "python"]),
+    ("mcp_tool_use", &["rust", "go", "ts"]),
 ];
 
 #[test]
@@ -28,18 +34,25 @@ fn test_verifier_covers_all_6_languages() {
 #[test]
 fn test_rust_in_all_scenarios() {
     for (scenario, langs) in QUICKSTART_SCENARIOS {
-        assert!(langs.contains(&"rust"), "rust missing from scenario: {scenario}");
+        assert!(
+            langs.contains(&"rust"),
+            "rust missing from scenario: {scenario}"
+        );
     }
 }
 
 #[test]
 fn test_human_in_loop_quickstart_exists() {
-    let found = QUICKSTART_SCENARIOS.iter().any(|(s, _)| *s == "human_in_loop");
+    let found = QUICKSTART_SCENARIOS
+        .iter()
+        .any(|(s, _)| *s == "human_in_loop");
     assert!(found, "no human-in-loop quickstart scenario");
 }
 
 #[test]
 fn test_mcp_quickstart_exists() {
-    let found = QUICKSTART_SCENARIOS.iter().any(|(s, _)| *s == "mcp_tool_use");
+    let found = QUICKSTART_SCENARIOS
+        .iter()
+        .any(|(s, _)| *s == "mcp_tool_use");
     assert!(found, "no MCP tool use quickstart");
 }

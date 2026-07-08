@@ -1,8 +1,8 @@
 // Device health telemetry for edge fleet
 
+use crate::registration::DeviceId;
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
-use crate::registration::DeviceId;
 
 /// Health metric sample from a device
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

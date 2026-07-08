@@ -17,7 +17,12 @@ fn test_bench_1m_cost_calcs_under_100ms() {
         total += compute_cost_fast(i as u64, (i / 2) as u64);
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < COST_BENCH_MS, "took {}ms budget {}ms", elapsed, COST_BENCH_MS);
+    assert!(
+        elapsed < COST_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        COST_BENCH_MS
+    );
     assert!(total > 0.0);
 }
 

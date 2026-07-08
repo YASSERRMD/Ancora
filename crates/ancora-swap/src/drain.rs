@@ -3,7 +3,6 @@
 /// When a model is swapped out it enters the drain state.  Existing runs that
 /// hold a pin on the old model are allowed to complete normally.  Only after
 /// all such runs finish does the model become eligible for memory reclaim.
-
 use crate::model::ModelHandle;
 
 /// Status of the drain process for a single model.
@@ -24,7 +23,9 @@ pub fn drain_status(handle: &ModelHandle) -> DrainStatus {
     }
     let pins = handle.pin_count();
     if pins > 0 {
-        DrainStatus::Draining { remaining_pins: pins }
+        DrainStatus::Draining {
+            remaining_pins: pins,
+        }
     } else {
         DrainStatus::Complete
     }

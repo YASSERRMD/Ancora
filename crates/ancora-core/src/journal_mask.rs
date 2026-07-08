@@ -40,10 +40,7 @@ pub fn mask_events(events: &[JournalEvent]) -> Vec<MaskedEvent> {
 /// generate independent run IDs.
 ///
 /// Returns `Ok(())` on match, `Err(description)` on mismatch.
-pub fn assert_structurally_equal(
-    a: &[MaskedEvent],
-    b: &[MaskedEvent],
-) -> Result<(), String> {
+pub fn assert_structurally_equal(a: &[MaskedEvent], b: &[MaskedEvent]) -> Result<(), String> {
     if a.len() != b.len() {
         return Err(format!(
             "event count mismatch: left={} right={}",
@@ -111,39 +108,59 @@ mod tests {
     }
 
     fn started(seq: u64, run_id: &str) -> JournalEvent {
-        make_event(seq, run_id, Event::RunStarted(RunStartedEvent {
-            run_id: run_id.to_owned(),
-            spec_bytes: vec![],
-            spec_type: "AgentSpec".into(),
-        }))
+        make_event(
+            seq,
+            run_id,
+            Event::RunStarted(RunStartedEvent {
+                run_id: run_id.to_owned(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".into(),
+            }),
+        )
     }
 
     fn completed(seq: u64, run_id: &str) -> JournalEvent {
-        make_event(seq, run_id, Event::RunCompleted(RunCompletedEvent {
-            output_json: String::new(),
-        }))
+        make_event(
+            seq,
+            run_id,
+            Event::RunCompleted(RunCompletedEvent {
+                output_json: String::new(),
+            }),
+        )
     }
 
     fn node_entered(seq: u64, run_id: &str, node: &str) -> JournalEvent {
-        make_event(seq, run_id, Event::NodeEntered(NodeEnteredEvent {
-            node_id: node.to_owned(),
-            node_kind: "agent".into(),
-        }))
+        make_event(
+            seq,
+            run_id,
+            Event::NodeEntered(NodeEnteredEvent {
+                node_id: node.to_owned(),
+                node_kind: "agent".into(),
+            }),
+        )
     }
 
     fn activity(seq: u64, run_id: &str, key: &str) -> JournalEvent {
-        make_event(seq, run_id, Event::ActivityRecorded(ActivityRecordedEvent {
-            activity_key: key.into(),
-            activity_kind: "llm_call".into(),
-            input_json: "{}".into(),
-            result_json: "model generated text -- stripped by mask".into(),
-            replayed: false,
-        }))
+        make_event(
+            seq,
+            run_id,
+            Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: key.into(),
+                activity_kind: "llm_call".into(),
+                input_json: "{}".into(),
+                result_json: "model generated text -- stripped by mask".into(),
+                replayed: false,
+            }),
+        )
     }
 
     #[test]
     fn mask_strips_model_generated_content() {
-        let events = vec![started(0, "r1"), activity(1, "r1", "act-key-1"), completed(2, "r1")];
+        let events = vec![
+            started(0, "r1"),
+            activity(1, "r1", "act-key-1"),
+            completed(2, "r1"),
+        ];
         let masked = mask_events(&events);
         assert_eq!(masked.len(), 3);
         assert_eq!(masked[0].kind, "started");
@@ -189,7 +206,11 @@ mod tests {
         let ma = mask_events(&a);
         let mb = mask_events(&b);
         let err = assert_structurally_equal(&ma, &mb).unwrap_err();
-        assert!(err.contains("node_id mismatch"), "expected node_id mismatch, got: {}", err);
+        assert!(
+            err.contains("node_id mismatch"),
+            "expected node_id mismatch, got: {}",
+            err
+        );
     }
 
     #[test]
@@ -198,7 +219,10 @@ mod tests {
         let b = vec![started(0, "run-zzz"), completed(1, "run-zzz")];
         let ma = mask_events(&a);
         let mb = mask_events(&b);
-        assert!(assert_structurally_equal(&ma, &mb).is_ok(), "run IDs should not affect structural equality");
+        assert!(
+            assert_structurally_equal(&ma, &mb).is_ok(),
+            "run IDs should not affect structural equality"
+        );
     }
 
     #[test]

@@ -1,7 +1,7 @@
-/// ancora-contrib: guardrail template
-///
-/// Copy this module as the starting point for a new safety guardrail.
-/// Rename `MyGuardrail` and implement `check`.
+//! ancora-contrib: guardrail template
+//!
+//! Copy this module as the starting point for a new safety guardrail.
+//! Rename `MyGuardrail` and implement `check`.
 
 /// The text to be evaluated by the guardrail.
 #[derive(Debug, Clone)]
@@ -14,7 +14,10 @@ pub struct GuardrailInput {
 
 impl GuardrailInput {
     pub fn new(text: impl Into<String>) -> Self {
-        Self { text: text.into(), context: Vec::new() }
+        Self {
+            text: text.into(),
+            context: Vec::new(),
+        }
     }
 
     pub fn with_context_turn(mut self, turn: impl Into<String>) -> Self {

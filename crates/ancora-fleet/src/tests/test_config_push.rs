@@ -20,7 +20,9 @@ fn test_config_push_applied() {
 fn test_config_push_to_fleet() {
     let mut svc = ConfigPushService::new();
     let cfg = DeviceConfig::new(10);
-    let ids: Vec<DeviceId> = (0..5).map(|i| DeviceId::new(format!("dev-{}", i))).collect();
+    let ids: Vec<DeviceId> = (0..5)
+        .map(|i| DeviceId::new(format!("dev-{}", i)))
+        .collect();
 
     let records = svc.push_to_fleet(&ids, &cfg);
     assert_eq!(records.len(), 5);
@@ -32,7 +34,9 @@ fn test_config_push_to_fleet() {
 #[test]
 fn test_config_pending_devices() {
     let mut svc = ConfigPushService::new();
-    let ids: Vec<DeviceId> = (0..4).map(|i| DeviceId::new(format!("dev-{}", i))).collect();
+    let ids: Vec<DeviceId> = (0..4)
+        .map(|i| DeviceId::new(format!("dev-{}", i)))
+        .collect();
 
     // Push version 3 to first two devices
     let cfg_v3 = DeviceConfig::new(3);

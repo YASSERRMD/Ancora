@@ -5,11 +5,10 @@
 ///
 /// Set QDRANT_URL to point at a running Qdrant instance to execute live.
 /// Without QDRANT_URL the example prints the request shapes and exits.
-
 use ancora_memory::backends::qdrant::{
-    QdrantConfig, create_collection_body, upsert_body, search_body_with_threshold,
-    hybrid_query_body, filter_to_qdrant, payload_to_json, json_to_payload,
-    collection_url, upsert_url, search_url, parse_search_response,
+    collection_url, create_collection_body, filter_to_qdrant, json_to_payload,
+    parse_search_response, payload_to_json, search_body_with_threshold, search_url, upsert_body,
+    upsert_url, QdrantConfig,
 };
 use ancora_memory::vector_store::{Distance, Filter, PayloadValue};
 
@@ -30,7 +29,10 @@ fn main() {
 
     // 2. Upsert body
     let mut payload = ancora_memory::vector_store::Payload::new();
-    payload.insert("title".to_owned(), PayloadValue::String("Qdrant RAG guide".to_owned()));
+    payload.insert(
+        "title".to_owned(),
+        PayloadValue::String("Qdrant RAG guide".to_owned()),
+    );
     payload.insert("year".to_owned(), PayloadValue::Integer(2024));
     let payload_json = payload_to_json(&payload);
     let embedding: Vec<f32> = (0..DIMS).map(|i| (i as f32) / (DIMS as f32)).collect();

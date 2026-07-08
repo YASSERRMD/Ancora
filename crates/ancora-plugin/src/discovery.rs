@@ -1,5 +1,4 @@
 /// Plugin discovery and loading.
-
 use crate::manifest::{ManifestError, PluginManifest};
 
 /// Errors that can occur when registering or discovering plugins.

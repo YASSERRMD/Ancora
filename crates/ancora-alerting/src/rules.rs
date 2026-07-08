@@ -58,7 +58,11 @@ pub fn residency_violation_rule() -> AlertRule {
 pub fn check_high_error_rate(error_rate: f64, threshold: f64, at: u64) -> Option<FiredAlert> {
     if error_rate > threshold {
         let rule = high_error_rate_rule();
-        let msg = format!("error_rate={:.2}% exceeds threshold={:.2}%", error_rate * 100.0, threshold * 100.0);
+        let msg = format!(
+            "error_rate={:.2}% exceeds threshold={:.2}%",
+            error_rate * 100.0,
+            threshold * 100.0
+        );
         Some(FiredAlert::from_rule(&rule, msg, at))
     } else {
         None
@@ -105,7 +109,12 @@ pub fn check_replication_lag(lag_secs: u64, rpo_secs: u64, at: u64) -> Option<Fi
     }
 }
 
-pub fn check_residency_violation(violated: bool, tenant_id: &str, region: &str, at: u64) -> Option<FiredAlert> {
+pub fn check_residency_violation(
+    violated: bool,
+    tenant_id: &str,
+    region: &str,
+    at: u64,
+) -> Option<FiredAlert> {
     if violated {
         let rule = residency_violation_rule();
         let msg = format!("tenant {tenant_id} data written outside allowed region {region}");

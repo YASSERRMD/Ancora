@@ -54,10 +54,14 @@ public final class RuntimeHandle implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Throwable {
+    public void close() {
         if (!closed) {
             closed = true;
-            AncoraNative.FREE_RUNTIME.invokeExact(ptr);
+            try {
+                AncoraNative.FREE_RUNTIME.invokeExact(ptr);
+            } catch (Throwable t) {
+                throw new RuntimeException("ancora_free_runtime failed", t);
+            }
         }
     }
 }

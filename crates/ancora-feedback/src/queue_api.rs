@@ -38,7 +38,11 @@ impl ReviewQueueApi {
 
     /// List all pending entries as summaries.
     pub fn list_pending(&self) -> Vec<QueueSummary> {
-        self.queue.pending().into_iter().map(QueueSummary::from).collect()
+        self.queue
+            .pending()
+            .into_iter()
+            .map(QueueSummary::from)
+            .collect()
     }
 
     /// Claim a pending entry for review.

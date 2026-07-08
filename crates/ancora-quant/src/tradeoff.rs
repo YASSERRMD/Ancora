@@ -91,7 +91,10 @@ pub fn standard_tradeoffs() -> Vec<QuantTradeoff> {
             1.5,
             0.01,
             14.0,
-            vec![DeploymentScenario::HighEndServer, DeploymentScenario::ConsumerGpu],
+            vec![
+                DeploymentScenario::HighEndServer,
+                DeploymentScenario::ConsumerGpu,
+            ],
             "FP16/BF16: excellent quality with 2x compression. Requires GPU for speed.",
         ),
         QuantTradeoff::new(

@@ -1,5 +1,4 @@
 /// Tests for engine capability detection.
-
 use crate::capability::Capabilities;
 use crate::model::EngineKind;
 

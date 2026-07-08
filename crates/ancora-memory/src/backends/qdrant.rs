@@ -1,10 +1,10 @@
-/// Qdrant backend for the `VectorStore` trait.
-///
-/// Uses the Qdrant REST API over `ureq` (synchronous, no tokio runtime needed).
-/// Requires the `qdrant` feature: `ancora-memory = { features = ["qdrant"] }`.
-///
-/// Integration tests that hit a live Qdrant are `#[ignore]` and require
-/// `QDRANT_URL` in the environment (e.g. `http://localhost:6333`).
+//! Qdrant backend for the `VectorStore` trait.
+//!
+//! Uses the Qdrant REST API over `ureq` (synchronous, no tokio runtime needed).
+//! Requires the `qdrant` feature: `ancora-memory = { features = ["qdrant"] }`.
+//!
+//! Integration tests that hit a live Qdrant are `#[ignore]` and require
+//! `QDRANT_URL` in the environment (e.g. `http://localhost:6333`).
 
 // ---- connection config ---------------------------------------------------
 
@@ -21,18 +21,26 @@ pub struct QdrantConfig {
 
 impl QdrantConfig {
     pub fn new(url: impl Into<String>) -> Self {
-        Self { url: url.into(), api_key: None, timeout_secs: 30 }
+        Self {
+            url: url.into(),
+            api_key: None,
+            timeout_secs: 30,
+        }
     }
 
     pub fn with_api_key(mut self, key: impl Into<String>) -> Self {
-        self.api_key = Some(key.into()); self
+        self.api_key = Some(key.into());
+        self
     }
 
     pub fn with_timeout(mut self, secs: u64) -> Self {
-        self.timeout_secs = secs; self
+        self.timeout_secs = secs;
+        self
     }
 
-    pub fn local() -> Self { Self::new("http://localhost:6333") }
+    pub fn local() -> Self {
+        Self::new("http://localhost:6333")
+    }
 
     /// Build the authorization header value if an API key is set.
     pub fn auth_header(&self) -> Option<String> {
@@ -120,24 +128,38 @@ pub fn apply_score_threshold(
     results: Vec<(u64, f32, serde_json::Value)>,
     threshold: f32,
 ) -> Vec<(u64, f32, serde_json::Value)> {
-    results.into_iter().filter(|(_, score, _)| *score >= threshold).collect()
+    results
+        .into_iter()
+        .filter(|(_, score, _)| *score >= threshold)
+        .collect()
 }
 
 /// Re-rank search results by score descending.
-pub fn sort_by_score(mut results: Vec<(u64, f32, serde_json::Value)>) -> Vec<(u64, f32, serde_json::Value)> {
+pub fn sort_by_score(
+    mut results: Vec<(u64, f32, serde_json::Value)>,
+) -> Vec<(u64, f32, serde_json::Value)> {
     results.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
     results
 }
 
 /// Deduplicate results by point ID, keeping the highest score for each.
-pub fn dedup_by_id(results: Vec<(u64, f32, serde_json::Value)>) -> Vec<(u64, f32, serde_json::Value)> {
-    let mut seen: std::collections::HashMap<u64, (f32, serde_json::Value)> = std::collections::HashMap::new();
+pub fn dedup_by_id(
+    results: Vec<(u64, f32, serde_json::Value)>,
+) -> Vec<(u64, f32, serde_json::Value)> {
+    let mut seen: std::collections::HashMap<u64, (f32, serde_json::Value)> =
+        std::collections::HashMap::new();
     for (id, score, payload) in results {
         seen.entry(id)
-            .and_modify(|(s, _)| { if score > *s { *s = score; } })
+            .and_modify(|(s, _)| {
+                if score > *s {
+                    *s = score;
+                }
+            })
             .or_insert((score, payload));
     }
-    seen.into_iter().map(|(id, (score, payload))| (id, score, payload)).collect()
+    seen.into_iter()
+        .map(|(id, (score, payload))| (id, score, payload))
+        .collect()
 }
 
 // ---- collection lifecycle helpers ----------------------------------------
@@ -202,11 +224,16 @@ pub fn create_collection_body(dimensions: usize, distance: &Distance) -> Value {
 
 /// Build the JSON body for a points upsert request.
 pub fn upsert_body(points: &[(u64, Vec<f32>, Value)]) -> Value {
-    let pts: Vec<Value> = points.iter().map(|(id, vec, payload)| json!({
-        "id": id,
-        "vector": vec,
-        "payload": payload
-    })).collect();
+    let pts: Vec<Value> = points
+        .iter()
+        .map(|(id, vec, payload)| {
+            json!({
+                "id": id,
+                "vector": vec,
+                "payload": payload
+            })
+        })
+        .collect();
     json!({ "points": pts })
 }
 
@@ -218,11 +245,15 @@ pub enum QdrantPointId {
 }
 
 impl From<u64> for QdrantPointId {
-    fn from(n: u64) -> Self { Self::Num(n) }
+    fn from(n: u64) -> Self {
+        Self::Num(n)
+    }
 }
 
 impl From<&str> for QdrantPointId {
-    fn from(s: &str) -> Self { Self::Uuid(s.to_owned()) }
+    fn from(s: &str) -> Self {
+        Self::Uuid(s.to_owned())
+    }
 }
 
 impl QdrantPointId {
@@ -236,27 +267,33 @@ impl QdrantPointId {
 
 /// Build a upsert body for points with mixed numeric/UUID IDs.
 pub fn upsert_body_typed(points: &[(QdrantPointId, Vec<f32>, Value)]) -> Value {
-    let pts: Vec<Value> = points.iter().map(|(id, vec, payload)| json!({
-        "id": id.to_json(),
-        "vector": vec,
-        "payload": payload
-    })).collect();
+    let pts: Vec<Value> = points
+        .iter()
+        .map(|(id, vec, payload)| {
+            json!({
+                "id": id.to_json(),
+                "vector": vec,
+                "payload": payload
+            })
+        })
+        .collect();
     json!({ "points": pts })
 }
 
 /// Build a upsert body for points with named vectors.
-pub fn upsert_named_vector_body(
-    points: &[(u64, &str, Vec<f32>, Value)],
-) -> Value {
-    let pts: Vec<Value> = points.iter().map(|(id, vec_name, embedding, payload)| {
-        let mut vector_map = serde_json::Map::new();
-        vector_map.insert(vec_name.to_string(), json!(embedding));
-        json!({
-            "id": id,
-            "vector": serde_json::Value::Object(vector_map),
-            "payload": payload
+pub fn upsert_named_vector_body(points: &[(u64, &str, Vec<f32>, Value)]) -> Value {
+    let pts: Vec<Value> = points
+        .iter()
+        .map(|(id, vec_name, embedding, payload)| {
+            let mut vector_map = serde_json::Map::new();
+            vector_map.insert(vec_name.to_string(), json!(embedding));
+            json!({
+                "id": id,
+                "vector": serde_json::Value::Object(vector_map),
+                "payload": payload
+            })
         })
-    }).collect();
+        .collect();
     json!({ "points": pts })
 }
 
@@ -310,11 +347,16 @@ pub fn search_named_vector_body(
 
 /// Build a batch search body (Qdrant `POST /collections/{name}/points/search/batch`).
 pub fn batch_search_body(queries: &[(&[f32], usize)]) -> Value {
-    let searches: Vec<Value> = queries.iter().map(|(vec, limit)| json!({
-        "vector": vec,
-        "limit": limit,
-        "with_payload": true
-    })).collect();
+    let searches: Vec<Value> = queries
+        .iter()
+        .map(|(vec, limit)| {
+            json!({
+                "vector": vec,
+                "limit": limit,
+                "with_payload": true
+            })
+        })
+        .collect();
     json!({ "searches": searches })
 }
 
@@ -503,8 +545,11 @@ pub fn query_url(base: &str, name: &str) -> String {
 /// using a keyword sparse model. This enables semantic + keyword fusion.
 pub fn hybrid_query_body(
     dense_vector: &[f32],
-    sparse_indices: &[u32],
-    sparse_values: &[f32],
+    // TODO(#follow-up): the sparse prefetch stage isn't built from these yet,
+    // so this "hybrid" query is currently dense-only. See follow-up task on
+    // qdrant sparse-vector RRF fusion.
+    _sparse_indices: &[u32],
+    _sparse_values: &[f32],
     top_k: usize,
     alpha: f32,
 ) -> Value {
@@ -527,14 +572,16 @@ pub fn hybrid_query_body(
 }
 
 /// Build a simple RRF fusion body combining multiple prefetch queries.
-pub fn rrf_fusion_body(
-    vectors: &[&[f32]],
-    top_k: usize,
-) -> Value {
-    let prefetches: Vec<Value> = vectors.iter().map(|v| json!({
-        "query": v,
-        "limit": top_k
-    })).collect();
+pub fn rrf_fusion_body(vectors: &[&[f32]], top_k: usize) -> Value {
+    let prefetches: Vec<Value> = vectors
+        .iter()
+        .map(|v| {
+            json!({
+                "query": v,
+                "limit": top_k
+            })
+        })
+        .collect();
     json!({
         "prefetch": prefetches,
         "query": { "fusion": "rrf" },
@@ -694,8 +741,11 @@ pub fn json_to_payload(obj: &Value) -> crate::vector_store::Payload {
             let pv = match v {
                 Value::String(s) => PayloadValue::String(s.clone()),
                 Value::Number(n) => {
-                    if let Some(i) = n.as_i64() { PayloadValue::Integer(i) }
-                    else { PayloadValue::Float(n.as_f64().unwrap_or(0.0)) }
+                    if let Some(i) = n.as_i64() {
+                        PayloadValue::Integer(i)
+                    } else {
+                        PayloadValue::Float(n.as_f64().unwrap_or(0.0))
+                    }
                 }
                 Value::Bool(b) => PayloadValue::Bool(*b),
                 Value::Null => PayloadValue::Null,
@@ -715,11 +765,9 @@ pub fn payload_to_json(payload: &crate::vector_store::Payload) -> Value {
         let jv = match v {
             PayloadValue::String(s) => Value::String(s.clone()),
             PayloadValue::Integer(n) => json!(n),
-            PayloadValue::Float(f) => {
-                serde_json::Number::from_f64(*f)
-                    .map(Value::Number)
-                    .unwrap_or(Value::Null)
-            }
+            PayloadValue::Float(f) => serde_json::Number::from_f64(*f)
+                .map(Value::Number)
+                .unwrap_or(Value::Null),
             PayloadValue::Bool(b) => Value::Bool(*b),
             PayloadValue::Null => Value::Null,
         };
@@ -771,7 +819,10 @@ mod tests {
 
     #[test]
     fn list_collections_url_format() {
-        assert_eq!(list_collections_url("http://localhost:6333"), "http://localhost:6333/collections");
+        assert_eq!(
+            list_collections_url("http://localhost:6333"),
+            "http://localhost:6333/collections"
+        );
     }
 
     #[test]
@@ -785,7 +836,10 @@ mod tests {
 
     #[test]
     fn readiness_url_format() {
-        assert_eq!(readiness_url("http://localhost:6333"), "http://localhost:6333/readyz");
+        assert_eq!(
+            readiness_url("http://localhost:6333"),
+            "http://localhost:6333/readyz"
+        );
     }
 
     #[test]
@@ -839,7 +893,10 @@ mod tests {
 
     #[test]
     fn collections_url_format() {
-        assert_eq!(collections_url("http://localhost:6333"), "http://localhost:6333/collections");
+        assert_eq!(
+            collections_url("http://localhost:6333"),
+            "http://localhost:6333/collections"
+        );
     }
 
     #[test]
@@ -974,7 +1031,10 @@ mod tests {
 
     #[test]
     fn filter_ne_produces_must_not_clause() {
-        let f = Filter::Ne("status".to_owned(), PayloadValue::String("archived".to_owned()));
+        let f = Filter::Ne(
+            "status".to_owned(),
+            PayloadValue::String("archived".to_owned()),
+        );
         let json = filter_to_qdrant(&f);
         assert!(json["must_not"].is_array(), "json: {json}");
     }
@@ -1039,8 +1099,10 @@ mod tests {
 
     #[test]
     fn filter_or_produces_should_clause() {
-        let f = Filter::Eq("x".to_owned(), PayloadValue::String("a".to_owned()))
-            .or(Filter::Eq("x".to_owned(), PayloadValue::String("b".to_owned())));
+        let f = Filter::Eq("x".to_owned(), PayloadValue::String("a".to_owned())).or(Filter::Eq(
+            "x".to_owned(),
+            PayloadValue::String("b".to_owned()),
+        ));
         let json = filter_to_qdrant(&f);
         assert!(json["should"].is_array(), "json: {json}");
     }
@@ -1097,14 +1159,22 @@ mod tests {
 
     #[test]
     fn apply_score_threshold_filters_low_scores() {
-        let results = vec![(1u64, 0.9f32, json!({})), (2, 0.5, json!({})), (3, 0.8, json!({}))];
+        let results = vec![
+            (1u64, 0.9f32, json!({})),
+            (2, 0.5, json!({})),
+            (3, 0.8, json!({})),
+        ];
         let filtered = apply_score_threshold(results, 0.75);
         assert_eq!(filtered.len(), 2);
     }
 
     #[test]
     fn sort_by_score_descending() {
-        let results = vec![(1u64, 0.5f32, json!({})), (2, 0.9, json!({})), (3, 0.7, json!({}))];
+        let results = vec![
+            (1u64, 0.5f32, json!({})),
+            (2, 0.9, json!({})),
+            (3, 0.7, json!({})),
+        ];
         let sorted = sort_by_score(results);
         assert_eq!(sorted[0].0, 2);
         assert_eq!(sorted[1].0, 3);
@@ -1112,7 +1182,11 @@ mod tests {
 
     #[test]
     fn dedup_by_id_keeps_highest_score() {
-        let results = vec![(1u64, 0.5f32, json!({})), (1, 0.9, json!({})), (2, 0.7, json!({}))];
+        let results = vec![
+            (1u64, 0.5f32, json!({})),
+            (1, 0.9, json!({})),
+            (2, 0.7, json!({})),
+        ];
         let mut deduped = dedup_by_id(results);
         deduped.sort_by_key(|(id, _, _)| *id);
         assert_eq!(deduped.len(), 2);

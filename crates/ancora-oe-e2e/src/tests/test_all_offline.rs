@@ -1,12 +1,11 @@
-/// Tests that verify the entire suite operates without network calls.
-/// All components use in-memory mocks only.
-
-use crate::trace_e2e::{build_run_trace, MockCollector, TraceExporter};
 use crate::cost_e2e::simulate_run_cost;
 use crate::eval_e2e::{default_eval_suite, run_eval_suite};
 use crate::gate_e2e::{all_gates_pass, run_gates, RegressionGate};
-use crate::safety_e2e::default_safety_monitor;
 use crate::privacy_e2e::default_redactor;
+use crate::safety_e2e::default_safety_monitor;
+/// Tests that verify the entire suite operates without network calls.
+/// All components use in-memory mocks only.
+use crate::trace_e2e::{build_run_trace, MockCollector, TraceExporter};
 
 #[test]
 fn all_components_work_offline_with_local_judge() {
@@ -16,7 +15,9 @@ fn all_components_work_offline_with_local_judge() {
 
     // 2. Export to in-memory collector (no network).
     let mut collector = MockCollector::new();
-    collector.export(&trace).expect("offline export must succeed");
+    collector
+        .export(&trace)
+        .expect("offline export must succeed");
     assert_eq!(collector.count(), 1);
 
     // 3. Cost analytics offline.

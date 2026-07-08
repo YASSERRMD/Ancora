@@ -8,12 +8,18 @@ fn posture_with_score(score: u8) -> SecurityPosture {
 
 #[test]
 fn score_0_is_critical() {
-    assert_eq!(posture_with_score(0).posture_level(), PostureLevel::Critical);
+    assert_eq!(
+        posture_with_score(0).posture_level(),
+        PostureLevel::Critical
+    );
 }
 
 #[test]
 fn score_29_is_critical() {
-    assert_eq!(posture_with_score(29).posture_level(), PostureLevel::Critical);
+    assert_eq!(
+        posture_with_score(29).posture_level(),
+        PostureLevel::Critical
+    );
 }
 
 #[test]
@@ -33,5 +39,8 @@ fn score_70_is_good() {
 
 #[test]
 fn score_85_is_excellent() {
-    assert_eq!(posture_with_score(85).posture_level(), PostureLevel::Excellent);
+    assert_eq!(
+        posture_with_score(85).posture_level(),
+        PostureLevel::Excellent
+    );
 }

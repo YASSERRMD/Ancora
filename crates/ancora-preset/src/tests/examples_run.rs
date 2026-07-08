@@ -1,4 +1,7 @@
-use crate::{assemble, coding_agent, customer_support, data_analysis, government_compliant, research_assistant};
+use crate::{
+    assemble, coding_agent, customer_support, data_analysis, government_compliant,
+    research_assistant,
+};
 
 #[test]
 fn research_example_runs() {

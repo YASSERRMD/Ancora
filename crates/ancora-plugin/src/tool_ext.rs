@@ -1,5 +1,4 @@
 /// Tool extension point - expose a callable function to agents.
-
 use std::collections::HashMap;
 
 /// JSON-like value type for tool arguments and results.
@@ -16,15 +15,27 @@ pub enum Value {
 
 impl Value {
     pub fn as_str(&self) -> Option<&str> {
-        if let Value::Str(s) = self { Some(s) } else { None }
+        if let Value::Str(s) = self {
+            Some(s)
+        } else {
+            None
+        }
     }
 
     pub fn as_int(&self) -> Option<i64> {
-        if let Value::Int(n) = self { Some(*n) } else { None }
+        if let Value::Int(n) = self {
+            Some(*n)
+        } else {
+            None
+        }
     }
 
     pub fn as_bool(&self) -> Option<bool> {
-        if let Value::Bool(b) = self { Some(*b) } else { None }
+        if let Value::Bool(b) = self {
+            Some(*b)
+        } else {
+            None
+        }
     }
 }
 

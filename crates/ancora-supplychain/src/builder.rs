@@ -23,12 +23,32 @@ impl ComponentBuilder {
         }
     }
 
-    pub fn kind(mut self, kind: ComponentKind) -> Self { self.kind = kind; self }
-    pub fn license(mut self, license: License) -> Self { self.license = license; self }
-    pub fn supplier(mut self, supplier: impl Into<String>) -> Self { self.supplier = supplier.into(); self }
-    pub fn digest(mut self, digest: impl Into<String>) -> Self { self.digest = digest.into(); self }
+    pub fn kind(mut self, kind: ComponentKind) -> Self {
+        self.kind = kind;
+        self
+    }
+    pub fn license(mut self, license: License) -> Self {
+        self.license = license;
+        self
+    }
+    pub fn supplier(mut self, supplier: impl Into<String>) -> Self {
+        self.supplier = supplier.into();
+        self
+    }
+    pub fn digest(mut self, digest: impl Into<String>) -> Self {
+        self.digest = digest.into();
+        self
+    }
 
     pub fn build(self) -> Component {
-        Component::new(self.id, self.name, self.version, self.kind, self.license, self.supplier, self.digest)
+        Component::new(
+            self.id,
+            self.name,
+            self.version,
+            self.kind,
+            self.license,
+            self.supplier,
+            self.digest,
+        )
     }
 }
