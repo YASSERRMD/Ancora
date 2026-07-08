@@ -8,6 +8,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 final class ToolBridge implements AutoCloseable {
 
@@ -20,6 +21,7 @@ final class ToolBridge implements AutoCloseable {
     }
 
     static ToolBridge create(ToolHandler handler) throws Throwable {
+        Objects.requireNonNull(handler, "handler must not be null");
         Arena arena = Arena.ofShared();
         MethodHandle mh = MethodHandles.lookup()
             .findStatic(ToolBridge.class, "dispatch",
