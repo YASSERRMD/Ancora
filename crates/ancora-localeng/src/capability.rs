@@ -6,7 +6,7 @@
 use crate::model::EngineKind;
 
 /// A set of features an engine may or may not support.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Capabilities {
     pub streaming: bool,
     pub embeddings: bool,
@@ -18,23 +18,6 @@ pub struct Capabilities {
     pub quantization: bool,
     pub lora_adapters: bool,
     pub grammar_constrained: bool,
-}
-
-impl Default for Capabilities {
-    fn default() -> Self {
-        Capabilities {
-            streaming: false,
-            embeddings: false,
-            vision: false,
-            function_calling: false,
-            batch_inference: false,
-            speculative_decoding: false,
-            continuous_batching: false,
-            quantization: false,
-            lora_adapters: false,
-            grammar_constrained: false,
-        }
-    }
 }
 
 impl Capabilities {

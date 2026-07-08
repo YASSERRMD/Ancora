@@ -4,7 +4,6 @@
 /// quality preferences.
 use std::cmp::Ordering;
 
-use crate::quant_level::QuantTier;
 use crate::registry::{ModelEntry, ModelRegistry};
 
 /// Policy for choosing among models that fit the RAM budget.

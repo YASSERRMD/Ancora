@@ -1,7 +1,6 @@
 use ancora_redteam2::attack::{AttackLog, AttackOutcome, AttackStep, AttackVector};
 use ancora_redteam2::audit::{RedTeamAction, RedTeamAuditEntry, RedTeamAuditLog};
 use ancora_redteam2::detection::{DetectionEvent, DetectionLog, DetectionSource};
-use ancora_redteam2::objective::{ObjectiveTracker, RedTeamObjective};
 use ancora_redteam2::presets::{lateral_movement_scenario, standard_objectives};
 use ancora_redteam2::report::RedTeamReport;
 use ancora_redteam2::stats::RedTeamStats;

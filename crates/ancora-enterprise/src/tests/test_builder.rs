@@ -26,7 +26,7 @@ fn incident_builder() {
         .build();
     assert_eq!(inc.id, "i1");
     assert_eq!(inc.assignee.as_deref(), Some("alice"));
-    assert!(inc.is_critical() == false);
+    assert!(!inc.is_critical());
 }
 
 #[test]

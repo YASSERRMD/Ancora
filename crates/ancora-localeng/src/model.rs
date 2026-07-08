@@ -1,4 +1,4 @@
-/// Core model types for local inference engines.
+//! Core model types for local inference engines.
 
 /// The type of local inference engine.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

@@ -116,6 +116,12 @@ pub struct IncidentLog {
     incidents: Vec<EnterpriseIncident>,
 }
 
+impl Default for IncidentLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IncidentLog {
     pub fn new() -> Self {
         Self {

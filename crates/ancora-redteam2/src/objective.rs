@@ -66,6 +66,12 @@ pub struct ObjectiveTracker {
     objectives: Vec<RedTeamObjective>,
 }
 
+impl Default for ObjectiveTracker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ObjectiveTracker {
     pub fn new() -> Self {
         Self {

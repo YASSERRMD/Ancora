@@ -5,6 +5,12 @@ pub struct ScenarioStore {
     scenarios: HashMap<String, RedTeamScenario>,
 }
 
+impl Default for ScenarioStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ScenarioStore {
     pub fn new() -> Self {
         Self {

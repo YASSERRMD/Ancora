@@ -86,6 +86,12 @@ impl MockEmbeddedBackend {
     }
 }
 
+impl Default for MockEmbeddedBackend {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EmbeddedBackend for MockEmbeddedBackend {
     fn load_model(&mut self, path: &str, _params: &EmbeddedParams) -> Result<(), EmbeddedError> {
         if path.is_empty() {
