@@ -1,5 +1,5 @@
 use ancora_core::error::AncoraError;
-use ancora_core::replay::detect_divergence;
+use ancora_core::replay::{detect_divergence, detect_divergence_allow_partial};
 
 #[test]
 fn identical_sequences_pass() {
@@ -17,7 +17,7 @@ fn observed_subset_passes_divergence_check() {
     let expected = vec!["a".to_string(), "b".to_string(), "c".to_string()];
     let observed = vec!["a".to_string(), "b".to_string()];
     // observed is shorter: this is valid (run paused mid-way)
-    detect_divergence(&expected, &observed).unwrap();
+    detect_divergence_allow_partial(&expected, &observed).unwrap();
 }
 
 #[test]
