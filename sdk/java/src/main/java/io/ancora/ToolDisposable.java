@@ -24,10 +24,14 @@ final class ToolDisposable implements AutoCloseable {
             closed = true;
             try (Arena scratch = Arena.ofConfined()) {
                 MemorySegment nameSeg = scratch.allocateFrom(name);
+                int rc;
                 try {
-                    AncoraNative.TOOL_UNREGISTER.invokeExact(runtime.rawPtr(), nameSeg);
+                    rc = (int) AncoraNative.TOOL_UNREGISTER.invokeExact(runtime.rawPtr(), nameSeg);
                 } catch (Throwable t) {
                     throw new RuntimeException("ancora_tool_unregister failed", t);
+                }
+                if (rc != 0) {
+                    throw new AncorException(rc, "ancora_tool_unregister failed for: " + name);
                 }
             } finally {
                 bridge.close();
