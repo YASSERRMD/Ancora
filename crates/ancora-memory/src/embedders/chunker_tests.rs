@@ -1,4 +1,4 @@
-/// Extended chunker boundary and coverage tests -- all offline.
+//! Extended chunker boundary and coverage tests -- all offline.
 
 #[cfg(test)]
 mod chunker_ext_tests {

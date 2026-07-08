@@ -73,7 +73,7 @@ fn cost_attr_absent_when_not_in_journal() {
         },
     };
     let span = journal_event_to_span(&ev);
-    assert!(span.attributes.get(ANCORA_COST_USD).is_none());
+    assert!(!span.attributes.contains_key(ANCORA_COST_USD));
 }
 
 #[test]

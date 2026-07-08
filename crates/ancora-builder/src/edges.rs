@@ -30,7 +30,7 @@ impl std::fmt::Display for EdgeType {
 }
 
 impl EdgeType {
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_raw(s: &str) -> Self {
         match s {
             "data_flow" => EdgeType::DataFlow,
             "control_dep" => EdgeType::ControlDep,
@@ -296,7 +296,7 @@ mod unit {
     fn edge_type_round_trip() {
         let t = EdgeType::Custom("my_type".into());
         let s = t.to_string();
-        let t2 = EdgeType::from_str(&s);
+        let t2 = EdgeType::from_raw(&s);
         assert_eq!(t, t2);
     }
 }

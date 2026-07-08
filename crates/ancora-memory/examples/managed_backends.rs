@@ -1,10 +1,10 @@
-/// Example: using the managed and cloud-hosted vector backends in Ancora.
-///
-/// This example demonstrates how to configure and build request payloads for
-/// Chroma, Pinecone, Vespa, and Redis Vector without a live server. It shows
-/// the builder pattern and JSON descriptors produced by each backend module.
-///
-/// No network calls are made.
+//! Example: using the managed and cloud-hosted vector backends in Ancora.
+//!
+//! This example demonstrates how to configure and build request payloads for
+//! Chroma, Pinecone, Vespa, and Redis Vector without a live server. It shows
+//! the builder pattern and JSON descriptors produced by each backend module.
+//!
+//! No network calls are made.
 
 fn main() {
     chroma_demo();
@@ -143,7 +143,7 @@ fn redis_demo() {
 
     let search = SearchArgs::filtered_ann(
         "docs_idx",
-        &format!(
+        format!(
             "({}) ({})",
             tag_filter("lang", "en"),
             numeric_range("score", 0.8, 1.0)

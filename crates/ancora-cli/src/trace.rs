@@ -15,6 +15,7 @@ pub fn print_trace(spec: &GraphSpec, _store: &MemoryStore) {
 }
 
 /// Build a trace string without printing (for testing).
+#[allow(dead_code)]
 pub fn format_trace(spec: &GraphSpec) -> String {
     let mut out = String::new();
     out.push_str(&format!("run: {}\n", spec.name));

@@ -46,8 +46,10 @@ fn test_disabled_plugin_hidden_by_default() {
         ListEntry::new(make_meta("plug.enabled")),
         ListEntry::new(make_meta("plug.disabled")).disabled(),
     ];
-    let mut opts = ListOptions::default();
-    opts.include_disabled = false;
+    let opts = ListOptions {
+        include_disabled: false,
+        ..Default::default()
+    };
 
     let rendered = render_list(&entries, &opts);
     assert!(rendered.contains("plug.enabled"));
@@ -60,8 +62,10 @@ fn test_disabled_plugin_hidden_by_default() {
 #[test]
 fn test_disabled_plugin_shown_when_option_set() {
     let entries = vec![ListEntry::new(make_meta("plug.disabled")).disabled()];
-    let mut opts = ListOptions::default();
-    opts.include_disabled = true;
+    let opts = ListOptions {
+        include_disabled: true,
+        ..Default::default()
+    };
 
     let rendered = render_list(&entries, &opts);
     assert!(
@@ -84,8 +88,10 @@ fn test_update_available_shown_in_list() {
         }),
     );
 
-    let mut opts = ListOptions::default();
-    opts.show_updates = true;
+    let opts = ListOptions {
+        show_updates: true,
+        ..Default::default()
+    };
 
     let rendered = render_list(&[entry], &opts);
     assert!(

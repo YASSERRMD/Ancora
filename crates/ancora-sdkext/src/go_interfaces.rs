@@ -45,13 +45,15 @@ impl std::fmt::Display for GoMethod {
 // Go extension adapter
 // ---------------------------------------------------------------------------
 
+type DispatchTable = HashMap<String, fn(String) -> Result<String, String>>;
+
 /// Adapter that wraps a Go extension exposed over the FFI boundary and presents
 /// it as a Rust `ToolExtension`.
 pub struct GoExtensionAdapter {
     meta: ToolMeta,
     /// Simulated dispatch table; in production this would hold function
     /// pointers resolved from a shared library.
-    dispatch: HashMap<String, fn(String) -> Result<String, String>>,
+    dispatch: DispatchTable,
 }
 
 impl GoExtensionAdapter {
@@ -76,7 +78,7 @@ impl GoExtensionAdapter {
     pub fn dispatch(&self, envelope: &GoCallEnvelope) -> Result<String, ExtensionError> {
         let key = envelope.method.to_string();
         if let Some(handler) = self.dispatch.get(&key) {
-            handler(envelope.payload.clone()).map_err(|e| ExtensionError::ExecutionFailed(e))
+            handler(envelope.payload.clone()).map_err(ExtensionError::ExecutionFailed)
         } else {
             Err(ExtensionError::NotSupported(format!(
                 "no handler registered for method '{key}'"

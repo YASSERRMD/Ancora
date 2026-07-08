@@ -98,7 +98,9 @@ pub fn ann_query(
 }
 
 /// Build a BM25 keyword query.
-pub fn bm25_query(doc_type: &str, field: &str, text: &str, hits: usize) -> Value {
+// TODO(#follow-up): this doesn't scope the query to `field` yet (userQuery()
+// searches all fields). See follow-up task on vespa field-scoped BM25.
+pub fn bm25_query(doc_type: &str, _field: &str, text: &str, hits: usize) -> Value {
     json!({
         "yql": format!("select * from {doc_type} where userQuery()"),
         "query": text,

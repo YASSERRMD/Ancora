@@ -82,6 +82,7 @@ impl EdgeEvalReport {
     }
 
     /// Build a report from raw evaluation data.
+    #[allow(clippy::too_many_arguments)]
     pub fn build_from_results(
         title: impl Into<String>,
         model: &SmallModel,

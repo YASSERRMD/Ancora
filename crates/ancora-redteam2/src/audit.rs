@@ -63,6 +63,12 @@ pub struct RedTeamAuditLog {
     entries: VecDeque<RedTeamAuditEntry>,
 }
 
+impl Default for RedTeamAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RedTeamAuditLog {
     pub fn new() -> Self {
         Self {

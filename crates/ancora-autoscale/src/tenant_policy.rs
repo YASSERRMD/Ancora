@@ -1,6 +1,5 @@
 use crate::bounds::TenantCap;
 use crate::decision::ScaleDecision;
-use crate::metrics::TenantMetrics;
 use std::collections::HashMap;
 
 /// Applies per-tenant caps on top of global scaling decisions.

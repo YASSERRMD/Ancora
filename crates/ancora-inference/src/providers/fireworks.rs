@@ -83,6 +83,7 @@ const FIREWORKS_FIXTURE: &str = r#"{"id":"chatcmpl-fw-01","choices":[{"message":
 const FIREWORKS_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-fw-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-fw-01","type":"function","function":{"name":"search","arguments":"{\"query\":\"AI news\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":12,"completion_tokens":7}}"#;
 
 #[cfg(test)]
+#[allow(dead_code)]
 const FIREWORKS_STREAM_LINES: &[&str] = &[
     r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
     r#"data: {"choices":[{"delta":{"content":" Fireworks"},"finish_reason":"stop"}]}"#,

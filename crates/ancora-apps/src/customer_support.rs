@@ -1,7 +1,7 @@
-/// Customer support application.
-///
-/// Routes support tickets to canned responses from a local knowledge base
-/// and tracks ticket lifecycle without any external calls.
+//! Customer support application.
+//!
+//! Routes support tickets to canned responses from a local knowledge base
+//! and tracks ticket lifecycle without any external calls.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TicketStatus {

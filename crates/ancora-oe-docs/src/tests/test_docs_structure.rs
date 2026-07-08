@@ -7,12 +7,11 @@ use crate::{
     drift_mon::{DriftMonitor, ScoreSample},
     eval_library::{EvalCatalog, EvalCatalogEntry, EvalCategory},
     evals_platform::{EvalResult, EvalRunSummary, EvalSpec},
-    examples_index::{build_default_index, ExamplesIndex},
+    examples_index::build_default_index,
     feedback_review::{FeedbackItem, FeedbackSignal, ReviewQueue},
-    obs_integrations::{Backend, SinkConfig, SinkRegistry},
+    obs_integrations::{SinkConfig, SinkRegistry},
     overview::{ObservabilityOverview, ObservabilityPillars},
     per_lang::{recommended_tracing_package, LangSdkInfo, SdkLanguage},
-    readiness::build_default_checklist,
     regression_gates::{run_gates, RegressionGate},
     safety_mon::{SafetyEvent, SafetyMonitor, Severity},
     semantic_conv::{is_known_key, Attribute, SemanticAttributes},
@@ -64,7 +63,7 @@ fn test_semantic_known_key() {
 fn test_attribute_types() {
     let a = Attribute::string("k", "v");
     let b = Attribute::int("k2", 42);
-    let c = Attribute::float("k3", 3.14);
+    let c = Attribute::float("k3", 3.25);
     let d = Attribute::bool("k4", true);
     assert_eq!(a.key, "k");
     assert_eq!(b.key, "k2");

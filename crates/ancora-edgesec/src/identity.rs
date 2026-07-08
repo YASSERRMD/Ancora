@@ -66,6 +66,12 @@ pub struct DeviceIdentityRegistry {
     keys: HashMap<DeviceId, DeviceKeyPair>,
 }
 
+impl Default for DeviceIdentityRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DeviceIdentityRegistry {
     pub fn new() -> Self {
         Self {
@@ -106,6 +112,11 @@ impl DeviceIdentityRegistry {
     /// Number of registered devices.
     pub fn len(&self) -> usize {
         self.keys.len()
+    }
+
+    /// Returns true if no devices are registered.
+    pub fn is_empty(&self) -> bool {
+        self.keys.is_empty()
     }
 
     /// Verify ownership: returns true if the presented public key matches the device's registered key and is not revoked.

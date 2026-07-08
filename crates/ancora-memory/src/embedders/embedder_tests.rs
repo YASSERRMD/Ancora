@@ -1,5 +1,5 @@
-/// Offline tests confirming the Embedder trait is satisfied by local embedders
-/// and that all helper functions behave correctly across edge cases.
+//! Offline tests confirming the Embedder trait is satisfied by local embedders
+//! and that all helper functions behave correctly across edge cases.
 
 #[cfg(test)]
 mod embedder_trait_offline_tests {

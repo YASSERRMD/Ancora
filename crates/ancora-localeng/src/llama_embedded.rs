@@ -71,6 +71,12 @@ pub struct MockEmbeddedBackend {
     fixed_response: String,
 }
 
+impl Default for MockEmbeddedBackend {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MockEmbeddedBackend {
     pub fn new() -> Self {
         MockEmbeddedBackend {

@@ -1,6 +1,6 @@
 use ancora_reason::{
-    CitationStore, ContradictionDetector, FactChecker, ReasoningEvent, ReasoningJournal,
-    StepDecomposer, StepStatus, StepVerifier,
+    CitationStore, ContradictionDetector, ReasoningEvent, ReasoningJournal, StepDecomposer,
+    StepVerifier,
 };
 
 fn run_reasoning(journal: &mut ReasoningJournal) {

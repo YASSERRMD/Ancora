@@ -59,6 +59,12 @@ pub struct AttestationLog {
     entries: Vec<AttestationRecord>,
 }
 
+impl Default for AttestationLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AttestationLog {
     pub fn new() -> Self {
         Self {
@@ -83,10 +89,10 @@ impl AttestationLog {
             .filter(|e| e.node_id == node_id)
             .collect()
     }
-    pub fn trusted<'a>(&'a self) -> Vec<&'a AttestationRecord> {
+    pub fn trusted(&self) -> Vec<&AttestationRecord> {
         self.entries.iter().filter(|e| e.is_trusted()).collect()
     }
-    pub fn untrusted<'a>(&'a self) -> Vec<&'a AttestationRecord> {
+    pub fn untrusted(&self) -> Vec<&AttestationRecord> {
         self.entries
             .iter()
             .filter(|e| e.status == AttestationStatus::Untrusted)

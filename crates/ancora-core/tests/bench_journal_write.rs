@@ -56,5 +56,5 @@ fn test_bench_payload_size_64_bytes() {
 fn test_bench_sum_of_seqs() {
     let entries = write_bench_journal(5);
     let s = read_bench_journal(&entries);
-    assert_eq!(s, 0 + 1 + 2 + 3 + 4);
+    assert_eq!(s, 1 + 2 + 3 + 4);
 }

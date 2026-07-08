@@ -1,7 +1,6 @@
-use crate::aggregate::{compute_aggregate, AggregateMetrics};
+use crate::aggregate::AggregateMetrics;
 use crate::compare::{ci_overlap, compare_runs, CompareVerdict};
-use crate::executor::{exact_match, EvalCase, Executor, RunConfig, RunId};
-use crate::rollout::RolloutRunner;
+use crate::executor::RunId;
 
 fn make_metrics(pass_rate: f64, total_rollouts: usize) -> AggregateMetrics {
     let successes = (pass_rate * total_rollouts as f64).round() as usize;

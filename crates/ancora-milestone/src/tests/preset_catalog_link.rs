@@ -5,7 +5,7 @@ use ancora_preset::{
 
 #[test]
 fn all_five_presets_listed_in_catalog() {
-    let presets = vec![
+    let presets = [
         research_assistant(),
         coding_agent(),
         customer_support(),
@@ -22,7 +22,7 @@ fn all_five_presets_listed_in_catalog() {
 
 #[test]
 fn all_five_presets_assemble() {
-    let presets = vec![
+    let presets = [
         research_assistant(),
         coding_agent(),
         customer_support(),

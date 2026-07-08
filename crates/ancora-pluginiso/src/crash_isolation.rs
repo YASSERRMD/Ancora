@@ -1,9 +1,9 @@
-/// Plugin crash isolation.
-///
-/// Determines how the host handles a plugin crash or panic.  When isolation is
-/// enabled the host process continues running; the failed plugin is marked as
-/// faulted and new invocations return an error until the plugin is restarted or
-/// removed.
+//! Plugin crash isolation.
+//!
+//! Determines how the host handles a plugin crash or panic.  When isolation is
+//! enabled the host process continues running; the failed plugin is marked as
+//! faulted and new invocations return an error until the plugin is restarted or
+//! removed.
 
 /// Crash isolation strategy for a plugin.
 #[derive(Debug, Clone, PartialEq, Eq)]

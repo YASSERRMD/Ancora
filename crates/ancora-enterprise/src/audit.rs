@@ -62,6 +62,12 @@ pub struct EnterpriseAuditLog {
     entries: VecDeque<EnterpriseAuditEntry>,
 }
 
+impl Default for EnterpriseAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EnterpriseAuditLog {
     pub fn new() -> Self {
         Self {

@@ -48,10 +48,8 @@ fn main() {
         audit.record(entry);
         if allowed {
             registry.insert(record).unwrap();
-        } else {
-            if let EnforcementDecision::Deny(ref reason) = decision {
-                println!("Write denied: {reason}");
-            }
+        } else if let EnforcementDecision::Deny(ref reason) = decision {
+            println!("Write denied: {reason}");
         }
     }
 

@@ -20,12 +20,11 @@ impl PartialJournal {
     }
 
     fn recoverable_count(&self) -> usize {
-        let last = if self.truncated {
+        if self.truncated {
             self.entries.len().saturating_sub(1)
         } else {
             self.entries.len()
-        };
-        last
+        }
     }
 }
 

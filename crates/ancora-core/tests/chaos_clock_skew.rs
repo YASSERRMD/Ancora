@@ -2,6 +2,7 @@
 
 struct Event {
     seq: u64,
+    #[allow(dead_code)]
     recorded_at_ns: u64,
     kind: &'static str,
 }
@@ -16,7 +17,7 @@ fn validate_timestamp_not_required_monotonic(events: &[Event]) -> bool {
     true
 }
 
-fn replay_in_seq_order(events: &mut Vec<Event>) -> Vec<&str> {
+fn replay_in_seq_order(events: &mut [Event]) -> Vec<&str> {
     events.sort_by_key(|e| e.seq);
     events.iter().map(|e| e.kind).collect()
 }

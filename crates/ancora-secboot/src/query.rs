@@ -6,6 +6,12 @@ pub struct MeasurementQuery {
     name_contains: Option<String>,
 }
 
+impl Default for MeasurementQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MeasurementQuery {
     pub fn new() -> Self {
         Self {

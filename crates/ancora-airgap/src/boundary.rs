@@ -63,6 +63,12 @@ pub struct AirGapBoundary {
     zones: HashMap<String, AirGapZone>,
 }
 
+impl Default for AirGapBoundary {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AirGapBoundary {
     pub fn new() -> Self {
         Self {

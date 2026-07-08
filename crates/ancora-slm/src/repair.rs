@@ -109,8 +109,7 @@ fn apply_fixes(s: &str) -> String {
     // Replace single-quoted strings with double-quoted ones (very naive).
     let s = replace_single_quotes(s);
     // Remove trailing commas before } or ].
-    let s = remove_trailing_commas(&s);
-    s
+    remove_trailing_commas(&s)
 }
 
 fn replace_single_quotes(s: &str) -> String {

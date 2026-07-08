@@ -1,8 +1,8 @@
-/// Per-plugin filesystem policy.
-///
-/// Controls which paths a plugin may read from and write to.  The host
-/// intercepts filesystem syscalls and consults this policy before granting
-/// access.
+//! Per-plugin filesystem policy.
+//!
+//! Controls which paths a plugin may read from and write to.  The host
+//! intercepts filesystem syscalls and consults this policy before granting
+//! access.
 
 /// A filesystem path rule.
 #[derive(Debug, Clone)]

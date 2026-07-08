@@ -34,7 +34,7 @@ mod tests {
     fn unknown_tenant_returns_not_found() {
         let reg = TenantRegistry::new();
         let iso = TenantIsolation::new(&reg);
-        let unknown = TenantId::from_str("ghost");
+        let unknown = TenantId::from_raw("ghost");
         assert!(iso.assert_active(&unknown).is_err());
     }
 }

@@ -48,16 +48,13 @@ impl AuditQuery {
     pub fn run<'a>(&self, entries: impl Iterator<Item = &'a AuditEntry>) -> Vec<&'a AuditEntry> {
         entries
             .filter(|e| {
-                self.tenant_id.as_deref().map_or(true, |t| e.tenant_id == t)
-                    && self.subject.as_deref().map_or(true, |s| e.subject == s)
-                    && self
-                        .operation
-                        .as_deref()
-                        .map_or(true, |op| e.operation == op)
-                    && self.outcome.as_ref().map_or(true, |o| &e.outcome == o)
-                    && self.severity.as_ref().map_or(true, |s| &e.severity == s)
-                    && self.tick_from.map_or(true, |t| e.tick >= t)
-                    && self.tick_to.map_or(true, |t| e.tick <= t)
+                self.tenant_id.as_deref().is_none_or(|t| e.tenant_id == t)
+                    && self.subject.as_deref().is_none_or(|s| e.subject == s)
+                    && self.operation.as_deref().is_none_or(|op| e.operation == op)
+                    && self.outcome.as_ref().is_none_or(|o| &e.outcome == o)
+                    && self.severity.as_ref().is_none_or(|s| &e.severity == s)
+                    && self.tick_from.is_none_or(|t| e.tick >= t)
+                    && self.tick_to.is_none_or(|t| e.tick <= t)
             })
             .collect()
     }

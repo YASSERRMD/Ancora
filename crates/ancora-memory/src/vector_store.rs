@@ -157,13 +157,13 @@ impl PayloadSchema {
     pub fn validate(&self, payload: &Payload) -> Result<(), String> {
         for (key, expected_type) in &self.fields {
             if let Some(val) = payload.get(key) {
-                let ok = match (expected_type, val) {
-                    (FieldType::Keyword, PayloadValue::String(_)) => true,
-                    (FieldType::Integer, PayloadValue::Integer(_)) => true,
-                    (FieldType::Float, PayloadValue::Float(_)) => true,
-                    (FieldType::Bool, PayloadValue::Bool(_)) => true,
-                    _ => false,
-                };
+                let ok = matches!(
+                    (expected_type, val),
+                    (FieldType::Keyword, PayloadValue::String(_))
+                        | (FieldType::Integer, PayloadValue::Integer(_))
+                        | (FieldType::Float, PayloadValue::Float(_))
+                        | (FieldType::Bool, PayloadValue::Bool(_))
+                );
                 if !ok {
                     return Err(format!("field `{key}` has wrong type for schema"));
                 }

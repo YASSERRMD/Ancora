@@ -1,4 +1,4 @@
-/// Cost optimization suggestions engine.
+//! Cost optimization suggestions engine.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SuggestionKind {

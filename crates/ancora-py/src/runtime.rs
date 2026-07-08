@@ -49,6 +49,12 @@ pub(crate) struct InnerRuntime {
     pub _store: ancora_core::journal::MemoryStore,
 }
 
+impl Default for InnerRuntime {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl InnerRuntime {
     pub fn new() -> Self {
         Self {

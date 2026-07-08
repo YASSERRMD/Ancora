@@ -187,7 +187,7 @@ mod tests {
         let last = FIXTURE_STREAM_LINES
             .iter()
             .filter_map(|l| parse_sse_line(l))
-            .last()
+            .next_back()
             .unwrap();
         assert!(last.finished);
     }

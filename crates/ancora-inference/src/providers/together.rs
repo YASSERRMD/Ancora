@@ -73,6 +73,7 @@ const TOGETHER_FIXTURE: &str = r#"{"id":"chatcmpl-together-01","choices":[{"mess
 const TOGETHER_TOOL_FIXTURE: &str = r#"{"id":"chatcmpl-together-02","choices":[{"message":{"role":"assistant","content":"","tool_calls":[{"id":"call-01","type":"function","function":{"name":"get_weather","arguments":"{\"location\":\"London\"}"}}]},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":15,"completion_tokens":10}}"#;
 
 #[cfg(test)]
+#[allow(dead_code)]
 const TOGETHER_STREAM_LINES: &[&str] = &[
     r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#,
     r#"data: {"choices":[{"delta":{"content":" Together"},"finish_reason":"stop"}]}"#,

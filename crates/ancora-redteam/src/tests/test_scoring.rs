@@ -1,6 +1,4 @@
-use crate::{
-    AdversarialScenario, AttackCategory, EffectivenessReport, GuardrailScorer, ScenarioResult,
-};
+use crate::{AdversarialScenario, AttackCategory, EffectivenessReport, GuardrailScorer};
 
 fn perfect_checker(scenarios: &[AdversarialScenario]) -> EffectivenessReport {
     GuardrailScorer::score(scenarios, |_| true) // blocks everything

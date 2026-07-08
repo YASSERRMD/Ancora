@@ -1,4 +1,4 @@
-use crate::{AttackCategory, ScenarioBuilder, ScenarioDataset};
+use crate::{AttackCategory, ScenarioBuilder};
 
 #[test]
 fn custom_builder_injection() {

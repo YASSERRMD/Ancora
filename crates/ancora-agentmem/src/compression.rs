@@ -42,7 +42,7 @@ impl ConversationCompressor {
         }
 
         let keep_last = keep_last.min(turns.len());
-        let (head, tail) = turns.split_at(turns.len() - keep_last);
+        let (_head, tail) = turns.split_at(turns.len() - keep_last);
 
         let mut compressed = vec![ConversationTurn::new(
             "system",

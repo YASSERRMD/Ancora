@@ -1,7 +1,7 @@
 /// Cross-language A2A identity verification across languages.
 /// Each language SDK signs its A2A messages with a lang field and sdk_version.
 /// This test verifies that all six languages produce verifiable identity headers.
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 struct A2AIdentity {
     lang: &'static str,

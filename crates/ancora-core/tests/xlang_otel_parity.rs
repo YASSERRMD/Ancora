@@ -1,12 +1,14 @@
 /// Cross-language conformance: OTel span parity across languages.
 /// Each binding must produce spans with trace_id, span_id, operation, and lang attribute.
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 struct OtelSpan {
     trace_id: &'static str,
+    #[allow(dead_code)]
     span_id: &'static str,
     parent_span_id: Option<&'static str>,
     operation: &'static str,
+    #[allow(dead_code)]
     lang: &'static str,
     status: &'static str,
 }

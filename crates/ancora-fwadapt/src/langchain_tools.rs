@@ -1,7 +1,7 @@
-/// Adapters for importing LangChain tool definitions into Ancora.
-///
-/// LangChain tools carry a name, description, and a callable string-in/string-out
-/// interface. This module wraps them in the Ancora tool model without any network I/O.
+//! Adapters for importing LangChain tool definitions into Ancora.
+//!
+//! LangChain tools carry a name, description, and a callable string-in/string-out
+//! interface. This module wraps them in the Ancora tool model without any network I/O.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LangchainToolDef {

@@ -38,7 +38,7 @@ fn main() {
 
     let req = build_extraction_request(news_excerpt);
 
-    println!("Provider: {}", "glm");
+    println!("Provider: glm");
     println!("Model: {}", req.model_id);
     println!("JSON mode: active (response_format injected by profile transform)");
     println!();

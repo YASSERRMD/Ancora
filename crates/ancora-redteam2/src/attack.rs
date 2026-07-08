@@ -55,6 +55,7 @@ pub struct AttackStep {
 }
 
 impl AttackStep {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: impl Into<String>,
         scenario_id: impl Into<String>,
@@ -94,6 +95,12 @@ impl AttackStep {
 
 pub struct AttackLog {
     steps: Vec<AttackStep>,
+}
+
+impl Default for AttackLog {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl AttackLog {

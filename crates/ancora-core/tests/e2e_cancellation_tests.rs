@@ -1,9 +1,3 @@
-/// End-to-end cancellation tests (offline).
-///
-/// Validates that CancellationToken signals propagate correctly, that a
-/// cancelled run produces the appropriate terminal status, and that the
-/// cancel/resume interaction with the journal is consistent.
-use std::sync::Arc;
 use std::thread;
 
 use ancora_core::{

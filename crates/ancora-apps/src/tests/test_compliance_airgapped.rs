@@ -1,4 +1,4 @@
-use crate::compliance_review::{ComplianceReviewer, FindingSeverity};
+use crate::compliance_review::ComplianceReviewer;
 
 #[test]
 fn compliance_review_runs_air_gapped() {

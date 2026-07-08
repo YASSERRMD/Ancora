@@ -75,6 +75,7 @@ fn test_all_backends_expect_paris_in_top_chunk() {
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn test_query_is_non_empty() {
     assert!(!RAG_QUERY.is_empty());
 }

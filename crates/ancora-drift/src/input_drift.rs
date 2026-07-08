@@ -66,17 +66,8 @@ mod tests {
     use super::*;
     use crate::reference::{ReferenceBuilder, Stats};
 
-    fn make_ref() -> ReferenceDistribution {
-        let mut b = ReferenceBuilder::new();
-        for _ in 0..100 {
-            b.add("hello world", "ok", 100, 50, &[], "openai");
-        }
-        b.build().unwrap()
-    }
-
     #[test]
     fn no_drift_on_identical_inputs() {
-        let reference = make_ref();
         // Mean input length = 11 chars; std_dev near 0 for identical strings.
         // Use a reference with variance.
         let mut b = ReferenceBuilder::new();

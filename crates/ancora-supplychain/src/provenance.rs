@@ -59,6 +59,12 @@ pub struct ProvenanceStore {
     records: HashMap<String, ProvenanceRecord>,
 }
 
+impl Default for ProvenanceStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProvenanceStore {
     pub fn new() -> Self {
         Self {

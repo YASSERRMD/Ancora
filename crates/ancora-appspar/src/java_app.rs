@@ -1,6 +1,6 @@
-/// Java sample app parity module.
-///
-/// Models the canonical Java (anthropic-java) agent sample app.
+//! Java sample app parity module.
+//!
+//! Models the canonical Java (anthropic-java) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct JavaApp {

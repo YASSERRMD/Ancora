@@ -7,6 +7,7 @@ const JOIN_BENCH_BRANCHES: usize = 8;
 const JOIN_BENCH_MS: u128 = 5000;
 
 struct BranchResult {
+    #[allow(dead_code)]
     branch_id: usize,
     value: u64,
     ok: bool,
@@ -19,7 +20,7 @@ fn simulate_branch(branch_id: usize, seed: u64) -> BranchResult {
     BranchResult {
         branch_id,
         value,
-        ok: value % 17 != 0,
+        ok: !value.is_multiple_of(17),
     }
 }
 

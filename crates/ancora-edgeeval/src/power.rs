@@ -40,7 +40,7 @@ impl ThermalEnvelope {
 }
 
 /// Rate a list of power proxies and return the most efficient one (highest tokens/joule).
-pub fn most_efficient<'a>(proxies: &'a [(String, PowerProxy)]) -> Option<&'a str> {
+pub fn most_efficient(proxies: &[(String, PowerProxy)]) -> Option<&str> {
     proxies
         .iter()
         .max_by(|(_, a), (_, b)| {

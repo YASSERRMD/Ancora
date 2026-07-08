@@ -5,6 +5,12 @@ pub struct TransferStore {
     transfers: HashMap<String, TransferRequest>,
 }
 
+impl Default for TransferStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TransferStore {
     pub fn new() -> Self {
         Self {

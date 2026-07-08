@@ -30,8 +30,10 @@ fn test_command_appears_in_help_section() {
 #[test]
 fn test_aliases_appear_in_help_when_enabled() {
     let spec = CommandSpec::new("greet", "Greet someone", "Long").with_alias("hello");
-    let mut config = HelpConfig::default();
-    config.show_aliases = true;
+    let config = HelpConfig {
+        show_aliases: true,
+        ..Default::default()
+    };
 
     let section = build_plugin_help_section(&[spec], "Plugin Commands", &config);
     let rendered = section.render();
@@ -45,8 +47,10 @@ fn test_aliases_appear_in_help_when_enabled() {
 #[test]
 fn test_aliases_hidden_when_disabled() {
     let spec = CommandSpec::new("greet", "Greet someone", "Long").with_alias("hello");
-    let mut config = HelpConfig::default();
-    config.show_aliases = false;
+    let config = HelpConfig {
+        show_aliases: false,
+        ..Default::default()
+    };
 
     let section = build_plugin_help_section(&[spec], "Plugin Commands", &config);
     let rendered = section.render();

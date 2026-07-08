@@ -1,12 +1,12 @@
-/// Hybrid search ordering tests for the pgvector SQL generation layer.
-///
-/// These tests confirm that:
-/// 1. alpha=1.0 produces the same SQL structure as a pure cosine query.
-/// 2. alpha=0.0 produces a SQL dominated by ts_rank (keyword-only signal).
-/// 3. Varying alpha values correctly scale the blend coefficients in the SQL.
-/// 4. Filtered hybrid queries include both vector and keyword signals.
-///
-/// All tests run offline -- no live Postgres required.
+//! Hybrid search ordering tests for the pgvector SQL generation layer.
+//!
+//! These tests confirm that:
+//! 1. alpha=1.0 produces the same SQL structure as a pure cosine query.
+//! 2. alpha=0.0 produces a SQL dominated by ts_rank (keyword-only signal).
+//! 3. Varying alpha values correctly scale the blend coefficients in the SQL.
+//! 4. Filtered hybrid queries include both vector and keyword signals.
+//!
+//! All tests run offline -- no live Postgres required.
 
 #[cfg(test)]
 mod hybrid_tests {

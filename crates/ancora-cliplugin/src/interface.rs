@@ -1,4 +1,4 @@
-/// Describes the interface that every CLI plugin must implement.
+//! Describes the interface that every CLI plugin must implement.
 
 /// The result type used throughout the plugin interface.
 pub type PluginResult<T> = Result<T, PluginError>;

@@ -1,4 +1,3 @@
-use crate::bounds::ScaleBounds;
 use crate::decision::ScaleDecision;
 use crate::metrics::AutoscaleMetrics;
 use crate::policy::ScalePolicy;

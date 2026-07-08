@@ -1,4 +1,4 @@
-/// Conformance kit for grader extensions.
+//! Conformance kit for grader extensions.
 
 /// A grading request: a question, reference answer, and candidate answer.
 #[derive(Debug, Clone)]

@@ -123,7 +123,7 @@ pub fn sort_by_score(mut passages: Vec<ScoredPassage>) -> Vec<ScoredPassage> {
 pub fn apply_rerank_scores(passages: Vec<ScoredPassage>, scores: Vec<f32>) -> Vec<ScoredPassage> {
     passages
         .into_iter()
-        .zip(scores.into_iter())
+        .zip(scores)
         .map(|(mut p, score)| {
             p.score = score;
             p
@@ -169,7 +169,7 @@ mod rerank_tests {
     #[test]
     fn rrf_single_list_preserves_order() {
         let list = vec![5, 3, 1];
-        let result = reciprocal_rank_fusion(&[list.clone()], 60.0);
+        let result = reciprocal_rank_fusion(std::slice::from_ref(&list), 60.0);
         let order: Vec<usize> = result.into_iter().map(|(i, _)| i).collect();
         assert_eq!(order[0], 5, "top-ranked in list should be first");
     }

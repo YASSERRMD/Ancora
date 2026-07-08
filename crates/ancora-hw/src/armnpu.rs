@@ -3,7 +3,7 @@
 //! Supports Qualcomm Hexagon HTP, NNAPI-exposed NPUs, and generic ARM NPUs.
 //! The detection is heuristic and offline -- no network calls.
 
-use crate::model::{CpuArch, HardwareProfile, NpuPlatform};
+use crate::model::{HardwareProfile, NpuPlatform};
 use serde::{Deserialize, Serialize};
 
 /// ARM NPU capability descriptor.

@@ -1,5 +1,5 @@
-/// Zero-downtime migration strategy helpers.
-/// Expand-contract pattern: add column (expand), backfill, switch reads/writes, drop old (contract).
+//! Zero-downtime migration strategy helpers.
+//! Expand-contract pattern: add column (expand), backfill, switch reads/writes, drop old (contract).
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ZdtPhase {

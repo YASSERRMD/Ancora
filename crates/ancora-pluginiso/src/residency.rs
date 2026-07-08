@@ -1,8 +1,8 @@
-/// Data-residency enforcement for plugins.
-///
-/// Plugins may only transfer data to geographic regions that are explicitly
-/// permitted by the residency policy. This supports compliance with GDPR,
-/// CCPA, and other data-sovereignty regulations.
+//! Data-residency enforcement for plugins.
+//!
+//! Plugins may only transfer data to geographic regions that are explicitly
+//! permitted by the residency policy. This supports compliance with GDPR,
+//! CCPA, and other data-sovereignty regulations.
 
 /// An identifier for a geographic region (e.g., "eu-west", "us-east").
 pub type RegionCode = String;

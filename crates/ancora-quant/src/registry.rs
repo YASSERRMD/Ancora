@@ -8,7 +8,6 @@ use std::path::{Path, PathBuf};
 use crate::capability::CapabilityFlags;
 use crate::gguf::GgufDescriptor;
 use crate::onnx::OnnxDescriptor;
-use crate::quant_level::QuantTier;
 
 /// A model entry in the local registry.
 #[derive(Debug, Clone)]

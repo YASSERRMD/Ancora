@@ -21,10 +21,10 @@ fn error_codes_are_distinct() {
 #[test]
 fn buffer_new_and_free_does_not_leak() {
     let data = b"hello world";
-    let buf = ancora_buffer_new(data.as_ptr(), data.len());
+    let buf = unsafe { ancora_buffer_new(data.as_ptr(), data.len()) };
     assert_eq!(buf.len, data.len());
     assert!(!buf.ptr.is_null());
-    ancora_buffer_free(buf);
+    unsafe { ancora_buffer_free(buf) };
 }
 
 #[test]
@@ -34,7 +34,7 @@ fn buffer_free_null_is_noop() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    ancora_buffer_free(empty);
+    unsafe { ancora_buffer_free(empty) };
 }
 
 #[test]
@@ -43,31 +43,31 @@ fn buffer_from_str_roundtrips() {
     assert_eq!(buf.len, "ancora-test".len());
     let slice = unsafe { std::slice::from_raw_parts(buf.ptr, buf.len) };
     assert_eq!(slice, b"ancora-test");
-    ancora_buffer_free(buf);
+    unsafe { ancora_buffer_free(buf) };
 }
 
 #[test]
 fn runtime_new_via_error_code_api_returns_ok() {
     let mut rt = std::ptr::null_mut();
-    let code = ancora_runtime_new(&mut rt);
+    let code = unsafe { ancora_runtime_new(&mut rt) };
     assert_eq!(code, AncorErrorCode::Ok);
     assert!(!rt.is_null());
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
 fn runtime_new_null_out_returns_null_ptr_error() {
-    let code = ancora_runtime_new(std::ptr::null_mut());
+    let code = unsafe { ancora_runtime_new(std::ptr::null_mut()) };
     assert_eq!(code, AncorErrorCode::NullPtr);
 }
 
 #[test]
 fn run_id_to_str_round_trips() {
     let s = std::ffi::CString::new("my-run-id").unwrap();
-    let id = ancora_run_id_new(s.as_ptr());
+    let id = unsafe { ancora_run_id_new(s.as_ptr()) };
     assert!(!id.is_null());
-    let buf = ancora_run_id_to_str(id.cast_const());
+    let buf = unsafe { ancora_run_id_to_str(id.cast_const()) };
     assert_eq!(buf.len, "my-run-id".len());
-    ancora_buffer_free(buf);
-    ancora_run_id_free(id);
+    unsafe { ancora_buffer_free(buf) };
+    unsafe { ancora_run_id_free(id) };
 }

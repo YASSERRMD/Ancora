@@ -1,4 +1,4 @@
-/// Grader extension point - score or rank agent responses.
+//! Grader extension point - score or rank agent responses.
 
 /// A candidate response to be graded.
 #[derive(Debug, Clone)]

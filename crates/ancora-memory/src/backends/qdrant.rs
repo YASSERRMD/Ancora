@@ -1,10 +1,10 @@
-/// Qdrant backend for the `VectorStore` trait.
-///
-/// Uses the Qdrant REST API over `ureq` (synchronous, no tokio runtime needed).
-/// Requires the `qdrant` feature: `ancora-memory = { features = ["qdrant"] }`.
-///
-/// Integration tests that hit a live Qdrant are `#[ignore]` and require
-/// `QDRANT_URL` in the environment (e.g. `http://localhost:6333`).
+//! Qdrant backend for the `VectorStore` trait.
+//!
+//! Uses the Qdrant REST API over `ureq` (synchronous, no tokio runtime needed).
+//! Requires the `qdrant` feature: `ancora-memory = { features = ["qdrant"] }`.
+//!
+//! Integration tests that hit a live Qdrant are `#[ignore]` and require
+//! `QDRANT_URL` in the environment (e.g. `http://localhost:6333`).
 
 // ---- connection config ---------------------------------------------------
 
@@ -545,8 +545,11 @@ pub fn query_url(base: &str, name: &str) -> String {
 /// using a keyword sparse model. This enables semantic + keyword fusion.
 pub fn hybrid_query_body(
     dense_vector: &[f32],
-    sparse_indices: &[u32],
-    sparse_values: &[f32],
+    // TODO(#follow-up): the sparse prefetch stage isn't built from these yet,
+    // so this "hybrid" query is currently dense-only. See follow-up task on
+    // qdrant sparse-vector RRF fusion.
+    _sparse_indices: &[u32],
+    _sparse_values: &[f32],
     top_k: usize,
     alpha: f32,
 ) -> Value {

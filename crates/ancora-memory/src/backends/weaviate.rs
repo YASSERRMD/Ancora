@@ -1,13 +1,13 @@
-/// Weaviate backend for the `VectorStore` trait.
-///
-/// Weaviate exposes both REST and GraphQL APIs. This module generates request
-/// bodies and URL strings for all relevant operations without requiring a live
-/// server during tests.
-///
-/// Requires the `weaviate` feature: `ancora-memory = { features = ["weaviate"] }`.
-///
-/// Integration tests require `WEAVIATE_URL` in the environment (e.g.
-/// `http://localhost:8080`).
+//! Weaviate backend for the `VectorStore` trait.
+//!
+//! Weaviate exposes both REST and GraphQL APIs. This module generates request
+//! bodies and URL strings for all relevant operations without requiring a live
+//! server during tests.
+//!
+//! Requires the `weaviate` feature: `ancora-memory = { features = ["weaviate"] }`.
+//!
+//! Integration tests require `WEAVIATE_URL` in the environment (e.g.
+//! `http://localhost:8080`).
 
 // ---- connection config ---------------------------------------------------
 

@@ -1,4 +1,4 @@
-/// Defines an A/B experiment: its variants and the primary metric to optimize.
+//! Defines an A/B experiment: its variants and the primary metric to optimize.
 
 /// A single variant in an experiment.
 #[derive(Debug, Clone, PartialEq)]

@@ -1,4 +1,4 @@
-use crate::{IdpConfig, JwkKey, JwksStore, JwtClaims, MockOidcIdp, OidcAuthCode, OidcError};
+use crate::{IdpConfig, JwkKey, JwtClaims, MockOidcIdp, OidcAuthCode, OidcError};
 
 fn make_oidc_setup() -> (MockOidcIdp, IdpConfig, String) {
     let mut idp = MockOidcIdp::new("https://idp.example.com", "ancora");

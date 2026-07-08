@@ -1,4 +1,4 @@
-use crate::customer_support::{ResponseTemplate, SupportEngine, TicketStatus};
+use crate::customer_support::{ResponseTemplate, SupportEngine};
 
 #[test]
 fn support_engine_routes_ticket_offline() {

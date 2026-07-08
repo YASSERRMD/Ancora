@@ -46,7 +46,7 @@ fn regression_known_attacks_pass_scorer() {
         .filter(|s| s.category == crate::AttackCategory::Injection)
         .cloned()
         .collect();
-    let report = GuardrailScorer::score(&injectable, |p| injection_check(p));
+    let report = GuardrailScorer::score(&injectable, injection_check);
     assert_eq!(
         report.false_negatives(),
         0,

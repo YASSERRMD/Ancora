@@ -50,7 +50,7 @@ fn test_bench_2m_hil_gate_evaluations_under_300ms() {
         elapsed,
         HIL_BENCH_MS
     );
-    assert_eq!(allowed, ((HIL_BENCH_N + 2) / 3) as u64);
+    assert_eq!(allowed, HIL_BENCH_N.div_ceil(3) as u64);
 }
 
 #[test]

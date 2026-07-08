@@ -1,9 +1,9 @@
-/// Extended document loader and batch embedding tests -- all offline.
+//! Extended document loader and batch embedding tests -- all offline.
 
 #[cfg(test)]
 mod loader_ext_tests {
     use crate::embedders::batch::{
-        chunk_embeddings, merge_batch_results, BatchConfig, BatchEmbedder, BatchResult,
+        chunk_embeddings, merge_batch_results, BatchConfig, BatchEmbedder,
     };
     use crate::embedders::embedder::{EmbedResult, Embedder, Embedding};
     use crate::embedders::loader::*;

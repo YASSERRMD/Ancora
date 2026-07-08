@@ -1,8 +1,8 @@
-/// Security scan results attached to a marketplace extension.
-///
-/// Before an extension can be published, it must pass an automated security
-/// scan. The scan result is attached to the extension manifest and is
-/// re-verified on install.
+//! Security scan results attached to a marketplace extension.
+//!
+//! Before an extension can be published, it must pass an automated security
+//! scan. The scan result is attached to the extension manifest and is
+//! re-verified on install.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ScanStatus {

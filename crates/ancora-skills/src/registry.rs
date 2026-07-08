@@ -40,4 +40,8 @@ impl SkillRegistry {
     pub fn len(&self) -> usize {
         self.skills.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.skills.is_empty()
+    }
 }

@@ -1,9 +1,9 @@
-/// Agent-to-Agent (A2A) interoperability with external frameworks.
-///
-/// Provides a protocol-neutral message envelope and a dispatcher that routes
-/// messages between Ancora agents and external agents (simulated locally).
-/// No network I/O is required - all external agents are represented by
-/// in-process function pointers for testing.
+//! Agent-to-Agent (A2A) interoperability with external frameworks.
+//!
+//! Provides a protocol-neutral message envelope and a dispatcher that routes
+//! messages between Ancora agents and external agents (simulated locally).
+//! No network I/O is required - all external agents are represented by
+//! in-process function pointers for testing.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct A2AMessage {

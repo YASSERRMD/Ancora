@@ -66,6 +66,12 @@ pub struct AirGapAuditLog {
     entries: VecDeque<AirGapAuditEntry>,
 }
 
+impl Default for AirGapAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AirGapAuditLog {
     pub fn new() -> Self {
         Self {

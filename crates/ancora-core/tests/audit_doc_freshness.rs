@@ -40,6 +40,7 @@ fn is_current_or_newer(version: &str, current: &str) -> bool {
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn test_current_version_defined() {
     assert!(!CURRENT_VERSION.is_empty());
     let parts: Vec<&str> = CURRENT_VERSION.split('.').collect();

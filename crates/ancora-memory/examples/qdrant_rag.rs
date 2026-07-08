@@ -6,7 +6,7 @@
 /// Set QDRANT_URL to point at a running Qdrant instance to execute live.
 /// Without QDRANT_URL the example prints the request shapes and exits.
 use ancora_memory::backends::qdrant::{
-    collection_url, create_collection_body, filter_to_qdrant, hybrid_query_body, json_to_payload,
+    collection_url, create_collection_body, filter_to_qdrant, json_to_payload,
     parse_search_response, payload_to_json, search_body_with_threshold, search_url, upsert_body,
     upsert_url, QdrantConfig,
 };

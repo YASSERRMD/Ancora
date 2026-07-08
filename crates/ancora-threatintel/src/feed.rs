@@ -1,4 +1,3 @@
-use crate::indicator::Indicator;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -54,6 +53,12 @@ impl ThreatFeed {
 pub struct FeedStore {
     feeds: HashMap<String, ThreatFeed>,
     indicators: HashMap<String, Vec<String>>,
+}
+
+impl Default for FeedStore {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl FeedStore {

@@ -37,7 +37,7 @@ impl CanaryController {
             return false;
         }
         let period = (1.0 / self.canary_pct).round() as u64;
-        period > 0 && request_index % period == 0
+        period > 0 && request_index.is_multiple_of(period)
     }
 
     /// Record a canary result.

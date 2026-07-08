@@ -14,12 +14,15 @@ pub struct NodeSpec {
 }
 
 impl NodeSpec {
+    #[allow(dead_code)]
     pub fn is_agent(&self) -> bool {
         self.kind == "agent"
     }
+    #[allow(dead_code)]
     pub fn is_tool(&self) -> bool {
         self.kind == "tool"
     }
+    #[allow(dead_code)]
     pub fn effective_model(&self) -> &str {
         self.model.as_deref().unwrap_or("default")
     }
@@ -34,13 +37,16 @@ pub struct GraphSpec {
 }
 
 impl GraphSpec {
+    #[allow(dead_code)]
     pub fn node_count(&self) -> usize {
         self.nodes.len()
     }
+    #[allow(dead_code)]
     pub fn agent_nodes(&self) -> Vec<&NodeSpec> {
         self.nodes.iter().filter(|n| n.is_agent()).collect()
     }
 
+    #[allow(dead_code)]
     pub fn from_yaml(yaml: &str) -> Result<Self, Box<dyn std::error::Error>> {
         Ok(serde_yaml::from_str(yaml)?)
     }
@@ -48,6 +54,7 @@ impl GraphSpec {
 
 /// Error types for spec validation.
 #[derive(Debug, thiserror::Error)]
+#[allow(dead_code)]
 pub enum SpecError {
     #[error("duplicate node id: {0}")]
     DuplicateNodeId(String),
@@ -57,6 +64,7 @@ pub enum SpecError {
 
 impl GraphSpec {
     /// Validate that all node IDs are unique and dependencies exist.
+    #[allow(dead_code)]
     pub fn validate(&self) -> Result<(), SpecError> {
         let ids: std::collections::HashSet<&str> =
             self.nodes.iter().map(|n| n.id.as_str()).collect();

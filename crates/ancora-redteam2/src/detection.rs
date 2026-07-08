@@ -65,6 +65,12 @@ pub struct DetectionLog {
     events: Vec<DetectionEvent>,
 }
 
+impl Default for DetectionLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DetectionLog {
     pub fn new() -> Self {
         Self { events: Vec::new() }

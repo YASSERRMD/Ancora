@@ -184,8 +184,8 @@ pub fn validate_canvas(canvas: &Canvas, edges: &EdgeStore) -> ValidationReport {
 
     // Check for isolated nodes.
     for node in canvas.all_nodes() {
-        let has_out = edges.edges_from(&node.id).len() > 0;
-        let has_in = edges.edges_to(&node.id).len() > 0;
+        let has_out = !edges.edges_from(&node.id).is_empty();
+        let has_in = !edges.edges_to(&node.id).is_empty();
         if !has_out && !has_in && canvas.node_count() > 1 {
             report.push(
                 Diagnostic::warning(format!("node '{}' ({}) is isolated", node.id, node.label))

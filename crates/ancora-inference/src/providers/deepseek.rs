@@ -325,9 +325,9 @@ mod tests {
         let many_messages: Vec<Message> = (0..100)
             .map(|i| {
                 if i % 2 == 0 {
-                    Message::text("user", &format!("Turn {i}: what is {i}+{i}?"))
+                    Message::text("user", format!("Turn {i}: what is {i}+{i}?"))
                 } else {
-                    Message::text("assistant", &format!("Turn {i}: the answer is {}", i + i))
+                    Message::text("assistant", format!("Turn {i}: the answer is {}", i + i))
                 }
             })
             .collect();

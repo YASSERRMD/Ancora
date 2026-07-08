@@ -64,6 +64,12 @@ pub struct ZtAuditLog {
     entries: VecDeque<ZtAuditEntry>,
 }
 
+impl Default for ZtAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ZtAuditLog {
     pub fn new() -> Self {
         Self {
@@ -88,7 +94,7 @@ impl ZtAuditLog {
             .filter(|e| e.identity_id == identity_id)
             .collect()
     }
-    pub fn denied<'a>(&'a self) -> Vec<&'a ZtAuditEntry> {
+    pub fn denied(&self) -> Vec<&ZtAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
     pub fn all(&self) -> impl Iterator<Item = &ZtAuditEntry> {

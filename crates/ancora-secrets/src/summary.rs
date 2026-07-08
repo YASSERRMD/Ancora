@@ -1,4 +1,3 @@
-use crate::secret::SecretStatus;
 use crate::store::SecretStore;
 
 #[derive(Debug)]

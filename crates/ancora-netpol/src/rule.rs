@@ -59,7 +59,7 @@ impl NetworkRule {
     }
 
     pub fn matches_port(&self, port: u16) -> bool {
-        self.port.map_or(true, |p| p == port)
+        self.port.is_none_or(|p| p == port)
     }
 
     pub fn matches_protocol(&self, proto: &Protocol) -> bool {

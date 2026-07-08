@@ -8,6 +8,7 @@ const OTEL_BENCH_MS: u128 = 1_000;
 struct Span {
     trace_id: [u8; 16],
     span_id: [u8; 8],
+    #[allow(dead_code)]
     operation: u64,
     status: u8,
 }
@@ -15,8 +16,8 @@ struct Span {
 impl Span {
     fn new(idx: u64) -> Self {
         let mut trace_id = [0u8; 16];
-        for i in 0..8 {
-            trace_id[i] = ((idx >> (i * 4)) & 0xff) as u8;
+        for (i, byte) in trace_id.iter_mut().enumerate().take(8) {
+            *byte = ((idx >> (i * 4)) & 0xff) as u8;
         }
         Span {
             trace_id,

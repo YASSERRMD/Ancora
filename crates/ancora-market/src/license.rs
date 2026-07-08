@@ -1,7 +1,7 @@
-/// License declaration for marketplace extensions.
-///
-/// Every extension must declare a valid SPDX license identifier. Some license
-/// classes may be blocked by the registry or by enterprise install policies.
+//! License declaration for marketplace extensions.
+//!
+//! Every extension must declare a valid SPDX license identifier. Some license
+//! classes may be blocked by the registry or by enterprise install policies.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LicenseDeclaration {

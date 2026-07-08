@@ -51,6 +51,12 @@ pub struct Runtime {
     runs: Option<HashMap<String, InnerRun>>,
 }
 
+impl Default for Runtime {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[napi]
 impl Runtime {
     /// Create a new Runtime instance.

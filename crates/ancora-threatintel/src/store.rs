@@ -5,6 +5,12 @@ pub struct IndicatorStore {
     indicators: HashMap<String, Indicator>,
 }
 
+impl Default for IndicatorStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IndicatorStore {
     pub fn new() -> Self {
         Self {
@@ -44,11 +50,11 @@ impl IndicatorStore {
             .collect()
     }
 
-    pub fn active<'a>(&'a self) -> Vec<&'a Indicator> {
+    pub fn active(&self) -> Vec<&Indicator> {
         self.indicators.values().filter(|i| i.active).collect()
     }
 
-    pub fn expired<'a>(&'a self, current_tick: u64) -> Vec<&'a Indicator> {
+    pub fn expired(&self, current_tick: u64) -> Vec<&Indicator> {
         self.indicators
             .values()
             .filter(|i| i.is_expired(current_tick))

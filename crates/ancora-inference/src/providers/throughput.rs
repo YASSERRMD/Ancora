@@ -1,3 +1,13 @@
+//! Common characteristics shared by high-throughput inference hosts.
+//!
+//! Groq, Together AI, and Fireworks AI are all:
+//! - OpenAI wire-compatible (use `OpenAiClient` without modification)
+//! - Bearer-token authenticated
+//! - Optimized for open-source model serving at high RPS
+//!
+//! This module provides shared metadata accessors used by tests and
+//! diagnostics to verify throughput-host profiles conform to expectations.
+
 use crate::provider::ProviderProfile;
 
 /// Per-host rate-limit metadata.
@@ -36,16 +46,6 @@ pub fn rate_limit_meta(provider_name: &str) -> Option<RateLimitMeta> {
         _ => None,
     }
 }
-
-/// Common characteristics shared by high-throughput inference hosts.
-///
-/// Groq, Together AI, and Fireworks AI are all:
-/// - OpenAI wire-compatible (use `OpenAiClient` without modification)
-/// - Bearer-token authenticated
-/// - Optimized for open-source model serving at high RPS
-///
-/// This module provides shared metadata accessors used by tests and
-/// diagnostics to verify throughput-host profiles conform to expectations.
 
 /// Result from a host health probe.
 #[derive(Debug, Clone, PartialEq, Eq)]

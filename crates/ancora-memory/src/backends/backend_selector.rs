@@ -1,8 +1,8 @@
-/// Backend selector: maps a config string to a backend descriptor.
-///
-/// Callers pass a short name (e.g. `"qdrant"`, `"pgvector"`) and receive a
-/// `BackendInfo` describing the backend's requirements, so application code
-/// can validate that the right Cargo feature is enabled at startup.
+//! Backend selector: maps a config string to a backend descriptor.
+//!
+//! Callers pass a short name (e.g. `"qdrant"`, `"pgvector"`) and receive a
+//! `BackendInfo` describing the backend's requirements, so application code
+//! can validate that the right Cargo feature is enabled at startup.
 
 // ---- backend kind -------------------------------------------------------
 

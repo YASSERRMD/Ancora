@@ -3,7 +3,7 @@ use crate::rollout::RolloutRunner;
 
 /// A deterministic infer that returns different answers based on seed parity.
 fn seed_sensitive_infer(input: &str, seed: u64) -> (String, u64, u64) {
-    if seed % 2 == 0 {
+    if seed.is_multiple_of(2) {
         (input.to_uppercase(), 10, 5)
     } else {
         (input.to_lowercase(), 10, 5)

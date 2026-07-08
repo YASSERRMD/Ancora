@@ -1,7 +1,7 @@
-/// Plugin audit log.
-///
-/// Every significant plugin lifecycle event is recorded in the audit log,
-/// providing an immutable trail for compliance, debugging, and security review.
+//! Plugin audit log.
+//!
+//! Every significant plugin lifecycle event is recorded in the audit log,
+//! providing an immutable trail for compliance, debugging, and security review.
 
 /// The kind of event being recorded.
 #[derive(Debug, Clone, PartialEq, Eq)]

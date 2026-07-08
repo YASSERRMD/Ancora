@@ -1,7 +1,7 @@
 /// Integration test: runs all per-language observability accessors end-to-end.
 ///
 /// Run with: cargo run --example test_observability_examples -p ancora-obssdk
-use ancora_obssdk::context::{CostRecord, Span, Trace};
+use ancora_obssdk::context::{Span, Trace};
 use ancora_obssdk::dotnet_helpers::DotnetTraceAccessor;
 use ancora_obssdk::eval_helpers::{EvalCriteria, EvalRunner};
 use ancora_obssdk::go_helpers::GoTraceAccessor;

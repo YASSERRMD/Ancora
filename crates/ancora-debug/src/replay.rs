@@ -113,11 +113,8 @@ impl<'j> Replayer<'j> {
     where
         F: FnMut(&'j JournalEntry),
     {
-        loop {
-            match self.step_forward() {
-                StepResult::Stepped(entry) => f(entry),
-                StepResult::AtBoundary => break,
-            }
+        while let StepResult::Stepped(entry) = self.step_forward() {
+            f(entry);
         }
     }
 }

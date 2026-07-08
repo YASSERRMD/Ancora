@@ -28,7 +28,6 @@ fn override_missing_key_returns_none() {
 
 #[test]
 fn override_does_not_affect_capabilities() {
-    use crate::Capability;
     let preset = research_assistant();
     let cap_count_before = preset.capabilities.len();
     let modified = apply_overrides(preset, vec![("k".to_string(), "v".to_string())]);

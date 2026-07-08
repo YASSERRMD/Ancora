@@ -10,6 +10,7 @@ const MCP_SCENARIOS: &[(&str, &str, &str)] = &[
 const MCP_TOOLS: &[&str] = &["search", "fetch", "write", "read"];
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn test_mcp_scenarios_defined() {
     assert!(!MCP_SCENARIOS.is_empty());
 }

@@ -41,55 +41,6 @@ pub trait Sandbox: Send + Sync {
 /// Subprocess-based sandbox that enforces limits at the OS process level.
 pub struct SubprocessSandbox;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn network_denied_by_default_policy() {
-        let policy = SandboxPolicy {
-            max_execution_ms: 1000,
-            allow_network: false,
-            allow_filesystem_write: false,
-        };
-        let err = check_policy(&policy, true, false).unwrap_err();
-        assert!(matches!(err, ToolError::ValidationFailed(_)));
-    }
-
-    #[test]
-    fn filesystem_write_denied_by_policy() {
-        let policy = SandboxPolicy {
-            max_execution_ms: 1000,
-            allow_network: false,
-            allow_filesystem_write: false,
-        };
-        let err = check_policy(&policy, false, true).unwrap_err();
-        assert!(matches!(err, ToolError::ValidationFailed(_)));
-    }
-
-    #[test]
-    fn allowed_operations_pass_policy_check() {
-        let policy = SandboxPolicy {
-            max_execution_ms: 1000,
-            allow_network: true,
-            allow_filesystem_write: true,
-        };
-        assert!(check_policy(&policy, true, true).is_ok());
-    }
-
-    #[test]
-    fn sandboxed_subprocess_timeout_enforced() {
-        let sandbox = SubprocessSandbox;
-        let policy = SandboxPolicy {
-            max_execution_ms: 50,
-            allow_network: false,
-            allow_filesystem_write: false,
-        };
-        let err = sandbox.execute("sleep", &["10"], "", &policy).unwrap_err();
-        assert!(matches!(err, ToolError::ExecutionFailed(_)));
-    }
-}
-
 impl Sandbox for SubprocessSandbox {
     fn execute(
         &self,
@@ -142,5 +93,54 @@ impl Sandbox for SubprocessSandbox {
                 None => std::thread::sleep(Duration::from_millis(10)),
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn network_denied_by_default_policy() {
+        let policy = SandboxPolicy {
+            max_execution_ms: 1000,
+            allow_network: false,
+            allow_filesystem_write: false,
+        };
+        let err = check_policy(&policy, true, false).unwrap_err();
+        assert!(matches!(err, ToolError::ValidationFailed(_)));
+    }
+
+    #[test]
+    fn filesystem_write_denied_by_policy() {
+        let policy = SandboxPolicy {
+            max_execution_ms: 1000,
+            allow_network: false,
+            allow_filesystem_write: false,
+        };
+        let err = check_policy(&policy, false, true).unwrap_err();
+        assert!(matches!(err, ToolError::ValidationFailed(_)));
+    }
+
+    #[test]
+    fn allowed_operations_pass_policy_check() {
+        let policy = SandboxPolicy {
+            max_execution_ms: 1000,
+            allow_network: true,
+            allow_filesystem_write: true,
+        };
+        assert!(check_policy(&policy, true, true).is_ok());
+    }
+
+    #[test]
+    fn sandboxed_subprocess_timeout_enforced() {
+        let sandbox = SubprocessSandbox;
+        let policy = SandboxPolicy {
+            max_execution_ms: 50,
+            allow_network: false,
+            allow_filesystem_write: false,
+        };
+        let err = sandbox.execute("sleep", &["10"], "", &policy).unwrap_err();
+        assert!(matches!(err, ToolError::ExecutionFailed(_)));
     }
 }

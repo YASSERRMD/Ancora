@@ -28,7 +28,7 @@ pub enum ScaffoldKind {
 }
 
 impl ScaffoldKind {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse_str(s: &str) -> Option<Self> {
         match s {
             "saas" => Some(ScaffoldKind::Saas),
             "onprem" => Some(ScaffoldKind::OnPrem),

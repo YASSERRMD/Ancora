@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 struct LangCost {
+    #[allow(dead_code)]
     lang: &'static str,
     input_tokens: u64,
     output_tokens: u64,

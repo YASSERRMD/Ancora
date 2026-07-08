@@ -1,4 +1,4 @@
-/// Safety monitor module: flags unsafe outputs based on keyword and pattern rules.
+//! Safety monitor module: flags unsafe outputs based on keyword and pattern rules.
 
 /// Severity of a safety flag.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]

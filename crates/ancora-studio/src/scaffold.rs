@@ -1,4 +1,4 @@
-/// Studio scaffold - top-level application state and routing.
+//! Studio scaffold - top-level application state and routing.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum StudioView {

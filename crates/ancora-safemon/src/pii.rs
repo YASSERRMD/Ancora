@@ -1,7 +1,7 @@
-/// PII (Personally Identifiable Information) detection for agent outputs.
-///
-/// Uses simple pattern-based heuristics to detect common PII types
-/// such as email addresses, phone numbers, SSNs, and credit card numbers.
+//! PII (Personally Identifiable Information) detection for agent outputs.
+//!
+//! Uses simple pattern-based heuristics to detect common PII types
+//! such as email addresses, phone numbers, SSNs, and credit card numbers.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PiiKind {

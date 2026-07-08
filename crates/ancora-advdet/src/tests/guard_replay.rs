@@ -1,6 +1,6 @@
 use ancora_guard::{
-    GuardrailJournal, GuardrailOutcome, GuardrailPolicy, InjectionInputGuardrail,
-    PiiInputGuardrail, SafetyOutputGuardrail,
+    GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail, PiiInputGuardrail,
+    SafetyOutputGuardrail,
 };
 
 fn make_policy() -> GuardrailPolicy {

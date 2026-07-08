@@ -1,4 +1,4 @@
-/// Eval results view - shows per-run evaluation scores.
+//! Eval results view - shows per-run evaluation scores.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EvalOutcome {

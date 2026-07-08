@@ -30,7 +30,7 @@ fn query_min_level_filters_lower() {
         "f",
         1,
     );
-    let all = vec![i1, i2, i3];
+    let all = [i1, i2, i3];
     let r = IndicatorQuery::new()
         .min_level(ThreatLevel::High)
         .run(all.iter());

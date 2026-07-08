@@ -1,4 +1,4 @@
-use crate::trace_e2e::{build_run_trace, Span, Trace};
+use crate::trace_e2e::{build_run_trace, Trace};
 
 #[test]
 fn run_produces_a_complete_trace() {

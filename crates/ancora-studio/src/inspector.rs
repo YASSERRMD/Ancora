@@ -1,4 +1,4 @@
-/// Step inspector - shows prompt, response, and tool call details for a single step.
+//! Step inspector - shows prompt, response, and tool call details for a single step.
 
 #[derive(Debug, Clone)]
 pub struct ToolCallDetail {

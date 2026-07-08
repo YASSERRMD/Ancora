@@ -59,6 +59,12 @@ pub struct SupplyChainAuditLog {
     entries: VecDeque<SupplyChainAuditEntry>,
 }
 
+impl Default for SupplyChainAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SupplyChainAuditLog {
     pub fn new() -> Self {
         Self {
@@ -83,7 +89,7 @@ impl SupplyChainAuditLog {
             .filter(|e| e.component_id == component_id)
             .collect()
     }
-    pub fn failures<'a>(&'a self) -> Vec<&'a SupplyChainAuditEntry> {
+    pub fn failures(&self) -> Vec<&SupplyChainAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
     pub fn all(&self) -> impl Iterator<Item = &SupplyChainAuditEntry> {

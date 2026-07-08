@@ -34,6 +34,12 @@ pub struct EdgeEgress {
     allowed: HashSet<EgressEndpoint>,
 }
 
+impl Default for EdgeEgress {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EdgeEgress {
     /// Create with default deny-all policy (zero egress).
     pub fn new() -> Self {

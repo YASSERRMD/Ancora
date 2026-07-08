@@ -1,7 +1,7 @@
-/// Data analysis application.
-///
-/// Provides offline statistical summaries and simple tabular analysis
-/// over in-memory datasets.
+//! Data analysis application.
+//!
+//! Provides offline statistical summaries and simple tabular analysis
+//! over in-memory datasets.
 
 #[derive(Debug, Clone)]
 pub struct DataSet {

@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 pub struct RunHeartbeat {
+    #[allow(dead_code)]
     run_id: String,
+    #[allow(dead_code)]
     started_at: u64,
     last_tick: u64,
     timeout_secs: u64,

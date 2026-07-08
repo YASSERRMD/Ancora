@@ -144,9 +144,8 @@ fn mcp_tool_input_without_token_has_no_authorization_header() {
     let v: serde_json::Value = serde_json::from_str(&input).unwrap();
     assert!(
         v["headers"].is_null()
-            || !v
-                .get("headers")
-                .is_some_and(|h| h.get("Authorization").is_some()),
+            || v.get("headers")
+                .is_none_or(|h| h.get("Authorization").is_none()),
         "unauthenticated input must have no Authorization header"
     );
 }

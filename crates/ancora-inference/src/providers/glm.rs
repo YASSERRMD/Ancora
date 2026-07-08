@@ -166,7 +166,7 @@ pub fn supports_tools(model_id: &str) -> bool {
     let canonical = p.resolve_model_id(model_id);
     p.model_catalog
         .get(canonical)
-        .map_or(false, |m| m.capabilities.tools)
+        .is_some_and(|m| m.capabilities.tools)
 }
 
 #[cfg(test)]

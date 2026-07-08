@@ -7,6 +7,12 @@ pub struct IncidentQuery {
     pub active_only: bool,
 }
 
+impl Default for IncidentQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IncidentQuery {
     pub fn new() -> Self {
         Self {

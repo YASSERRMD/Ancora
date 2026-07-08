@@ -113,7 +113,7 @@ fn cosine_result_score_in_0_1_range() {
     let v: serde_json::Value = serde_json::from_str(COSINE_RESULT).unwrap();
     for chunk in v.as_array().unwrap() {
         let s = chunk["score"].as_f64().unwrap();
-        assert!(s >= 0.0 && s <= 1.0, "cosine score out of range: {}", s);
+        assert!((0.0..=1.0).contains(&s), "cosine score out of range: {}", s);
     }
 }
 

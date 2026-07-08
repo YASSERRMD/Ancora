@@ -1,9 +1,9 @@
-/// Context assembly with token budget.
-///
-/// Assembles a context window from retrieved passages, respecting a token
-/// budget so the final context fits within an LLM's context length.
-/// Token counting is approximate (whitespace-split word count multiplied by
-/// a tokens-per-word factor).
+//! Context assembly with token budget.
+//!
+//! Assembles a context window from retrieved passages, respecting a token
+//! budget so the final context fits within an LLM's context length.
+//! Token counting is approximate (whitespace-split word count multiplied by
+//! a tokens-per-word factor).
 
 // ---- token estimation ---------------------------------------------------
 

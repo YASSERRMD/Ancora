@@ -68,7 +68,7 @@ impl ChangelogSection {
         }
     }
 
-    pub fn add(mut self, entry: ChangelogEntry) -> Self {
+    pub fn add_entry(mut self, entry: ChangelogEntry) -> Self {
         self.entries.push(entry);
         self
     }
@@ -97,11 +97,11 @@ mod tests {
     #[test]
     fn section_renders_all_entries() {
         let s = ChangelogSection::new("0.6.0", "2026-06-29")
-            .add(ChangelogEntry::new(
+            .add_entry(ChangelogEntry::new(
                 EntryKind::Fixed,
                 "Race in metric flush",
             ))
-            .add(ChangelogEntry::new(
+            .add_entry(ChangelogEntry::new(
                 EntryKind::Performance,
                 "Reduced allocations in tracer",
             ));

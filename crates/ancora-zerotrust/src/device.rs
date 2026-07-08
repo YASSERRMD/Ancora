@@ -64,6 +64,12 @@ pub struct DeviceStore {
     devices: std::collections::HashMap<String, DevicePosture>,
 }
 
+impl Default for DeviceStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DeviceStore {
     pub fn new() -> Self {
         Self {

@@ -2,7 +2,7 @@
 use crate::edges::{EdgeError, EdgeStore, EdgeType};
 use crate::import::{import_spec, GraphSpec, ImportError, SpecEdge, SpecNode};
 use crate::scaffold::Id;
-use crate::validation::{validate_spec, Severity};
+use crate::validation::validate_spec;
 use std::collections::HashMap;
 
 fn node(id: &str, kind: &str) -> SpecNode {

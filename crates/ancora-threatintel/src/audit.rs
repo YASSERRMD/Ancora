@@ -60,6 +60,12 @@ pub struct ThreatIntelAuditLog {
     entries: VecDeque<ThreatIntelAuditEntry>,
 }
 
+impl Default for ThreatIntelAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ThreatIntelAuditLog {
     pub fn new() -> Self {
         Self {

@@ -1,4 +1,4 @@
-/// Extended context assembly tests -- all offline.
+//! Extended context assembly tests -- all offline.
 
 #[cfg(test)]
 mod context_ext_tests {

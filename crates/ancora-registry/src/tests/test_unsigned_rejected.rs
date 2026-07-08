@@ -4,8 +4,10 @@ use crate::signature::{SignatureStore, TrustedKey};
 use crate::versioning::Version;
 
 fn strict_registry_with_key() -> (RegistryService, String) {
-    let mut cfg = RegistryConfig::default();
-    cfg.strict_signatures = true;
+    let cfg = RegistryConfig {
+        strict_signatures: true,
+        ..Default::default()
+    };
     let mut svc = RegistryService::new(cfg);
 
     let key = TrustedKey::new("test-key", vec![0xAB, 0xCD, 0xEF]);

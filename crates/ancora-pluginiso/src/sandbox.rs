@@ -34,6 +34,7 @@ pub struct Sandbox {
 
 impl Sandbox {
     /// Construct a `Sandbox` with the supplied configuration.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         plugin_id: impl Into<String>,
         runtime: RuntimeKind,

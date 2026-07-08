@@ -49,7 +49,7 @@ impl BootPolicy {
         }
         self.allowed_digests
             .get(name)
-            .map_or(false, |s| s.contains(digest))
+            .is_some_and(|s| s.contains(digest))
     }
 
     pub fn required_kinds_met(&self, present_kinds: &HashSet<String>) -> bool {
@@ -60,6 +60,12 @@ impl BootPolicy {
 #[derive(Debug, Clone)]
 pub struct PolicyStore {
     policies: HashMap<String, BootPolicy>,
+}
+
+impl Default for PolicyStore {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PolicyStore {

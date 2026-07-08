@@ -1,6 +1,6 @@
 use crate::{
     airgap_template::{AirgapConfig, AirgapTemplate, ArtifactSource},
-    compose_template::{ComposeConfig, ComposeService, ComposeTemplate},
+    compose_template::ComposeService,
     edge_template::{EdgeArch, EdgeConfig, EdgeTemplate},
     k8s_template::{K8sConfig, K8sTemplate},
     onprem_template::{OnPremConfig, OnPremTemplate},

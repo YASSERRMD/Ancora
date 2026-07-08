@@ -2,14 +2,13 @@
 // These tests verify that the full capability surface completes synchronously
 // without any I/O by exercising each crate's core path in a single test binary.
 
-use ancora_ageval::PlanningMetric;
-use ancora_coord::{Blackboard, CoordJournal};
+use ancora_coord::Blackboard;
 use ancora_guard::{GuardrailJournal, GuardrailPolicy, PiiInputGuardrail};
 use ancora_lh::BackgroundRun;
 use ancora_memcon::TokenBudget;
 use ancora_orchestrate::fan_out;
-use ancora_reason::{ReasoningEvent, ReasoningJournal, StepDecomposer};
-use ancora_skills::{SkillDescriptor, SkillJournal, SkillRegistry, SkillScope};
+use ancora_reason::StepDecomposer;
+use ancora_skills::{SkillDescriptor, SkillRegistry, SkillScope};
 use ancora_toolsynth::spec_from_goal;
 use serde_json::json;
 

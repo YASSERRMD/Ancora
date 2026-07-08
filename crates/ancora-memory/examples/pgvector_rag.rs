@@ -10,8 +10,7 @@
 /// If the env var is absent this example prints the SQL it would execute
 /// and exits cleanly -- no database required.
 use ancora_memory::backends::pgvector::{
-    cosine_query_with_threshold_sql, create_hnsw_index_sql, create_table_sql, encode_vector,
-    hybrid_query_sql, serialize_payload, upsert_sql,
+    cosine_query_with_threshold_sql, encode_vector, hybrid_query_sql, serialize_payload, upsert_sql,
 };
 use ancora_memory::backends::pgvector_migration::full_setup_sql;
 use ancora_memory::vector_store::{Payload, PayloadValue};

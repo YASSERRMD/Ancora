@@ -106,12 +106,14 @@ impl PyType {
 // Python extension adapter
 // ---------------------------------------------------------------------------
 
+type ExecuteFn = Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>;
+
 /// Wraps a Python extension (loaded via PyO3) and presents it as a Rust
 /// `ToolExtension`.  In production the `execute_fn` field holds a PyO3
 /// `Py<PyAny>` callable; in tests we use a plain Rust closure.
 pub struct PyExtensionAdapter {
     manifest: PyExtensionManifest,
-    execute_fn: Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
+    execute_fn: ExecuteFn,
 }
 
 impl PyExtensionAdapter {

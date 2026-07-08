@@ -54,7 +54,7 @@ struct StepCountingExecutor {
 }
 
 impl NodeExecutor for StepCountingExecutor {
-    fn execute(&self, node: &Node, input: &str) -> Result<String, AncoraError> {
+    fn execute(&self, node: &Node, _input: &str) -> Result<String, AncoraError> {
         let mut c = self.count.lock().unwrap();
         *c += 1;
         Ok(format!("{}-{}", node.id, *c))

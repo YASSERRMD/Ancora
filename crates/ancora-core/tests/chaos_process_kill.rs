@@ -34,10 +34,8 @@ impl Checkpoint {
     fn resume(&mut self, kill_at: Option<usize>) -> usize {
         let mut completed = 0;
         for i in 0..self.steps.len() {
-            if !matches!(self.steps[i], StepState::Done(_)) {
-                if !self.run_step(i, kill_at) {
-                    break;
-                }
+            if !matches!(self.steps[i], StepState::Done(_)) && !self.run_step(i, kill_at) {
+                break;
             }
             completed += 1;
         }

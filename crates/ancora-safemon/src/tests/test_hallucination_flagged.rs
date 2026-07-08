@@ -40,5 +40,5 @@ fn multiple_hallucination_signals_detected() {
     let d = HallucinationDetector::new();
     let text = "Experts say it is research proves the case.";
     let flags = d.analyze(text);
-    assert!(flags.len() >= 1);
+    assert!(!flags.is_empty());
 }

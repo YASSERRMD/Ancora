@@ -1,7 +1,7 @@
-/// Safety guardrails for sample applications.
-///
-/// All apps pass output through this layer before returning to callers.
-/// Operates entirely offline; no remote policy service required.
+//! Safety guardrails for sample applications.
+//!
+//! All apps pass output through this layer before returning to callers.
+//! Operates entirely offline; no remote policy service required.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum GuardrailOutcome {

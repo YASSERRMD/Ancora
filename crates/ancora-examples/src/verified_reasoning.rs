@@ -35,7 +35,7 @@ pub fn run() {
 
     for step in steps.iter_mut().take(2) {
         let claim = step.claim.clone();
-        let found = knowledge_base.iter().any(|f| *f == claim.as_str());
+        let found = knowledge_base.contains(&claim.as_str());
         let result = StepVerifier::verify(step, |_| found);
         if result.passed {
             journal.record(
@@ -60,7 +60,7 @@ pub fn run() {
     }
 
     let fc = FactChecker::check(&steps[0].claim, |claim| {
-        if knowledge_base.iter().any(|f| *f == claim) {
+        if knowledge_base.contains(&claim) {
             Some("verified-facts-db".into())
         } else {
             None

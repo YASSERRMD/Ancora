@@ -15,7 +15,7 @@ fn cost_parity_within_budget() {
     let budget = TokenBudget::new(10);
     // 40 chars / 4 = 10 tokens, fits exactly
     let content = "a".repeat(40);
-    assert!(budget.within_budget(&[content.clone()]));
+    assert!(budget.within_budget(std::slice::from_ref(&content)));
     // 41 chars -> 11 tokens, does not fit
     let too_long = "a".repeat(41);
     assert!(!budget.within_budget(&[too_long]));

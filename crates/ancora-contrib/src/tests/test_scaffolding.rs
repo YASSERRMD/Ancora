@@ -1,4 +1,5 @@
 use crate::scaffolding::{scaffold, ScaffoldError, ScaffoldKind, ScaffoldRequest};
+use std::str::FromStr;
 
 fn req(kind: ScaffoldKind, name: &str) -> ScaffoldRequest {
     ScaffoldRequest::new(kind, name)

@@ -31,10 +31,7 @@ fn wasm_timing_has_all_phases() {
     let _ = r.serialize_time;
     let _ = r.exec_time;
     let _ = r.deserialize_time;
-    // Elapsed must cover all phases.
-    assert!(
-        r.elapsed >= r.serialize_time + r.exec_time + r.deserialize_time || true, // timing may be zero on fast hardware; just assert structure exists
-    );
+    let _ = r.elapsed;
 }
 
 #[test]
@@ -44,5 +41,5 @@ fn subprocess_timing_has_all_phases() {
     let r = call_subprocess(&mut handle, "run", "phase-test").unwrap();
     let _ = r.write_time;
     let _ = r.read_time;
-    assert!(r.elapsed >= r.write_time + r.read_time || true);
+    let _ = r.elapsed;
 }

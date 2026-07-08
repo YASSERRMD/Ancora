@@ -131,6 +131,42 @@ impl Tool for McpToolAdapter {
     }
 }
 
+impl McpTransport for StdioTransport {
+    fn send(
+        &self,
+        method: &str,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, ToolError> {
+        use std::io::{BufRead, Write};
+        let mut child = std::process::Command::new(&self.command)
+            .args(&self.args)
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
+        let request = serde_json::json!({
+            "jsonrpc": "2.0", "id": 1, "method": method, "params": params
+        });
+        let line = serde_json::to_string(&request).unwrap() + "\n";
+        child
+            .stdin
+            .as_mut()
+            .unwrap()
+            .write_all(line.as_bytes())
+            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
+        drop(child.stdin.take());
+        let stdout = child.stdout.take().unwrap();
+        let mut reader = std::io::BufReader::new(stdout);
+        let mut response_line = String::new();
+        reader
+            .read_line(&mut response_line)
+            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
+        let resp: serde_json::Value = serde_json::from_str(&response_line)
+            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
+        Ok(resp["result"].clone())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -170,41 +206,5 @@ mod tests {
             .call(&serde_json::json!({ "name": "world" }))
             .unwrap();
         assert_eq!(result["content"], "hello world");
-    }
-}
-
-impl McpTransport for StdioTransport {
-    fn send(
-        &self,
-        method: &str,
-        params: serde_json::Value,
-    ) -> Result<serde_json::Value, ToolError> {
-        use std::io::{BufRead, Write};
-        let mut child = std::process::Command::new(&self.command)
-            .args(&self.args)
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::piped())
-            .spawn()
-            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
-        let request = serde_json::json!({
-            "jsonrpc": "2.0", "id": 1, "method": method, "params": params
-        });
-        let line = serde_json::to_string(&request).unwrap() + "\n";
-        child
-            .stdin
-            .as_mut()
-            .unwrap()
-            .write_all(line.as_bytes())
-            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
-        drop(child.stdin.take());
-        let stdout = child.stdout.take().unwrap();
-        let mut reader = std::io::BufReader::new(stdout);
-        let mut response_line = String::new();
-        reader
-            .read_line(&mut response_line)
-            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
-        let resp: serde_json::Value = serde_json::from_str(&response_line)
-            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
-        Ok(resp["result"].clone())
     }
 }

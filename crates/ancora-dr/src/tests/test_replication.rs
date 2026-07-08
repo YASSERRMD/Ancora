@@ -26,7 +26,7 @@ mod tests {
     #[test]
     fn replication_lag_measured() {
         let primary = populated_primary(5);
-        let mut secondary = populated_primary(3);
+        let secondary = populated_primary(3);
         let lag = replication_lag(&primary, &secondary);
         assert_eq!(lag, 2);
     }

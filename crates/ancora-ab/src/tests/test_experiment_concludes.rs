@@ -5,7 +5,7 @@ use crate::outcome::{Observation, OutcomeStore};
 
 #[test]
 fn experiment_concludes_with_winner() {
-    let experiment = Experiment::new(
+    let _experiment = Experiment::new(
         "conclude-test",
         "Conclude with winner",
         vec![Variant::new("control", 0.5), Variant::new("treatment", 0.5)],

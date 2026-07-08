@@ -1,7 +1,7 @@
-/// ancora-contrib: exporter template
-///
-/// Copy this module as the starting point for a new telemetry/trace exporter.
-/// Rename `MyExporter` and implement `export`.
+//! ancora-contrib: exporter template
+//!
+//! Copy this module as the starting point for a new telemetry/trace exporter.
+//! Rename `MyExporter` and implement `export`.
 
 /// A single span representing a unit of work in an agent run.
 #[derive(Debug, Clone)]

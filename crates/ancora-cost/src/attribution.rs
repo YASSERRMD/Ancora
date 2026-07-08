@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Cost attribution record for a single run step.
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -1,7 +1,7 @@
-/// Per-PR eval selection.
-///
-/// Determines which eval datasets and metrics should run for a given PR
-/// based on labels, changed files, or an explicit allow-list.
+//! Per-PR eval selection.
+//!
+//! Determines which eval datasets and metrics should run for a given PR
+//! based on labels, changed files, or an explicit allow-list.
 
 /// A selector rule maps a file-path prefix to a list of dataset names.
 #[derive(Debug, Clone)]

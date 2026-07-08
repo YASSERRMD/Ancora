@@ -1,4 +1,4 @@
-/// Cost analytics view - breakdown of token and API costs per run/step.
+//! Cost analytics view - breakdown of token and API costs per run/step.
 
 #[derive(Debug, Clone)]
 pub struct StepCost {

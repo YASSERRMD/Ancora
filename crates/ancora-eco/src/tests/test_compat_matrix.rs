@@ -1,6 +1,6 @@
 use crate::compat_matrix::CompatMatrix;
 use crate::semver::SemVer;
-use crate::version_negotiation::{CoreApiVersion, ExtensionManifest, NegotiationResult};
+use crate::version_negotiation::{CoreApiVersion, ExtensionManifest};
 
 #[test]
 fn compat_matrix_generated_with_multiple_entries() {

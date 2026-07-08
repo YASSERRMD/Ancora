@@ -53,6 +53,12 @@ pub struct FeatureRegistry {
     flags: HashMap<String, FeatureFlag>,
 }
 
+impl Default for FeatureRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FeatureRegistry {
     pub fn new() -> Self {
         Self {

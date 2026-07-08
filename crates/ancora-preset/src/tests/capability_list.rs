@@ -49,7 +49,6 @@ fn government_preset_capability_count() {
 
 #[test]
 fn no_duplicate_capabilities() {
-    use crate::Capability;
     use std::collections::HashSet;
     let presets = vec![
         research_assistant(),

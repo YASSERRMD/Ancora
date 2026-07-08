@@ -15,7 +15,7 @@ impl Sampler {
 
     pub fn should_sample(&mut self) -> bool {
         self.counter += 1;
-        self.counter % self.rate == 0
+        self.counter.is_multiple_of(self.rate)
     }
 
     pub fn reset(&mut self) {

@@ -4,13 +4,6 @@ use ancora_proto::ancora::{
     journal_event::Event, ActivityRecordedEvent, JournalEvent, RunCompletedEvent, RunStartedEvent,
 };
 
-#[derive(Debug, Clone, PartialEq)]
-struct ReplayCost {
-    input_tokens: u64,
-    output_tokens: u64,
-    cost_usd: f64,
-}
-
 fn compute_cost(input_tokens: u64, output_tokens: u64) -> f64 {
     (input_tokens as f64 / 1_000_000.0) * 3.0 + (output_tokens as f64 / 1_000_000.0) * 15.0
 }

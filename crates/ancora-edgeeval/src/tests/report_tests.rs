@@ -51,5 +51,5 @@ fn test_report_render_empty() {
 fn test_report_edge_score_clamped() {
     let s = make_summary("m", 1.0, 0.0, 0.0, 1.0);
     let score = s.edge_score();
-    assert!(score >= 0.0 && score <= 1.0, "score={}", score);
+    assert!((0.0..=1.0).contains(&score), "score={}", score);
 }

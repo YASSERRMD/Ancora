@@ -165,37 +165,6 @@ pub(crate) struct CohereResponse {
     pub meta: CohereMeta,
 }
 
-/// Parse a Cohere JSON response body into a `CompletionResponse`.
-pub(crate) fn parse_response(
-    body: &str,
-    _model_id: &str,
-    cost_usd: Option<f64>,
-) -> Result<CompletionResponse, InferenceError> {
-    let resp: CohereResponse =
-        serde_json::from_str(body).map_err(|e| InferenceError::Parse(e.to_string()))?;
-
-    let tool_calls: Vec<ToolCall> = resp
-        .tool_calls
-        .into_iter()
-        .map(|tc| ToolCall {
-            id: String::new(),
-            kind: "function".to_owned(),
-            function: FunctionCall {
-                name: tc.name,
-                arguments: tc.parameters.to_string(),
-            },
-        })
-        .collect();
-
-    Ok(CompletionResponse {
-        content: resp.text,
-        tokens_in: resp.meta.tokens.input_tokens,
-        tokens_out: resp.meta.tokens.output_tokens,
-        cost_usd,
-        tool_calls,
-    })
-}
-
 // ---- Streaming -------------------------------------------------------------
 
 /// Cohere streaming event types (the `event_type` field on each chunk).
@@ -208,6 +177,7 @@ pub(crate) enum CohereStreamEvent {
     #[serde(rename = "stream-end")]
     StreamEnd {
         #[serde(default)]
+        #[allow(dead_code)]
         finish_reason: String,
     },
     #[serde(other)]

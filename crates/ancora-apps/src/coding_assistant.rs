@@ -1,7 +1,7 @@
-/// Coding assistant application.
-///
-/// Provides offline code snippet lookup, pattern matching, and
-/// simple code generation stubs.
+//! Coding assistant application.
+//!
+//! Provides offline code snippet lookup, pattern matching, and
+//! simple code generation stubs.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Language {
@@ -67,7 +67,7 @@ impl SnippetLibrary {
         self.snippets
             .iter()
             .filter(|s| {
-                let lang_match = lang.map_or(true, |l| &s.language == l);
+                let lang_match = lang.is_none_or(|l| &s.language == l);
                 let text_match =
                     s.description.to_lowercase().contains(&q) || s.code.to_lowercase().contains(&q);
                 lang_match && text_match

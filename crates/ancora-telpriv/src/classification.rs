@@ -1,7 +1,7 @@
-/// Data classification levels for telemetry fields.
-///
-/// Used by policies to decide whether an attribute may be exported,
-/// must be redacted, or must be dropped entirely.
+//! Data classification levels for telemetry fields.
+//!
+//! Used by policies to decide whether an attribute may be exported,
+//! must be redacted, or must be dropped entirely.
 
 /// The classification level of a piece of data.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]

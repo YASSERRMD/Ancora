@@ -1,7 +1,7 @@
-/// ancora-contrib: plugin template
-///
-/// Copy this module as the starting point for a full ancora plugin.
-/// A plugin bundles a manifest and one or more extension-point implementations.
+//! ancora-contrib: plugin template
+//!
+//! Copy this module as the starting point for a full ancora plugin.
+//! A plugin bundles a manifest and one or more extension-point implementations.
 
 /// Semantic version triplet.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]

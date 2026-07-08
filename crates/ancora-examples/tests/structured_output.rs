@@ -1,4 +1,4 @@
-use ancora_proto::ancora::{AgentSpec, EffectClass, ToolSpec};
+use ancora_proto::ancora::AgentSpec;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

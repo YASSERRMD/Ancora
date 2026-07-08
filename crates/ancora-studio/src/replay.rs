@@ -1,4 +1,4 @@
-/// Replay controls - step-through playback of a recorded run.
+//! Replay controls - step-through playback of a recorded run.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PlaybackState {

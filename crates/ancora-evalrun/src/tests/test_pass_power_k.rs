@@ -28,7 +28,7 @@ fn make_rollout_half_pass() -> crate::rollout::RolloutResult {
         expected: "a".into(),
     };
     let infer = |_: &str, seed: u64| -> (String, u64, u64) {
-        let ans = if seed % 2 == 0 { "a" } else { "wrong" };
+        let ans = if seed.is_multiple_of(2) { "a" } else { "wrong" };
         (ans.into(), 1, 1)
     };
     let config = RunConfig {

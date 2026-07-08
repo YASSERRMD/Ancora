@@ -1,6 +1,5 @@
 /// test_import_renders - Test that importing a spec correctly populates the canvas.
 use crate::import::{import_spec, parse_simple_spec, GraphSpec, SpecEdge, SpecNode};
-use crate::scaffold::Position;
 use std::collections::HashMap;
 
 fn sample_spec() -> GraphSpec {

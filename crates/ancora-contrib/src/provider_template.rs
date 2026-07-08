@@ -1,8 +1,8 @@
-/// ancora-contrib: provider adapter template
-///
-/// Copy this module as the starting point for a new LLM provider plugin.
-/// Replace all occurrences of `MyProvider` and `"my-provider"` with your own
-/// identifier, then implement the two required methods.
+//! ancora-contrib: provider adapter template
+//!
+//! Copy this module as the starting point for a new LLM provider plugin.
+//! Replace all occurrences of `MyProvider` and `"my-provider"` with your own
+//! identifier, then implement the two required methods.
 
 /// A single conversation message.
 #[derive(Debug, Clone, PartialEq, Eq)]

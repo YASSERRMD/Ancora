@@ -1,7 +1,7 @@
-/// Native import of Model Context Protocol (MCP) tool definitions into Ancora.
-///
-/// MCP tools are described by a JSON-schema-like structure. This module
-/// provides an in-process representation and a registry without any network I/O.
+//! Native import of Model Context Protocol (MCP) tool definitions into Ancora.
+//!
+//! MCP tools are described by a JSON-schema-like structure. This module
+//! provides an in-process representation and a registry without any network I/O.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct McpParamDef {

@@ -1,7 +1,7 @@
-/// Extension metadata schema for the marketplace.
-///
-/// Every published extension must supply a complete `ExtensionMetadata` record.
-/// Fields are validated before the manifest is accepted by the registry.
+//! Extension metadata schema for the marketplace.
+//!
+//! Every published extension must supply a complete `ExtensionMetadata` record.
+//! Fields are validated before the manifest is accepted by the registry.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExtensionMetadata {

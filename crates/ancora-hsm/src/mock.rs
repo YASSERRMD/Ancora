@@ -7,6 +7,12 @@ pub struct SoftHsm {
     operations: usize,
 }
 
+impl Default for SoftHsm {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SoftHsm {
     pub fn new() -> Self {
         Self {

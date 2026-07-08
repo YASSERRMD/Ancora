@@ -1,8 +1,8 @@
-/// Expose an Ancora agent as a LangChain-compatible tool.
-///
-/// This module produces a LangChain tool descriptor from an Ancora agent
-/// specification so that Python LangChain runtimes can call the Ancora agent
-/// via its string interface (name + description + invoke string).
+//! Expose an Ancora agent as a LangChain-compatible tool.
+//!
+//! This module produces a LangChain tool descriptor from an Ancora agent
+//! specification so that Python LangChain runtimes can call the Ancora agent
+//! via its string interface (name + description + invoke string).
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AncoraAgentSpec {

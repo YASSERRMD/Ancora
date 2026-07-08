@@ -1,7 +1,7 @@
 use crate::{DataCategory, DataClassStats, DataRecord, SensitivityLevel};
 #[test]
 fn count_at_level_returns_correct_count() {
-    let records = vec![
+    let records = [
         DataRecord::new(
             "r1",
             "t1",

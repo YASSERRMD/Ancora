@@ -1,4 +1,4 @@
-use crate::{Secret, SecretKind, SecretStore};
+use crate::{SecretKind, SecretStore};
 #[test]
 fn write_version_increments_version_count() {
     let mut store = SecretStore::new();

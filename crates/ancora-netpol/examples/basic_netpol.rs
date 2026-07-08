@@ -39,7 +39,7 @@ fn main() {
         }
     }
 
-    let requests = vec![
+    let requests = [
         ConnectionRequest::tcp(tenant, "agent-01", "api.stripe.com", 443),
         ConnectionRequest::tcp(tenant, "agent-01", "db.internal.acme.corp", 80),
         ConnectionRequest::tcp(tenant, "agent-02", "malware.example.com", 443),

@@ -4,6 +4,12 @@ pub struct DependencyGraph {
     edges: HashMap<String, HashSet<String>>,
 }
 
+impl Default for DependencyGraph {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DependencyGraph {
     pub fn new() -> Self {
         Self {
@@ -32,7 +38,7 @@ impl DependencyGraph {
     pub fn has_dependency(&self, component_id: &str, depends_on: &str) -> bool {
         self.edges
             .get(component_id)
-            .map_or(false, |s| s.contains(depends_on))
+            .is_some_and(|s| s.contains(depends_on))
     }
 
     pub fn transitive_dependencies(&self, component_id: &str) -> HashSet<String> {

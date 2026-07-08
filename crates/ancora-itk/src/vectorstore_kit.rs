@@ -1,4 +1,4 @@
-/// Conformance kit for vector-store extensions.
+//! Conformance kit for vector-store extensions.
 
 /// A vector document with an id, content, and embedding.
 #[derive(Debug, Clone)]

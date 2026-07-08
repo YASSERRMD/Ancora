@@ -1,11 +1,11 @@
-/// ancora-contrib: template scaffolding command
-///
-/// Provides a programmatic API for generating contribution scaffolds
-/// (directory layout, source stubs, test stubs, docs stub).
-///
-/// In a real CLI this would write files to disk; here the logic produces
-/// `ScaffoldOutput` values that can be inspected in tests without touching
-/// the filesystem.
+//! ancora-contrib: template scaffolding command
+//!
+//! Provides a programmatic API for generating contribution scaffolds
+//! (directory layout, source stubs, test stubs, docs stub).
+//!
+//! In a real CLI this would write files to disk; here the logic produces
+//! `ScaffoldOutput` values that can be inspected in tests without touching
+//! the filesystem.
 
 /// The kind of extension point to scaffold.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -31,8 +31,12 @@ impl ScaffoldKind {
             ScaffoldKind::Plugin => "plugin",
         }
     }
+}
 
-    pub fn from_str(s: &str) -> Result<Self, ScaffoldError> {
+impl std::str::FromStr for ScaffoldKind {
+    type Err = ScaffoldError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "provider" => Ok(ScaffoldKind::Provider),
             "vectorstore" | "vector_store" | "vector-store" => Ok(ScaffoldKind::VectorStore),
@@ -182,7 +186,7 @@ pub fn scaffold(req: &ScaffoldRequest) -> Result<ScaffoldOutput, ScaffoldError> 
                 content: cargo_toml,
             },
             GeneratedFile {
-                path: format!("src/lib.rs"),
+                path: "src/lib.rs".to_string(),
                 content: src_lib,
             },
             GeneratedFile {

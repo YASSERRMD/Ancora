@@ -49,7 +49,7 @@ fn jailbreak_scorer_run() {
         ),
         crate::AdversarialScenario::new("j3", AttackCategory::Jailbreak, "hello world", false),
     ];
-    let report = GuardrailScorer::score(&catchable, |p| check_jailbreak(p));
+    let report = GuardrailScorer::score(&catchable, check_jailbreak);
     assert_eq!(report.false_negatives(), 0);
     assert_eq!(report.false_positives(), 0);
     assert!((report.effectiveness() - 1.0).abs() < f64::EPSILON);

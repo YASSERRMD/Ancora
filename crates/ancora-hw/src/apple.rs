@@ -4,7 +4,6 @@
 //! ANE (Apple Neural Engine) scheduling hints, and Metal GPU tuning.
 
 use crate::model::{CpuArch, GpuBackend, HardwareProfile, NpuPlatform};
-use crate::probe::{detect_cpu_arch, detect_cpu_cores, detect_total_ram_mib};
 use serde::{Deserialize, Serialize};
 
 /// Apple Silicon chip tier.

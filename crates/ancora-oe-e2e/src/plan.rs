@@ -1,4 +1,4 @@
-/// Test plan module: describes the acceptance criteria for the obs and eval e2e suite.
+//! Test plan module: describes the acceptance criteria for the obs and eval e2e suite.
 
 /// A single acceptance criterion.
 #[derive(Debug, Clone)]

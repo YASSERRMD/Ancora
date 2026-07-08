@@ -186,10 +186,10 @@ fn simulate_node(
             .get("schema")
             .map(|s| s.is_empty())
             .unwrap_or(true)
+        && node.kind == "verifier.json_schema"
+        && !node.config.contains_key("schema")
     {
-        if node.kind == "verifier.json_schema" && node.config.get("schema").is_none() {
-            // Treat as warning but still succeed in stub mode.
-        }
+        // Treat as warning but still succeed in stub mode.
     }
 
     let output = format!("stub output for {}", node.kind);

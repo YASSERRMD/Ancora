@@ -95,10 +95,12 @@ impl SecureBootAttestation {
     }
 }
 
+type HookFn = Box<dyn Fn(&[BootMeasurement]) -> bool + Send + Sync>;
+
 /// A hook that can be registered to run a pre-boot integrity check.
 pub struct SecureBootHook {
     pub hook_name: String,
-    hook_fn: Box<dyn Fn(&[BootMeasurement]) -> bool + Send + Sync>,
+    hook_fn: HookFn,
 }
 
 impl SecureBootHook {

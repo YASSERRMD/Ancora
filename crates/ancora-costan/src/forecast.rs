@@ -1,4 +1,4 @@
-/// Cost forecasting using simple linear regression and exponential smoothing.
+//! Cost forecasting using simple linear regression and exponential smoothing.
 
 #[derive(Debug, Clone)]
 pub struct ForecastPoint {

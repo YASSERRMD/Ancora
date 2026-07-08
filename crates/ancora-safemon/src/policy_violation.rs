@@ -1,7 +1,7 @@
-/// Policy violation detection for agent outputs.
-///
-/// Checks text against a configurable set of policy rules.
-/// Rules can be keyword-based or pattern-based.
+//! Policy violation detection for agent outputs.
+//!
+//! Checks text against a configurable set of policy rules.
+//! Rules can be keyword-based or pattern-based.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ViolationKind {
