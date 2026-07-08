@@ -25,9 +25,10 @@ def test_ancor_error_is_exported():
 
 def test_runtime_init_signature_has_no_required_args():
     sig = inspect.signature(ancora.Runtime.__init__)
+    var_kinds = (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
     params = {
         k: v for k, v in sig.parameters.items()
-        if k != "self" and v.default is inspect.Parameter.empty
+        if k != "self" and v.kind not in var_kinds and v.default is inspect.Parameter.empty
     }
     assert len(params) == 0
 
