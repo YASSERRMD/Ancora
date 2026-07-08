@@ -23,6 +23,9 @@ func OpenSqliteStore(path string) (*SqliteStore, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ancora: open sqlite %s: %w", path, err)
 	}
+	// SQLite serializes writes regardless; capping the pool at one connection
+	// also avoids opening a second, schema-less ":memory:" database.
+	db.SetMaxOpenConns(1)
 	if _, err := db.Exec(schemaSQL); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("ancora: apply schema: %w", err)

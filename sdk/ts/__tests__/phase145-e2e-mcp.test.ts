@@ -8,10 +8,13 @@ jest.mock('../ancora.node', () => ({
     free(): void { this._freed = true }
     startRun(_: Buffer): string {
       const id = `mcp145-${MCP145_CTR++}`
+      // Note: no raw 'tool_result' event here — per tool-bridge.ts, 'tool_result'
+      // is only ever synthesized client-side by ToolBridge.run() from a
+      // 'tool_call' event; it is never part of the raw wire/RunEventSchema
+      // stream, so it must not be fabricated directly by the mocked runtime.
       MCP145[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'tool_call', run_id: id, name: 'mcp_read_file', input: '{"path":"/etc/hosts"}' }),
-        JSON.stringify({ kind: 'tool_result', run_id: id, name: 'mcp_read_file', output: '{"content":"127.0.0.1 localhost"}' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]
       return id
@@ -41,10 +44,10 @@ const mcpReadFile = defineTool({
 })
 
 describe('phase145 e2e mcp end to end', () => {
-  it('mcp tool dispatch works', () => {
+  it('mcp tool dispatch works', async () => {
     const reg = new ToolRegistry()
     reg.register(mcpReadFile)
-    const result = JSON.parse(reg.dispatch('mcp_read_file', { path: '/etc/hosts' }) as string)
+    const result = JSON.parse((await reg.dispatch('mcp_read_file', { path: '/etc/hosts' })) as string)
     expect(result.content).toContain('/etc/hosts')
   })
 
@@ -57,13 +60,21 @@ describe('phase145 e2e mcp end to end', () => {
   })
 
   it('tool_call event precedes tool_result', async () => {
+    // ToolBridge is the real (and only) source of 'tool_result' events — it
+    // synthesizes them from 'tool_call' events on the fly, replacing the
+    // 'tool_call' in its output stream rather than emitting both. So the
+    // meaningful check here is that 'started' (raw) precedes the bridged
+    // 'tool_result'.
+    const reg = new ToolRegistry()
+    reg.register(mcpReadFile)
     const agent = new Agent()
     const h = agent.run(AgentSpecSchema.parse({ model: 'llama3', tools: [mcpReadFile.spec] }))
+    const bridge = new ToolBridge(reg)
     const kinds: string[] = []
-    for await (const ev of h) kinds.push((ev as { kind: string }).kind)
-    const ci = kinds.indexOf('tool_call')
+    for await (const ev of bridge.run(h)) kinds.push(ev.kind)
+    const si = kinds.indexOf('started')
     const ri = kinds.indexOf('tool_result')
-    expect(ci).toBeLessThan(ri)
+    expect(si).toBeLessThan(ri)
   })
 
   it('run completes after mcp call', async () => {
@@ -93,10 +104,11 @@ describe('phase145 e2e mcp end to end', () => {
     expect(mcpReadFile.spec.input_schema.properties).toHaveProperty('path')
   })
 
-  it('no live network calls in fixture mode', () => {
+  it('no live network calls in fixture mode', async () => {
     const reg = new ToolRegistry()
     reg.register(mcpReadFile)
-    expect(() => reg.dispatch('mcp_read_file', { path: '/tmp/local.txt' })).not.toThrow()
+    const result = await reg.dispatch('mcp_read_file', { path: '/tmp/local.txt' })
+    expect(result).toBeDefined()
   })
 
   it('two mcp runs have distinct run IDs', () => {
@@ -106,11 +118,17 @@ describe('phase145 e2e mcp end to end', () => {
   })
 
   it('tool_result output contains fixture content', async () => {
+    // The real ToolBridge-synthesized 'tool_result' carries a 'result' field
+    // (the actual handler's return value), not 'output' — match that shape
+    // and the content mcpReadFile's handler actually produces.
+    const reg = new ToolRegistry()
+    reg.register(mcpReadFile)
     const agent = new Agent()
     const h = agent.run(AgentSpecSchema.parse({ model: 'llama3', tools: [mcpReadFile.spec] }))
+    const bridge = new ToolBridge(reg)
     const events: unknown[] = []
-    for await (const ev of h) events.push(ev)
-    const tr = events.find((e) => (e as { kind: string }).kind === 'tool_result') as { output?: string }
-    expect(tr?.output).toContain('localhost')
+    for await (const ev of bridge.run(h)) events.push(ev)
+    const tr = events.find((e) => (e as { kind: string }).kind === 'tool_result') as { result?: unknown }
+    expect(JSON.stringify(tr?.result)).toContain('fixture:')
   })
 })

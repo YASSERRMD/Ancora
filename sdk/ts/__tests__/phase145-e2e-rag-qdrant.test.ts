@@ -8,10 +8,13 @@ jest.mock('../ancora.node', () => ({
     free(): void { this._freed = true }
     startRun(_: Buffer): string {
       const id = `rag-${RAG145_CTR++}`
+      // Note: no raw 'tool_result' event here — per tool-bridge.ts, 'tool_result'
+      // is only ever synthesized client-side by ToolBridge.run() from a
+      // 'tool_call' event; it is never part of the raw wire/RunEventSchema
+      // stream, so it must not be fabricated directly by the mocked runtime.
       RAG145[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'tool_call', run_id: id, name: 'qdrant_retrieve', input: '{"query":"vector","top_k":2}' }),
-        JSON.stringify({ kind: 'tool_result', run_id: id, name: 'qdrant_retrieve', output: '[{"id":"q1","text":"Qdrant","score":0.95}]' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]
       return id
@@ -47,20 +50,20 @@ const qdrantTool = defineTool({
 
 describe('phase145 e2e rag with qdrant end to end', () => {
   it('qdrant tool has correct name', () => {
-    expect(qdrantTool.name).toBe('qdrant_retrieve')
+    expect(qdrantTool.spec.name).toBe('qdrant_retrieve')
   })
 
-  it('dispatch returns correct chunk count', () => {
+  it('dispatch returns correct chunk count', async () => {
     const reg = new ToolRegistry()
     reg.register(qdrantTool)
-    const result = JSON.parse(reg.dispatch('qdrant_retrieve', { query: 'vector', top_k: 2 }) as string)
+    const result = JSON.parse((await reg.dispatch('qdrant_retrieve', { query: 'vector', top_k: 2 })) as string)
     expect(result).toHaveLength(2)
   })
 
-  it('dispatch top_k=1 returns one chunk', () => {
+  it('dispatch top_k=1 returns one chunk', async () => {
     const reg = new ToolRegistry()
     reg.register(qdrantTool)
-    const result = JSON.parse(reg.dispatch('qdrant_retrieve', { query: 'vector', top_k: 1 }) as string)
+    const result = JSON.parse((await reg.dispatch('qdrant_retrieve', { query: 'vector', top_k: 1 })) as string)
     expect(result).toHaveLength(1)
   })
 
@@ -81,10 +84,15 @@ describe('phase145 e2e rag with qdrant end to end', () => {
   })
 
   it('agent run emits tool_result event', async () => {
+    // 'tool_result' is synthesized by ToolBridge, not the raw runtime — route
+    // through the bridge to observe it (see note on the mock's queue above).
+    const reg = new ToolRegistry()
+    reg.register(qdrantTool)
     const agent = new Agent()
     const h = agent.run(AgentSpecSchema.parse({ model: 'llama3', tools: [qdrantTool.spec] }))
+    const bridge = new ToolBridge(reg)
     const events: unknown[] = []
-    for await (const ev of h) events.push(ev)
+    for await (const ev of bridge.run(h)) events.push(ev)
     expect(events.some((e) => (e as { kind: string }).kind === 'tool_result')).toBe(true)
   })
 

@@ -40,13 +40,19 @@ def test_agent_spec_builder_name_and_model():
 
 
 def test_agent_spec_builder_instructions():
-    spec = AgentSpecBuilder().with_instructions("do the thing").build()
+    spec = (
+        AgentSpecBuilder()
+        .with_name("agent")
+        .with_model_id("llama3")
+        .with_instructions("do the thing")
+        .build()
+    )
     assert spec.instructions == "do the thing"
 
 
 def test_agent_spec_builder_with_tool():
     tool = ToolSpecBuilder().with_name("calc").build()
-    spec = AgentSpecBuilder().with_tool(tool).build()
+    spec = AgentSpecBuilder().with_name("agent").with_model_id("llama3").with_tool(tool).build()
     assert len(spec.tools) == 1
     assert spec.tools[0].name == "calc"
 
@@ -54,18 +60,31 @@ def test_agent_spec_builder_with_tool():
 def test_agent_spec_builder_with_multiple_tools():
     t1 = ToolSpecBuilder().with_name("tool1").build()
     t2 = ToolSpecBuilder().with_name("tool2").build()
-    spec = AgentSpecBuilder().with_tool(t1).with_tool(t2).build()
+    spec = (
+        AgentSpecBuilder()
+        .with_name("agent")
+        .with_model_id("llama3")
+        .with_tool(t1)
+        .with_tool(t2)
+        .build()
+    )
     assert len(spec.tools) == 2
 
 
 def test_agent_spec_builder_max_steps():
-    spec = AgentSpecBuilder().with_max_steps(10).build()
+    spec = AgentSpecBuilder().with_name("agent").with_model_id("llama3").with_max_steps(10).build()
     assert spec.max_steps == 10
 
 
 def test_agent_spec_builder_retry():
     retry = RetryPolicy(max_attempts=3)
-    spec = AgentSpecBuilder().with_model_retry(retry).build()
+    spec = (
+        AgentSpecBuilder()
+        .with_name("agent")
+        .with_model_id("llama3")
+        .with_model_retry(retry)
+        .build()
+    )
     assert spec.model_retry is not None
     assert spec.model_retry.max_attempts == 3
 

@@ -10,7 +10,7 @@ jest.mock('../ancora.node', () => ({
       const id = `wasm145-${WASM145_CTR++}`
       const model = (() => { try { return JSON.parse(spec.toString()).model } catch { return 'wasm' } })()
       WASM145[id] = [
-        JSON.stringify({ kind: 'started', run_id: id, transport: 'wasm', model }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}', transport: 'wasm', model }),
         JSON.stringify({ kind: 'token', run_id: id, text: 'wasm-via-sidecar' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]
@@ -38,11 +38,13 @@ describe('phase145 wasm client drives a run via sidecar', () => {
   })
 
   it('started event has transport wasm', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'llama3-wasm' }))
-    const evs: unknown[] = []
-    for await (const ev of h) evs.push(ev)
-    const started = evs[0] as { transport?: string }
+    // 'transport' is not a field declared on RunEventSchema's 'started'
+    // variant, so validated parsing (Agent/RunHandle) would strip it. Read
+    // the mocked runtime's raw JSON directly to observe it.
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun(JSON.stringify({ model: 'llama3-wasm' }))
+    const started = JSON.parse(rt.pollRun(id)!) as { transport?: string }
     expect(started.transport).toBe('wasm')
   })
 
@@ -78,11 +80,10 @@ describe('phase145 wasm client drives a run via sidecar', () => {
   })
 
   it('started event model matches spec model', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'my-wasm-model' }))
-    const evs: unknown[] = []
-    for await (const ev of h) evs.push(ev)
-    const started = evs[0] as { model?: string }
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun(JSON.stringify({ model: 'my-wasm-model' }))
+    const started = JSON.parse(rt.pollRun(id)!) as { model?: string }
     expect(started.model).toBe('my-wasm-model')
   })
 

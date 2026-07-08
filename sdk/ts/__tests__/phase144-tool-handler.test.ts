@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => {
       startRun(_: Buffer): string {
         const id = `th-${ctr++}`
         runs[id] = [
-          JSON.stringify({ kind: 'started', run_id: id }),
+          JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
           JSON.stringify({ kind: 'tool_call', run_id: id, name: 'greet', input: '{"name":"world"}' }),
           JSON.stringify({ kind: 'completed', run_id: id }),
         ]
@@ -41,7 +41,7 @@ const greetTool = defineTool({
 
 describe('phase144 tool handler execution', () => {
   it('defineTool creates a tool with correct name', () => {
-    expect(greetTool.name).toBe('greet')
+    expect(greetTool.spec.name).toBe('greet')
   })
 
   it('defineTool creates a tool with spec', () => {
@@ -52,13 +52,13 @@ describe('phase144 tool handler execution', () => {
   it('ToolRegistry.register adds tool', () => {
     const reg = new ToolRegistry()
     reg.register(greetTool)
-    expect(reg.get('greet')).toBeDefined()
+    expect(reg.has('greet')).toBe(true)
   })
 
-  it('ToolRegistry.dispatch calls handler', () => {
+  it('ToolRegistry.dispatch calls handler', async () => {
     const reg = new ToolRegistry()
     reg.register(greetTool)
-    const result = reg.dispatch('greet', { name: 'world' })
+    const result = await reg.dispatch('greet', { name: 'world' })
     expect(result).toBe('Hello, world!')
   })
 
@@ -75,10 +75,10 @@ describe('phase144 tool handler execution', () => {
     expect(events.length).toBeGreaterThan(0)
   })
 
-  it('handler receives parsed input', () => {
+  it('handler receives parsed input', async () => {
     const reg = new ToolRegistry()
     reg.register(greetTool)
-    const result = reg.dispatch('greet', { name: 'Ancora' })
+    const result = await reg.dispatch('greet', { name: 'Ancora' })
     expect(result).toContain('Ancora')
   })
 
@@ -93,7 +93,7 @@ describe('phase144 tool handler execution', () => {
 
   it('ToolRegistry returns undefined for unknown tool', () => {
     const reg = new ToolRegistry()
-    expect(reg.get('unknown')).toBeUndefined()
+    expect(reg.has('unknown')).toBe(false)
   })
 
   it('multiple tools can be registered', () => {
@@ -106,7 +106,7 @@ describe('phase144 tool handler execution', () => {
     const reg = new ToolRegistry()
     reg.register(greetTool)
     reg.register(t2)
-    expect(reg.get('greet')).toBeDefined()
-    expect(reg.get('farewell')).toBeDefined()
+    expect(reg.has('greet')).toBe(true)
+    expect(reg.has('farewell')).toBe(true)
   })
 })

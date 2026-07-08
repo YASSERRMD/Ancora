@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => ({
     startRun(specBytes: Buffer): string {
       const id = `r144-${CTR144++}`
       RUNS144[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'token', run_id: id, text: 'hello' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]

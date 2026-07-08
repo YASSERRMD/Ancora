@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => ({
     startRun(_: Buffer): string {
       const id = `v-${VCTR++}`
       VRUNS[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'token', run_id: id, text: 'verified' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]

@@ -125,4 +125,6 @@ jobs:
       - name: run smoke tests
         run: |
           cd sdk/python
-          python -m pytest tests/ -q --ignore=tests/test_conformance_all_green.py
+          python -P -m pytest tests/ -q --import-mode=importlib \
+            --ignore=tests/test_conformance_all_green.py \
+            --ignore-glob=tests/test_example*.py

@@ -1,5 +1,5 @@
 /// Determinism: divergence is detected when code changes alter activity output.
-use ancora_core::replay::detect_divergence;
+use ancora_core::replay::{detect_divergence, detect_divergence_allow_partial};
 
 fn expected_keys() -> Vec<String> {
     vec![
@@ -16,12 +16,20 @@ fn same_keys_do_not_diverge() {
 }
 
 #[test]
-fn missing_key_triggers_divergence() {
+fn missing_key_does_not_trigger_divergence() {
+    // A shorter observed sequence means the run has not yet reached the end
+    // of the journal (e.g. paused, suspended, or still in progress). Per the
+    // "partial journal resume" guarantee (docs/testing/determinism-guarantees.md
+    // #12), this is valid and must not be reported as nondeterminism -- only a
+    // mismatched key at a shared position, or an extra key beyond the journal
+    // end, is a real divergence. detect_divergence itself stays strict (for
+    // verifying a completed run); detect_divergence_allow_partial is the
+    // variant that tolerates a run still in progress.
     let expected = expected_keys();
     let observed = vec!["compute:step1".into(), "compute:step2".into()];
     assert!(
-        detect_divergence(&expected, &observed).is_err(),
-        "missing key must trigger divergence"
+        detect_divergence_allow_partial(&expected, &observed).is_ok(),
+        "a missing (not-yet-reached) key must not trigger divergence"
     );
 }
 

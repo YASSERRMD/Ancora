@@ -38,6 +38,7 @@ jobs:
         env:
           CGO_ENABLED: "1"
           CGO_LDFLAGS: "-L${{ github.workspace }}/target/debug -lancora_ffi"
+          LD_LIBRARY_PATH: "${{ github.workspace }}/target/debug"
 
       - name: go test benchmarks (smoke only)
         working-directory: sdk/go
@@ -45,3 +46,4 @@ jobs:
         env:
           CGO_ENABLED: "1"
           CGO_LDFLAGS: "-L${{ github.workspace }}/target/debug -lancora_ffi"
+          LD_LIBRARY_PATH: "${{ github.workspace }}/target/debug"

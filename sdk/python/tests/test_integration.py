@@ -43,8 +43,8 @@ def test_full_spec_round_trip():
 
 
 def test_builder_instances_do_not_share_tools():
-    b1 = AgentSpecBuilder()
-    b2 = AgentSpecBuilder()
+    b1 = AgentSpecBuilder().with_name("agent1").with_model_id("llama3")
+    b2 = AgentSpecBuilder().with_name("agent2").with_model_id("llama3")
     b1.with_tool(ToolSpecBuilder().with_name("t1").build())
     s1 = b1.build()
     s2 = b2.build()

@@ -10,7 +10,7 @@ jest.mock('../ancora.node', () => ({
       const id = `ds-${DS145_CTR++}`
       const model = (() => { try { return JSON.parse(spec.toString()).model } catch { return 'unknown' } })()
       DS145[id] = [
-        JSON.stringify({ kind: 'started', run_id: id, model }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}', model }),
         JSON.stringify({ kind: 'token', run_id: id, text: 'deepseek-response' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]

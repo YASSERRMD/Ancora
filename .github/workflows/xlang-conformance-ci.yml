@@ -45,6 +45,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build CGO native library
+        run: cargo build -p ancora-ffi --release
       - uses: actions/setup-go@v5
         with:
           go-version: "1.22"
@@ -52,6 +56,9 @@ jobs:
       - name: Run Go xlang tests
         working-directory: sdk/go
         run: go test ./ancora/... -run "TestXlang|TestA2A|TestMcp" -count=1
+        env:
+          CGO_LDFLAGS: "-L${{ github.workspace }}/target/release"
+          LD_LIBRARY_PATH: "${{ github.workspace }}/target/release"
 
   python:
     name: Python xlang conformance

@@ -43,6 +43,22 @@ class Run:
         await asyncio.sleep(0)
         self._rt.resume_run(self._run_id, decision)
 
+    async def approve(self, comment: str = "") -> None:
+        """Approve a suspended run, allowing it to continue."""
+        import json
+        payload = {"decision": "approved"}
+        if comment:
+            payload["comment"] = comment
+        await self.resume(json.dumps(payload).encode())
+
+    async def reject(self, reason: str = "") -> None:
+        """Reject a suspended run, halting it."""
+        import json
+        payload = {"decision": "rejected"}
+        if reason:
+            payload["reason"] = reason
+        await self.resume(json.dumps(payload).encode())
+
     async def drain_events(self) -> list[bytes]:
         """Collect all remaining events and return them as a list."""
         events: list[bytes] = []
