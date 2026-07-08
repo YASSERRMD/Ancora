@@ -1,10 +1,10 @@
-/// Text chunkers for the retrieval pipeline.
-///
-/// Two chunking strategies are provided:
-/// - `FixedSizeChunker` -- splits text into windows of `chunk_size` tokens
-///   (whitespace-delimited words) with optional `overlap` tokens.
-/// - `SemanticChunker` -- splits on structural boundaries (paragraphs,
-///   headers, sentences) for more coherent chunks.
+//! Text chunkers for the retrieval pipeline.
+//!
+//! Two chunking strategies are provided:
+//! - `FixedSizeChunker` -- splits text into windows of `chunk_size` tokens
+//!   (whitespace-delimited words) with optional `overlap` tokens.
+//! - `SemanticChunker` -- splits on structural boundaries (paragraphs,
+//!   headers, sentences) for more coherent chunks.
 
 // ---- fixed-size chunker ------------------------------------------------
 
@@ -26,7 +26,7 @@ impl FixedSizeChunker {
     }
 
     /// Split `text` into overlapping word-window chunks.
-    pub fn chunk<'a>(&self, text: &'a str) -> Vec<String> {
+    pub fn chunk(&self, text: &str) -> Vec<String> {
         let words: Vec<&str> = text.split_whitespace().collect();
         if words.is_empty() {
             return vec![];
@@ -173,15 +173,13 @@ fn merge_and_trim(mut chunks: Vec<String>, min_chars: usize, max_chars: usize) -
                 carry.push(' ');
             }
             carry.push_str(&chunk);
+        } else if !carry.is_empty() {
+            carry.push(' ');
+            carry.push_str(&chunk);
+            merged.push(carry.trim().to_owned());
+            carry = String::new();
         } else {
-            if !carry.is_empty() {
-                carry.push(' ');
-                carry.push_str(&chunk);
-                merged.push(carry.trim().to_owned());
-                carry = String::new();
-            } else {
-                merged.push(chunk.trim().to_owned());
-            }
+            merged.push(chunk.trim().to_owned());
         }
     }
     if !carry.is_empty() {

@@ -80,6 +80,12 @@ pub struct AttestationRegistry {
     records: HashMap<String, AttestationRecord>,
 }
 
+impl Default for AttestationRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AttestationRegistry {
     pub fn new() -> Self {
         Self {
@@ -113,9 +119,9 @@ impl AttestationRegistry {
         self.records.len()
     }
 
-    /// Returns true if there are no registered attestations.
+    /// Returns true if no attestations are registered.
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.records.is_empty()
     }
 
     /// Returns true if all registered attestations are valid.

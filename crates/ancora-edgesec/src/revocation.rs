@@ -55,6 +55,12 @@ pub struct DeviceRevocationList {
     records: HashMap<String, RevocationRecord>,
 }
 
+impl Default for DeviceRevocationList {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DeviceRevocationList {
     pub fn new() -> Self {
         Self {

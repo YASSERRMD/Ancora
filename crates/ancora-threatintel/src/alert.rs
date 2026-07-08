@@ -70,6 +70,12 @@ pub struct AlertStore {
     alerts: Vec<ThreatAlert>,
 }
 
+impl Default for AlertStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AlertStore {
     pub fn new() -> Self {
         Self { alerts: Vec::new() }
@@ -80,7 +86,7 @@ impl AlertStore {
     pub fn get_mut(&mut self, id: &str) -> Option<&mut ThreatAlert> {
         self.alerts.iter_mut().find(|a| a.id == id)
     }
-    pub fn open<'a>(&'a self) -> Vec<&'a ThreatAlert> {
+    pub fn open(&self) -> Vec<&ThreatAlert> {
         self.alerts.iter().filter(|a| a.is_open()).collect()
     }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a ThreatAlert> {

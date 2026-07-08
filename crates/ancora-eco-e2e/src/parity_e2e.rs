@@ -1,4 +1,4 @@
-/// Parity end-to-end: extension parity checks across language runtimes.
+//! Parity end-to-end: extension parity checks across language runtimes.
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum LanguageRuntime {

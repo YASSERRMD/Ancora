@@ -20,7 +20,7 @@ impl Provider {
     }
 }
 
-fn call_with_failover<'a>(providers: &'a [Provider], prompt: &str) -> Result<String, String> {
+fn call_with_failover(providers: &[Provider], prompt: &str) -> Result<String, String> {
     for p in providers {
         if let Ok(resp) = p.call(prompt) {
             return Ok(resp);

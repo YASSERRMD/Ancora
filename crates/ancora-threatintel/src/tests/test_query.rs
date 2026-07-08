@@ -21,7 +21,7 @@ fn query_by_kind() {
         "f",
         1,
     );
-    let all = vec![i1, i2];
+    let all = [i1, i2];
     let r = IndicatorQuery::new()
         .kind(IndicatorKind::IpAddress)
         .run(all.iter());
@@ -48,7 +48,7 @@ fn query_by_source() {
         "feed-b",
         1,
     );
-    let all = vec![i1, i2];
+    let all = [i1, i2];
     let r = IndicatorQuery::new().source("feed-a").run(all.iter());
     assert_eq!(r.len(), 1);
 }
@@ -73,7 +73,7 @@ fn query_all() {
         "f",
         1,
     );
-    let all = vec![i1, i2];
+    let all = [i1, i2];
     let r = IndicatorQuery::new().run(all.iter());
     assert_eq!(r.len(), 2);
 }

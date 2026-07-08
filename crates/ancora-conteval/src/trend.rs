@@ -1,8 +1,8 @@
-/// Quality trend detection.
-///
-/// Analyses a sequence of rolling mean values to detect significant
-/// upward or downward quality trends using a simple linear regression
-/// over the most recent N data points.
+//! Quality trend detection.
+//!
+//! Analyses a sequence of rolling mean values to detect significant
+//! upward or downward quality trends using a simple linear regression
+//! over the most recent N data points.
 
 /// Direction of a detected trend.
 #[derive(Debug, Clone, PartialEq)]

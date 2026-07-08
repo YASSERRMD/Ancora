@@ -59,6 +59,12 @@ pub struct SignatureStore {
     sigs: HashMap<String, ComponentSignature>,
 }
 
+impl Default for SignatureStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SignatureStore {
     pub fn new() -> Self {
         Self {

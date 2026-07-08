@@ -3,7 +3,7 @@
 /// Each test builds a journal that represents a complete model run, then
 /// exercises the replay, routing, streaming, and output-validation layers.
 use ancora_core::{
-    graph::{Edge, Graph, Node, NodeKind, NodeSpec},
+    graph::{Graph, Node, NodeKind, NodeSpec},
     journal::{JournalStore, MemoryStore},
     journal_mask::mask_events,
     output::validate_output,

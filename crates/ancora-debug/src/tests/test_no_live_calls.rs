@@ -73,7 +73,7 @@ fn branch_is_offline() {
     let mut b = Branch::new("b-offline", &j, Seq(1)).unwrap();
     b.append(sc("r-offline", 99, "a", "offline-done")).unwrap();
     let new_j = b.to_journal(RunId::new("branch-offline")).unwrap();
-    assert!(new_j.len() > 0);
+    assert!(!new_j.is_empty());
     // No I/O performed.
 }
 

@@ -1,4 +1,4 @@
-use crate::eval_e2e::{default_eval_suite, run_eval_suite, EvalCase, EvalResult, ExactMatchJudge};
+use crate::eval_e2e::{default_eval_suite, run_eval_suite, EvalCase, ExactMatchJudge};
 
 #[test]
 fn eval_run_scores_a_suite() {

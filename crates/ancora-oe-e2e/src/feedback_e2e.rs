@@ -1,4 +1,4 @@
-/// Feedback module: collects user feedback and feeds it into eval datasets.
+//! Feedback module: collects user feedback and feeds it into eval datasets.
 
 /// A single feedback item from a user or reviewer.
 #[derive(Debug, Clone)]

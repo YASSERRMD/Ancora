@@ -127,7 +127,7 @@ mod unit {
     use crate::edges::EdgeType;
     use crate::import::import_spec;
     use crate::placement::Canvas;
-    use crate::scaffold::{Id, Position};
+    use crate::scaffold::Position;
 
     fn build_simple_canvas() -> (Canvas, EdgeStore) {
         let mut canvas = Canvas::new();

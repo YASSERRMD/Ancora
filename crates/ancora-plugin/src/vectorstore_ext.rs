@@ -1,4 +1,4 @@
-/// Vector-store extension point - provide a vector similarity search back-end.
+//! Vector-store extension point - provide a vector similarity search back-end.
 
 /// A dense embedding vector.
 pub type Embedding = Vec<f32>;

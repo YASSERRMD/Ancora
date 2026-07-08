@@ -1,7 +1,7 @@
-/// Toxicity detection for agent outputs.
-///
-/// Uses a keyword-based approach with severity scoring to classify
-/// content as non-toxic, mildly toxic, or highly toxic.
+//! Toxicity detection for agent outputs.
+//!
+//! Uses a keyword-based approach with severity scoring to classify
+//! content as non-toxic, mildly toxic, or highly toxic.
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ToxicityLevel {

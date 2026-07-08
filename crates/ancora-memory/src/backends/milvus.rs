@@ -738,7 +738,7 @@ pub fn alter_alias_body(collection: &str, alias: &str) -> Value {
 /// Milvus recommends nlist in the range [sqrt(N), 4*sqrt(N)].
 pub fn recommended_nlist(expected_rows: u64) -> u32 {
     let sqrt = (expected_rows as f64).sqrt() as u32;
-    sqrt.max(1).min(65536)
+    sqrt.clamp(1, 65536)
 }
 
 /// Returns a rough capacity guideline string for a collection.

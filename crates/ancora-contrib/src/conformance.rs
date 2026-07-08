@@ -1,7 +1,7 @@
-/// ancora-contrib: conformance harness
-///
-/// Provides a lightweight, offline conformance test framework that any
-/// contribution can use to verify it meets the SDK contract.
+//! ancora-contrib: conformance harness
+//!
+//! Provides a lightweight, offline conformance test framework that any
+//! contribution can use to verify it meets the SDK contract.
 
 /// A single conformance check.
 pub struct Check {

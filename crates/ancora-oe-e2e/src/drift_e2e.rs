@@ -1,4 +1,4 @@
-/// Drift detection module for detecting distribution shifts in inputs or outputs.
+//! Drift detection module for detecting distribution shifts in inputs or outputs.
 
 /// A simple numeric distribution summary.
 #[derive(Debug, Clone)]

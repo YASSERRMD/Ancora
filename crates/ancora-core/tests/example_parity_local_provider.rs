@@ -7,6 +7,7 @@ const LOCAL_PROVIDERS: &[(&str, &str, u16)] = &[
 
 struct LocalProviderResult {
     provider: &'static str,
+    #[allow(dead_code)]
     model: &'static str,
     base_url: &'static str,
     local_only: bool,

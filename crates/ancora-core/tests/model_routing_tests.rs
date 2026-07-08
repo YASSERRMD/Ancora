@@ -97,7 +97,7 @@ fn large_graph_routing_resolves_all_nodes() {
     let n = 50;
     let mut router = ModelRouter::new("default");
     for i in 0..n {
-        router.bind(&format!("node-{}", i), &format!("model-{}", i % 3));
+        router.bind(format!("node-{}", i), format!("model-{}", i % 3));
     }
     for i in 0..n {
         let resolved = router.resolve(&format!("node-{}", i), None);

@@ -27,7 +27,7 @@ mod tests {
     #[test]
     fn unknown_tenant_cost_is_zero() {
         let ledger = CostLedger::new();
-        let ghost = TenantId::from_str("ghost");
+        let ghost = TenantId::from_raw("ghost");
         assert_eq!(ledger.total_for(&ghost), 0.0);
     }
 }

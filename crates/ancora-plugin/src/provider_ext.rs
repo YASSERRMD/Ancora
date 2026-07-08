@@ -1,4 +1,4 @@
-/// Provider extension point - integrate an external LLM API.
+//! Provider extension point - integrate an external LLM API.
 
 /// A single message in a conversation.
 #[derive(Debug, Clone, PartialEq, Eq)]

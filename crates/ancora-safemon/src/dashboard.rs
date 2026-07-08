@@ -92,7 +92,7 @@ impl Dashboard {
             *category_map.entry(incident.category.clone()).or_insert(0) += 1;
         }
         let mut top_categories: Vec<(String, usize)> = category_map.into_iter().collect();
-        top_categories.sort_by(|a, b| b.1.cmp(&a.1));
+        top_categories.sort_by_key(|b| std::cmp::Reverse(b.1));
         top_categories.truncate(10);
 
         let is_healthy = critical == 0 && high < 5;

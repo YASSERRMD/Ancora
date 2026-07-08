@@ -17,7 +17,7 @@ mod tests {
 
     #[test]
     fn test_open_source_only_excludes_proprietary() {
-        let components = vec![
+        let components = [
             make_component("c1", License::Mit),
             make_component("c2", License::Proprietary),
             make_component("c3", License::Apache2),
@@ -33,7 +33,7 @@ mod tests {
 
     #[test]
     fn test_open_source_only_excludes_unknown() {
-        let components = vec![
+        let components = [
             make_component("c1", License::Mit),
             make_component("c2", License::Unknown),
         ];
@@ -48,7 +48,7 @@ mod tests {
 
     #[test]
     fn test_open_source_only_includes_all_oss_licenses() {
-        let components = vec![
+        let components = [
             make_component("c1", License::Mit),
             make_component("c2", License::Apache2),
             make_component("c3", License::Gpl3),
@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn test_open_source_only_all_proprietary_returns_empty() {
-        let components = vec![
+        let components = [
             make_component("c1", License::Proprietary),
             make_component("c2", License::Unknown),
         ];
@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_open_source_combined_with_kind_filter() {
-        let components = vec![
+        let components = [
             make_component("c1", License::Mit),
             make_component("c2", License::Apache2),
             make_component("c3", License::Proprietary),

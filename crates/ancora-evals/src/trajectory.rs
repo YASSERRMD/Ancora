@@ -44,7 +44,7 @@ impl Trajectory {
             .lines()
             .map(|l| l.trim())
             .filter(|l| !l.is_empty())
-            .map(|tool| ToolCall::new(tool))
+            .map(ToolCall::new)
             .collect();
         Self { calls }
     }
@@ -103,18 +103,16 @@ impl Grader for TrajectoryGrader {
             let value = matches as f64 / len as f64;
             Score::new(value.clamp(0.0, 1.0))
                 .with_rationale(format!("Strict positional match: {}/{}", matches, len))
+        } else if Self::is_subsequence(&exp_tools, &cand_tools) {
+            Score::new(1.0).with_rationale("Expected tools appear in order")
         } else {
-            if Self::is_subsequence(&exp_tools, &cand_tools) {
-                Score::new(1.0).with_rationale("Expected tools appear in order")
-            } else {
-                let present: usize = exp_tools.iter().filter(|e| cand_tools.contains(e)).count();
-                let value = present as f64 / exp_tools.len() as f64;
-                Score::new(value.clamp(0.0, 1.0)).with_rationale(format!(
-                    "Partial order match: {}/{}",
-                    present,
-                    exp_tools.len()
-                ))
-            }
+            let present: usize = exp_tools.iter().filter(|e| cand_tools.contains(e)).count();
+            let value = present as f64 / exp_tools.len() as f64;
+            Score::new(value.clamp(0.0, 1.0)).with_rationale(format!(
+                "Partial order match: {}/{}",
+                present,
+                exp_tools.len()
+            ))
         }
     }
 

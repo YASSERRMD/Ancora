@@ -1,4 +1,4 @@
-/// Plugin manifest format - describes a plugin's identity, version, and capabilities.
+//! Plugin manifest format - describes a plugin's identity, version, and capabilities.
 
 /// Semantic version triplet.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -65,8 +65,12 @@ impl PluginKind {
             PluginKind::Exporter => "exporter",
         }
     }
+}
 
-    pub fn from_str(s: &str) -> Result<Self, ManifestError> {
+impl std::str::FromStr for PluginKind {
+    type Err = ManifestError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "provider" => Ok(PluginKind::Provider),
             "vector_store" => Ok(PluginKind::VectorStore),

@@ -94,11 +94,11 @@ impl ControlPlaneStore {
             .runs
             .values()
             .filter(|r| {
-                tenant_filter.map_or(true, |t| r.tenant_id == t)
-                    && state_filter.map_or(true, |s| &r.state == s)
+                tenant_filter.is_none_or(|t| r.tenant_id == t)
+                    && state_filter.is_none_or(|s| &r.state == s)
             })
             .collect();
-        runs.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        runs.sort_by_key(|b| std::cmp::Reverse(b.created_at));
 
         let start = cursor
             .and_then(|c| runs.iter().position(|r| r.id == c.after_id))

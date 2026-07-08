@@ -6,7 +6,7 @@ use ancora_ffi::runtime::{ancora_free_runtime, ancora_runtime_new};
 
 fn make_rt() -> *mut ancora_ffi::handles::AncorRuntime {
     let mut rt = std::ptr::null_mut();
-    ancora_runtime_new(&mut rt);
+    unsafe { ancora_runtime_new(&mut rt) };
     rt
 }
 
@@ -16,10 +16,10 @@ fn start_run(rt: *mut ancora_ffi::handles::AncorRuntime) -> String {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
+    unsafe { ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out) };
     let slice = unsafe { std::slice::from_raw_parts(out.ptr, out.len) };
     let id = String::from_utf8_lossy(slice).into_owned();
-    ancora_buffer_free(out);
+    unsafe { ancora_buffer_free(out) };
     id
 }
 
@@ -43,14 +43,14 @@ fn drain_events(rt: *mut ancora_ffi::handles::AncorRuntime, run_id: &str) -> Vec
             ptr: std::ptr::null_mut(),
             len: 0,
         };
-        ancora_run_poll(rt, c_id.as_ptr(), &mut ev);
+        unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut ev) };
         if ev.ptr.is_null() || ev.len == 0 {
             break;
         }
         let s =
             unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ev.ptr, ev.len)) }
                 .to_owned();
-        ancora_buffer_free(ev);
+        unsafe { ancora_buffer_free(ev) };
         events.push(s);
     }
     events
@@ -64,14 +64,14 @@ fn single_agent_scenario_start_returns_ok() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    let code = ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
+    let code = unsafe { ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out) };
     assert_eq!(
         code,
         AncorErrorCode::Ok,
         "single-agent: start must return Ok"
     );
-    ancora_buffer_free(out);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(out) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn single_agent_scenario_produces_started_and_completed_events() {
         events.iter().any(|e| e.contains("completed")),
         "single-agent: missing completed event, got: {events:?}"
     );
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -95,7 +95,7 @@ fn single_agent_scenario_run_id_is_nonempty() {
     let rt = make_rt();
     let id = start_run(rt);
     assert!(!id.is_empty(), "single-agent: run id must be non-empty");
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -107,7 +107,7 @@ fn multi_agent_verifier_scenario_two_runs_have_different_ids() {
         id1, id2,
         "multi-agent-verifier: each run must have a unique id"
     );
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -117,7 +117,7 @@ fn human_in_loop_scenario_resume_produces_resumed_event() {
     let c_id = std::ffi::CString::new(id.as_str()).unwrap();
     drain_events(rt, &id);
     let decision = b"approved";
-    let code = ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len());
+    let code = unsafe { ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len()) };
     assert_eq!(
         code,
         AncorErrorCode::Ok,
@@ -128,7 +128,7 @@ fn human_in_loop_scenario_resume_produces_resumed_event() {
         events.iter().any(|e| e.contains("resumed")),
         "human-in-loop: missing resumed event, got: {events:?}"
     );
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -136,12 +136,12 @@ fn crash_and_recover_scenario_events_are_deterministic() {
     let rt1 = make_rt();
     let id1 = start_run(rt1);
     let events1 = drain_events(rt1, &id1);
-    ancora_free_runtime(rt1);
+    unsafe { ancora_free_runtime(rt1) };
 
     let rt2 = make_rt();
     let id2 = start_run(rt2);
     let events2 = drain_events(rt2, &id2);
-    ancora_free_runtime(rt2);
+    unsafe { ancora_free_runtime(rt2) };
 
     let kinds1: Vec<_> = events1.iter().map(|e| event_kind(e)).collect();
     let kinds2: Vec<_> = events2.iter().map(|e| event_kind(e)).collect();
@@ -179,7 +179,7 @@ fn journal_single_agent_event_order_is_started_then_completed() {
         vec!["started", "completed"],
         "journal must begin with started and end with completed"
     );
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -188,15 +188,15 @@ fn journal_human_in_loop_event_order_matches_core_expectation() {
     let id = start_run(rt);
     drain_events(rt, &id);
     let c_id = std::ffi::CString::new(id.as_str()).unwrap();
-    ancora_run_resume(rt, c_id.as_ptr(), b"ok".as_ptr(), 2);
+    unsafe { ancora_run_resume(rt, c_id.as_ptr(), b"ok".as_ptr(), 2) };
     let events = drain_events(rt, &id);
     let kinds: Vec<_> = events.iter().map(|e| event_kind(e)).collect();
     assert_eq!(
-        kinds.first().map(|s| *s),
+        kinds.first().copied(),
         Some("resumed"),
         "human-in-loop journal: first post-resume event must be resumed, got: {kinds:?}"
     );
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -230,7 +230,8 @@ fn ffi_run_start_null_ptr_guard() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    let code = ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out);
+    let code =
+        unsafe { ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out) };
     assert_eq!(code, AncorErrorCode::NullPtr, "null rt must return NullPtr");
 }
 
@@ -244,10 +245,10 @@ fn ffi_run_cost_returns_ok_for_valid_run() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    let code = ancora_run_cost(rt, c_id.as_ptr(), &mut cost);
+    let code = unsafe { ancora_run_cost(rt, c_id.as_ptr(), &mut cost) };
     assert_eq!(code, AncorErrorCode::Ok);
-    ancora_buffer_free(cost);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(cost) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -261,7 +262,7 @@ fn ffi_journal_equals_native_event_sequence_single_agent() {
         kinds, expected,
         "FFI journal must equal native single-agent journal sequence"
     );
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -270,18 +271,18 @@ fn ffi_journal_equals_native_event_sequence_after_resume() {
     let id = start_run(rt);
     drain_events(rt, &id);
     let c_id = std::ffi::CString::new(id.as_str()).unwrap();
-    ancora_run_resume(rt, c_id.as_ptr(), b"yes".as_ptr(), 3);
+    unsafe { ancora_run_resume(rt, c_id.as_ptr(), b"yes".as_ptr(), 3) };
     let events = drain_events(rt, &id);
     let kinds: Vec<&str> = events.iter().map(|e| event_kind(e)).collect();
     assert!(
-        kinds.iter().any(|k| *k == "resumed"),
+        kinds.contains(&"resumed"),
         "FFI post-resume journal must contain resumed event, got: {kinds:?}"
     );
     assert!(
-        kinds.iter().any(|k| *k == "completed"),
+        kinds.contains(&"completed"),
         "FFI post-resume journal must end with completed event, got: {kinds:?}"
     );
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -312,7 +313,7 @@ fn all_four_scenarios_can_be_started_via_ffi() {
             "each scenario start must yield a non-empty run id"
         );
     }
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -327,5 +328,5 @@ fn all_four_scenarios_produce_at_least_one_event_each() {
             scenario.id
         );
     }
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }

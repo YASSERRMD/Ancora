@@ -1,8 +1,8 @@
-/// PII scrubbing for telemetry payloads.
-///
-/// Replaces common PII patterns (email addresses, IPv4 addresses, US phone
-/// numbers, US SSNs) with a fixed redaction token. This is a last-resort
-/// safety net; structured fields should be handled by the relevant policy.
+//! PII scrubbing for telemetry payloads.
+//!
+//! Replaces common PII patterns (email addresses, IPv4 addresses, US phone
+//! numbers, US SSNs) with a fixed redaction token. This is a last-resort
+//! safety net; structured fields should be handled by the relevant policy.
 
 /// The token inserted in place of detected PII.
 pub const REDACTION_TOKEN: &str = "[PII]";

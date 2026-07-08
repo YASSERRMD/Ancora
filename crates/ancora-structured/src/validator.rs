@@ -6,9 +6,7 @@ pub struct OutputValidator;
 
 impl OutputValidator {
     pub fn validate(schema: &OutputSchema, value: &Value) -> Result<(), StructuredError> {
-        let obj = value
-            .as_object()
-            .ok_or_else(|| StructuredError::NotAnObject)?;
+        let obj = value.as_object().ok_or(StructuredError::NotAnObject)?;
 
         for field in &schema.fields {
             if field.required && !obj.contains_key(&field.name) {

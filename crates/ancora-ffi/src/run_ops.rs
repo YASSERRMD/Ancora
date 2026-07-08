@@ -9,8 +9,13 @@ use crate::runtime::InnerRuntime;
 /// Start a new run from serialized agent spec bytes.
 /// Writes the run ID (as UTF-8) into `out_run_id`.
 /// Returns `NullPtr` if runtime or spec pointer is null.
+///
+/// # Safety
+/// `rt` must be a live pointer from `ancora_create_runtime`/`ancora_runtime_new`.
+/// If `spec_bytes` is non-null it must point to at least `spec_len` valid bytes.
+/// `out_run_id` must point to valid, writable memory for an `AncorBuffer`.
 #[no_mangle]
-pub extern "C" fn ancora_run_start(
+pub unsafe extern "C" fn ancora_run_start(
     rt: *mut AncorRuntime,
     spec_bytes: *const u8,
     spec_len: usize,
@@ -36,8 +41,13 @@ pub extern "C" fn ancora_run_start(
 /// Poll the next event for a run. Writes event JSON bytes into `out_event`.
 /// Returns an empty buffer in `out_event` when all events are consumed.
 /// Returns `NullPtr` if any pointer is null.
+///
+/// # Safety
+/// `rt` must be a live runtime pointer. `run_id` must be a valid
+/// null-terminated C string. `out_event` must point to valid, writable
+/// memory for an `AncorBuffer`.
 #[no_mangle]
-pub extern "C" fn ancora_run_poll(
+pub unsafe extern "C" fn ancora_run_poll(
     rt: *mut AncorRuntime,
     run_id: *const c_char,
     out_event: *mut AncorBuffer,
@@ -73,8 +83,13 @@ pub extern "C" fn ancora_run_poll(
 }
 
 /// Resume a suspended run by providing a decision as bytes.
+///
+/// # Safety
+/// `rt` must be a live runtime pointer. `run_id` must be a valid
+/// null-terminated C string. If `decision_bytes` is non-null it must point
+/// to at least `decision_len` valid bytes.
 #[no_mangle]
-pub extern "C" fn ancora_run_resume(
+pub unsafe extern "C" fn ancora_run_resume(
     rt: *mut AncorRuntime,
     run_id: *const c_char,
     decision_bytes: *const u8,
@@ -102,8 +117,13 @@ pub extern "C" fn ancora_run_resume(
 
 /// Return a JSON cost summary for a run as an AncorBuffer.
 /// Returns `NullPtr` if any pointer is null.
+///
+/// # Safety
+/// `rt` must be a live runtime pointer. `run_id` must be a valid
+/// null-terminated C string. `out_cost` must point to valid, writable
+/// memory for an `AncorBuffer`.
 #[no_mangle]
-pub extern "C" fn ancora_run_cost(
+pub unsafe extern "C" fn ancora_run_cost(
     rt: *mut AncorRuntime,
     run_id: *const c_char,
     out_cost: *mut AncorBuffer,

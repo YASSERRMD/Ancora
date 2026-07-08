@@ -35,6 +35,7 @@ pub struct FeedbackApi {
     review_queue: ReviewQueue,
     decision_store: DecisionStore,
     next_id: u64,
+    #[allow(dead_code)]
     confidence_threshold: f64,
 }
 

@@ -1,8 +1,8 @@
-/// Extended reranker and RRF fusion tests -- all offline.
+//! Extended reranker and RRF fusion tests -- all offline.
 
 #[cfg(test)]
 mod rerank_ext_tests {
-    use crate::embedders::embedder::{cosine_similarity, Reranker};
+    use crate::embedders::embedder::Reranker;
     use crate::embedders::rerank::*;
 
     // ---- RRF fusion extended tests -------------------------------------
@@ -11,7 +11,7 @@ mod rerank_ext_tests {
     fn rrf_k_parameter_affects_score_magnitude() {
         // Smaller k -> higher scores for top-ranked items.
         let list = vec![0, 1, 2];
-        let fused_k1 = reciprocal_rank_fusion(&[list.clone()], 1.0);
+        let fused_k1 = reciprocal_rank_fusion(std::slice::from_ref(&list), 1.0);
         let fused_k60 = reciprocal_rank_fusion(&[list], 60.0);
         assert!(
             fused_k1[0].1 > fused_k60[0].1,

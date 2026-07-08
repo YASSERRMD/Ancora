@@ -52,7 +52,7 @@ struct WireFunctionDef {
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct WireChatRequest {
+pub(crate) struct WireChatRequest {
     model: String,
     messages: Vec<WireMessage>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -195,6 +195,7 @@ impl OpenAiClient {
         self
     }
 
+    #[allow(dead_code)]
     fn effective_base_url(&self) -> &str {
         self.profile.base_url_for_region(self.region.as_deref())
     }

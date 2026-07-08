@@ -38,7 +38,7 @@ impl InteropSuite {
     }
 
     /// Add a check to the suite.
-    pub fn add(mut self, check: InteropCheck) -> Self {
+    pub fn add_check(mut self, check: InteropCheck) -> Self {
         self.checks.push(check);
         self
     }
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn suite_with_passing_checks() {
-        let suite = InteropSuite::new().add(InteropCheck {
+        let suite = InteropSuite::new().add_check(InteropCheck {
             name: "always-pass",
             description: "Always passes",
             run: || Ok(()),
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn suite_with_failing_check() {
-        let suite = InteropSuite::new().add(InteropCheck {
+        let suite = InteropSuite::new().add_check(InteropCheck {
             name: "always-fail",
             description: "Always fails",
             run: || {

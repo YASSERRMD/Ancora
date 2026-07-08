@@ -1,8 +1,8 @@
-/// Plugin signature verification.
-///
-/// Plugins must carry a cryptographic signature over their content.  The host
-/// verifies the signature against a trusted set of public keys before loading
-/// the plugin.  In strict mode unsigned plugins are rejected outright.
+//! Plugin signature verification.
+//!
+//! Plugins must carry a cryptographic signature over their content.  The host
+//! verifies the signature against a trusted set of public keys before loading
+//! the plugin.  In strict mode unsigned plugins are rejected outright.
 
 /// Controls whether the host requires plugin signatures.
 #[derive(Debug, Clone, PartialEq, Eq)]

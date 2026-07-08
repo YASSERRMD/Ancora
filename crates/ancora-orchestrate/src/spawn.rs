@@ -1,4 +1,4 @@
-use crate::agent_spec::{AgentSpec, AgentTask};
+use crate::agent_spec::AgentTask;
 
 /// Records a subagent spawn event.
 #[derive(Debug, Clone)]

@@ -1,4 +1,4 @@
-/// Integration and unit tests for ancora-costan.
+//! Integration and unit tests for ancora-costan.
 
 #[cfg(test)]
 mod test_timeseries;

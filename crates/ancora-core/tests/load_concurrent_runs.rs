@@ -27,7 +27,7 @@ impl RunSim {
     }
 }
 
-fn run_all(runs: &mut Vec<RunSim>) -> usize {
+fn run_all(runs: &mut [RunSim]) -> usize {
     loop {
         let pending: Vec<bool> = runs.iter().map(|r| !r.is_done()).collect();
         if !pending.iter().any(|&p| p) {
@@ -60,8 +60,8 @@ fn test_run_ids_are_unique() {
 
 #[test]
 fn test_run_with_more_steps_takes_longer() {
-    let mut short = vec![RunSim::new(0, 1)];
-    let mut long = vec![RunSim::new(1, 10)];
+    let mut short = [RunSim::new(0, 1)];
+    let mut long = [RunSim::new(1, 10)];
     let mut short_ticks = 0;
     let mut long_ticks = 0;
     loop {

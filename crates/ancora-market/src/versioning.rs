@@ -1,7 +1,7 @@
-/// Version and changelog metadata for marketplace extensions.
-///
-/// Tracks the version history of an extension including changelog entries,
-/// deprecation notices, and yanked versions.
+//! Version and changelog metadata for marketplace extensions.
+//!
+//! Tracks the version history of an extension including changelog entries,
+//! deprecation notices, and yanked versions.
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SemVer {

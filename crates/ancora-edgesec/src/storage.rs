@@ -80,7 +80,7 @@ impl EncryptedLocalStorage {
 
     /// Returns true if there are no entries.
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.entries.is_empty()
     }
 
     /// Check if a key exists.

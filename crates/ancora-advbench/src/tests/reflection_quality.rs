@@ -23,7 +23,7 @@ fn reflection_quality_is_between_zero_and_one() {
     for (before, after) in [("x", "y"), ("longer string", "s"), ("a", "a"), ("", "abc")] {
         let s = ReflectionMetric::score(before, after);
         assert!(
-            s >= 0.0 && s <= 1.0,
+            (0.0..=1.0).contains(&s),
             "score {s} out of [0, 1] for ({before:?}, {after:?})"
         );
     }

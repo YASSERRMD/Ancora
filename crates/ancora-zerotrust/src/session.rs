@@ -77,6 +77,12 @@ pub struct SessionStore {
     sessions: HashMap<String, ZeroTrustSession>,
 }
 
+impl Default for SessionStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SessionStore {
     pub fn new() -> Self {
         Self {

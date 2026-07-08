@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn lease_renewal_prevents_premature_requeue() {
-        use chrono::{Duration, Utc};
+        use chrono::Utc;
         let mut store = ControlPlaneStore::new();
         let run = store.create_run("t1", RunPriority::Normal);
         let w = store.register_worker(1);

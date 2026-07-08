@@ -3,11 +3,6 @@
 const STREAMING_TEXT: &str = "The capital of France is Paris.";
 const STREAMING_TOKEN_COUNT: usize = 7;
 
-struct StreamingTokens {
-    lang: &'static str,
-    tokens: Vec<&'static str>,
-}
-
 fn make_streaming_tokens(lang: &str) -> Vec<&'static str> {
     let _ = lang;
     vec!["The", " capital", " of", " France", " is", " Paris", "."]
@@ -54,6 +49,7 @@ fn test_last_token_is_period() {
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn test_streaming_text_non_empty() {
     assert!(!STREAMING_TEXT.is_empty());
 }

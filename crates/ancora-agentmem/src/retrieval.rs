@@ -25,7 +25,7 @@ impl KeywordRetriever {
             .filter(|(_, score)| *score > 0)
             .collect();
 
-        scored.sort_by(|a, b| b.1.cmp(&a.1));
+        scored.sort_by_key(|b| std::cmp::Reverse(b.1));
         scored.iter().take(top_k).map(|(e, _)| *e).collect()
     }
 }

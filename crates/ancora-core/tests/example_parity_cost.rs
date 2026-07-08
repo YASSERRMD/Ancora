@@ -70,11 +70,13 @@ fn test_six_cost_examples() {
 }
 
 #[test]
+#[allow(clippy::assertions_on_constants)]
 fn test_expected_cost_is_positive() {
     assert!(EXPECTED_COST_USD > 0.0);
 }
 
 #[test]
+#[allow(clippy::assertions_on_constants)]
 fn test_output_rate_higher_than_input_rate() {
     assert!(EXAMPLE_RATE_OUT > EXAMPLE_RATE_IN);
 }

@@ -5,6 +5,12 @@ pub struct IncidentStore {
     incidents: HashMap<String, Incident>,
 }
 
+impl Default for IncidentStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IncidentStore {
     pub fn new() -> Self {
         Self {
@@ -34,7 +40,7 @@ impl IncidentStore {
             .collect()
     }
 
-    pub fn active<'a>(&'a self) -> Vec<&'a Incident> {
+    pub fn active(&self) -> Vec<&Incident> {
         self.incidents.values().filter(|i| i.is_active()).collect()
     }
 

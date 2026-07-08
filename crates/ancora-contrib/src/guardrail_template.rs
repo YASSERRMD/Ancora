@@ -1,7 +1,7 @@
-/// ancora-contrib: guardrail template
-///
-/// Copy this module as the starting point for a new safety guardrail.
-/// Rename `MyGuardrail` and implement `check`.
+//! ancora-contrib: guardrail template
+//!
+//! Copy this module as the starting point for a new safety guardrail.
+//! Rename `MyGuardrail` and implement `check`.
 
 /// The text to be evaluated by the guardrail.
 #[derive(Debug, Clone)]

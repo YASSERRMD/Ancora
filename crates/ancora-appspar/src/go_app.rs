@@ -1,7 +1,7 @@
-/// Go sample app parity module.
-///
-/// Models the canonical Go agent sample app: a simple request/response
-/// loop with a named agent, a trace ID, and a list of messages.
+//! Go sample app parity module.
+//!
+//! Models the canonical Go agent sample app: a simple request/response
+//! loop with a named agent, a trace ID, and a list of messages.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct GoApp {

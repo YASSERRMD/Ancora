@@ -5,6 +5,12 @@ pub(crate) struct RunEntry {
     pub events: VecDeque<String>,
 }
 
+impl Default for RunEntry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RunEntry {
     pub fn new() -> Self {
         let mut events = VecDeque::new();
@@ -51,6 +57,7 @@ impl RunStore {
         }
     }
 
+    #[allow(dead_code)]
     pub fn event_count(&self, id: &str) -> usize {
         self.runs
             .lock()
@@ -59,6 +66,7 @@ impl RunStore {
             .map_or(0, |e| e.events.len())
     }
 
+    #[allow(dead_code)]
     pub fn contains(&self, id: &str) -> bool {
         self.runs.lock().unwrap().contains_key(id)
     }

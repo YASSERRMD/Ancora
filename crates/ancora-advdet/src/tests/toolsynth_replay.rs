@@ -1,5 +1,4 @@
-use ancora_toolsynth::{spec_from_goal, AuditEvent, SynthAudit, SynthCache, SynthRegistry};
-use serde_json::json;
+use ancora_toolsynth::{spec_from_goal, AuditEvent, SynthAudit, SynthCache};
 
 fn make_spec() -> ancora_toolsynth::ToolSpec {
     spec_from_goal("search web")

@@ -93,7 +93,7 @@ impl CostAnalytics {
 
         // Add to forecaster periodically.
         self.period_counter += 1;
-        if self.period_counter % 10 == 0 {
+        if self.period_counter.is_multiple_of(10) {
             self.forecaster
                 .add_observation(self.period_counter / 10, self.timeseries.total_cost());
         }
@@ -178,7 +178,7 @@ impl CostAnalytics {
         for (cap, cost) in self.capability_breakdown.top_capabilities() {
             builder
                 .capability_mut()
-                .record(Capability::from_str(&cap), cost);
+                .record(Capability::from_raw(&cap), cost);
         }
 
         // Feed cache data (re-apply totals via synthetic entries).

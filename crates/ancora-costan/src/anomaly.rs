@@ -1,4 +1,4 @@
-/// Cost anomaly detection using Z-score based statistical analysis.
+//! Cost anomaly detection using Z-score based statistical analysis.
 
 #[derive(Debug, Clone)]
 pub struct AnomalyAlert {

@@ -6,6 +6,7 @@ const STORE_N: usize = 1_000;
 const STORE_BUDGET_MS: u128 = 500;
 
 struct InMemChunk {
+    #[allow(dead_code)]
     id: String,
     text: String,
     embedding: Vec<f32>,

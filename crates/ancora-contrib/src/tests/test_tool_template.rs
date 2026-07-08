@@ -78,7 +78,7 @@ fn execute_wrong_type_returns_error() {
 #[test]
 fn value_helpers() {
     assert_eq!(Value::Text("hi".into()).as_str(), Some("hi"));
-    assert_eq!(Value::Number(3.14).as_f64(), Some(3.14));
+    assert_eq!(Value::Number(3.25).as_f64(), Some(3.25));
     assert_eq!(Value::Bool(true).as_bool(), Some(true));
     assert_eq!(Value::Null.as_str(), None);
 }

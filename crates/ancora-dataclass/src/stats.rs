@@ -17,7 +17,7 @@ impl DataClassStats {
         for r in records {
             total += 1;
             *by_level.entry(format!("{}", r.level)).or_insert(0) += 1;
-            if highest.as_ref().map_or(true, |h| r.level.is_above(h)) {
+            if highest.as_ref().is_none_or(|h| r.level.is_above(h)) {
                 highest = Some(r.level.clone());
             }
         }

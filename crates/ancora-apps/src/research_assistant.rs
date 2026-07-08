@@ -1,7 +1,7 @@
-/// Research assistant application.
-///
-/// Aggregates knowledge from a local knowledge base and synthesises
-/// summaries without network access.
+//! Research assistant application.
+//!
+//! Aggregates knowledge from a local knowledge base and synthesises
+//! summaries without network access.
 
 #[derive(Debug, Clone)]
 pub struct KnowledgeEntry {

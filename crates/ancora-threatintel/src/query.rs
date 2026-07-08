@@ -8,6 +8,12 @@ pub struct IndicatorQuery {
     pub active_only: bool,
 }
 
+impl Default for IndicatorQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IndicatorQuery {
     pub fn new() -> Self {
         Self {

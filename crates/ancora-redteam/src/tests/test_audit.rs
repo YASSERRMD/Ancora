@@ -1,4 +1,4 @@
-use crate::{injection_scenarios, jailbreak_scenarios, AttackCategory, GuardrailScorer};
+use crate::injection_scenarios;
 use ancora_guard::{GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail, PiiInputGuardrail};
 
 fn run_with_audit(payloads: &[&str]) -> GuardrailJournal {

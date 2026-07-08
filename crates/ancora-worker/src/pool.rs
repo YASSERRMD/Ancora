@@ -12,6 +12,7 @@ pub enum PoolError {
 pub struct WorkerPool {
     store: Arc<Mutex<ControlPlaneStore>>,
     executors: Vec<WorkerExecutor>,
+    #[allow(dead_code)]
     concurrency_per_worker: usize,
     draining: bool,
 }
@@ -61,11 +62,7 @@ impl WorkerPool {
         }
         self.executors
             .iter()
-            .map(|e| {
-                e.claim_and_execute()
-                    .map(|r| r.map(|id| id))
-                    .map_err(|e| e.to_string())
-            })
+            .map(|e| e.claim_and_execute().map_err(|e| e.to_string()))
             .collect()
     }
 

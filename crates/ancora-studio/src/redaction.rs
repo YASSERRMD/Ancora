@@ -1,4 +1,4 @@
-/// Redaction - ensures sensitive fields are hidden before rendering in the UI.
+//! Redaction - ensures sensitive fields are hidden before rendering in the UI.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RedactionPolicy {

@@ -6,6 +6,12 @@ pub struct HsmPolicy {
     pub blocked_algorithms: Vec<HsmKeyAlgorithm>,
 }
 
+impl Default for HsmPolicy {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HsmPolicy {
     pub fn new() -> Self {
         Self {

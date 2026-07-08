@@ -1,11 +1,8 @@
-use ancora_memory::embedders::chunker::SemanticChunker;
 use ancora_memory::embedders::citation::{build_citations, filter_by_score, format_footnote_block};
 use ancora_memory::embedders::context::ContextAssembler;
-use ancora_memory::embedders::embedder::Embedder;
-use ancora_memory::embedders::loader::{load_texts, split_markdown_sections};
 use ancora_memory::embedders::local::HashEmbedder;
 use ancora_memory::embedders::pipeline::{PipelineConfig, RetrievalPipeline};
-use ancora_memory::embedders::rerank::{sort_by_score, CosineReranker, ScoredPassage};
+use ancora_memory::embedders::rerank::CosineReranker;
 /// End-to-end local RAG (Retrieval-Augmented Generation) example.
 ///
 /// Demonstrates the full offline retrieval pipeline:

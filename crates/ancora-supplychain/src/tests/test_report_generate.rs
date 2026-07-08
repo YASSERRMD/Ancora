@@ -47,7 +47,7 @@ fn report_denied_count_with_deny_policy() {
     let policy = SupplyChainPolicy::new("t1").deny_license(License::Gpl3);
     let report = SupplyChainReport::generate(&sbom, &sigs, &prov, &policy, 1);
     assert_eq!(report.denied_count, 1);
-    assert!(report.is_compliant() == false);
+    assert!(!report.is_compliant());
 }
 #[test]
 fn report_provenance_count() {

@@ -1,4 +1,4 @@
-/// Collects per-variant outcome metric observations.
+//! Collects per-variant outcome metric observations.
 
 /// A single outcome observation for one subject in one variant.
 #[derive(Debug, Clone)]

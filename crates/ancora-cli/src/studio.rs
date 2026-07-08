@@ -36,6 +36,10 @@ pub fn serve(port: u16) -> std::io::Result<()> {
 /// Local HTTP server exposing run timelines and replay.
 pub struct StudioServer {
     listener: std::net::TcpListener,
+    // TODO(#follow-up): list_runs/run_timeline/replay_run are stubs that
+    // don't query this yet (hardcoded empty/placeholder responses). See
+    // follow-up task on wiring StudioServer to real MemoryStore data.
+    #[allow(dead_code)]
     store: Arc<MemoryStore>,
 }
 

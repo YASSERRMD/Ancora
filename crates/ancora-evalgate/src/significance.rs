@@ -1,8 +1,8 @@
-/// Statistical significance check.
-///
-/// Uses a simple z-test approximation to decide whether the observed delta
-/// is large enough to be treated as real rather than noise.  No external
-/// crates are used; the normal CDF is approximated with a rational fit.
+//! Statistical significance check.
+//!
+//! Uses a simple z-test approximation to decide whether the observed delta
+//! is large enough to be treated as real rather than noise.  No external
+//! crates are used; the normal CDF is approximated with a rational fit.
 
 /// Parameters that describe a set of repeated eval samples.
 #[derive(Debug, Clone)]

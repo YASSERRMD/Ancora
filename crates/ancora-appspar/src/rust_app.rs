@@ -1,6 +1,6 @@
-/// Rust sample app parity module.
-///
-/// Models the canonical Rust (anthropic-rs) agent sample app.
+//! Rust sample app parity module.
+//!
+//! Models the canonical Rust (anthropic-rs) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RustApp {

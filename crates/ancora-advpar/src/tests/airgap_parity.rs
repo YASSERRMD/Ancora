@@ -2,7 +2,7 @@
 // Validates that every parity check completes without any I/O.
 use ancora_ageval::{PlanningMetric, ReasoningMetric, RoutingMetric};
 use ancora_coord::{Bid, ContractNet};
-use ancora_guard::{GuardrailJournal, GuardrailOutcome, GuardrailPolicy, InjectionInputGuardrail};
+use ancora_guard::{GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail};
 use ancora_lh::BackgroundRun;
 use ancora_memcon::TokenBudget;
 use ancora_orchestrate::fan_out;

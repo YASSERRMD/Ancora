@@ -130,8 +130,7 @@ pub fn extract_top_level_str<'a>(json: &'a str, key: &str) -> Option<&'a str> {
     let search = format!("\"{}\":", key);
     let start = json.find(search.as_str())?;
     let after_colon = json[start + search.len()..].trim_start();
-    if after_colon.starts_with('"') {
-        let inner = &after_colon[1..];
+    if let Some(inner) = after_colon.strip_prefix('"') {
         let end = inner.find('"')?;
         Some(&inner[..end])
     } else {

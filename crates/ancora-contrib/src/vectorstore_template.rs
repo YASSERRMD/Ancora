@@ -1,8 +1,8 @@
-/// ancora-contrib: vector-store adapter template
-///
-/// Copy this module as the starting point for a new vector-store plugin.
-/// Replace `MyVectorStore` and `"my-vectorstore"` with your own identifier,
-/// then implement the four required trait methods.
+//! ancora-contrib: vector-store adapter template
+//!
+//! Copy this module as the starting point for a new vector-store plugin.
+//! Replace `MyVectorStore` and `"my-vectorstore"` with your own identifier,
+//! then implement the four required trait methods.
 
 /// A document fragment stored in the vector store.
 #[derive(Debug, Clone, PartialEq)]

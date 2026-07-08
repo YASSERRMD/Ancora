@@ -62,6 +62,12 @@ pub struct SbomStore {
     sboms: HashMap<String, Sbom>,
 }
 
+impl Default for SbomStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SbomStore {
     pub fn new() -> Self {
         Self {

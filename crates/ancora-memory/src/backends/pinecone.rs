@@ -31,7 +31,7 @@ impl PineconeConfig {
 
     /// Returns the controller base URL (for index management).
     pub fn controller_url(&self) -> String {
-        format!("https://api.pinecone.io")
+        "https://api.pinecone.io".to_string()
     }
 
     /// Returns the data-plane URL for a given index host.

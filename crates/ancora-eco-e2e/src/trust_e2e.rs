@@ -1,4 +1,4 @@
-/// Trust end-to-end: trust policy enforcement for plugin installation.
+//! Trust end-to-end: trust policy enforcement for plugin installation.
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TrustLevel {
@@ -9,7 +9,7 @@ pub enum TrustLevel {
 }
 
 impl TrustLevel {
-    pub fn from_str(s: &str) -> Option<TrustLevel> {
+    pub fn parse_str(s: &str) -> Option<TrustLevel> {
         match s {
             "untrusted" => Some(TrustLevel::Untrusted),
             "community" => Some(TrustLevel::Community),

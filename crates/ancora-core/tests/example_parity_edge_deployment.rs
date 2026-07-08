@@ -11,6 +11,7 @@ const EDGE_SUPPORTED_SDKS: &[&str] = &["rust", "ts", "go"];
 struct EdgeExample {
     sdk: &'static str,
     target: &'static str,
+    #[allow(dead_code)]
     local_model_only: bool,
 }
 

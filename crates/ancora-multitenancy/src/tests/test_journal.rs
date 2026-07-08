@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::journal_scope::{cost_key, journal_key};
-    use crate::{TenantConfig, TenantContext, TenantId, TenantRegistry};
+    use crate::{TenantConfig, TenantContext, TenantRegistry};
 
     #[test]
     fn journal_keys_differ_across_tenants() {

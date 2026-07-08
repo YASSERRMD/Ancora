@@ -1,4 +1,4 @@
-/// Run diff view - compare two runs step-by-step.
+//! Run diff view - compare two runs step-by-step.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DiffKind {

@@ -51,7 +51,7 @@ fn clean_trace_has_no_pii_to_start() {
     let trace = build_run_trace("clean-001");
 
     for span in &trace.spans {
-        for (_key, value) in &span.attributes {
+        for value in span.attributes.values() {
             assert!(
                 !redactor.has_sensitive_data(value),
                 "default trace must not contain PII"

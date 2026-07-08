@@ -3,7 +3,7 @@ use serde_json::json;
 
 #[test]
 fn coerce_number_from_string() {
-    assert_eq!(coerce_number(&json!("3.14")), Some(3.14));
+    assert_eq!(coerce_number(&json!("3.25")), Some(3.25));
 }
 
 #[test]

@@ -15,15 +15,17 @@ pub struct RunServiceImpl {
     store: Arc<RunStore>,
 }
 
+impl Default for RunServiceImpl {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RunServiceImpl {
     pub fn new() -> Self {
         Self {
             store: Arc::new(RunStore::new()),
         }
-    }
-
-    pub fn with_store(store: Arc<RunStore>) -> Self {
-        Self { store }
     }
 }
 
@@ -73,14 +75,9 @@ impl RunService for RunServiceImpl {
         let (tx, rx) = mpsc::channel(16);
         let store = Arc::clone(&self.store);
         tokio::spawn(async move {
-            loop {
-                match store.poll(&run_id) {
-                    Some(ev) => {
-                        if tx.send(Ok(EventResponse { event: ev })).await.is_err() {
-                            break;
-                        }
-                    }
-                    None => break,
+            while let Some(ev) = store.poll(&run_id) {
+                if tx.send(Ok(EventResponse { event: ev })).await.is_err() {
+                    break;
                 }
             }
         });
@@ -98,14 +95,9 @@ impl RunService for RunServiceImpl {
             while let Ok(Some(req)) = stream.message().await {
                 let decision = String::from_utf8_lossy(&req.decision).into_owned();
                 store.resume(&req.run_id, &decision);
-                loop {
-                    match store.poll(&req.run_id) {
-                        Some(ev) => {
-                            if tx.send(Ok(EventResponse { event: ev })).await.is_err() {
-                                return;
-                            }
-                        }
-                        None => break,
+                while let Some(ev) = store.poll(&req.run_id) {
+                    if tx.send(Ok(EventResponse { event: ev })).await.is_err() {
+                        return;
                     }
                 }
             }

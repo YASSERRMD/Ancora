@@ -1,5 +1,5 @@
 use ancora_core::error::AncoraError;
-use ancora_core::executor::{NodeExecutor, VerifierNode, VerifierResult};
+use ancora_core::executor::{VerifierNode, VerifierResult};
 use ancora_core::graph::{Node, NodeKind, NodeSpec};
 use ancora_proto::ancora::AgentSpec as ProtoSpec;
 
@@ -94,13 +94,12 @@ fn tie_break_at_three_verifiers_two_approve_one_reject() {
     let node = agent_node("v-node");
 
     let mut approve_count = 0usize;
-    for (i, verifier) in [
+    for verifier in [
         &AlwaysApprove as &dyn VerifierNode,
         &AlwaysApprove,
         &AlwaysReject,
     ]
     .iter()
-    .enumerate()
     {
         if let VerifierResult::Approved { .. } = verifier.verify(&node, "candidate").unwrap() {
             approve_count += 1;

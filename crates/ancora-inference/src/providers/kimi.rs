@@ -98,7 +98,7 @@ pub fn supports_tools(model_id: &str) -> bool {
     let canonical = p.resolve_model_id(model_id);
     p.model_catalog
         .get(canonical)
-        .map_or(false, |m| m.capabilities.tools)
+        .is_some_and(|m| m.capabilities.tools)
 }
 
 /// Build the Kimi domestic (China) provider profile.
@@ -204,7 +204,7 @@ mod tests {
             .map(|i| {
                 Message::text(
                     if i % 2 == 0 { "user" } else { "assistant" },
-                    &format!("msg {i}"),
+                    format!("msg {i}"),
                 )
             })
             .collect();

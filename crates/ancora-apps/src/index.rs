@@ -1,7 +1,7 @@
-/// App gallery index.
-///
-/// Lists all available sample applications with metadata so that
-/// tooling can discover and launch them programmatically.
+//! App gallery index.
+//!
+//! Lists all available sample applications with metadata so that
+//! tooling can discover and launch them programmatically.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum AppCategory {

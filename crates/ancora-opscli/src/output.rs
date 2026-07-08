@@ -20,7 +20,7 @@ fn table_from_json<T: Serialize>(value: &T) -> String {
     match &v {
         serde_json::Value::Array(arr) => arr
             .iter()
-            .map(|item| json_object_row(item))
+            .map(json_object_row)
             .collect::<Vec<_>>()
             .join("\n"),
         serde_json::Value::Object(_) => json_object_row(&v),

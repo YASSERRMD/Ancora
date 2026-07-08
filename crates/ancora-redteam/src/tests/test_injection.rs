@@ -55,6 +55,6 @@ fn injection_scorer_reports_effectiveness() {
             false,
         ),
     ];
-    let report = GuardrailScorer::score(&scenarios, |p| check_input(p));
+    let report = GuardrailScorer::score(&scenarios, check_input);
     assert!(report.effectiveness() > 0.0);
 }

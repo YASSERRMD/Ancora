@@ -1,7 +1,7 @@
-/// Residency and data-handling declaration for marketplace extensions.
-///
-/// Extensions that process user data must declare where that data is stored
-/// and processed. Install policies can restrict extensions based on residency.
+//! Residency and data-handling declaration for marketplace extensions.
+//!
+//! Extensions that process user data must declare where that data is stored
+//! and processed. Install policies can restrict extensions based on residency.
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Region {

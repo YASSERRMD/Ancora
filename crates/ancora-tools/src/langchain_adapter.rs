@@ -3,6 +3,9 @@ use std::sync::Arc;
 use crate::error::ToolError;
 use crate::tool::{Tool, ToolEffect};
 
+/// Signature for a LangChain-style tool callable.
+type RunFn = Box<dyn Fn(&str) -> Result<String, String> + Send + Sync>;
+
 /// Minimal representation of a LangChain-style tool definition.
 ///
 /// LangChain tools expose `name`, `description`, and a `run(input) -> output`
@@ -13,7 +16,7 @@ pub struct LangchainTool {
     pub name: String,
     pub description: String,
     pub args_schema: Option<serde_json::Value>,
-    pub run: Box<dyn Fn(&str) -> Result<String, String> + Send + Sync>,
+    pub run: RunFn,
 }
 
 impl LangchainTool {

@@ -1,4 +1,4 @@
-use crate::k8s_template::{K8sConfig, K8sError, K8sTemplate, ResourceRequirements};
+use crate::k8s_template::{K8sConfig, K8sError, K8sTemplate};
 
 #[test]
 fn test_k8s_basic_render() {

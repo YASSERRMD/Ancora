@@ -1,4 +1,4 @@
-use crate::cli::{parse_args, run_suite_from_cli, CliCommand, OutputFormat};
+use crate::cli::{parse_args, run_suite_from_cli, CliCommand};
 use crate::executor::EvalCase;
 
 fn fixture_cases() -> Vec<EvalCase> {

@@ -50,7 +50,7 @@ fn build_otel_journal(run_id: &str, trace_id: &str) -> Vec<JournalEvent> {
     ]
 }
 
-fn get_span_field<'a>(j: &'a [JournalEvent], field: &str) -> Option<String> {
+fn get_span_field(j: &[JournalEvent], field: &str) -> Option<String> {
     j.iter().find_map(|e| {
         if let Some(Event::ActivityRecorded(a)) = &e.event {
             let v: Value = serde_json::from_str(&a.result_json).ok()?;

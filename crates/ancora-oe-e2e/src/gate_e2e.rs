@@ -1,4 +1,4 @@
-/// Regression gate module: blocks a release when eval scores fall below a threshold.
+//! Regression gate module: blocks a release when eval scores fall below a threshold.
 
 /// A quality gate that compares a metric to a baseline.
 #[derive(Debug, Clone)]

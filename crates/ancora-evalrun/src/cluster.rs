@@ -45,7 +45,7 @@ pub fn cluster_failures(failures: &[Failure], min_shared_tokens: usize) -> Vec<F
     }
 
     // Sort by count descending.
-    clusters.sort_by(|a, b| b.count.cmp(&a.count));
+    clusters.sort_by_key(|b| std::cmp::Reverse(b.count));
     clusters
 }
 

@@ -1,8 +1,8 @@
-/// Bridge between the OpenAI Agents SDK handoff protocol and Ancora.
-///
-/// The OpenAI Agents SDK routes work between agents via "handoffs" - a typed
-/// message that names the target agent and carries a context payload. This
-/// module models that handoff protocol and maps it onto Ancora's dispatcher.
+//! Bridge between the OpenAI Agents SDK handoff protocol and Ancora.
+//!
+//! The OpenAI Agents SDK routes work between agents via "handoffs" - a typed
+//! message that names the target agent and carries a context payload. This
+//! module models that handoff protocol and maps it onto Ancora's dispatcher.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct OpenAIHandoff {

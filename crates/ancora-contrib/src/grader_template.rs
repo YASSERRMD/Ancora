@@ -1,7 +1,7 @@
-/// ancora-contrib: grader template
-///
-/// Copy this module as the starting point for a new output-quality grader.
-/// Rename `MyGrader` and implement `grade`.
+//! ancora-contrib: grader template
+//!
+//! Copy this module as the starting point for a new output-quality grader.
+//! Rename `MyGrader` and implement `grade`.
 
 /// The inputs fed to a grader for evaluation.
 #[derive(Debug, Clone)]

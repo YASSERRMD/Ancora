@@ -1,10 +1,10 @@
-/// pgvector backend for the `VectorStore` trait.
-///
-/// Requires the `pgvector` feature: `ancora-memory = { features = ["pgvector"] }`.
-///
-/// In tests, SQL generation is verified offline. Integration tests that need a
-/// live Postgres are marked `#[ignore]` and require `TEST_DATABASE_URL` in the
-/// environment.
+//! pgvector backend for the `VectorStore` trait.
+//!
+//! Requires the `pgvector` feature: `ancora-memory = { features = ["pgvector"] }`.
+//!
+//! In tests, SQL generation is verified offline. Integration tests that need a
+//! live Postgres are marked `#[ignore]` and require `TEST_DATABASE_URL` in the
+//! environment.
 
 // ---- connection config ---------------------------------------------------
 

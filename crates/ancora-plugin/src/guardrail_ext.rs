@@ -1,4 +1,4 @@
-/// Guardrail extension point - intercept and filter agent inputs and outputs.
+//! Guardrail extension point - intercept and filter agent inputs and outputs.
 
 /// The kind of content being checked.
 #[derive(Debug, Clone, PartialEq, Eq)]

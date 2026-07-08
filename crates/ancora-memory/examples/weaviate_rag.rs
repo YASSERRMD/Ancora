@@ -6,14 +6,15 @@
 /// Set WEAVIATE_URL to run against a real Weaviate instance.
 /// Without the env var the example prints request shapes and exits cleanly.
 use ancora_memory::backends::weaviate::{
-    batch_objects_body, batch_objects_url, create_class_body, create_class_with_properties_body,
-    create_object_body, data_type, graphql_generative_query, graphql_hybrid_query,
-    graphql_near_vector_query, graphql_url, objects_url, parse_graphql_get, schema_url,
-    where_filter_text, WeaviateConfig,
+    batch_objects_body, batch_objects_url, create_class_with_properties_body, create_object_body,
+    data_type, graphql_generative_query, graphql_hybrid_query, graphql_near_vector_query,
+    graphql_url, objects_url, parse_graphql_get, schema_url, where_filter_text, WeaviateConfig,
 };
+// Only used by the #[cfg(test)] module below; unused outside test builds.
+#[cfg_attr(not(test), allow(unused_imports))]
+use ancora_memory::backends::weaviate::create_class_body;
 
 const CLASS: &str = "Document";
-const DIMS: usize = 384;
 
 fn main() {
     println!("=== Weaviate RAG example ===\n");
@@ -39,7 +40,7 @@ fn main() {
     let obj = create_object_body(
         CLASS,
         &serde_json::json!({"title": "Weaviate RAG guide", "body": "...", "year": 2024}),
-        Some(&vec![0.1f32; 8]), // first 8 dims
+        Some(&[0.1f32; 8]), // first 8 dims
     );
     println!("-- POST {} --", objects_url(&cfg.url));
     println!("{}\n", serde_json::to_string_pretty(&obj).unwrap());

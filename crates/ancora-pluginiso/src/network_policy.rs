@@ -1,8 +1,8 @@
-/// Per-plugin network policy.
-///
-/// Determines which outbound and inbound connections a plugin is allowed to
-/// make. The policy is evaluated at connection time by the host's network
-/// interceptor before the syscall is forwarded.
+//! Per-plugin network policy.
+//!
+//! Determines which outbound and inbound connections a plugin is allowed to
+//! make. The policy is evaluated at connection time by the host's network
+//! interceptor before the syscall is forwarded.
 
 /// An IP address range in CIDR notation (stored as a string for simplicity).
 pub type CidrRange = String;
@@ -83,8 +83,8 @@ impl NetworkPolicy {
     /// Returns `true` when the connection is permitted by policy.
     pub fn permits(&self, host: &str, port: Port) -> bool {
         for rule in &self.rules {
-            let host_matches = rule.host.as_deref().map_or(true, |h| h == host);
-            let port_matches = rule.port.map_or(true, |p| p == port);
+            let host_matches = rule.host.as_deref().is_none_or(|h| h == host);
+            let port_matches = rule.port.is_none_or(|p| p == port);
             if host_matches && port_matches {
                 return rule.action == NetworkRuleAction::Allow;
             }

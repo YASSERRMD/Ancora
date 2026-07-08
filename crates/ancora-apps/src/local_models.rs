@@ -1,7 +1,7 @@
-/// Local-first model registry.
-///
-/// Each sample app resolves its model through this registry so that
-/// no remote endpoint is ever contacted during offline or air-gapped runs.
+//! Local-first model registry.
+//!
+//! Each sample app resolves its model through this registry so that
+//! no remote endpoint is ever contacted during offline or air-gapped runs.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ModelBackend {

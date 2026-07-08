@@ -40,13 +40,13 @@ impl SecretQuery {
             .list_tenant(tenant_id)
             .into_iter()
             .filter(|s| {
-                self.kind.as_ref().map_or(true, |k| &s.kind == k)
-                    && self.min_versions.map_or(true, |n| s.version_count() >= n)
-                    && self.has_ttl.map_or(true, |v| s.ttl_ticks.is_some() == v)
+                self.kind.as_ref().is_none_or(|k| &s.kind == k)
+                    && self.min_versions.is_none_or(|n| s.version_count() >= n)
+                    && self.has_ttl.is_none_or(|v| s.ttl_ticks.is_some() == v)
                     && self
                         .path_prefix
                         .as_deref()
-                        .map_or(true, |p| s.path.starts_with(p))
+                        .is_none_or(|p| s.path.starts_with(p))
             })
             .collect()
     }

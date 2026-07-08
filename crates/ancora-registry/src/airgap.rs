@@ -1,7 +1,8 @@
 /// Controls whether the registry may make outbound network requests.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum AirgapMode {
     /// Normal operation: the registry may reach upstream sources.
+    #[default]
     Online,
     /// Air-gapped operation: no outbound network calls are allowed.
     /// All operations must be served from local storage.
@@ -9,12 +10,6 @@ pub enum AirgapMode {
     /// Private mode: the registry accepts pushes from inside the network
     /// but does not forward requests to any upstream.
     Private,
-}
-
-impl Default for AirgapMode {
-    fn default() -> Self {
-        Self::Online
-    }
 }
 
 impl AirgapMode {

@@ -120,7 +120,7 @@ impl MemoryPlugin for HashMapMemory {
             .cloned()
             .collect();
 
-        results.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+        results.sort_by_key(|b| std::cmp::Reverse(b.updated_at));
 
         if let Some(limit) = query.limit {
             results.truncate(limit);

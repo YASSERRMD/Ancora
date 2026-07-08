@@ -1,6 +1,6 @@
-/// TypeScript/Node sample app parity module.
-///
-/// Models the canonical TypeScript (anthropic-sdk) agent sample app.
+//! TypeScript/Node sample app parity module.
+//!
+//! Models the canonical TypeScript (anthropic-sdk) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TsApp {

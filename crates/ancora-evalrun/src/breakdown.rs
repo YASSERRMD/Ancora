@@ -54,12 +54,12 @@ pub fn compute_breakdown(rollouts: &[RolloutResult]) -> Vec<CaseBreakdown> {
 }
 
 /// Sort breakdown by pass rate ascending (worst cases first).
-pub fn sort_by_pass_rate_asc(breakdowns: &mut Vec<CaseBreakdown>) {
+pub fn sort_by_pass_rate_asc(breakdowns: &mut [CaseBreakdown]) {
     breakdowns.sort_by(|a, b| a.pass_rate.partial_cmp(&b.pass_rate).unwrap());
 }
 
 /// Sort breakdown by pass rate descending (best cases first).
-pub fn sort_by_pass_rate_desc(breakdowns: &mut Vec<CaseBreakdown>) {
+pub fn sort_by_pass_rate_desc(breakdowns: &mut [CaseBreakdown]) {
     breakdowns.sort_by(|a, b| b.pass_rate.partial_cmp(&a.pass_rate).unwrap());
 }
 

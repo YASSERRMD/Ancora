@@ -1,4 +1,4 @@
-/// Drift and quality view - tracks prompt/output drift across run history.
+//! Drift and quality view - tracks prompt/output drift across run history.
 
 #[derive(Debug, Clone)]
 pub struct DriftPoint {

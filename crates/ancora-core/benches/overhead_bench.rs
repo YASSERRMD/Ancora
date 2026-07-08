@@ -4,7 +4,7 @@ use ancora_core::{
     activity::Activity,
     error::AncoraError,
     idempotency::{write_once, WriteActivity},
-    journal::{JournalStore, MemoryStore},
+    journal::MemoryStore,
     output::{repair_prompt, validate_output},
     replay::replay_events,
     routing::ModelRouter,

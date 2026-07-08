@@ -1,7 +1,7 @@
-/// Conformance kit for provider extensions.
-///
-/// A provider must implement the [`Provider`] trait and pass all conformance
-/// checks defined by [`ProviderKit`].
+//! Conformance kit for provider extensions.
+//!
+//! A provider must implement the [`Provider`] trait and pass all conformance
+//! checks defined by [`ProviderKit`].
 
 /// Minimal capability set that every provider extension must satisfy.
 pub trait Provider {

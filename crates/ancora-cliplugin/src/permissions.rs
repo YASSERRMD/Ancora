@@ -25,7 +25,7 @@ pub enum PermissionScope {
 
 impl PermissionScope {
     /// Parse a permission scope from its canonical string representation.
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse_str(s: &str) -> Option<Self> {
         match s {
             "fs:read" => Some(PermissionScope::FsRead),
             "fs:write" => Some(PermissionScope::FsWrite),
@@ -127,7 +127,7 @@ impl PermissionEnforcer {
     pub fn grant(&mut self, plugin_id: &str, scope: PermissionScope) {
         self.grants
             .entry(plugin_id.to_string())
-            .or_insert_with(PermissionGrant::new)
+            .or_default()
             .grant(scope);
     }
 

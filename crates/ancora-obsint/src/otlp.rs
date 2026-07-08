@@ -1,5 +1,5 @@
-/// OTLP (OpenTelemetry Protocol) exporter configuration and transport types.
-/// Supports both gRPC and HTTP/protobuf transports.
+//! OTLP (OpenTelemetry Protocol) exporter configuration and transport types.
+//! Supports both gRPC and HTTP/protobuf transports.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OtlpTransport {

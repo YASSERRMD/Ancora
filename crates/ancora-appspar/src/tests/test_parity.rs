@@ -22,6 +22,7 @@ fn parity_reports_correct_languages() {
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn required_features_non_empty() {
     assert!(!REQUIRED_FEATURES.is_empty());
 }

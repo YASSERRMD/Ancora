@@ -1,4 +1,4 @@
-/// Test plan: structured acceptance checklist for ecosystem e2e.
+//! Test plan: structured acceptance checklist for ecosystem e2e.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CheckStatus {

@@ -3,7 +3,7 @@ use serde_json::Value;
 
 /// Creates parallel subagent tasks from a list of inputs.
 pub fn fan_out(
-    orchestrator_id: &str,
+    _orchestrator_id: &str,
     agent_id: &str,
     inputs: Vec<Value>,
     parent_task_id: &str,

@@ -1,6 +1,6 @@
-/// .NET/C# sample app parity module.
-///
-/// Models the canonical .NET (Anthropic.Client) agent sample app.
+//! .NET/C# sample app parity module.
+//!
+//! Models the canonical .NET (Anthropic.Client) agent sample app.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct DotnetApp {

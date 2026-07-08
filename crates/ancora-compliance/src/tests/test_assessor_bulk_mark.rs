@@ -1,7 +1,4 @@
-use crate::{
-    presets, AutoAssessor, ComplianceAuditLog, ComplianceControl, ControlRegistry, ControlStatus,
-    Framework,
-};
+use crate::{presets, AutoAssessor, ComplianceAuditLog, ControlRegistry, ControlStatus, Framework};
 #[test]
 fn bulk_mark_compliant_updates_registry_and_audit() {
     let mut reg = ControlRegistry::new();
@@ -22,6 +19,6 @@ fn bulk_mark_compliant_updates_registry_and_audit() {
     for id in &ids {
         assert!(reg
             .get(&crate::ControlId::new(*id))
-            .map_or(false, |c| c.status == ControlStatus::Compliant));
+            .is_some_and(|c| c.status == ControlStatus::Compliant));
     }
 }

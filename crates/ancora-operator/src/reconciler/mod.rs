@@ -1,7 +1,7 @@
-use crate::crd::cluster::{AncoraCluster, AncoraClusterStatus, ConditionStatus};
-use crate::crd::tenant::{AncoraTenant, AncoraTenantStatus};
+use crate::crd::cluster::AncoraCluster;
+use crate::crd::tenant::AncoraTenant;
 use crate::fake_k8s::FakeK8s;
-use crate::status::{degraded_condition, ready_condition};
+use crate::status::ready_condition;
 use serde_json::json;
 use thiserror::Error;
 use tracing::info;

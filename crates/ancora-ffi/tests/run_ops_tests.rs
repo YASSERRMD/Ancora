@@ -5,7 +5,7 @@ use ancora_ffi::runtime::{ancora_free_runtime, ancora_runtime_new};
 
 fn make_rt() -> *mut ancora_ffi::handles::AncorRuntime {
     let mut rt = std::ptr::null_mut();
-    ancora_runtime_new(&mut rt);
+    unsafe { ancora_runtime_new(&mut rt) };
     rt
 }
 
@@ -29,11 +29,11 @@ fn run_start_returns_non_empty_run_id() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    let code = ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
+    let code = unsafe { ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out) };
     assert_eq!(code, AncorErrorCode::Ok);
     assert!(out.len > 0, "run id buffer should not be empty");
-    ancora_buffer_free(out);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(out) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 fn start_run(rt: *mut ancora_ffi::handles::AncorRuntime) -> String {
@@ -42,9 +42,9 @@ fn start_run(rt: *mut ancora_ffi::handles::AncorRuntime) -> String {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
+    unsafe { ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out) };
     let id = buf_to_string(&out);
-    ancora_buffer_free(out);
+    unsafe { ancora_buffer_free(out) };
     id
 }
 
@@ -57,14 +57,14 @@ fn run_poll_first_event_is_started() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    ancora_run_poll(rt, c_id.as_ptr(), &mut event);
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut event) };
     let s = buf_to_string(&event);
     assert!(
         s.contains("started"),
         "first event should be started, got: {s}"
     );
-    ancora_buffer_free(event);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(event) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -80,16 +80,16 @@ fn run_poll_second_event_is_completed() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e1) };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e2) };
     let s = buf_to_string(&e2);
     assert!(
         s.contains("completed"),
         "second event should be completed, got: {s}"
     );
-    ancora_buffer_free(e1);
-    ancora_buffer_free(e2);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(e1) };
+    unsafe { ancora_buffer_free(e2) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -104,16 +104,16 @@ fn run_poll_returns_empty_after_all_events_consumed() {
     let mut e1 = empty;
     let mut e2 = empty;
     let mut e3 = empty;
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e3);
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e1) };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e2) };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e3) };
     assert!(
         e3.ptr.is_null() && e3.len == 0,
         "third poll should be empty"
     );
-    ancora_buffer_free(e1);
-    ancora_buffer_free(e2);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(e1) };
+    unsafe { ancora_buffer_free(e2) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -125,15 +125,15 @@ fn run_cost_returns_json_with_total_usd() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    let code = ancora_run_cost(rt, c_id.as_ptr(), &mut cost);
+    let code = unsafe { ancora_run_cost(rt, c_id.as_ptr(), &mut cost) };
     assert_eq!(code, AncorErrorCode::Ok);
     let s = buf_to_string(&cost);
     assert!(
         s.contains("total_usd"),
         "cost should contain total_usd, got: {s}"
     );
-    ancora_buffer_free(cost);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(cost) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -142,9 +142,9 @@ fn run_resume_returns_ok() {
     let id = start_run(rt);
     let c_id = cstr(&id);
     let decision = b"approved";
-    let code = ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len());
+    let code = unsafe { ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len()) };
     assert_eq!(code, AncorErrorCode::Ok);
-    ancora_free_runtime(rt);
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -154,7 +154,8 @@ fn run_start_with_null_runtime_returns_null_ptr() {
         ptr: std::ptr::null_mut(),
         len: 0,
     };
-    let code = ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out);
+    let code =
+        unsafe { ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out) };
     assert_eq!(code, AncorErrorCode::NullPtr);
 }
 
@@ -169,18 +170,18 @@ fn resume_after_poll_adds_resumed_event() {
     };
     let mut e1 = zero;
     let mut e2 = zero;
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e1) };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e2) };
     let decision = b"approved";
-    ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len());
+    unsafe { ancora_run_resume(rt, c_id.as_ptr(), decision.as_ptr(), decision.len()) };
     let mut e3 = zero;
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e3);
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e3) };
     let s3 = buf_to_string(&e3);
     assert!(s3.contains("resumed"), "expected resumed event, got: {s3}");
-    ancora_buffer_free(e1);
-    ancora_buffer_free(e2);
-    ancora_buffer_free(e3);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(e1) };
+    unsafe { ancora_buffer_free(e2) };
+    unsafe { ancora_buffer_free(e3) };
+    unsafe { ancora_free_runtime(rt) };
 }
 
 #[test]
@@ -195,17 +196,17 @@ fn drive_full_run_start_poll_poll_cost() {
     let mut e1 = zero;
     let mut e2 = zero;
     let mut cost = zero;
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
-    ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
-    ancora_run_cost(rt, c_id.as_ptr(), &mut cost);
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e1) };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut e2) };
+    unsafe { ancora_run_cost(rt, c_id.as_ptr(), &mut cost) };
     let s1 = buf_to_string(&e1);
     let s2 = buf_to_string(&e2);
     let sc = buf_to_string(&cost);
     assert!(s1.contains("started"), "e1={s1}");
     assert!(s2.contains("completed"), "e2={s2}");
     assert!(sc.contains("total_usd"), "cost={sc}");
-    ancora_buffer_free(e1);
-    ancora_buffer_free(e2);
-    ancora_buffer_free(cost);
-    ancora_free_runtime(rt);
+    unsafe { ancora_buffer_free(e1) };
+    unsafe { ancora_buffer_free(e2) };
+    unsafe { ancora_buffer_free(cost) };
+    unsafe { ancora_free_runtime(rt) };
 }

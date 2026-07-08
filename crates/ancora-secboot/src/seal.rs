@@ -26,6 +26,12 @@ pub struct SealingStore {
     blobs: HashMap<String, SealedBlob>,
 }
 
+impl Default for SealingStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SealingStore {
     pub fn new() -> Self {
         Self {

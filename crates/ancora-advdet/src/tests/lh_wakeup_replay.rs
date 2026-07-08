@@ -1,4 +1,4 @@
-use ancora_lh::{BackgroundRun, Checkpoint, CheckpointCadence, ScheduledWakeup};
+use ancora_lh::{BackgroundRun, CheckpointCadence, ScheduledWakeup};
 
 fn build_run(tick: u64) -> BackgroundRun {
     let mut run = BackgroundRun::new("r1", tick);

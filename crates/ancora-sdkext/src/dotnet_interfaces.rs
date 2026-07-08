@@ -102,10 +102,12 @@ pub fn canonical_dotnet_interface() -> DotNetInterfaceDescriptor {
 // .NET extension adapter
 // ---------------------------------------------------------------------------
 
+type ExecuteFn = Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>;
+
 /// Adapter that wraps a .NET extension.
 pub struct DotNetExtensionAdapter {
     meta: ToolMeta,
-    execute_fn: Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
+    execute_fn: ExecuteFn,
 }
 
 impl DotNetExtensionAdapter {

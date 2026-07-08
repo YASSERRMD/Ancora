@@ -31,6 +31,7 @@ pub struct AuditEntry {
 }
 
 impl AuditEntry {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: u64,
         tick: u64,

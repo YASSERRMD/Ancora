@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::interface::{CliPlugin, ExecContext, ExecOutput};
+use crate::interface::{CliPlugin, ExecContext};
 use crate::sample::SamplePlugin;
 
 fn make_ctx(pairs: &[(&str, &str)]) -> ExecContext {

@@ -1,4 +1,4 @@
-/// Evaluation module for scoring agent outputs against a test suite.
+//! Evaluation module for scoring agent outputs against a test suite.
 
 /// A single evaluation case with an expected outcome.
 #[derive(Debug, Clone)]

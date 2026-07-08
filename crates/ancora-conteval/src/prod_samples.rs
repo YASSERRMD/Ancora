@@ -1,7 +1,7 @@
-/// Production sample management for continuous evaluation.
-///
-/// Draws samples from live production traffic (with redaction applied)
-/// to form an evaluation set that reflects real usage patterns.
+//! Production sample management for continuous evaluation.
+//!
+//! Draws samples from live production traffic (with redaction applied)
+//! to form an evaluation set that reflects real usage patterns.
 
 /// Sensitivity classification for a sample.
 #[derive(Debug, Clone, PartialEq)]

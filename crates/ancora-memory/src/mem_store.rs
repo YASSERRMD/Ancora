@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+#[cfg(test)]
+use crate::vector_store::Distance;
 use crate::vector_store::{
     apply_score_threshold, filter_matches, hybrid_score, keyword_score_naive, CollectionInfo,
-    CollectionSpec, Distance, Filter, HybridQueryRequest, Page, Payload, Point, PointId,
-    QueryRequest, ScoredPoint, VectorStore, VectorStoreError,
+    CollectionSpec, Filter, HybridQueryRequest, Payload, Point, PointId, QueryRequest, ScoredPoint,
+    VectorStore, VectorStoreError,
 };
 
 struct Collection {

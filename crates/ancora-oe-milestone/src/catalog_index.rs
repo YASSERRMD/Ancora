@@ -83,7 +83,7 @@ impl CatalogIndex {
         Self::default()
     }
 
-    pub fn add(mut self, entry: CatalogEntry) -> Self {
+    pub fn add_entry(mut self, entry: CatalogEntry) -> Self {
         self.entries.push(entry);
         self
     }
@@ -127,13 +127,13 @@ mod tests {
     #[test]
     fn catalog_add_and_len() {
         let c = CatalogIndex::new()
-            .add(CatalogEntry::new(
+            .add_entry(CatalogEntry::new(
                 "M001",
                 CatalogKind::Metric,
                 "agent.request.latency",
                 "P99 request latency",
             ))
-            .add(CatalogEntry::new(
+            .add_entry(CatalogEntry::new(
                 "E001",
                 CatalogKind::Eval,
                 "factual-accuracy",
@@ -145,8 +145,8 @@ mod tests {
     #[test]
     fn filter_by_kind() {
         let c = CatalogIndex::new()
-            .add(CatalogEntry::new("M1", CatalogKind::Metric, "m", "m"))
-            .add(CatalogEntry::new("E1", CatalogKind::Eval, "e", "e"));
+            .add_entry(CatalogEntry::new("M1", CatalogKind::Metric, "m", "m"))
+            .add_entry(CatalogEntry::new("E1", CatalogKind::Eval, "e", "e"));
         let metrics = c.by_kind(&CatalogKind::Metric);
         assert_eq!(metrics.len(), 1);
         assert_eq!(metrics[0].id, "M1");
@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn search_by_tag() {
-        let c = CatalogIndex::new().add(
+        let c = CatalogIndex::new().add_entry(
             CatalogEntry::new("M2", CatalogKind::Metric, "cpu", "cpu usage")
                 .with_tags(vec!["infra".into(), "system".into()]),
         );
@@ -165,8 +165,8 @@ mod tests {
     #[test]
     fn stable_entries_filtered() {
         let c = CatalogIndex::new()
-            .add(CatalogEntry::new("M3", CatalogKind::Metric, "rps", "req/s").stable())
-            .add(CatalogEntry::new(
+            .add_entry(CatalogEntry::new("M3", CatalogKind::Metric, "rps", "req/s").stable())
+            .add_entry(CatalogEntry::new(
                 "E2",
                 CatalogKind::Eval,
                 "rouge",

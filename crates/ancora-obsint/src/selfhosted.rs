@@ -1,5 +1,5 @@
-/// Self-hosted observability mode: enforces data residency by blocking external exports.
-/// When self-hosted mode is active, only configured internal endpoints are permitted.
+//! Self-hosted observability mode: enforces data residency by blocking external exports.
+//! When self-hosted mode is active, only configured internal endpoints are permitted.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ResidencyPolicy {

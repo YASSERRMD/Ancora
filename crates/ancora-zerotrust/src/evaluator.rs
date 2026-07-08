@@ -1,4 +1,4 @@
-use crate::device::{DevicePosture, DeviceStore};
+use crate::device::DeviceStore;
 use crate::identity::Identity;
 use crate::policy::{AuthzDecision, ZeroTrustPolicy};
 use crate::request::AccessRequest;

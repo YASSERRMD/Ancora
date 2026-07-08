@@ -1,4 +1,4 @@
-/// Cost time series tracking - records cost data points over time.
+//! Cost time series tracking - records cost data points over time.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CostPoint {

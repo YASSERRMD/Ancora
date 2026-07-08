@@ -110,11 +110,13 @@ pub fn canonical_java_interface() -> JavaInterfaceDescriptor {
 // Java extension adapter
 // ---------------------------------------------------------------------------
 
+type ExecuteFn = Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>;
+
 /// Adapter that wraps a Java extension (via JNI) and presents it as a Rust
 /// `ToolExtension`.
 pub struct JavaExtensionAdapter {
     meta: ToolMeta,
-    execute_fn: Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
+    execute_fn: ExecuteFn,
 }
 
 impl JavaExtensionAdapter {

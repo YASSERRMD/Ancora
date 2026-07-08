@@ -1,7 +1,7 @@
-/// Compliance review application - government profile.
-///
-/// Performs air-gapped policy evaluation against a local rule set.
-/// No network access is ever required.
+//! Compliance review application - government profile.
+//!
+//! Performs air-gapped policy evaluation against a local rule set.
+//! No network access is ever required.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ComplianceProfile {

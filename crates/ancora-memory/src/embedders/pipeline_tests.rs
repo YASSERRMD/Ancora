@@ -1,4 +1,4 @@
-/// Extended retrieval pipeline tests -- all offline.
+//! Extended retrieval pipeline tests -- all offline.
 
 #[cfg(test)]
 mod pipeline_ext_tests {

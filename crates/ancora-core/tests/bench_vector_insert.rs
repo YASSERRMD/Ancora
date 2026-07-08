@@ -16,9 +16,8 @@ impl VecStore {
     }
     fn insert(&mut self, id: u64, v: &[f32]) {
         let mut head = [0f32; 4];
-        for i in 0..4.min(v.len()) {
-            head[i] = v[i];
-        }
+        let n = 4.min(v.len());
+        head[..n].copy_from_slice(&v[..n]);
         self.data.push((head, id));
     }
     fn len(&self) -> usize {
@@ -71,6 +70,6 @@ fn test_make_vec_dimension() {
 fn test_make_vec_values_in_range() {
     let v = make_vec(7, 16);
     for &x in &v {
-        assert!(x >= 0.0 && x <= 1.0);
+        assert!((0.0..=1.0).contains(&x));
     }
 }

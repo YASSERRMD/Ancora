@@ -13,11 +13,13 @@ fn extensibility_overview_has_extension_points() {
 }
 
 #[test]
+#[allow(clippy::const_is_empty)]
 fn plugin_sdk_version_is_set() {
     assert!(!plugin_sdk::SDK_VERSION.is_empty());
 }
 
 #[test]
+#[allow(clippy::assertions_on_constants)]
 fn catalog_schema_version_is_positive() {
     assert!(catalog_format::CATALOG_SCHEMA_VERSION > 0);
 }

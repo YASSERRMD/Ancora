@@ -9,10 +9,8 @@ pub struct RunFilter {
 
 impl RunFilter {
     pub fn matches(&self, run: &Run) -> bool {
-        self.tenant_id
-            .as_deref()
-            .map_or(true, |t| run.tenant_id == t)
-            && self.state.as_ref().map_or(true, |s| &run.state == s)
-            && self.priority_min.map_or(true, |p| run.priority >= p)
+        self.tenant_id.as_deref().is_none_or(|t| run.tenant_id == t)
+            && self.state.as_ref().is_none_or(|s| &run.state == s)
+            && self.priority_min.is_none_or(|p| run.priority >= p)
     }
 }

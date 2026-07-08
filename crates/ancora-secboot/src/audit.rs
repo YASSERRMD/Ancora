@@ -62,6 +62,12 @@ pub struct BootAuditLog {
     entries: VecDeque<BootAuditEntry>,
 }
 
+impl Default for BootAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BootAuditLog {
     pub fn new() -> Self {
         Self {
@@ -86,7 +92,7 @@ impl BootAuditLog {
             .filter(|e| e.node_id == node_id)
             .collect()
     }
-    pub fn failures<'a>(&'a self) -> Vec<&'a BootAuditEntry> {
+    pub fn failures(&self) -> Vec<&BootAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
     pub fn all(&self) -> impl Iterator<Item = &BootAuditEntry> {

@@ -41,7 +41,7 @@ fn test_validate_ts_value_string() {
 #[test]
 fn test_validate_ts_value_number() {
     assert!(validate_ts_value(&Value::Int(42), &TsType::Number));
-    assert!(validate_ts_value(&Value::Float(3.14), &TsType::Number));
+    assert!(validate_ts_value(&Value::Float(3.25), &TsType::Number));
     assert!(!validate_ts_value(&Value::string("x"), &TsType::Number));
 }
 

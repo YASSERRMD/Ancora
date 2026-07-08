@@ -112,7 +112,7 @@ fn cost_aggregation_is_accurate_for_large_counts() {
 fn node_cost_sum_equals_total_cost() {
     let mut tracker = CostTracker::new(0.01, 0.02);
     for i in 0..5 {
-        tracker.record(&format!("n{}", i), usage(100, 50));
+        tracker.record(format!("n{}", i), usage(100, 50));
     }
     let summary = tracker.summary();
     let node_sum: f64 = summary.nodes.iter().map(|n| n.cost_usd).sum();

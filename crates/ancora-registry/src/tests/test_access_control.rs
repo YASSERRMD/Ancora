@@ -5,8 +5,10 @@ use crate::versioning::Version;
 
 #[test]
 fn allowed_publisher_can_publish() {
-    let mut cfg = RegistryConfig::default();
-    cfg.access_policy = AccessPolicy::allow_list(["trusted-ci"]);
+    let cfg = RegistryConfig {
+        access_policy: AccessPolicy::allow_list(["trusted-ci"]),
+        ..Default::default()
+    };
     let mut svc = RegistryService::new(cfg);
 
     let entry = PublishEntry::new(
@@ -21,8 +23,10 @@ fn allowed_publisher_can_publish() {
 
 #[test]
 fn unlisted_publisher_is_denied() {
-    let mut cfg = RegistryConfig::default();
-    cfg.access_policy = AccessPolicy::allow_list(["trusted-ci"]);
+    let cfg = RegistryConfig {
+        access_policy: AccessPolicy::allow_list(["trusted-ci"]),
+        ..Default::default()
+    };
     let mut svc = RegistryService::new(cfg);
 
     let entry = PublishEntry::new("tool", Version::new(1, 0, 0), b"data".to_vec(), "attacker");
@@ -32,8 +36,10 @@ fn unlisted_publisher_is_denied() {
 
 #[test]
 fn deny_all_policy_rejects_every_publisher() {
-    let mut cfg = RegistryConfig::default();
-    cfg.access_policy = AccessPolicy::DenyAll;
+    let cfg = RegistryConfig {
+        access_policy: AccessPolicy::DenyAll,
+        ..Default::default()
+    };
     let mut svc = RegistryService::new(cfg);
 
     let entry = PublishEntry::new("tool", Version::new(1, 0, 0), b"data".to_vec(), "admin");

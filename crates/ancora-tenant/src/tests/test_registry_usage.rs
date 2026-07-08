@@ -1,4 +1,4 @@
-use crate::{ResourceQuota, ResourceUsage, Tenant, TenantRegistry};
+use crate::{ResourceQuota, Tenant, TenantRegistry};
 #[test]
 fn registry_provides_mutable_usage() {
     let mut registry = TenantRegistry::new();

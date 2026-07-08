@@ -57,17 +57,6 @@ impl LocalMultilingualResponder {
         LocalMultilingualResponder { table }
     }
 
-    pub fn default() -> Self {
-        Self::new(vec![
-            ("en".into(), "hello".into(), "hello".into()),
-            ("es".into(), "hola".into(), "hola".into()),
-            ("fr".into(), "bonjour".into(), "bonjour".into()),
-            ("de".into(), "hallo".into(), "hallo".into()),
-            ("ja".into(), "konnichiwa".into(), "konnichiwa".into()),
-            ("ar".into(), "marhaba".into(), "marhaba".into()),
-        ])
-    }
-
     /// Produce a response for the given language and prompt, or None.
     pub fn respond(&self, lang: &LanguageCode, prompt: &str) -> Option<String> {
         let prompt_lower = prompt.to_lowercase();
@@ -77,6 +66,19 @@ impl LocalMultilingualResponder {
             }
         }
         None
+    }
+}
+
+impl Default for LocalMultilingualResponder {
+    fn default() -> Self {
+        Self::new(vec![
+            ("en".into(), "hello".into(), "hello".into()),
+            ("es".into(), "hola".into(), "hola".into()),
+            ("fr".into(), "bonjour".into(), "bonjour".into()),
+            ("de".into(), "hallo".into(), "hallo".into()),
+            ("ja".into(), "konnichiwa".into(), "konnichiwa".into()),
+            ("ar".into(), "marhaba".into(), "marhaba".into()),
+        ])
     }
 }
 

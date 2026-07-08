@@ -1,8 +1,8 @@
-/// Per-plugin resource limits.
-///
-/// All fields are optional (None = unlimited).  The host enforces limits by
-/// polling the plugin's reported consumption against these thresholds and
-/// terminating or rejecting operations that would exceed them.
+//! Per-plugin resource limits.
+//!
+//! All fields are optional (None = unlimited).  The host enforces limits by
+//! polling the plugin's reported consumption against these thresholds and
+//! terminating or rejecting operations that would exceed them.
 
 /// CPU time budget expressed in milliseconds.
 pub type CpuMillis = u64;

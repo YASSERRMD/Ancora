@@ -37,10 +37,6 @@ impl SlidingWindow {
     /// Seconds until the current window resets.
     pub fn seconds_until_reset(&self, now: u64) -> u64 {
         let end = self.window_start + self.window_secs;
-        if now >= end {
-            0
-        } else {
-            end - now
-        }
+        end.saturating_sub(now)
     }
 }

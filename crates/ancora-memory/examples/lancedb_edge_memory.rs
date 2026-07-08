@@ -8,10 +8,13 @@
 /// Without the env var the example uses `./ancora_lancedb`.
 use ancora_memory::backends::lancedb::{
     checkout_as_of, column_type, delete_predicate, detect_storage_type, edge_config,
-    edge_default_dir, multimodal_row, parse_results, parse_version, restore_version, row,
-    row_with_columns, rows, sql_and, sql_eq_str, sql_gt, table_schema, AnnIndex, ColumnDef,
-    FullTextIndex, HybridQuery, LanceDbConfig, LanceDbPath, VectorQuery, VersionCheckout,
+    multimodal_row, parse_results, parse_version, restore_version, row_with_columns, rows, sql_and,
+    sql_eq_str, sql_gt, table_schema, AnnIndex, ColumnDef, FullTextIndex, HybridQuery,
+    LanceDbConfig, LanceDbPath, VectorQuery, VersionCheckout,
 };
+// Only used by the #[cfg(test)] module below; unused outside test builds.
+#[cfg_attr(not(test), allow(unused_imports))]
+use ancora_memory::backends::lancedb::edge_default_dir;
 
 const TABLE: &str = "documents";
 const DIMS: usize = 384;

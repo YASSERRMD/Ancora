@@ -81,7 +81,7 @@ fn v1_journal_replays_to_completed_without_migration() {
 #[test]
 fn v1_to_v2_migration_changes_q_to_query() {
     let j = v1_journal("det-mig-q");
-    let migrated: Vec<JournalEvent> = j.iter().map(|e| migrate_v1_to_v2(e)).collect();
+    let migrated: Vec<JournalEvent> = j.iter().map(migrate_v1_to_v2).collect();
     if let Some(Event::ActivityRecorded(a)) = &migrated[1].event {
         let v: Value = serde_json::from_str(&a.input_json).unwrap();
         assert!(
@@ -95,7 +95,7 @@ fn v1_to_v2_migration_changes_q_to_query() {
 #[test]
 fn migrated_v1_journal_still_replays_to_completed() {
     let j = v1_journal("det-v2-mig");
-    let migrated: Vec<JournalEvent> = j.iter().map(|e| migrate_v1_to_v2(e)).collect();
+    let migrated: Vec<JournalEvent> = j.iter().map(migrate_v1_to_v2).collect();
     let store = MemoryStore::new();
     let rid = "det-v2-mig";
     for ev in &migrated {
@@ -113,14 +113,14 @@ fn migrated_v1_journal_still_replays_to_completed() {
 #[test]
 fn migration_preserves_event_count() {
     let j = v1_journal("det-mig-cnt");
-    let m: Vec<JournalEvent> = j.iter().map(|e| migrate_v1_to_v2(e)).collect();
+    let m: Vec<JournalEvent> = j.iter().map(migrate_v1_to_v2).collect();
     assert_eq!(j.len(), m.len());
 }
 
 #[test]
 fn migration_preserves_seq_numbers() {
     let j = v1_journal("det-mig-seq");
-    let m: Vec<JournalEvent> = j.iter().map(|e| migrate_v1_to_v2(e)).collect();
+    let m: Vec<JournalEvent> = j.iter().map(migrate_v1_to_v2).collect();
     for (orig, mig) in j.iter().zip(m.iter()) {
         assert_eq!(orig.seq, mig.seq);
     }

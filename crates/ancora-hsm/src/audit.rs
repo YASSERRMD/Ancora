@@ -76,6 +76,12 @@ pub struct HsmAuditLog {
     entries: VecDeque<HsmAuditEntry>,
 }
 
+impl Default for HsmAuditLog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HsmAuditLog {
     pub fn new() -> Self {
         Self {
@@ -88,7 +94,7 @@ impl HsmAuditLog {
     pub fn count(&self) -> usize {
         self.entries.len()
     }
-    pub fn for_slot<'a>(&'a self, slot_id: u32) -> Vec<&'a HsmAuditEntry> {
+    pub fn for_slot(&self, slot_id: u32) -> Vec<&HsmAuditEntry> {
         self.entries
             .iter()
             .filter(|e| e.slot_id == slot_id)
@@ -97,7 +103,7 @@ impl HsmAuditLog {
     pub fn by_operation<'a>(&'a self, op: &HsmOperation) -> Vec<&'a HsmAuditEntry> {
         self.entries.iter().filter(|e| &e.operation == op).collect()
     }
-    pub fn failures<'a>(&'a self) -> Vec<&'a HsmAuditEntry> {
+    pub fn failures(&self) -> Vec<&HsmAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
     pub fn all(&self) -> impl Iterator<Item = &HsmAuditEntry> {

@@ -9,8 +9,13 @@ use crate::tool_callback::AncorToolCallback;
 
 /// Register a named tool callback on the runtime.
 /// Returns `NullPtr` if either `rt` or `name` is null.
+///
+/// # Safety
+/// `rt` must be a live runtime pointer. `name` must be a valid
+/// null-terminated C string. `cb` must be safe to call with a byte buffer
+/// for as long as it remains registered.
 #[no_mangle]
-pub extern "C" fn ancora_tool_register(
+pub unsafe extern "C" fn ancora_tool_register(
     rt: *mut AncorRuntime,
     name: *const c_char,
     cb: AncorToolCallback,
@@ -28,8 +33,12 @@ pub extern "C" fn ancora_tool_register(
 }
 
 /// Unregister a named tool callback. Returns `NullPtr` if either pointer is null.
+///
+/// # Safety
+/// `rt` must be a live runtime pointer. `name` must be a valid
+/// null-terminated C string.
 #[no_mangle]
-pub extern "C" fn ancora_tool_unregister(
+pub unsafe extern "C" fn ancora_tool_unregister(
     rt: *mut AncorRuntime,
     name: *const c_char,
 ) -> AncorErrorCode {
@@ -47,8 +56,14 @@ pub extern "C" fn ancora_tool_unregister(
 
 /// Invoke a named tool with `input_bytes` and write the output into `out`.
 /// Returns `NullPtr` if any required pointer is null, `Internal` if the tool is not found.
+///
+/// # Safety
+/// `rt` must be a live runtime pointer. `name` must be a valid
+/// null-terminated C string. If `input_bytes` is non-null it must point to
+/// at least `input_len` valid bytes. `out` must point to valid, writable
+/// memory for an `AncorBuffer`.
 #[no_mangle]
-pub extern "C" fn ancora_tool_invoke(
+pub unsafe extern "C" fn ancora_tool_invoke(
     rt: *mut AncorRuntime,
     name: *const c_char,
     input_bytes: *const u8,
@@ -71,8 +86,11 @@ pub extern "C" fn ancora_tool_invoke(
 }
 
 /// Return the number of registered tools. Returns 0 if `rt` is null.
+///
+/// # Safety
+/// If `rt` is non-null, it must be a live runtime pointer.
 #[no_mangle]
-pub extern "C" fn ancora_tool_count(rt: *mut AncorRuntime) -> usize {
+pub unsafe extern "C" fn ancora_tool_count(rt: *mut AncorRuntime) -> usize {
     if rt.is_null() {
         return 0;
     }
@@ -81,8 +99,12 @@ pub extern "C" fn ancora_tool_count(rt: *mut AncorRuntime) -> usize {
 }
 
 /// Return 1 if a tool with `name` is registered, 0 otherwise. Returns 0 if any pointer is null.
+///
+/// # Safety
+/// If `rt` is non-null, it must be a live runtime pointer. If `name` is
+/// non-null, it must be a valid null-terminated C string.
 #[no_mangle]
-pub extern "C" fn ancora_tool_exists(rt: *mut AncorRuntime, name: *const c_char) -> u8 {
+pub unsafe extern "C" fn ancora_tool_exists(rt: *mut AncorRuntime, name: *const c_char) -> u8 {
     if rt.is_null() || name.is_null() {
         return 0;
     }

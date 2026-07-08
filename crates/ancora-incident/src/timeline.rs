@@ -57,6 +57,12 @@ pub struct IncidentTimeline {
     events: Vec<TimelineEvent>,
 }
 
+impl Default for IncidentTimeline {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IncidentTimeline {
     pub fn new() -> Self {
         Self { events: Vec::new() }

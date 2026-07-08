@@ -8,12 +8,6 @@ pub struct LevelConfig {
     per_module: HashMap<String, LogLevel>,
 }
 
-impl Default for LogLevel {
-    fn default() -> Self {
-        LogLevel::Info
-    }
-}
-
 impl LevelConfig {
     pub fn new(global: LogLevel) -> Self {
         Self {

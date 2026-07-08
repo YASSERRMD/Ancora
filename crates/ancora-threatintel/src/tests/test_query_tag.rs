@@ -23,7 +23,7 @@ fn query_by_tag() {
         1,
     )
     .with_tag("ransomware");
-    let all = vec![i1, i2];
+    let all = [i1, i2];
     let r = IndicatorQuery::new().tag("apt29").run(all.iter());
     assert_eq!(r.len(), 1);
     assert_eq!(r[0].id, "i1");
@@ -50,7 +50,7 @@ fn query_active_only() {
         1,
     );
     i2.deactivate();
-    let all = vec![i1, i2];
+    let all = [i1, i2];
     let r = IndicatorQuery::new().active_only().run(all.iter());
     assert_eq!(r.len(), 1);
 }

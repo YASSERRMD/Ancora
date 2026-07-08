@@ -3,19 +3,6 @@ use crate::interface::{
 };
 use crate::registration::PluginRegistry;
 
-struct SimplePlugin {
-    meta: PluginMeta,
-}
-
-impl SimplePlugin {
-    fn new(id: &str, command: &str) -> Self {
-        Self {
-            meta: PluginMeta::new(id, id, "1.0.0", "test plugin", "test"),
-        }
-    }
-}
-
-// Allow dead code in test helper.
 struct RegPlugin {
     meta: PluginMeta,
     cmd: String,

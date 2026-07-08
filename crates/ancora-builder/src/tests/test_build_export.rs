@@ -53,8 +53,10 @@ fn export_preserves_node_positions() {
 
     canvas.place_node("agent.llm", "Agent", Position::new(123.0, 456.0));
 
-    let mut opts = ExportOptions::default();
-    opts.include_positions = true;
+    let opts = ExportOptions {
+        include_positions: true,
+        ..Default::default()
+    };
 
     let spec = export_spec("pos_test", &canvas, &edges, &opts);
     // Empty edge store - export fails because we have only 1 node but edges are empty;

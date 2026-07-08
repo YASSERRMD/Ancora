@@ -31,6 +31,7 @@ pub fn node_span(
 }
 
 /// Build a node span that also records the finish reason from the model.
+#[allow(clippy::too_many_arguments)]
 pub fn node_span_with_finish_reason(
     run_id: &str,
     node_id: &str,

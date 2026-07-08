@@ -1,7 +1,5 @@
 // Security: audit log -- every sensitive operation produces an immutable audit entry.
 
-use std::collections::BTreeMap;
-
 #[derive(Debug, Clone)]
 struct AuditEntry {
     operation: &'static str,

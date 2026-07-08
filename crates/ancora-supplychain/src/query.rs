@@ -7,6 +7,12 @@ pub struct ComponentQuery {
     open_source_only: bool,
 }
 
+impl Default for ComponentQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ComponentQuery {
     pub fn new() -> Self {
         Self {

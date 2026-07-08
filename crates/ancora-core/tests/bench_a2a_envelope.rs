@@ -9,6 +9,7 @@ struct A2AEnvelope<'a> {
     protocol: &'a str,
     sender_lang: &'a str,
     recipient_lang: &'a str,
+    #[allow(dead_code)]
     run_id: u64,
 }
 

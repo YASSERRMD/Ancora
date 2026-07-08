@@ -57,6 +57,12 @@ pub struct SlotManager {
     slots: Vec<HsmSlot>,
 }
 
+impl Default for SlotManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SlotManager {
     pub fn new() -> Self {
         Self { slots: Vec::new() }

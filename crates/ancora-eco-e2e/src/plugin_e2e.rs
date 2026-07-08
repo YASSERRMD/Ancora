@@ -1,4 +1,4 @@
-/// Plugin end-to-end utilities: template authoring and lifecycle management.
+//! Plugin end-to-end utilities: template authoring and lifecycle management.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PluginTemplate {

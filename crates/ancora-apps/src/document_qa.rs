@@ -1,7 +1,7 @@
-/// Document question-answering application.
-///
-/// Provides offline document ingestion and query answering over a local
-/// corpus without any network calls.
+//! Document question-answering application.
+//!
+//! Provides offline document ingestion and query answering over a local
+//! corpus without any network calls.
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Document {

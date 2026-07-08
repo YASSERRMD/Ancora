@@ -1,13 +1,13 @@
-/// Metadata filter SQL correctness tests.
-///
-/// Verifies that every filter variant produces correct SQL fragments:
-/// - Parameter offset tracking (chained AND/OR get sequential placeholders)
-/// - All PayloadValue types (String, Integer, Float, Bool, Null)
-/// - All comparison operators (Eq, Ne, Gt, Lt)
-/// - Compound filters (And, Or, nested)
-/// - Depth validation (rejects >16 levels)
-///
-/// All tests run offline with no database.
+//! Metadata filter SQL correctness tests.
+//!
+//! Verifies that every filter variant produces correct SQL fragments:
+//! - Parameter offset tracking (chained AND/OR get sequential placeholders)
+//! - All PayloadValue types (String, Integer, Float, Bool, Null)
+//! - All comparison operators (Eq, Ne, Gt, Lt)
+//! - Compound filters (And, Or, nested)
+//! - Depth validation (rejects >16 levels)
+//!
+//! All tests run offline with no database.
 
 #[cfg(test)]
 mod filter_tests {

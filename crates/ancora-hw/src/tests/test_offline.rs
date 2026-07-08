@@ -4,7 +4,7 @@
 use crate::config::{parse_override, serialize_profile};
 use crate::model::HardwareProfile;
 use crate::probe::probe_hardware;
-use crate::thermal::{read_thermal_pressure, run_thermal_hook, ThermalPressure};
+use crate::thermal::{run_thermal_hook, ThermalPressure};
 
 #[test]
 fn runs_offline_probe_does_not_panic() {

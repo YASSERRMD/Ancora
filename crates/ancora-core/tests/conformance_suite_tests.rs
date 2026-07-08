@@ -6,8 +6,8 @@
 /// validating deterministic replay for all supported scenario types.
 use ancora_core::{
     conformance::{
-        all_scenarios, ConformanceResult, ConformanceScenario, CRASH_AND_RECOVER, HUMAN_IN_LOOP,
-        MULTI_AGENT_VERIFIER, SINGLE_AGENT,
+        all_scenarios, ConformanceResult, CRASH_AND_RECOVER, HUMAN_IN_LOOP, MULTI_AGENT_VERIFIER,
+        SINGLE_AGENT,
     },
     graph::{Edge, Graph, Node, NodeKind, NodeSpec},
     journal::{JournalStore, MemoryStore},

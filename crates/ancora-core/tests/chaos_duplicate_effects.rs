@@ -169,7 +169,7 @@ fn targeted_append_failures_cause_at_most_one_re_execution() {
     for (i, c) in counters.iter().enumerate() {
         let count = c.load(Ordering::SeqCst);
         assert!(
-            count >= 1 && count <= 2,
+            (1..=2).contains(&count),
             "activity {} executed {} times -- expected 1 or 2 (at most one retry)",
             i,
             count

@@ -1,5 +1,5 @@
 use crate::assignment::AssignmentStore;
-use crate::policy::{default_permissions, RolePolicy};
+use crate::policy::RolePolicy;
 
 pub struct SubjectSummary {
     pub subject: String,

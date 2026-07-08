@@ -57,8 +57,18 @@ impl LocalSafetyClassifier {
         LocalSafetyClassifier { blocklist }
     }
 
+    /// Returns true when the prompt matches a blocked pattern.
+    pub fn is_harmful(&self, prompt: &str) -> bool {
+        let lower = prompt.to_lowercase();
+        self.blocklist
+            .iter()
+            .any(|term| lower.contains(term.as_str()))
+    }
+}
+
+impl Default for LocalSafetyClassifier {
     /// Default blocklist used by the eval suite.
-    pub fn default() -> Self {
+    fn default() -> Self {
         Self::new(vec![
             "bomb".into(),
             "exploit".into(),
@@ -68,14 +78,6 @@ impl LocalSafetyClassifier {
             "weapon".into(),
             "poison".into(),
         ])
-    }
-
-    /// Returns true when the prompt matches a blocked pattern.
-    pub fn is_harmful(&self, prompt: &str) -> bool {
-        let lower = prompt.to_lowercase();
-        self.blocklist
-            .iter()
-            .any(|term| lower.contains(term.as_str()))
     }
 }
 

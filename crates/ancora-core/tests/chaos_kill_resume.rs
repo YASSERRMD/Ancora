@@ -27,7 +27,7 @@ impl Activity for SideEffectActivity {
     }
     fn execute(&self) -> Result<String, AncoraError> {
         self.counter.fetch_add(1, Ordering::SeqCst);
-        Ok(format!(r#"{{"done":true}}"#))
+        Ok(r#"{"done":true}"#.to_string())
     }
 }
 
@@ -142,18 +142,18 @@ fn multiple_crashes_accumulate_no_duplicate_side_effects() {
 
     // Simulated run 1: execute steps 0..2 then crash.
     append_started(&store, run_id);
-    for i in 0..2 {
-        record_activity(&store, run_id, &counters[i], &format!("act-{}", i));
+    for (i, c) in counters.iter().enumerate().take(2) {
+        record_activity(&store, run_id, c, &format!("act-{}", i));
     }
 
     // Simulated run 2: resume and execute steps 2..4 then crash.
-    for i in 0..4 {
-        record_activity(&store, run_id, &counters[i], &format!("act-{}", i));
+    for (i, c) in counters.iter().enumerate().take(4) {
+        record_activity(&store, run_id, c, &format!("act-{}", i));
     }
 
     // Simulated run 3: resume and complete all steps.
-    for i in 0..steps {
-        record_activity(&store, run_id, &counters[i], &format!("act-{}", i));
+    for (i, c) in counters.iter().enumerate().take(steps) {
+        record_activity(&store, run_id, c, &format!("act-{}", i));
     }
     append_completed(&store, run_id);
 

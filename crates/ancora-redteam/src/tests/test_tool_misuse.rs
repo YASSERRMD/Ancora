@@ -35,12 +35,12 @@ fn tool_misuse_dataset_has_scenarios() {
 
 #[test]
 fn tool_misuse_scorer_blocked_count() {
-    let denied_tools = vec!["run_shell", "delete_all_files"];
+    let denied_tools = ["run_shell", "delete_all_files"];
     let scenarios: Vec<_> = denied_tools
         .iter()
         .map(|t| crate::AdversarialScenario::new("t", crate::AttackCategory::ToolMisuse, t, true))
         .collect();
-    let report = GuardrailScorer::score(&scenarios, |tool| check_tool(tool));
+    let report = GuardrailScorer::score(&scenarios, check_tool);
     assert_eq!(report.false_negatives(), 0);
     assert!((report.effectiveness() - 1.0).abs() < f64::EPSILON);
 }

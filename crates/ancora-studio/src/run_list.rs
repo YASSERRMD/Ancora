@@ -1,4 +1,4 @@
-/// Run list - browse, filter, and search local agent runs.
+//! Run list - browse, filter, and search local agent runs.
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RunStatus {
@@ -54,8 +54,8 @@ impl RunList {
                 let query_match = f.query.is_empty()
                     || r.label.to_lowercase().contains(&f.query.to_lowercase())
                     || r.id.contains(&f.query);
-                let status_match = f.status.as_ref().map_or(true, |s| &r.status == s);
-                let tag_match = f.tag.as_ref().map_or(true, |t| r.tags.contains(t));
+                let status_match = f.status.as_ref().is_none_or(|s| &r.status == s);
+                let tag_match = f.tag.as_ref().is_none_or(|t| r.tags.contains(t));
                 query_match && status_match && tag_match
             })
             .collect()
@@ -71,7 +71,7 @@ impl RunList {
 
     pub fn sorted_by_started(&self) -> Vec<&RunSummary> {
         let mut refs: Vec<&RunSummary> = self.runs.iter().collect();
-        refs.sort_by(|a, b| b.started_at.cmp(&a.started_at));
+        refs.sort_by_key(|b| std::cmp::Reverse(b.started_at));
         refs
     }
 }

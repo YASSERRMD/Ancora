@@ -121,7 +121,7 @@ pub fn import_spec(spec: GraphSpec) -> Result<ImportResult, ImportError> {
             .ok_or_else(|| ImportError::UnknownEdgeTarget(se.target.clone()))?
             .clone();
 
-        let et = EdgeType::from_str(&se.edge_type);
+        let et = EdgeType::from_raw(&se.edge_type);
         match edges.add_edge(
             Id::new(se.source.clone()),
             &source_kind,

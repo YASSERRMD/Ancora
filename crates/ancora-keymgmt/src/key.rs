@@ -106,7 +106,7 @@ impl CryptoKey {
         self.status == KeyStatus::Active
     }
     pub fn is_expired(&self, current_tick: u64) -> bool {
-        self.expires_tick.map_or(false, |e| current_tick >= e)
+        self.expires_tick.is_some_and(|e| current_tick >= e)
     }
 
     pub fn deactivate(&mut self) {

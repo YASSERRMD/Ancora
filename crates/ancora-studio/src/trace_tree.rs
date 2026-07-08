@@ -1,4 +1,4 @@
-/// Trace tree - nested span view of an agent run (parent/child spans).
+//! Trace tree - nested span view of an agent run (parent/child spans).
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SpanKind {

@@ -30,12 +30,10 @@ impl<'a> PolicyEngine<'a> {
                 Some(Effect::Deny) => {
                     last_deny = Some(format!("denied by policy {}", policy.id));
                 }
-                Some(Effect::Allow) => {
-                    if last_deny.is_none() {
-                        return Decision::Allow;
-                    }
+                Some(Effect::Allow) if last_deny.is_none() => {
+                    return Decision::Allow;
                 }
-                None => {}
+                _ => {}
             }
         }
         if let Some(reason) = last_deny {

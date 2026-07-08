@@ -80,7 +80,7 @@ fn all_apps_second_message_is_assistant() {
 fn trace_ids_are_unique_per_language() {
     let input = "unique";
 
-    let ids = vec![
+    let ids = [
         GoApp::new("a").run(input).unwrap().trace_id,
         PythonApp::new("a", "m")
             .unwrap()
