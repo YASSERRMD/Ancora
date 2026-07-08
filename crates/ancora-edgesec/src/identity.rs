@@ -128,9 +128,3 @@ impl DeviceIdentityRegistry {
         }
     }
 }
-
-impl Default for DeviceIdentityRegistry {
-    fn default() -> Self {
-        Self::new()
-    }
-}

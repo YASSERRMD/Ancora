@@ -139,12 +139,6 @@ impl AttestationRegistry {
     }
 }
 
-impl Default for AttestationRegistry {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 /// Attest model integrity for a given device.
 pub fn attest_model(
     registry: &mut AttestationRegistry,
