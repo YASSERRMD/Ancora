@@ -10,7 +10,7 @@ impl TokenBudget {
 
     /// Rough estimate: 1 token per 4 characters.
     pub fn estimate_tokens(content: &str) -> usize {
-        (content.len() + 3) / 4
+        content.len().div_ceil(4)
     }
 
     pub fn total_tokens(contents: &[String]) -> usize {
