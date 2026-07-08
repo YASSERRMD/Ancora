@@ -12,6 +12,9 @@ use ancora_memory::backends::lancedb::{
     sql_eq_str, sql_gt, table_schema, AnnIndex, ColumnDef, FullTextIndex, HybridQuery,
     LanceDbConfig, LanceDbPath, VectorQuery, VersionCheckout,
 };
+// Only used by the #[cfg(test)] module below; unused outside test builds.
+#[cfg_attr(not(test), allow(unused_imports))]
+use ancora_memory::backends::lancedb::edge_default_dir;
 
 const TABLE: &str = "documents";
 const DIMS: usize = 384;

@@ -10,6 +10,9 @@ use ancora_memory::backends::weaviate::{
     data_type, graphql_generative_query, graphql_hybrid_query, graphql_near_vector_query,
     graphql_url, objects_url, parse_graphql_get, schema_url, where_filter_text, WeaviateConfig,
 };
+// Only used by the #[cfg(test)] module below; unused outside test builds.
+#[cfg_attr(not(test), allow(unused_imports))]
+use ancora_memory::backends::weaviate::create_class_body;
 
 const CLASS: &str = "Document";
 
