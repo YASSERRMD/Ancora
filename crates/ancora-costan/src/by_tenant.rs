@@ -1,5 +1,4 @@
 /// Cost breakdown by tenant and project.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

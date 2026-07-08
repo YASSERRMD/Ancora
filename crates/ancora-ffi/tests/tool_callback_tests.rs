@@ -71,7 +71,10 @@ fn invoke_echo_tool_returns_input() {
     let name = cstr("echo");
     ancora_tool_register(rt, name.as_ptr(), echo_cb);
     let input = b"hello";
-    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let code = ancora_tool_invoke(rt, name.as_ptr(), input.as_ptr(), input.len(), &mut out);
     assert_eq!(code, AncorErrorCode::Ok);
     let slice = unsafe { std::slice::from_raw_parts(out.ptr, out.len) };
@@ -85,7 +88,10 @@ fn invoke_unknown_tool_returns_internal_error() {
     let rt = make_rt();
     let name = cstr("nope");
     let input = b"x";
-    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let code = ancora_tool_invoke(rt, name.as_ptr(), input.as_ptr(), input.len(), &mut out);
     assert_eq!(code, AncorErrorCode::Internal);
     ancora_free_runtime(rt);

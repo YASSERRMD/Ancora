@@ -18,7 +18,11 @@ fn test_local_storage_roundtrip() {
     let plaintext = b"hello world from edge";
     store.put("data", plaintext);
     let recovered = store.get("data").unwrap();
-    assert_eq!(recovered, plaintext.to_vec(), "roundtrip should recover plaintext");
+    assert_eq!(
+        recovered,
+        plaintext.to_vec(),
+        "roundtrip should recover plaintext"
+    );
 }
 
 #[test]

@@ -1,5 +1,5 @@
 use crate::badge::BadgeSet;
-use crate::policy::{InstallPolicy, PolicyMode, PolicyVerdict, evaluate_policy};
+use crate::policy::{evaluate_policy, InstallPolicy, PolicyMode, PolicyVerdict};
 use crate::trust_score::{TrustBreakdown, TrustScore};
 
 fn low_trust() -> TrustScore {

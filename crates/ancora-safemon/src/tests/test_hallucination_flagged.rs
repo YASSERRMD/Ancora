@@ -1,12 +1,14 @@
-use crate::hallucination::{HallucinationDetector, HallucinationSignal};
 use crate::classifier::SafetyClassifier;
+use crate::hallucination::{HallucinationDetector, HallucinationSignal};
 
 #[test]
 fn overconfident_fact_is_flagged() {
     let d = HallucinationDetector::new();
     let flags = d.analyze("It is definitely true that water boils at 100 C.");
     assert!(!flags.is_empty());
-    assert!(flags.iter().any(|f| f.signal == HallucinationSignal::OverconfidentFact));
+    assert!(flags
+        .iter()
+        .any(|f| f.signal == HallucinationSignal::OverconfidentFact));
 }
 
 #[test]
@@ -14,7 +16,9 @@ fn unverifiable_claim_is_flagged() {
     let d = HallucinationDetector::new();
     let flags = d.analyze("According to unnamed sources, the merger was cancelled.");
     assert!(!flags.is_empty());
-    assert!(flags.iter().any(|f| f.signal == HallucinationSignal::UnverifiableClaim));
+    assert!(flags
+        .iter()
+        .any(|f| f.signal == HallucinationSignal::UnverifiableClaim));
 }
 
 #[test]

@@ -35,13 +35,21 @@ fn chroma_demo() {
         ],
         Some(&["Hello world", "Bonjour le monde"]),
     );
-    println!("Chroma add body vector count: {}", add["ids"].as_array().unwrap().len());
+    println!(
+        "Chroma add body vector count: {}",
+        add["ids"].as_array().unwrap().len()
+    );
 
     let filter = where_and(
         where_eq("lang", serde_json::json!("en")),
         where_gt("score", serde_json::json!(0.5)),
     );
-    let query = query_body(&[vec![0.1f32, 0.2f32]], 5, Some(filter), &["distances", "ids"]);
+    let query = query_body(
+        &[vec![0.1f32, 0.2f32]],
+        5,
+        Some(filter),
+        &["distances", "ids"],
+    );
     println!("Chroma query n_results: {}", query["n_results"]);
 }
 
@@ -56,14 +64,26 @@ fn chroma_demo() {
 fn pinecone_demo() {
     use ancora_memory::backends::pinecone::*;
 
-    let idx_body = create_serverless_index_body("my-index", 768, metric::COSINE, "aws", "us-east-1");
+    let idx_body =
+        create_serverless_index_body("my-index", 768, metric::COSINE, "aws", "us-east-1");
     println!("Pinecone index spec: {}", idx_body["spec"]["serverless"]);
 
     let upsert = upsert_body(&[
-        ("v1", vec![0.1f32, 0.2f32], serde_json::json!({"lang": "en"})),
-        ("v2", vec![0.3f32, 0.4f32], serde_json::json!({"lang": "fr"})),
+        (
+            "v1",
+            vec![0.1f32, 0.2f32],
+            serde_json::json!({"lang": "en"}),
+        ),
+        (
+            "v2",
+            vec![0.3f32, 0.4f32],
+            serde_json::json!({"lang": "fr"}),
+        ),
     ]);
-    println!("Pinecone upsert count: {}", upsert["vectors"].as_array().unwrap().len());
+    println!(
+        "Pinecone upsert count: {}",
+        upsert["vectors"].as_array().unwrap().len()
+    );
 
     let filter = filter_and(vec![
         filter_eq("lang", serde_json::json!("en")),
@@ -123,7 +143,11 @@ fn redis_demo() {
 
     let search = SearchArgs::filtered_ann(
         "docs_idx",
-        &format!("({}) ({})", tag_filter("lang", "en"), numeric_range("score", 0.8, 1.0)),
+        &format!(
+            "({}) ({})",
+            tag_filter("lang", "en"),
+            numeric_range("score", 0.8, 1.0)
+        ),
         "embedding",
         10,
     )
@@ -146,7 +170,10 @@ fn backend_selector_demo() {
 
     for name in known_backends() {
         let info = select_backend(name).unwrap();
-        let port = info.default_port.map(|p| p.to_string()).unwrap_or_else(|| "n/a".to_owned());
+        let port = info
+            .default_port
+            .map(|p| p.to_string())
+            .unwrap_or_else(|| "n/a".to_owned());
         println!(
             "Backend {:15} feature={:14} port={:5} embedded={} managed={}",
             info.display_name,

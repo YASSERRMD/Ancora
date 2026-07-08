@@ -82,10 +82,7 @@ pub extern "C" fn ancora_tool_count(rt: *mut AncorRuntime) -> usize {
 
 /// Return 1 if a tool with `name` is registered, 0 otherwise. Returns 0 if any pointer is null.
 #[no_mangle]
-pub extern "C" fn ancora_tool_exists(
-    rt: *mut AncorRuntime,
-    name: *const c_char,
-) -> u8 {
+pub extern "C" fn ancora_tool_exists(rt: *mut AncorRuntime, name: *const c_char) -> u8 {
     if rt.is_null() || name.is_null() {
         return 0;
     }
@@ -94,5 +91,9 @@ pub extern "C" fn ancora_tool_exists(
         Ok(s) => s,
         Err(_) => return 0,
     };
-    if inner.tools.lock().unwrap().contains(name_str) { 1 } else { 0 }
+    if inner.tools.lock().unwrap().contains(name_str) {
+        1
+    } else {
+        0
+    }
 }

@@ -10,7 +10,10 @@ fn make_replay_batch(n: usize) -> Vec<(u64, bool)> {
 }
 
 fn replay_batch(entries: &[(u64, bool)]) -> usize {
-    entries.iter().filter(|(_, is_activity)| *is_activity).count()
+    entries
+        .iter()
+        .filter(|(_, is_activity)| *is_activity)
+        .count()
 }
 
 #[test]
@@ -19,7 +22,12 @@ fn test_bench_10k_replay_under_500ms() {
     let batch = make_replay_batch(REPLAY_BENCH_N);
     let acts = replay_batch(&batch);
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < REPLAY_BENCH_MS, "took {}ms budget {}ms", elapsed, REPLAY_BENCH_MS);
+    assert!(
+        elapsed < REPLAY_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        REPLAY_BENCH_MS
+    );
     assert_eq!(acts, REPLAY_BENCH_N / 10);
 }
 

@@ -14,12 +14,19 @@ pub struct EscalationPolicy {
 
 impl EscalationPolicy {
     pub fn new(name: &str) -> Self {
-        Self { name: name.to_string(), tiers: vec![] }
+        Self {
+            name: name.to_string(),
+            tiers: vec![],
+        }
     }
 
     pub fn add_tier(mut self, contact: &str, wait_secs: u64) -> Self {
         let tier = self.tiers.len() as u32 + 1;
-        self.tiers.push(EscalationTier { tier, contact: contact.to_string(), wait_secs });
+        self.tiers.push(EscalationTier {
+            tier,
+            contact: contact.to_string(),
+            wait_secs,
+        });
         self
     }
 
@@ -49,7 +56,8 @@ pub fn default_policy_for(severity: &Severity) -> EscalationPolicy {
         Severity::P2 => EscalationPolicy::new("p2-policy")
             .add_tier("on-call-primary", 0)
             .add_tier("on-call-secondary", 900),
-        Severity::P3 | Severity::P4 => EscalationPolicy::new("p3p4-policy")
-            .add_tier("on-call-primary", 0),
+        Severity::P3 | Severity::P4 => {
+            EscalationPolicy::new("p3p4-policy").add_tier("on-call-primary", 0)
+        }
     }
 }

@@ -22,11 +22,19 @@ impl SuggestionKind {
     pub fn description(&self) -> &str {
         match self {
             SuggestionKind::UseCheeperModel => "Switch to a cheaper model for this workload",
-            SuggestionKind::EnableCaching => "Enable prompt caching to avoid re-computing common prefixes",
+            SuggestionKind::EnableCaching => {
+                "Enable prompt caching to avoid re-computing common prefixes"
+            }
             SuggestionKind::BatchRequests => "Batch multiple small requests into a single call",
-            SuggestionKind::RouteToSmallerModel => "Route low-complexity queries to a smaller, cheaper model",
-            SuggestionKind::CompressPrompts => "Compress system prompts to reduce input token costs",
-            SuggestionKind::DeduplicateTools => "Deduplicate redundant tool invocations within a single turn",
+            SuggestionKind::RouteToSmallerModel => {
+                "Route low-complexity queries to a smaller, cheaper model"
+            }
+            SuggestionKind::CompressPrompts => {
+                "Compress system prompts to reduce input token costs"
+            }
+            SuggestionKind::DeduplicateTools => {
+                "Deduplicate redundant tool invocations within a single turn"
+            }
             SuggestionKind::Custom(s) => s.as_str(),
         }
     }
@@ -49,7 +57,12 @@ impl Suggestion {
         confidence: f64,
         detail: impl Into<String>,
     ) -> Self {
-        Self { kind, estimated_savings_usd, confidence, detail: detail.into() }
+        Self {
+            kind,
+            estimated_savings_usd,
+            confidence,
+            detail: detail.into(),
+        }
     }
 }
 
@@ -141,8 +154,7 @@ mod tests {
     fn suggestions_returned_for_low_cache_rate() {
         let model_costs = vec![("claude-opus".to_string(), 60.0)];
         let tool_costs = vec![("search".to_string(), 5.0)];
-        let suggestions =
-            SuggestionEngine::analyze(&model_costs, 0.1, &tool_costs, 100.0);
+        let suggestions = SuggestionEngine::analyze(&model_costs, 0.1, &tool_costs, 100.0);
         assert!(!suggestions.is_empty());
         let has_cache = suggestions
             .iter()

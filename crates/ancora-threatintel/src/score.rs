@@ -10,15 +10,26 @@ pub struct ThreatScore {
 impl ThreatScore {
     pub fn new(indicator_id: impl Into<String>, raw_score: f64, confidence: f64) -> Self {
         let level = Self::level_for_score(raw_score);
-        Self { indicator_id: indicator_id.into(), raw_score, level, confidence }
+        Self {
+            indicator_id: indicator_id.into(),
+            raw_score,
+            level,
+            confidence,
+        }
     }
 
     fn level_for_score(score: f64) -> ThreatLevel {
-        if score >= 90.0 { ThreatLevel::Critical }
-        else if score >= 70.0 { ThreatLevel::High }
-        else if score >= 40.0 { ThreatLevel::Medium }
-        else if score >= 10.0 { ThreatLevel::Low }
-        else { ThreatLevel::Informational }
+        if score >= 90.0 {
+            ThreatLevel::Critical
+        } else if score >= 70.0 {
+            ThreatLevel::High
+        } else if score >= 40.0 {
+            ThreatLevel::Medium
+        } else if score >= 10.0 {
+            ThreatLevel::Low
+        } else {
+            ThreatLevel::Informational
+        }
     }
 
     pub fn is_actionable(&self) -> bool {
@@ -37,7 +48,9 @@ impl ThreatScorer {
             ThreatLevel::Low => 25.0,
             ThreatLevel::Informational => 5.0,
         };
-        let recency_factor = if max_recency == 0 { 1.0 } else {
+        let recency_factor = if max_recency == 0 {
+            1.0
+        } else {
             1.0 - (recency_ticks as f64 / max_recency as f64).min(1.0)
         };
         let adjusted = base * (0.5 + 0.5 * recency_factor);

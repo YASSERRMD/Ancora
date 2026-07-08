@@ -8,24 +8,24 @@ pub use thresholds::{Thresholds, BASELINE};
 
 #[cfg(test)]
 mod tests {
-    mod planner_overhead;
-    mod reflection_cost;
-    mod routing_cost_savings;
-    mod optimization_compile;
-    mod memory_consolidation;
-    mod coordination_overhead;
-    mod guardrail_latency;
-    mod reasoning_overhead;
-    mod lh_checkpoint_cost;
-    mod skills_jit_latency;
-    mod routing_cost_lower;
-    mod consolidation_reduces;
-    mod reflection_quality;
-    mod harness_schema;
-    mod harness_reproducible;
-    mod regression_gate;
-    mod summary_format;
     mod airgap_bench;
     mod all_caps_bench;
     mod bench_count;
+    mod consolidation_reduces;
+    mod coordination_overhead;
+    mod guardrail_latency;
+    mod harness_reproducible;
+    mod harness_schema;
+    mod lh_checkpoint_cost;
+    mod memory_consolidation;
+    mod optimization_compile;
+    mod planner_overhead;
+    mod reasoning_overhead;
+    mod reflection_cost;
+    mod reflection_quality;
+    mod regression_gate;
+    mod routing_cost_lower;
+    mod routing_cost_savings;
+    mod skills_jit_latency;
+    mod summary_format;
 }

@@ -1,10 +1,13 @@
-use crate::cost_parity::{reference_cost_record, check_cost_parity, PricingRates, TokenUsage};
+use crate::cost_parity::{check_cost_parity, reference_cost_record, PricingRates, TokenUsage};
 
 const ALL_LANGS: &[&str] = &["rust", "python", "typescript", "go", "java", "csharp"];
 
 #[test]
 fn test_cost_equal_across_all_six_languages() {
-    let records: Vec<_> = ALL_LANGS.iter().map(|l| reference_cost_record(*l)).collect();
+    let records: Vec<_> = ALL_LANGS
+        .iter()
+        .map(|l| reference_cost_record(*l))
+        .collect();
     let issues = check_cost_parity(&records);
     assert!(
         issues.is_empty(),
@@ -30,7 +33,9 @@ fn test_cost_values_are_positive() {
             assert!(
                 *val >= 0.0,
                 "language {:?} attribute {:?} is negative: {}",
-                lang, key, val
+                lang,
+                key,
+                val
             );
         }
     }

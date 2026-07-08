@@ -109,11 +109,7 @@ fn try_parse_ipv4(chars: &[char]) -> Option<(usize, bool)> {
         if pos == start || pos - start > 3 {
             return Some((pos, false));
         }
-        let octet: u32 = chars[start..pos]
-            .iter()
-            .collect::<String>()
-            .parse()
-            .ok()?;
+        let octet: u32 = chars[start..pos].iter().collect::<String>().parse().ok()?;
         if octet > 255 {
             return Some((pos, false));
         }
@@ -132,7 +128,7 @@ fn scrub_phone_us(text: &str) -> String {
     // Patterns: (NXX) NXX-XXXX  NXX-NXX-XXXX  NXX.NXX.XXXX  10 consecutive digits
     let digits_only: String = text.chars().filter(|c| c.is_ascii_digit()).collect();
     let _ = digits_only; // used conceptually; we do a simple pass
-    // Simple heuristic: replace sequences that look like 10-digit US numbers.
+                         // Simple heuristic: replace sequences that look like 10-digit US numbers.
     replace_pattern(text, &phone_patterns())
 }
 

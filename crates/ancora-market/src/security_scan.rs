@@ -69,7 +69,11 @@ impl std::fmt::Display for ScanError {
 }
 
 impl ScanReport {
-    pub fn new(scanner: impl Into<String>, scanned_at: impl Into<String>, status: ScanStatus) -> Self {
+    pub fn new(
+        scanner: impl Into<String>,
+        scanned_at: impl Into<String>,
+        status: ScanStatus,
+    ) -> Self {
         ScanReport {
             scanner: scanner.into(),
             scanned_at: scanned_at.into(),
@@ -86,9 +90,7 @@ impl ScanReport {
             ScanStatus::Findings(findings) => {
                 let blocking: Vec<String> = findings
                     .iter()
-                    .filter(|f| {
-                        matches!(f.severity, Severity::High | Severity::Critical)
-                    })
+                    .filter(|f| matches!(f.severity, Severity::High | Severity::Critical))
                     .map(|f| f.code.clone())
                     .collect();
                 if blocking.is_empty() {
@@ -103,14 +105,17 @@ impl ScanReport {
     /// Maximum severity present in findings.
     pub fn max_severity(&self) -> Option<&Severity> {
         match &self.status {
-            ScanStatus::Findings(findings) => findings.iter().map(|f| &f.severity).max_by_key(|s| {
-                match s {
-                    Severity::Low => 0,
-                    Severity::Medium => 1,
-                    Severity::High => 2,
-                    Severity::Critical => 3,
-                }
-            }),
+            ScanStatus::Findings(findings) => {
+                findings
+                    .iter()
+                    .map(|f| &f.severity)
+                    .max_by_key(|s| match s {
+                        Severity::Low => 0,
+                        Severity::Medium => 1,
+                        Severity::High => 2,
+                        Severity::Critical => 3,
+                    })
+            }
             _ => None,
         }
     }

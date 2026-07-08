@@ -8,7 +8,10 @@ pub struct ModelRouter {
 
 impl ModelRouter {
     pub fn new(default_model: impl Into<String>) -> Self {
-        Self { default_model: default_model.into(), bindings: HashMap::new() }
+        Self {
+            default_model: default_model.into(),
+            bindings: HashMap::new(),
+        }
     }
 
     /// Bind a specific model to a node.
@@ -55,7 +58,10 @@ mod tests {
     #[test]
     fn node_model_id_used_when_no_binding() {
         let router = ModelRouter::new("big-model");
-        assert_eq!(router.resolve("node-b", Some("node-specific")), "node-specific");
+        assert_eq!(
+            router.resolve("node-b", Some("node-specific")),
+            "node-specific"
+        );
     }
 
     #[test]

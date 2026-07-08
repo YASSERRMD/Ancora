@@ -36,24 +36,44 @@ fn test_bench_500k_a2a_envelopes_under_500ms() {
         total_len += env.to_json_len();
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < A2A_BENCH_MS, "took {}ms budget {}ms", elapsed, A2A_BENCH_MS);
+    assert!(
+        elapsed < A2A_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        A2A_BENCH_MS
+    );
     assert!(total_len > 0);
 }
 
 #[test]
 fn test_envelope_valid_protocol() {
-    let env = A2AEnvelope { protocol: "a2a/1.0", sender_lang: "rust", recipient_lang: "go", run_id: 1 };
+    let env = A2AEnvelope {
+        protocol: "a2a/1.0",
+        sender_lang: "rust",
+        recipient_lang: "go",
+        run_id: 1,
+    };
     assert!(env.is_valid());
 }
 
 #[test]
 fn test_envelope_invalid_protocol() {
-    let env = A2AEnvelope { protocol: "a2a/2.0", sender_lang: "rust", recipient_lang: "go", run_id: 1 };
+    let env = A2AEnvelope {
+        protocol: "a2a/2.0",
+        sender_lang: "rust",
+        recipient_lang: "go",
+        run_id: 1,
+    };
     assert!(!env.is_valid());
 }
 
 #[test]
 fn test_envelope_json_len_positive() {
-    let env = A2AEnvelope { protocol: "a2a/1.0", sender_lang: "python", recipient_lang: "java", run_id: 99 };
+    let env = A2AEnvelope {
+        protocol: "a2a/1.0",
+        sender_lang: "python",
+        recipient_lang: "java",
+        run_id: 99,
+    };
     assert!(env.to_json_len() > 10);
 }

@@ -2,7 +2,6 @@
 ///
 /// The `PinRegistry` lets callers explicitly assign a version to a run before
 /// the run starts, regardless of what the active model is at start time.
-
 use std::collections::HashMap;
 use std::sync::Mutex;
 

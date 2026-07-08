@@ -28,7 +28,9 @@ fn make_agent_node(id: &str) -> Node {
 }
 
 fn build_chain_graph(n: usize) -> Graph {
-    let nodes: Vec<Node> = (0..n).map(|i| make_agent_node(&format!("node-{}", i))).collect();
+    let nodes: Vec<Node> = (0..n)
+        .map(|i| make_agent_node(&format!("node-{}", i)))
+        .collect();
     let edges: Vec<Edge> = (0..n.saturating_sub(1))
         .map(|i| Edge {
             from: format!("node-{}", i),

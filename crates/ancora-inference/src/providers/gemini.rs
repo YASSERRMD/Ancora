@@ -64,7 +64,9 @@ mod tests {
 
     #[test]
     fn gemini_recorded_fixture_completes() {
-        let resp = client().parse_response(FIXTURE_CHAT, "gemini-2.0-flash").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_CHAT, "gemini-2.0-flash")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Gemini");
         assert_eq!(resp.tokens_in, 8);
         assert_eq!(resp.tokens_out, 4);
@@ -72,7 +74,9 @@ mod tests {
 
     #[test]
     fn gemini_cost_computed_from_profile_pricing() {
-        let resp = client().parse_response(FIXTURE_CHAT, "gemini-2.0-flash").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_CHAT, "gemini-2.0-flash")
+            .unwrap();
         // 8 * $0.10/M + 4 * $0.40/M
         let expected = 8.0 * 0.10 / 1_000_000.0 + 4.0 * 0.40 / 1_000_000.0;
         let cost = resp.cost_usd.expect("cost must be Some for priced model");
@@ -100,7 +104,9 @@ mod tests {
 
     #[test]
     fn gemini_function_call_round_trip_works() {
-        let resp = client().parse_response(FIXTURE_FUNCTION_CALL, "gemini-2.0-flash").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_FUNCTION_CALL, "gemini-2.0-flash")
+            .unwrap();
         assert_eq!(resp.tool_calls.len(), 1);
         let tc = &resp.tool_calls[0];
         assert_eq!(tc.function.name, "get_weather");
@@ -109,7 +115,9 @@ mod tests {
 
     #[test]
     fn gemini_function_call_content_is_empty() {
-        let resp = client().parse_response(FIXTURE_FUNCTION_CALL, "gemini-2.0-flash").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_FUNCTION_CALL, "gemini-2.0-flash")
+            .unwrap();
         assert!(resp.content.is_empty());
     }
 
@@ -164,7 +172,8 @@ mod tests {
     #[test]
     fn gemini_streaming_tokens_accumulate_in_order() {
         use crate::adapters::gemini::parse_sse_line;
-        let combined: String = FIXTURE_STREAM_LINES.iter()
+        let combined: String = FIXTURE_STREAM_LINES
+            .iter()
             .filter_map(|l| parse_sse_line(l))
             .filter(|ev| !ev.finished)
             .map(|ev| ev.text)
@@ -175,7 +184,8 @@ mod tests {
     #[test]
     fn gemini_streaming_last_chunk_is_finished() {
         use crate::adapters::gemini::parse_sse_line;
-        let last = FIXTURE_STREAM_LINES.iter()
+        let last = FIXTURE_STREAM_LINES
+            .iter()
             .filter_map(|l| parse_sse_line(l))
             .last()
             .unwrap();

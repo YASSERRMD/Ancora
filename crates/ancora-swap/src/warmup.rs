@@ -3,7 +3,6 @@
 /// A `WarmupGate` wraps a candidate `ModelHandle` and records whether
 /// warmup has been completed.  The swap runtime should refuse to swap in
 /// any handle whose gate is not cleared.
-
 use std::time::{Duration, Instant};
 
 use crate::model::ModelHandle;

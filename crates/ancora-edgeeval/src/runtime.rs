@@ -69,7 +69,11 @@ impl LatencyEvaluator {
         if self.measurements.is_empty() {
             return Duration::ZERO;
         }
-        let total_nanos: u128 = self.measurements.iter().map(|m| m.duration.as_nanos()).sum();
+        let total_nanos: u128 = self
+            .measurements
+            .iter()
+            .map(|m| m.duration.as_nanos())
+            .sum();
         Duration::from_nanos((total_nanos / self.measurements.len() as u128) as u64)
     }
 
@@ -87,7 +91,11 @@ impl LatencyEvaluator {
         if self.measurements.is_empty() {
             return Duration::ZERO;
         }
-        let mut durations: Vec<u64> = self.measurements.iter().map(|m| m.duration.as_nanos() as u64).collect();
+        let mut durations: Vec<u64> = self
+            .measurements
+            .iter()
+            .map(|m| m.duration.as_nanos() as u64)
+            .collect();
         durations.sort_unstable();
         let idx = ((pct * durations.len()).saturating_sub(1)) / 100;
         Duration::from_nanos(durations[idx])

@@ -23,11 +23,7 @@ pub struct WorkerExecutor {
 }
 
 impl WorkerExecutor {
-    pub fn new(
-        worker_id: String,
-        store: Arc<Mutex<ControlPlaneStore>>,
-        step_fn: StepFn,
-    ) -> Self {
+    pub fn new(worker_id: String, store: Arc<Mutex<ControlPlaneStore>>, step_fn: StepFn) -> Self {
         WorkerExecutor {
             worker_id,
             store,

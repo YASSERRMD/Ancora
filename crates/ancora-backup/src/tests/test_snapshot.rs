@@ -4,9 +4,27 @@ mod tests {
 
     fn sample_journal() -> Journal {
         let mut j = Journal::new();
-        j.append(JournalEntry { seq: 1, run_id: "r1".into(), tenant_id: "t".into(), kind: "start".into(), payload: "{}".into() });
-        j.append(JournalEntry { seq: 2, run_id: "r1".into(), tenant_id: "t".into(), kind: "step".into(), payload: "{\"n\":1}".into() });
-        j.append(JournalEntry { seq: 3, run_id: "r1".into(), tenant_id: "t".into(), kind: "complete".into(), payload: "{}".into() });
+        j.append(JournalEntry {
+            seq: 1,
+            run_id: "r1".into(),
+            tenant_id: "t".into(),
+            kind: "start".into(),
+            payload: "{}".into(),
+        });
+        j.append(JournalEntry {
+            seq: 2,
+            run_id: "r1".into(),
+            tenant_id: "t".into(),
+            kind: "step".into(),
+            payload: "{\"n\":1}".into(),
+        });
+        j.append(JournalEntry {
+            seq: 3,
+            run_id: "r1".into(),
+            tenant_id: "t".into(),
+            kind: "complete".into(),
+            payload: "{}".into(),
+        });
         j
     }
 

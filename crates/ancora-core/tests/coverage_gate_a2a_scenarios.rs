@@ -1,27 +1,29 @@
 // Coverage gate: all A2A cross-language handoff scenarios have tests.
 
 const A2A_PAIRS: &[(&str, &str)] = &[
-    ("go",     "python"),
+    ("go", "python"),
     ("python", "go"),
-    ("ts",     "dotnet"),
+    ("ts", "dotnet"),
     ("dotnet", "ts"),
-    ("rust",   "python"),
-    ("java",   "rust"),
+    ("rust", "python"),
+    ("java", "rust"),
 ];
 
 const A2A_TEST_MAP: &[(&str, &str, &str)] = &[
-    ("go",     "python", "xlang_a2a_to_python_test"),
-    ("python", "go",     "test_xlang_a2a_to_go"),
-    ("ts",     "dotnet", "xlang-a2a-to-dotnet.test"),
-    ("dotnet", "ts",     "A2aDotnetTsTests"),
-    ("rust",   "python", "xlang_a2a_identity"),
-    ("java",   "rust",   "Phase152A2aJavaRustTest"),
+    ("go", "python", "xlang_a2a_to_python_test"),
+    ("python", "go", "test_xlang_a2a_to_go"),
+    ("ts", "dotnet", "xlang-a2a-to-dotnet.test"),
+    ("dotnet", "ts", "A2aDotnetTsTests"),
+    ("rust", "python", "xlang_a2a_identity"),
+    ("java", "rust", "Phase152A2aJavaRustTest"),
 ];
 
 #[test]
 fn test_all_a2a_pairs_have_tests() {
     for (sender, recipient) in A2A_PAIRS {
-        let has_test = A2A_TEST_MAP.iter().any(|(s, r, _)| s == sender && r == recipient);
+        let has_test = A2A_TEST_MAP
+            .iter()
+            .any(|(s, r, _)| s == sender && r == recipient);
         assert!(has_test, "no A2A test for {sender} -> {recipient}");
     }
 }
@@ -38,7 +40,9 @@ fn test_a2a_test_map_has_six_entries() {
 
 #[test]
 fn test_no_self_handoff_pairs() {
-    for (s, r) in A2A_PAIRS { assert_ne!(s, r, "self-handoff pair: {s} -> {r}"); }
+    for (s, r) in A2A_PAIRS {
+        assert_ne!(s, r, "self-handoff pair: {s} -> {r}");
+    }
 }
 
 #[test]

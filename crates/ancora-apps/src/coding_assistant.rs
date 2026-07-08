@@ -68,8 +68,8 @@ impl SnippetLibrary {
             .iter()
             .filter(|s| {
                 let lang_match = lang.map_or(true, |l| &s.language == l);
-                let text_match = s.description.to_lowercase().contains(&q)
-                    || s.code.to_lowercase().contains(&q);
+                let text_match =
+                    s.description.to_lowercase().contains(&q) || s.code.to_lowercase().contains(&q);
                 lang_match && text_match
             })
             .collect()

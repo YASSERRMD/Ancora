@@ -1,4 +1,4 @@
-use crate::spec::{EffectClass, spec_from_goal};
+use crate::spec::{spec_from_goal, EffectClass};
 
 #[test]
 fn spec_from_goal_creates_tool_spec() {

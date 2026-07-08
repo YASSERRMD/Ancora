@@ -33,8 +33,9 @@ fn wasm_plugin_runs_sandboxed_within_limits() {
         max_threads: Some(1),
         max_open_fds: Some(0),
     };
-    let mut inst = WasmInstance::instantiate("wasm-test-1", &minimal_wasm(), make_wasm_sandbox(limits))
-        .expect("instantiation should succeed");
+    let mut inst =
+        WasmInstance::instantiate("wasm-test-1", &minimal_wasm(), make_wasm_sandbox(limits))
+            .expect("instantiation should succeed");
 
     let result = inst.call("echo", b"hello").expect("call should succeed");
     assert!(!result.is_empty());
@@ -49,8 +50,9 @@ fn wasm_plugin_rejected_when_cpu_limit_tiny() {
         max_threads: Some(1),
         max_open_fds: Some(0),
     };
-    let mut inst = WasmInstance::instantiate("wasm-test-2", &minimal_wasm(), make_wasm_sandbox(limits))
-        .expect("instantiation should succeed");
+    let mut inst =
+        WasmInstance::instantiate("wasm-test-2", &minimal_wasm(), make_wasm_sandbox(limits))
+            .expect("instantiation should succeed");
 
     // Even a minimal call should be rejected due to the zero CPU budget.
     let result = inst.call("ping", b"x");
@@ -74,5 +76,7 @@ fn wasm_sandbox_has_deny_all_network_policy() {
 fn wasm_sandbox_has_deny_all_filesystem_policy() {
     use crate::filesystem_policy::AccessMode;
     let sb = make_wasm_sandbox(ResourceLimits::default());
-    assert!(!sb.filesystem_policy.permits("/etc/passwd", AccessMode::Read));
+    assert!(!sb
+        .filesystem_policy
+        .permits("/etc/passwd", AccessMode::Read));
 }

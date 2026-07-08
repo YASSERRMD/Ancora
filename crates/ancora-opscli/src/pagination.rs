@@ -21,5 +21,10 @@ pub fn paginate<'a>(entries: &'a [RunEntry], page: usize, page_size: usize) -> P
         .skip(start)
         .take(page_size)
         .collect::<Vec<_>>();
-    Page { items, total, page, page_size }
+    Page {
+        items,
+        total,
+        page,
+        page_size,
+    }
 }

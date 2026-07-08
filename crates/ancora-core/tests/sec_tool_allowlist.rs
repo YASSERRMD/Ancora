@@ -5,7 +5,9 @@ struct ToolPolicy {
 }
 
 impl ToolPolicy {
-    fn new(allowed: Vec<&'static str>) -> Self { Self { allowed } }
+    fn new(allowed: Vec<&'static str>) -> Self {
+        Self { allowed }
+    }
 
     fn is_allowed(&self, tool_name: &str) -> bool {
         self.allowed.contains(&tool_name)

@@ -57,8 +57,8 @@ pub fn repair_tool_call(raw: &str) -> Result<ToolCall, RepairError> {
     let fixed = apply_fixes(&extracted);
 
     // Step 4+5: parse and normalise.
-    let v: Value = serde_json::from_str(&fixed)
-        .map_err(|e| RepairError::InvalidStructure(e.to_string()))?;
+    let v: Value =
+        serde_json::from_str(&fixed).map_err(|e| RepairError::InvalidStructure(e.to_string()))?;
     normalise(v)
 }
 
@@ -159,9 +159,9 @@ fn remove_trailing_commas(s: &str) -> String {
 
 /// Normalise field names in a parsed JSON value and return a [`ToolCall`].
 fn normalise(mut v: Value) -> Result<ToolCall, RepairError> {
-    let obj = v.as_object_mut().ok_or_else(|| {
-        RepairError::InvalidStructure("top-level value is not an object".into())
-    })?;
+    let obj = v
+        .as_object_mut()
+        .ok_or_else(|| RepairError::InvalidStructure("top-level value is not an object".into()))?;
 
     // Normalise `function_name` / `fn` → `name`.
     if !obj.contains_key("name") {

@@ -11,13 +11,19 @@ struct VecStore {
 }
 
 impl VecStore {
-    fn new() -> Self { VecStore { data: Vec::new() } }
+    fn new() -> Self {
+        VecStore { data: Vec::new() }
+    }
     fn insert(&mut self, id: u64, v: &[f32]) {
         let mut head = [0f32; 4];
-        for i in 0..4.min(v.len()) { head[i] = v[i]; }
+        for i in 0..4.min(v.len()) {
+            head[i] = v[i];
+        }
         self.data.push((head, id));
     }
-    fn len(&self) -> usize { self.data.len() }
+    fn len(&self) -> usize {
+        self.data.len()
+    }
 }
 
 fn make_vec(seed: usize, _dim: usize) -> Vec<f32> {
@@ -39,7 +45,12 @@ fn test_bench_20k_vector_inserts_under_300ms() {
         store.insert(i as u64, &v);
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < INSERT_BENCH_MS, "took {}ms budget {}ms", elapsed, INSERT_BENCH_MS);
+    assert!(
+        elapsed < INSERT_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        INSERT_BENCH_MS
+    );
     assert_eq!(store.len(), INSERT_BENCH_N);
 }
 
@@ -59,5 +70,7 @@ fn test_make_vec_dimension() {
 #[test]
 fn test_make_vec_values_in_range() {
     let v = make_vec(7, 16);
-    for &x in &v { assert!(x >= 0.0 && x <= 1.0); }
+    for &x in &v {
+        assert!(x >= 0.0 && x <= 1.0);
+    }
 }

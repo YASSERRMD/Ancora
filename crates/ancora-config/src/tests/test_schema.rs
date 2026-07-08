@@ -21,7 +21,10 @@ mod tests {
 
     #[test]
     fn core_cfg_roundtrip_json() {
-        let c = CoreCfg { log_level: "debug".into(), ..Default::default() };
+        let c = CoreCfg {
+            log_level: "debug".into(),
+            ..Default::default()
+        };
         let json = serde_json::to_string(&c).unwrap();
         let c2: CoreCfg = serde_json::from_str(&json).unwrap();
         assert_eq!(c, c2);

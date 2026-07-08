@@ -1,5 +1,5 @@
 use crate::sandbox::SandboxRunner;
-use crate::spec::{ToolSpec, EffectClass};
+use crate::spec::{EffectClass, ToolSpec};
 use serde_json::json;
 
 fn spec(name: &str, effect: EffectClass) -> ToolSpec {

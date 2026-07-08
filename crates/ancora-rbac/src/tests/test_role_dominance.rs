@@ -1,7 +1,9 @@
 use crate::Role;
 #[test]
 fn admin_dominates_all() {
-    for r in Role::all() { assert!(Role::Admin.dominates(&r)); }
+    for r in Role::all() {
+        assert!(Role::Admin.dominates(&r));
+    }
 }
 #[test]
 fn viewer_only_dominates_itself() {

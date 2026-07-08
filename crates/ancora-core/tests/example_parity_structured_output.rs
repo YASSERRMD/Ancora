@@ -13,19 +13,47 @@ fn validate_against_schema(output: &str) -> bool {
 }
 
 const STRUCTURED_EXAMPLES: &[StructuredOutputExample] = &[
-    StructuredOutputExample { lang: "rust",       output_json: r#"{"name":"Alice","score":9.5}"#, valid: true },
-    StructuredOutputExample { lang: "go",         output_json: r#"{"name":"Alice","score":9.5}"#, valid: true },
-    StructuredOutputExample { lang: "python",     output_json: r#"{"name":"Alice","score":9.5}"#, valid: true },
-    StructuredOutputExample { lang: "typescript", output_json: r#"{"name":"Alice","score":9.5}"#, valid: true },
-    StructuredOutputExample { lang: "dotnet",     output_json: r#"{"name":"Alice","score":9.5}"#, valid: true },
-    StructuredOutputExample { lang: "java",       output_json: r#"{"name":"Alice","score":9.5}"#, valid: true },
+    StructuredOutputExample {
+        lang: "rust",
+        output_json: r#"{"name":"Alice","score":9.5}"#,
+        valid: true,
+    },
+    StructuredOutputExample {
+        lang: "go",
+        output_json: r#"{"name":"Alice","score":9.5}"#,
+        valid: true,
+    },
+    StructuredOutputExample {
+        lang: "python",
+        output_json: r#"{"name":"Alice","score":9.5}"#,
+        valid: true,
+    },
+    StructuredOutputExample {
+        lang: "typescript",
+        output_json: r#"{"name":"Alice","score":9.5}"#,
+        valid: true,
+    },
+    StructuredOutputExample {
+        lang: "dotnet",
+        output_json: r#"{"name":"Alice","score":9.5}"#,
+        valid: true,
+    },
+    StructuredOutputExample {
+        lang: "java",
+        output_json: r#"{"name":"Alice","score":9.5}"#,
+        valid: true,
+    },
 ];
 
 #[test]
 fn test_all_examples_produce_valid_output() {
     for e in STRUCTURED_EXAMPLES {
-        assert_eq!(e.valid, validate_against_schema(e.output_json),
-            "lang {} output does not match schema", e.lang);
+        assert_eq!(
+            e.valid,
+            validate_against_schema(e.output_json),
+            "lang {} output does not match schema",
+            e.lang
+        );
     }
 }
 
@@ -43,7 +71,11 @@ fn test_schema_requires_name_and_score() {
 #[test]
 fn test_all_outputs_contain_alice() {
     for e in STRUCTURED_EXAMPLES {
-        assert!(e.output_json.contains("Alice"), "lang {} output has no name", e.lang);
+        assert!(
+            e.output_json.contains("Alice"),
+            "lang {} output has no name",
+            e.lang
+        );
     }
 }
 

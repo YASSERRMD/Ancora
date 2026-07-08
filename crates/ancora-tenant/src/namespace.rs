@@ -8,10 +8,15 @@ pub struct Namespace {
 
 impl Namespace {
     pub fn new(tenant_id: impl Into<String>) -> Self {
-        Self { tenant_id: tenant_id.into(), data: HashMap::new() }
+        Self {
+            tenant_id: tenant_id.into(),
+            data: HashMap::new(),
+        }
     }
 
-    pub fn tenant_id(&self) -> &str { &self.tenant_id }
+    pub fn tenant_id(&self) -> &str {
+        &self.tenant_id
+    }
 
     pub fn scoped_key(&self, key: &str) -> String {
         format!("{}::{}", self.tenant_id, key)

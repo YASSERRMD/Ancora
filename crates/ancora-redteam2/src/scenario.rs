@@ -99,17 +99,28 @@ impl RedTeamScenario {
         self
     }
 
-    pub fn start(&mut self) { self.status = ScenarioStatus::Running; }
+    pub fn start(&mut self) {
+        self.status = ScenarioStatus::Running;
+    }
     pub fn complete(&mut self, tick: u64) {
         self.status = ScenarioStatus::Completed;
         self.completed_tick = Some(tick);
     }
-    pub fn fail(&mut self) { self.status = ScenarioStatus::Failed; }
-    pub fn abort(&mut self) { self.status = ScenarioStatus::Aborted; }
+    pub fn fail(&mut self) {
+        self.status = ScenarioStatus::Failed;
+    }
+    pub fn abort(&mut self) {
+        self.status = ScenarioStatus::Aborted;
+    }
 
-    pub fn is_active(&self) -> bool { self.status == ScenarioStatus::Running }
+    pub fn is_active(&self) -> bool {
+        self.status == ScenarioStatus::Running
+    }
     pub fn is_done(&self) -> bool {
-        matches!(self.status, ScenarioStatus::Completed | ScenarioStatus::Failed | ScenarioStatus::Aborted)
+        matches!(
+            self.status,
+            ScenarioStatus::Completed | ScenarioStatus::Failed | ScenarioStatus::Aborted
+        )
     }
 
     pub fn duration(&self, current_tick: u64) -> u64 {

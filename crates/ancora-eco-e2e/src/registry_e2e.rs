@@ -1,5 +1,4 @@
 /// Registry end-to-end: publish, install, and list plugins from a local registry.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -55,7 +54,10 @@ impl LocalRegistry {
     }
 
     pub fn all_versions(&self, name: &str) -> Vec<&RegistryEntry> {
-        self.entries.get(name).map(|v| v.iter().collect()).unwrap_or_default()
+        self.entries
+            .get(name)
+            .map(|v| v.iter().collect())
+            .unwrap_or_default()
     }
 
     pub fn list_all(&self) -> Vec<&RegistryEntry> {

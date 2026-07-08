@@ -48,14 +48,10 @@ impl AncoraToolAdapter {
 
 /// Convert a list of LangChain tool definitions into Ancora adapters using a
 /// shared echo-style handler (useful for migration testing).
-pub fn import_langchain_tools(
-    defs: Vec<LangchainToolDef>,
-) -> Vec<AncoraToolAdapter> {
+pub fn import_langchain_tools(defs: Vec<LangchainToolDef>) -> Vec<AncoraToolAdapter> {
     defs.into_iter()
         .map(|d| {
-            AncoraToolAdapter::from_langchain(d, |input| {
-                Ok(format!("ancora-echo: {}", input))
-            })
+            AncoraToolAdapter::from_langchain(d, |input| Ok(format!("ancora-echo: {}", input)))
         })
         .collect()
 }

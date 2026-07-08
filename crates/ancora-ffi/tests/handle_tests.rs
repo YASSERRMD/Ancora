@@ -11,7 +11,10 @@ fn error_code_ok_is_zero() {
 #[test]
 fn error_codes_are_distinct() {
     assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::NullPtr as i32);
-    assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::InvalidUtf8 as i32);
+    assert_ne!(
+        AncorErrorCode::Ok as i32,
+        AncorErrorCode::InvalidUtf8 as i32
+    );
     assert_ne!(AncorErrorCode::Ok as i32, AncorErrorCode::Internal as i32);
 }
 
@@ -27,7 +30,10 @@ fn buffer_new_and_free_does_not_leak() {
 #[test]
 fn buffer_free_null_is_noop() {
     use ancora_ffi::buffer::AncorBuffer;
-    let empty = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let empty = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     ancora_buffer_free(empty);
 }
 

@@ -1,21 +1,21 @@
-pub mod identity;
-pub mod boot;
+pub mod airgap_proof;
 pub mod attestation;
-pub mod storage;
-pub mod tamper;
+pub mod boot;
+pub mod egress;
+pub mod identity;
 pub mod report;
 pub mod revocation;
-pub mod airgap_proof;
-pub mod egress;
+pub mod storage;
+pub mod tamper;
 
 #[cfg(test)]
 mod tests {
-    mod test_identity;
+    mod test_airgap_proof;
     mod test_attestation;
-    mod test_storage;
-    mod test_tamper;
+    mod test_egress;
+    mod test_identity;
     mod test_report;
     mod test_revocation;
-    mod test_airgap_proof;
-    mod test_egress;
+    mod test_storage;
+    mod test_tamper;
 }

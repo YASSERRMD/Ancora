@@ -1,7 +1,15 @@
 use crate::component::{Component, ComponentKind, License};
 use crate::policy::{PolicyDecision, SupplyChainPolicy};
 fn make_component() -> Component {
-    Component::new("c1", "lib", "1.0", ComponentKind::Library, License::Mit, "vendor", "d1")
+    Component::new(
+        "c1",
+        "lib",
+        "1.0",
+        ComponentKind::Library,
+        License::Mit,
+        "vendor",
+        "d1",
+    )
 }
 #[test]
 fn require_provenance_denies_component_without_provenance() {

@@ -4,7 +4,6 @@
 /// engine kind and configuration.  In production this would probe
 /// real hardware; here it uses a declarative `HardwareProfile` so
 /// the logic is fully unit-testable offline.
-
 use crate::capability::Capabilities;
 use crate::model::{EngineConfig, EngineKind};
 
@@ -99,11 +98,7 @@ pub fn select_engine(criteria: &SelectionCriteria) -> SelectionResult {
     let caps = &criteria.required_capabilities;
 
     // Embeddings-only on ONNX Runtime
-    if caps.embeddings
-        && !caps.streaming
-        && !caps.function_calling
-        && !caps.batch_inference
-    {
+    if caps.embeddings && !caps.streaming && !caps.function_calling && !caps.batch_inference {
         let config = EngineConfig::new(EngineKind::OnnxRuntime);
         return SelectionResult {
             engine: EngineKind::OnnxRuntime,
@@ -120,10 +115,7 @@ pub fn select_engine(criteria: &SelectionCriteria) -> SelectionResult {
         return SelectionResult {
             engine: EngineKind::Vllm,
             config,
-            reason: format!(
-                "throughput-preferred with {}GB vram -> vllm",
-                hw.vram_gb
-            ),
+            reason: format!("throughput-preferred with {}GB vram -> vllm", hw.vram_gb),
         };
     }
 
@@ -135,10 +127,7 @@ pub fn select_engine(criteria: &SelectionCriteria) -> SelectionResult {
         return SelectionResult {
             engine: EngineKind::Ollama,
             config,
-            reason: format!(
-                "gpu available ({}GB vram) -> ollama for ease",
-                hw.vram_gb
-            ),
+            reason: format!("gpu available ({}GB vram) -> ollama for ease", hw.vram_gb),
         };
     }
 
@@ -150,16 +139,12 @@ pub fn select_engine(criteria: &SelectionCriteria) -> SelectionResult {
         return SelectionResult {
             engine: EngineKind::LlamaCppServer,
             config,
-            reason: format!(
-                "cpu-only with {}GB ram -> llama.cpp server",
-                hw.ram_gb
-            ),
+            reason: format!("cpu-only with {}GB ram -> llama.cpp server", hw.ram_gb),
         };
     }
 
     // Minimal footprint
-    let config = EngineConfig::new(EngineKind::LlamaCppEmbedded)
-        .with_threads(hw.cpu_cores.min(4));
+    let config = EngineConfig::new(EngineKind::LlamaCppEmbedded).with_threads(hw.cpu_cores.min(4));
     SelectionResult {
         engine: EngineKind::LlamaCppEmbedded,
         config,

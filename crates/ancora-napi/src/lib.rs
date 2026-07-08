@@ -25,7 +25,10 @@ impl InnerRun {
             ));
         }
         events.push_back(format!(r#"{{"kind":"completed","run_id":"{}"}}"#, id));
-        Self { id: id.to_string(), events }
+        Self {
+            id: id.to_string(),
+            events,
+        }
     }
 
     fn poll(&mut self) -> Option<String> {
@@ -53,7 +56,9 @@ impl Runtime {
     /// Create a new Runtime instance.
     #[napi(constructor)]
     pub fn new() -> Self {
-        Self { runs: Some(HashMap::new()) }
+        Self {
+            runs: Some(HashMap::new()),
+        }
     }
 
     /// Return true if the runtime has been freed.
@@ -71,9 +76,10 @@ impl Runtime {
     /// Start a new agent run from spec bytes. Returns the run ID.
     #[napi]
     pub fn start_run(&mut self, spec_bytes: Buffer) -> Result<String> {
-        let runs = self.runs.as_mut().ok_or_else(|| {
-            Error::new(Status::GenericFailure, "Runtime has been freed")
-        })?;
+        let runs = self
+            .runs
+            .as_mut()
+            .ok_or_else(|| Error::new(Status::GenericFailure, "Runtime has been freed"))?;
         let spec = String::from_utf8_lossy(&spec_bytes).into_owned();
         let run_id = uuid::Uuid::new_v4().to_string();
         runs.insert(run_id.clone(), InnerRun::new(&run_id, &spec));
@@ -83,9 +89,10 @@ impl Runtime {
     /// Poll the next event for a run. Returns null when exhausted.
     #[napi]
     pub fn poll_run(&mut self, run_id: String) -> Result<Option<Buffer>> {
-        let runs = self.runs.as_mut().ok_or_else(|| {
-            Error::new(Status::GenericFailure, "Runtime has been freed")
-        })?;
+        let runs = self
+            .runs
+            .as_mut()
+            .ok_or_else(|| Error::new(Status::GenericFailure, "Runtime has been freed"))?;
         let event = runs.get_mut(&run_id).and_then(|r| r.poll());
         Ok(event.map(|s| Buffer::from(s.into_bytes())))
     }
@@ -93,9 +100,10 @@ impl Runtime {
     /// Resume a suspended run with a decision payload.
     #[napi]
     pub fn resume_run(&mut self, run_id: String, decision: Buffer) -> Result<()> {
-        let runs = self.runs.as_mut().ok_or_else(|| {
-            Error::new(Status::GenericFailure, "Runtime has been freed")
-        })?;
+        let runs = self
+            .runs
+            .as_mut()
+            .ok_or_else(|| Error::new(Status::GenericFailure, "Runtime has been freed"))?;
         let decision_str = String::from_utf8_lossy(&decision).into_owned();
         if let Some(run) = runs.get_mut(&run_id) {
             run.resume(&decision_str);

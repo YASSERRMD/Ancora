@@ -5,15 +5,15 @@
 
 pub mod android;
 pub mod build_profile;
-pub mod footprint;
-pub mod ios;
-pub mod targets;
+pub mod docs_meta;
 pub mod features;
+pub mod footprint;
+pub mod inference;
+pub mod ios;
 pub mod journal;
 pub mod memory;
-pub mod inference;
 pub mod perf;
-pub mod docs_meta;
+pub mod targets;
 
 #[cfg(test)]
 mod tests;

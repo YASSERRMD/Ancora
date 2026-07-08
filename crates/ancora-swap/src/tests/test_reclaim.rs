@@ -1,14 +1,17 @@
-/// Tests verifying memory is reclaimed after unload.
-
-use crate::model::{ModelMeta, ModelVersion};
 use crate::model::ModelHandle;
+/// Tests verifying memory is reclaimed after unload.
+use crate::model::{ModelMeta, ModelVersion};
 use crate::reclaim::ReclaimQueue;
 use crate::runtime::{make_model, SwapRuntime};
 
 fn make_handle_with_bytes(name: &str, bytes: u64) -> ModelHandle {
     let v = ModelVersion::next();
     ModelHandle::new(
-        ModelMeta { name: name.to_string(), version: "0.1.0".to_string(), memory_bytes: bytes },
+        ModelMeta {
+            name: name.to_string(),
+            version: "0.1.0".to_string(),
+            memory_bytes: bytes,
+        },
         v,
     )
 }

@@ -16,9 +16,7 @@ pub fn build_azure_profile(
 ) -> ProviderProfile {
     let resource = resource.as_ref();
     let deployment = deployment.as_ref();
-    let base_url = format!(
-        "https://{resource}.openai.azure.com/openai/deployments/{deployment}"
-    );
+    let base_url = format!("https://{resource}.openai.azure.com/openai/deployments/{deployment}");
     let chat_path = format!("/chat/completions?api-version={}", api_version.as_ref());
 
     ProviderProfile::new(
@@ -56,7 +54,9 @@ mod tests {
 
     fn client() -> OpenAiClient {
         OpenAiClient::new(Arc::new(build_azure_profile(
-            "myresource", "gpt-4o-dep", "2024-02-01",
+            "myresource",
+            "gpt-4o-dep",
+            "2024-02-01",
         )))
     }
 
@@ -78,7 +78,9 @@ mod tests {
     #[test]
     fn azure_api_version_in_chat_path() {
         let profile = build_azure_profile("res", "dep1", "2024-02-01");
-        assert!(profile.chat_completions_path.contains("api-version=2024-02-01"));
+        assert!(profile
+            .chat_completions_path
+            .contains("api-version=2024-02-01"));
     }
 
     #[test]
@@ -100,7 +102,10 @@ mod tests {
         let c = OpenAiClient::new(p);
         let req = CompletionRequest::simple("dep1", vec![Message::text("user", "hi")]);
         let body = c.build_request_body(&req, false).unwrap();
-        assert!(body.get("model").is_none(), "model field should be removed for Azure");
+        assert!(
+            body.get("model").is_none(),
+            "model field should be removed for Azure"
+        );
     }
 
     #[test]
@@ -154,7 +159,10 @@ mod tests {
         let req = CompletionRequest::simple("d", vec![Message::text("user", "hi")]);
         let body = c.build_request_body(&req, false).unwrap();
         // api-version must be in the URL, not in the JSON body
-        assert!(body.get("api-version").is_none(), "api-version should not be in body");
+        assert!(
+            body.get("api-version").is_none(),
+            "api-version should not be in body"
+        );
         assert!(p.completions_url(None).contains("api-version"));
     }
 }

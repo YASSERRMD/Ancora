@@ -102,14 +102,21 @@ mod chroma_retry_tests {
 
     #[test]
     fn max_retries_is_at_least_two() {
-        assert!(MAX_RETRIES >= 2, "need at least 2 retries for transient errors");
+        assert!(
+            MAX_RETRIES >= 2,
+            "need at least 2 retries for transient errors"
+        );
     }
 
     // ---- URL builders ---------------------------------------------------
 
     #[test]
     fn collections_url_ends_with_collections() {
-        let url = collections_url("http://localhost:8000", "default_tenant", "default_database");
+        let url = collections_url(
+            "http://localhost:8000",
+            "default_tenant",
+            "default_database",
+        );
         assert!(url.ends_with("/collections"), "url: {url}");
     }
 

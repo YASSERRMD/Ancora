@@ -1,6 +1,5 @@
 /// Plugin update mechanism - compares installed plugin versions against
 /// available versions and produces update descriptors.
-
 use std::collections::HashMap;
 
 /// Represents a version with major, minor, and patch components.
@@ -21,7 +20,11 @@ impl Version {
         let major = parts[0].parse().ok()?;
         let minor = parts[1].parse().ok()?;
         let patch = parts[2].parse().ok()?;
-        Some(Self { major, minor, patch })
+        Some(Self {
+            major,
+            minor,
+            patch,
+        })
     }
 
     /// Format as a "MAJOR.MINOR.PATCH" string.
@@ -71,7 +74,11 @@ pub enum UpdateStatus {
     /// The plugin is up to date.
     UpToDate { plugin_id: String, version: Version },
     /// The installed version is newer than what the registry reports (pre-release).
-    AheadOfRegistry { plugin_id: String, installed: Version, registry: Version },
+    AheadOfRegistry {
+        plugin_id: String,
+        installed: Version,
+        registry: Version,
+    },
 }
 
 /// A mock registry entry for tests (no network required).
@@ -130,10 +137,7 @@ impl UpdateRegistry {
     }
 
     /// Check all plugins in a map of `plugin_id -> installed_version`.
-    pub fn check_all(
-        &self,
-        installed: &HashMap<String, String>,
-    ) -> Vec<UpdateStatus> {
+    pub fn check_all(&self, installed: &HashMap<String, String>) -> Vec<UpdateStatus> {
         installed
             .iter()
             .filter_map(|(id, ver)| self.check(id, ver))

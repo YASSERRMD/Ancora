@@ -1,5 +1,5 @@
-use ancora_ffi::runtime::{ancora_create_runtime, ancora_free_runtime};
 use ancora_ffi::run_id::{ancora_run_id_free, ancora_run_id_new};
+use ancora_ffi::runtime::{ancora_create_runtime, ancora_free_runtime};
 use ancora_ffi::version::ancora_version;
 
 #[test]
@@ -50,5 +50,8 @@ fn free_null_run_id_is_noop() {
 #[test]
 fn header_generation_succeeds_during_build() {
     let out_dir = std::env::var("OUT_DIR").unwrap_or_default();
-    assert!(!out_dir.is_empty(), "OUT_DIR should be set during cargo test");
+    assert!(
+        !out_dir.is_empty(),
+        "OUT_DIR should be set during cargo test"
+    );
 }

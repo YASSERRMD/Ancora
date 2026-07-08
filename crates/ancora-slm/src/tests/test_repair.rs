@@ -10,7 +10,8 @@ fn test_repair_valid_json_passthrough() {
 
 #[test]
 fn test_repair_extracts_from_prose() {
-    let raw = r#"Sure, I'll call the tool: {"name": "search", "arguments": {"query": "rust"}} Done."#;
+    let raw =
+        r#"Sure, I'll call the tool: {"name": "search", "arguments": {"query": "rust"}} Done."#;
     let result = repair_tool_call(raw).expect("should extract JSON from prose");
     assert_eq!(result.name, "search");
 }

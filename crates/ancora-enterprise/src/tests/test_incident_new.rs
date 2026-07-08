@@ -2,7 +2,14 @@ use crate::incident::{EnterpriseIncident, IncidentSeverity, IncidentStatus};
 
 #[test]
 fn basic_fields() {
-    let i = EnterpriseIncident::new("inc-1", "t1", "SSH brute force", IncidentSeverity::High, "pentest", 5);
+    let i = EnterpriseIncident::new(
+        "inc-1",
+        "t1",
+        "SSH brute force",
+        IncidentSeverity::High,
+        "pentest",
+        5,
+    );
     assert_eq!(i.id, "inc-1");
     assert_eq!(i.tenant_id, "t1");
     assert_eq!(i.title, "SSH brute force");

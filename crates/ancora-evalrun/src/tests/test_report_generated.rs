@@ -1,13 +1,21 @@
 use crate::aggregate::compute_aggregate;
 use crate::breakdown::compute_breakdown;
-use crate::executor::{EvalCase, Executor, RunConfig, RunId, exact_match, fixture_infer};
+use crate::executor::{exact_match, fixture_infer, EvalCase, Executor, RunConfig, RunId};
 use crate::report::EvalReport;
 use crate::rollout::RolloutRunner;
 
 fn build_report() -> EvalReport {
     let cases = vec![
-        EvalCase { id: "r1".into(), input: "ping".into(), expected: "pong".into() },
-        EvalCase { id: "r2".into(), input: "a".into(), expected: "b".into() },
+        EvalCase {
+            id: "r1".into(),
+            input: "ping".into(),
+            expected: "pong".into(),
+        },
+        EvalCase {
+            id: "r2".into(),
+            input: "a".into(),
+            expected: "b".into(),
+        },
     ];
     let mut answers = std::collections::HashMap::new();
     answers.insert("ping".to_string(), "pong".to_string());
@@ -39,8 +47,14 @@ fn report_json_generated() {
     let report = build_report();
     let json = report.to_json();
     assert!(json.contains("report-run"), "JSON should contain run_id");
-    assert!(json.contains("fixture-suite"), "JSON should contain suite_name");
-    assert!(json.contains("pass_rate"), "JSON should contain pass_rate field");
+    assert!(
+        json.contains("fixture-suite"),
+        "JSON should contain suite_name"
+    );
+    assert!(
+        json.contains("pass_rate"),
+        "JSON should contain pass_rate field"
+    );
     assert!(json.contains("cases"), "JSON should contain cases array");
 }
 
@@ -48,8 +62,14 @@ fn report_json_generated() {
 fn report_html_generated() {
     let report = build_report();
     let html = report.to_html();
-    assert!(html.contains("<!DOCTYPE html>"), "HTML should start with doctype");
-    assert!(html.contains("fixture-suite"), "HTML should contain suite name");
+    assert!(
+        html.contains("<!DOCTYPE html>"),
+        "HTML should start with doctype"
+    );
+    assert!(
+        html.contains("fixture-suite"),
+        "HTML should contain suite name"
+    );
     assert!(html.contains("report-run"), "HTML should contain run ID");
     assert!(html.contains("<table"), "HTML should contain a table");
 }
@@ -57,7 +77,10 @@ fn report_html_generated() {
 #[test]
 fn report_metrics_are_correct() {
     let report = build_report();
-    assert!((report.metrics.pass_rate - 1.0).abs() < 1e-9, "all cases pass in fixture");
+    assert!(
+        (report.metrics.pass_rate - 1.0).abs() < 1e-9,
+        "all cases pass in fixture"
+    );
     assert_eq!(report.breakdowns.len(), 2, "two cases in suite");
 }
 

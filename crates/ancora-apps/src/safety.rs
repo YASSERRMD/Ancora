@@ -61,11 +61,7 @@ impl SafetyGuardrail {
         Self::new(vec![
             GuardrailRule::block("GR-001", "rm -rf"),
             GuardrailRule::block("GR-002", "DROP TABLE"),
-            GuardrailRule::redact(
-                "GR-003",
-                "SECRET=",
-                "[REDACTED]",
-            ),
+            GuardrailRule::redact("GR-003", "SECRET=", "[REDACTED]"),
             GuardrailRule::block("GR-004", "<script>"),
         ])
     }
@@ -79,7 +75,10 @@ impl SafetyGuardrail {
                 match &rule.action {
                     GuardrailAction::Block => {
                         return GuardrailOutcome::Block {
-                            reason: format!("rule {} triggered on pattern '{}'", rule.id, rule.pattern),
+                            reason: format!(
+                                "rule {} triggered on pattern '{}'",
+                                rule.id, rule.pattern
+                            ),
                         };
                     }
                     GuardrailAction::Redact { replacement } => {

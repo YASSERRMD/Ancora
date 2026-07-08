@@ -1,19 +1,25 @@
 // Documentation audit: no placeholder content (TBD, TODO, FIXME, lorem) in published docs.
 
 const DOC_SNIPPETS: &[(&str, &str)] = &[
-    ("concepts/determinism.md",            "Ancora guarantees that any run can be replayed"),
-    ("concepts/architecture.md",           "orchestration graph"),
-    ("testing/xlang-test-plan.md",         "cross-language"),
-    ("testing/determinism-guarantees.md",  "replay"),
+    (
+        "concepts/determinism.md",
+        "Ancora guarantees that any run can be replayed",
+    ),
+    ("concepts/architecture.md", "orchestration graph"),
+    ("testing/xlang-test-plan.md", "cross-language"),
+    ("testing/determinism-guarantees.md", "replay"),
     ("testing/reliability-chaos-test-plan.md", "chaos"),
-    ("testing/security-policy-test-plan.md",   "security"),
-    ("testing/coverage-gates.md",          "coverage gate"),
+    ("testing/security-policy-test-plan.md", "security"),
+    ("testing/coverage-gates.md", "coverage gate"),
 ];
 
 fn has_placeholder(content: &str) -> bool {
     let lower = content.to_lowercase();
-    lower.contains("todo") || lower.contains("tbd") || lower.contains("lorem ipsum")
-        || lower.contains("fixme") || lower.contains("coming soon")
+    lower.contains("todo")
+        || lower.contains("tbd")
+        || lower.contains("lorem ipsum")
+        || lower.contains("fixme")
+        || lower.contains("coming soon")
 }
 
 fn has_expected_content(snippet: &str, excerpt: &str) -> bool {
@@ -23,7 +29,10 @@ fn has_expected_content(snippet: &str, excerpt: &str) -> bool {
 #[test]
 fn test_no_placeholder_in_doc_snippets() {
     for (path, snippet) in DOC_SNIPPETS {
-        assert!(!has_placeholder(snippet), "placeholder content in {path}: {snippet}");
+        assert!(
+            !has_placeholder(snippet),
+            "placeholder content in {path}: {snippet}"
+        );
     }
 }
 

@@ -1,7 +1,7 @@
+use crate::policy::{PolicyDecision, SupplyChainPolicy};
+use crate::provenance::ProvenanceStore;
 use crate::sbom::Sbom;
 use crate::signature::SignatureStore;
-use crate::provenance::ProvenanceStore;
-use crate::policy::{PolicyDecision, SupplyChainPolicy};
 
 pub struct SupplyChainReport {
     pub tenant_id: String,
@@ -28,8 +28,12 @@ impl SupplyChainReport {
         for c in &sbom.components {
             let has_sig = sigs.has_signature(&c.id);
             let has_prov = provenance.has_provenance(&c.id);
-            if has_sig { signed += 1; }
-            if has_prov { with_prov += 1; }
+            if has_sig {
+                signed += 1;
+            }
+            if has_prov {
+                with_prov += 1;
+            }
             if let PolicyDecision::Deny(_) = policy.check_component(c, has_sig, has_prov) {
                 denied += 1;
             }
@@ -51,7 +55,9 @@ impl SupplyChainReport {
     }
 
     pub fn sign_rate(&self) -> f64 {
-        if self.total_components == 0 { return 0.0; }
+        if self.total_components == 0 {
+            return 0.0;
+        }
         self.signed_count as f64 / self.total_components as f64
     }
 }

@@ -1,10 +1,9 @@
+use crate::regression::{detect, RegressionResult};
 /// Cost regression gate.
 ///
 /// Checks whether the per-run cost (in USD or token-equivalent units)
 /// exceeds the baseline cost beyond the configured threshold.
-
 use crate::threshold::{MetricDirection, ThresholdKind, ThresholdPolicy};
-use crate::regression::{detect, RegressionResult};
 
 /// Configuration for the cost gate.
 #[derive(Debug, Clone)]

@@ -2,14 +2,24 @@ use crate::dedup::Deduplicator;
 
 #[test]
 fn dedup_removes_exact_duplicates() {
-    let items = vec!["a".to_string(), "b".to_string(), "a".to_string(), "c".to_string()];
+    let items = vec![
+        "a".to_string(),
+        "b".to_string(),
+        "a".to_string(),
+        "c".to_string(),
+    ];
     let result = Deduplicator::dedup(items);
     assert_eq!(result, vec!["a", "b", "c"]);
 }
 
 #[test]
 fn dedup_preserves_order() {
-    let items = vec!["c".to_string(), "a".to_string(), "b".to_string(), "a".to_string()];
+    let items = vec![
+        "c".to_string(),
+        "a".to_string(),
+        "b".to_string(),
+        "a".to_string(),
+    ];
     let result = Deduplicator::dedup(items);
     assert_eq!(result, vec!["c", "a", "b"]);
 }

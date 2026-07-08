@@ -100,7 +100,10 @@ impl LocalInferenceEngine {
                 return Err(InferenceError::RemoteBackendForbidden { url: url.clone() });
             }
         }
-        Ok(Self { backend, local_only })
+        Ok(Self {
+            backend,
+            local_only,
+        })
     }
 
     /// Run an inference request.
@@ -109,10 +112,16 @@ impl LocalInferenceEngine {
     /// a prefix so tests can assert on the output without a real model.
     pub fn infer(&self, req: &InferenceRequest) -> Result<InferenceResponse, InferenceError> {
         if req.prompt.is_empty() {
-            return Err(InferenceError::InvalidRequest("prompt must not be empty".to_string()));
+            return Err(InferenceError::InvalidRequest(
+                "prompt must not be empty".to_string(),
+            ));
         }
         // Stand-in: generate a deterministic response for testing.
-        let text = format!("[ondev:{}] {}", self.backend.label(), &req.prompt[..req.prompt.len().min(64)]);
+        let text = format!(
+            "[ondev:{}] {}",
+            self.backend.label(),
+            &req.prompt[..req.prompt.len().min(64)]
+        );
         let tokens = text.split_whitespace().count();
         let truncated = tokens > req.max_tokens;
         Ok(InferenceResponse {
@@ -139,7 +148,9 @@ mod unit {
 
     fn local_engine() -> LocalInferenceEngine {
         LocalInferenceEngine::new(
-            ModelBackend::LocalGguf { model_path: "/models/phi3.gguf".to_string() },
+            ModelBackend::LocalGguf {
+                model_path: "/models/phi3.gguf".to_string(),
+            },
             true,
         )
         .unwrap()
@@ -154,7 +165,9 @@ mod unit {
     #[test]
     fn remote_backend_rejected_in_local_only_mode() {
         let err = LocalInferenceEngine::new(
-            ModelBackend::RemoteApi { url: "https://api.openai.com".to_string() },
+            ModelBackend::RemoteApi {
+                url: "https://api.openai.com".to_string(),
+            },
             true,
         )
         .unwrap_err();
@@ -164,7 +177,9 @@ mod unit {
     #[test]
     fn remote_backend_accepted_when_not_local_only() {
         let e = LocalInferenceEngine::new(
-            ModelBackend::RemoteApi { url: "https://example.com".to_string() },
+            ModelBackend::RemoteApi {
+                url: "https://example.com".to_string(),
+            },
             false,
         )
         .unwrap();
@@ -186,7 +201,11 @@ mod unit {
     #[test]
     fn empty_prompt_is_rejected() {
         let e = local_engine();
-        let req = InferenceRequest { prompt: "".to_string(), max_tokens: 10, temperature: 0.0 };
+        let req = InferenceRequest {
+            prompt: "".to_string(),
+            max_tokens: 10,
+            temperature: 0.0,
+        };
         let err = e.infer(&req).unwrap_err();
         assert!(matches!(err, InferenceError::InvalidRequest(_)));
     }
@@ -208,7 +227,9 @@ mod unit {
     #[test]
     fn onnx_backend_accepted() {
         let e = LocalInferenceEngine::new(
-            ModelBackend::LocalOnnx { model_path: "/models/phi.onnx".to_string() },
+            ModelBackend::LocalOnnx {
+                model_path: "/models/phi.onnx".to_string(),
+            },
             true,
         )
         .unwrap();

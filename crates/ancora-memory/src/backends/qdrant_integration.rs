@@ -22,7 +22,10 @@ mod qdrant_integration {
     #[test]
     #[ignore]
     fn integration_readiness_check() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let url = readiness_url(&cfg.url);
         // GET url should return 200 with {"status":"ok"}
         println!("Would GET {url}");
@@ -31,7 +34,10 @@ mod qdrant_integration {
     #[test]
     #[ignore]
     fn integration_create_and_drop_collection() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let name = "integration_test_drop_me";
         let create_url = collection_url(&cfg.url, name);
         let body = create_collection_body(384, &crate::vector_store::Distance::Cosine);
@@ -43,7 +49,10 @@ mod qdrant_integration {
     #[test]
     #[ignore]
     fn integration_upsert_and_search() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let name = "integration_rag";
         let up_url = upsert_url(&cfg.url, name);
         let s_url = search_url(&cfg.url, name);
@@ -58,7 +67,10 @@ mod qdrant_integration {
     #[test]
     #[ignore]
     fn integration_delete_by_filter() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let name = "integration_rag";
         let del_url = delete_url(&cfg.url, name);
         let f = crate::vector_store::Filter::Eq(
@@ -72,7 +84,10 @@ mod qdrant_integration {
     #[test]
     #[ignore]
     fn integration_scroll_all_points() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let name = "integration_rag";
         let sc_url = scroll_url(&cfg.url, name);
         let body = scroll_body(100, None);
@@ -82,7 +97,10 @@ mod qdrant_integration {
     #[test]
     #[ignore]
     fn integration_create_and_delete_alias() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let al_url = aliases_url(&cfg.url);
         let create = create_alias_body("docs_v2", "docs");
         let delete = delete_alias_body("docs");

@@ -29,11 +29,21 @@ fn versions_are_listed_in_ascending_order() {
 fn duplicate_version_not_listed_twice() {
     let mut svc = RegistryService::new(RegistryConfig::default());
     let v = Version::new(1, 0, 0);
-    svc.publish(PublishEntry::new("tool", v.clone(), b"first".to_vec(), "ci"))
-        .unwrap();
+    svc.publish(PublishEntry::new(
+        "tool",
+        v.clone(),
+        b"first".to_vec(),
+        "ci",
+    ))
+    .unwrap();
     // Second publish of same version overwrites payload but does not duplicate the version entry.
-    svc.publish(PublishEntry::new("tool", v.clone(), b"second".to_vec(), "ci"))
-        .unwrap();
+    svc.publish(PublishEntry::new(
+        "tool",
+        v.clone(),
+        b"second".to_vec(),
+        "ci",
+    ))
+    .unwrap();
 
     let listed = svc.list_versions("tool");
     assert_eq!(listed.len(), 1);

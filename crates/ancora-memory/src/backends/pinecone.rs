@@ -5,7 +5,6 @@
 /// server.
 ///
 /// Requires the `pinecone` feature: `ancora-memory = { features = ["pinecone"] }`.
-
 use serde_json::{json, Value};
 
 // ---- connection config ---------------------------------------------------
@@ -19,7 +18,11 @@ pub struct PineconeConfig {
 
 impl PineconeConfig {
     pub fn new(api_key: impl Into<String>, environment: impl Into<String>) -> Self {
-        Self { api_key: api_key.into(), environment: environment.into(), timeout_secs: 30 }
+        Self {
+            api_key: api_key.into(),
+            environment: environment.into(),
+            timeout_secs: 30,
+        }
     }
 
     pub fn auth_header(&self) -> String {
@@ -39,16 +42,36 @@ impl PineconeConfig {
 
 // ---- URL builders --------------------------------------------------------
 
-pub fn list_indexes_url(base: &str) -> String { format!("{base}/indexes") }
-pub fn create_index_url(base: &str) -> String { format!("{base}/indexes") }
-pub fn describe_index_url(base: &str, name: &str) -> String { format!("{base}/indexes/{name}") }
-pub fn delete_index_url(base: &str, name: &str) -> String { format!("{base}/indexes/{name}") }
-pub fn upsert_url(host: &str) -> String { format!("https://{host}/vectors/upsert") }
-pub fn query_url(host: &str) -> String { format!("https://{host}/query") }
-pub fn fetch_url(host: &str) -> String { format!("https://{host}/vectors/fetch") }
-pub fn delete_vectors_url(host: &str) -> String { format!("https://{host}/vectors/delete") }
-pub fn describe_index_stats_url(host: &str) -> String { format!("https://{host}/describe_index_stats") }
-pub fn list_vectors_url(host: &str) -> String { format!("https://{host}/vectors/list") }
+pub fn list_indexes_url(base: &str) -> String {
+    format!("{base}/indexes")
+}
+pub fn create_index_url(base: &str) -> String {
+    format!("{base}/indexes")
+}
+pub fn describe_index_url(base: &str, name: &str) -> String {
+    format!("{base}/indexes/{name}")
+}
+pub fn delete_index_url(base: &str, name: &str) -> String {
+    format!("{base}/indexes/{name}")
+}
+pub fn upsert_url(host: &str) -> String {
+    format!("https://{host}/vectors/upsert")
+}
+pub fn query_url(host: &str) -> String {
+    format!("https://{host}/query")
+}
+pub fn fetch_url(host: &str) -> String {
+    format!("https://{host}/vectors/fetch")
+}
+pub fn delete_vectors_url(host: &str) -> String {
+    format!("https://{host}/vectors/delete")
+}
+pub fn describe_index_stats_url(host: &str) -> String {
+    format!("https://{host}/describe_index_stats")
+}
+pub fn list_vectors_url(host: &str) -> String {
+    format!("https://{host}/vectors/list")
+}
 
 // ---- metric constants ---------------------------------------------------
 
@@ -100,22 +123,29 @@ pub fn create_pod_index_body(
 
 /// Build an upsert request body.
 pub fn upsert_body(vectors: &[(&str, Vec<f32>, Value)]) -> Value {
-    let vs: Vec<Value> = vectors.iter().map(|(id, values, metadata)| {
-        json!({ "id": id, "values": values, "metadata": metadata })
-    }).collect();
+    let vs: Vec<Value> = vectors
+        .iter()
+        .map(|(id, values, metadata)| json!({ "id": id, "values": values, "metadata": metadata }))
+        .collect();
     json!({ "vectors": vs })
 }
 
 /// Build an upsert body for a specific namespace.
 pub fn upsert_namespace_body(vectors: &[(&str, Vec<f32>, Value)], namespace: &str) -> Value {
-    let vs: Vec<Value> = vectors.iter().map(|(id, values, metadata)| {
-        json!({ "id": id, "values": values, "metadata": metadata })
-    }).collect();
+    let vs: Vec<Value> = vectors
+        .iter()
+        .map(|(id, values, metadata)| json!({ "id": id, "values": values, "metadata": metadata }))
+        .collect();
     json!({ "vectors": vs, "namespace": namespace })
 }
 
 /// Build a query body.
-pub fn query_body(vector: &[f32], top_k: usize, filter: Option<Value>, include_metadata: bool) -> Value {
+pub fn query_body(
+    vector: &[f32],
+    top_k: usize,
+    filter: Option<Value>,
+    include_metadata: bool,
+) -> Value {
     let mut body = json!({
         "vector": vector,
         "topK": top_k,
@@ -259,7 +289,8 @@ mod pinecone_tests {
 
     #[test]
     fn create_serverless_index_has_spec() {
-        let body = create_serverless_index_body("my-index", 384, metric::COSINE, "aws", "us-east-1");
+        let body =
+            create_serverless_index_body("my-index", 384, metric::COSINE, "aws", "us-east-1");
         assert_eq!(body["name"], "my-index");
         assert!(body["spec"]["serverless"].is_object());
     }

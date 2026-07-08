@@ -2,7 +2,6 @@
 ///
 /// A span represents a single unit of work within a trace, such as a tool
 /// invocation, an LLM call, or an agent-to-agent (a2a) handoff.
-
 use std::collections::HashMap;
 
 /// Opaque 128-bit trace identifier (stored as hex string for simplicity).
@@ -160,8 +159,17 @@ impl Span {
     }
 
     /// Add a causal link to a span in another trace.
-    pub fn add_link(&mut self, linked_trace_id: TraceId, linked_span_id: SpanId, relationship: LinkRelationship) {
-        self.links.push(SpanLink { linked_trace_id, linked_span_id, relationship });
+    pub fn add_link(
+        &mut self,
+        linked_trace_id: TraceId,
+        linked_span_id: SpanId,
+        relationship: LinkRelationship,
+    ) {
+        self.links.push(SpanLink {
+            linked_trace_id,
+            linked_span_id,
+            relationship,
+        });
     }
 
     /// Set a string attribute.
@@ -216,8 +224,7 @@ mod tests {
     #[test]
     fn child_span_links_to_parent() {
         let root = Span::root("root", 100);
-        let child =
-            Span::child("child", root.span_id.clone(), root.trace_id.clone(), 200);
+        let child = Span::child("child", root.span_id.clone(), root.trace_id.clone(), 200);
         assert_eq!(child.parent_id.as_ref(), Some(&root.span_id));
         assert_eq!(child.trace_id, root.trace_id);
     }

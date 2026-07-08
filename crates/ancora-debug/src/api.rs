@@ -4,7 +4,6 @@
 /// replayer, inspector, diff engine, branch registry, and annotation store
 /// behind a single type.  All operations are offline and require no live
 /// LLM or tool calls.
-
 use std::collections::HashMap;
 
 use crate::annotate::{AnnotateError, Annotation, AnnotationStore};
@@ -48,13 +47,19 @@ impl std::fmt::Display for ApiError {
 impl std::error::Error for ApiError {}
 
 impl From<LoadError> for ApiError {
-    fn from(e: LoadError) -> Self { ApiError::Load(e) }
+    fn from(e: LoadError) -> Self {
+        ApiError::Load(e)
+    }
 }
 impl From<BranchError> for ApiError {
-    fn from(e: BranchError) -> Self { ApiError::Branch(e) }
+    fn from(e: BranchError) -> Self {
+        ApiError::Branch(e)
+    }
 }
 impl From<AnnotateError> for ApiError {
-    fn from(e: AnnotateError) -> Self { ApiError::Annotate(e) }
+    fn from(e: AnnotateError) -> Self {
+        ApiError::Annotate(e)
+    }
 }
 
 impl DebugSession {
@@ -118,7 +123,10 @@ impl DebugSession {
 
     /// Diff the primary and secondary journals.
     pub fn diff(&self) -> Result<RunDiff, ApiError> {
-        let secondary = self.secondary.as_ref().ok_or(ApiError::NoSecondaryJournal)?;
+        let secondary = self
+            .secondary
+            .as_ref()
+            .ok_or(ApiError::NoSecondaryJournal)?;
         Ok(diff_journals(&self.primary, secondary))
     }
 
@@ -136,14 +144,12 @@ impl DebugSession {
     }
 
     /// Append an entry to an existing branch.
-    pub fn extend_branch(
-        &mut self,
-        branch_id: &str,
-        entry: JournalEntry,
-    ) -> Result<(), ApiError> {
+    pub fn extend_branch(&mut self, branch_id: &str, entry: JournalEntry) -> Result<(), ApiError> {
         // We need to retrieve the branch mutably.  Re-create with modified registry.
         // Since BranchRegistry stores Vec<Branch> we locate by position.
-        let branch = self.branch_registry.get(branch_id)
+        let branch = self
+            .branch_registry
+            .get(branch_id)
             .ok_or_else(|| ApiError::BranchNotFound(branch_id.to_string()))?;
         // Clone to avoid borrow conflict, then re-insert.
         let mut b = branch.clone();
@@ -155,7 +161,9 @@ impl DebugSession {
 
     /// Materialise a branch into a new journal for inspection.
     pub fn branch_journal(&self, branch_id: &str, new_run_id: RunId) -> Result<Journal, ApiError> {
-        let b = self.branch_registry.get(branch_id)
+        let b = self
+            .branch_registry
+            .get(branch_id)
             .ok_or_else(|| ApiError::BranchNotFound(branch_id.to_string()))?;
         Ok(b.to_journal(new_run_id)?)
     }
@@ -202,7 +210,10 @@ impl DebugSession {
         m.insert("run_id", self.primary.run_id.0.clone());
         m.insert("entry_count", self.primary.len().to_string());
         m.insert("branch_count", self.branch_registry.count().to_string());
-        m.insert("annotation_count", self.annotation_store.count().to_string());
+        m.insert(
+            "annotation_count",
+            self.annotation_store.count().to_string(),
+        );
         m
     }
 }
@@ -216,7 +227,10 @@ mod tests {
         JournalEntry::new(
             RunId::new("r1"),
             seq,
-            EntryKind::StateChange { from: from.into(), to: to.into() },
+            EntryKind::StateChange {
+                from: from.into(),
+                to: to.into(),
+            },
         )
     }
 
@@ -254,12 +268,14 @@ mod tests {
     fn session_diff_with_secondary() {
         let mut session = sample_session();
         session
-            .load_secondary(vec![
-                JournalEntry::new(RunId::new("r2"), 0, EntryKind::StateChange {
+            .load_secondary(vec![JournalEntry::new(
+                RunId::new("r2"),
+                0,
+                EntryKind::StateChange {
                     from: "init".into(),
                     to: "planning".into(),
-                }),
-            ])
+                },
+            )])
             .unwrap();
         let diff = session.diff().unwrap();
         // r1 has 3 entries, r2 has 1: diverge at seq 1.

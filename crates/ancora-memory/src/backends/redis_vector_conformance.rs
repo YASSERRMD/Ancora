@@ -54,7 +54,11 @@ mod redis_vector_conformance {
     fn search_ann_query_filter_contains_knn() {
         let s = SearchArgs::ann("idx", "emb", 10);
         let j = s.to_json();
-        assert!(j["query"].as_str().unwrap().contains("KNN"), "query: {}", j["query"]);
+        assert!(
+            j["query"].as_str().unwrap().contains("KNN"),
+            "query: {}",
+            j["query"]
+        );
     }
 
     #[test]
@@ -129,7 +133,11 @@ mod redis_vector_conformance {
         let results = parse_search_results(&body);
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].0, "doc:1");
-        assert!((results[0].1 - 0.88f32).abs() < 1e-3, "score: {}", results[0].1);
+        assert!(
+            (results[0].1 - 0.88f32).abs() < 1e-3,
+            "score: {}",
+            results[0].1
+        );
     }
 
     #[test]

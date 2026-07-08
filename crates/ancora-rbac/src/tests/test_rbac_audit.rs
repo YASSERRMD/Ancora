@@ -15,6 +15,8 @@ fn audit_records_granted() {
 #[test]
 fn audit_capped() {
     let mut log = RbacAuditLog::new(3);
-    for _ in 0..5 { log.record_check("u", "t", &Permission::AgentRead, true, 0); }
+    for _ in 0..5 {
+        log.record_check("u", "t", &Permission::AgentRead, true, 0);
+    }
     assert_eq!(log.count(), 3);
 }

@@ -11,7 +11,10 @@ impl Blackboard {
     pub fn write(&mut self, agent_id: &str, key: &str, value: &str) -> Result<(), BlackboardError> {
         if let Some(owner) = self.roles.get(key) {
             if owner != agent_id {
-                return Err(BlackboardError::PermissionDenied { key: key.to_string(), owner: owner.clone() });
+                return Err(BlackboardError::PermissionDenied {
+                    key: key.to_string(),
+                    owner: owner.clone(),
+                });
             }
         }
         self.entries.insert(key.to_string(), value.to_string());

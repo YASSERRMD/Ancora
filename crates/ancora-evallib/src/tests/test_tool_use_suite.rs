@@ -1,4 +1,4 @@
-use crate::tool_use::{ToolUseSuite, ToolUseOutcome};
+use crate::tool_use::{ToolUseOutcome, ToolUseSuite};
 
 #[test]
 fn tool_use_default_catalog_all_pass() {

@@ -1,5 +1,4 @@
 /// test_debug_api.rs - Verify the high-level debug API returns correct inspection data.
-
 use std::collections::HashMap;
 
 use crate::api::DebugSession;
@@ -9,7 +8,10 @@ fn sc(seq: u64, from: &str, to: &str) -> JournalEntry {
     JournalEntry::new(
         RunId::new("api-run"),
         seq,
-        EntryKind::StateChange { from: from.into(), to: to.into() },
+        EntryKind::StateChange {
+            from: from.into(),
+            to: to.into(),
+        },
     )
 }
 
@@ -17,7 +19,10 @@ fn llm(seq: u64, prompt: &str, response: &str) -> JournalEntry {
     JournalEntry::new(
         RunId::new("api-run"),
         seq,
-        EntryKind::LlmExchange { prompt: prompt.into(), response: response.into() },
+        EntryKind::LlmExchange {
+            prompt: prompt.into(),
+            response: response.into(),
+        },
     )
 }
 
@@ -119,11 +124,8 @@ fn api_all_annotations_returns_all() {
 #[test]
 fn api_diff_with_secondary() {
     let mut s = make_session();
-    s.load_secondary(vec![
-        sc(0, "boot", "idle"),
-        sc(1, "idle", "DIFFERENT"),
-    ])
-    .unwrap();
+    s.load_secondary(vec![sc(0, "boot", "idle"), sc(1, "idle", "DIFFERENT")])
+        .unwrap();
     let diff = s.diff().unwrap();
     assert!(diff.first_divergence.is_some());
 }

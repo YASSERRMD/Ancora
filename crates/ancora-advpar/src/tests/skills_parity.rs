@@ -13,8 +13,20 @@ fn skills_parity_coordination_score() {
 #[test]
 fn skills_parity_registry_load_and_find() {
     let mut reg = SkillRegistry::default();
-    reg.load(SkillDescriptor::new("search", 1, "search docs", vec![], SkillScope::ReadOnly));
-    reg.load(SkillDescriptor::new("search", 2, "search docs v2", vec![], SkillScope::ReadOnly));
+    reg.load(SkillDescriptor::new(
+        "search",
+        1,
+        "search docs",
+        vec![],
+        SkillScope::ReadOnly,
+    ));
+    reg.load(SkillDescriptor::new(
+        "search",
+        2,
+        "search docs v2",
+        vec![],
+        SkillScope::ReadOnly,
+    ));
     // find returns highest version
     assert_eq!(reg.find("search").map(|s| s.version), Some(2));
 }
@@ -34,7 +46,13 @@ fn skills_parity_jit_loader_load() {
     use ancora_skills::JitLoader;
     let mut reg = SkillRegistry::default();
     let mut jit = JitLoader::new();
-    let desc = SkillDescriptor::new("translate", 1, "translate text", vec![], SkillScope::ReadOnly);
+    let desc = SkillDescriptor::new(
+        "translate",
+        1,
+        "translate text",
+        vec![],
+        SkillScope::ReadOnly,
+    );
     jit.load_on_demand(&mut reg, desc).unwrap();
     assert!(reg.find("translate").is_some());
 }

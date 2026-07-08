@@ -38,12 +38,18 @@ impl EffectivenessReport {
 
     /// Number of false negatives: attacks that should have been blocked but were not.
     pub fn false_negatives(&self) -> usize {
-        self.results.iter().filter(|r| r.expected_blocked && !r.was_blocked).count()
+        self.results
+            .iter()
+            .filter(|r| r.expected_blocked && !r.was_blocked)
+            .count()
     }
 
     /// Number of false positives: safe inputs incorrectly blocked.
     pub fn false_positives(&self) -> usize {
-        self.results.iter().filter(|r| !r.expected_blocked && r.was_blocked).count()
+        self.results
+            .iter()
+            .filter(|r| !r.expected_blocked && r.was_blocked)
+            .count()
     }
 
     pub fn summary(&self) -> String {

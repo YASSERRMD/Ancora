@@ -58,14 +58,25 @@ pub struct IncidentTimeline {
 }
 
 impl IncidentTimeline {
-    pub fn new() -> Self { Self { events: Vec::new() } }
-    pub fn add(&mut self, event: TimelineEvent) { self.events.push(event); }
-    pub fn count(&self) -> usize { self.events.len() }
+    pub fn new() -> Self {
+        Self { events: Vec::new() }
+    }
+    pub fn add(&mut self, event: TimelineEvent) {
+        self.events.push(event);
+    }
+    pub fn count(&self) -> usize {
+        self.events.len()
+    }
     pub fn for_incident<'a>(&'a self, incident_id: &str) -> Vec<&'a TimelineEvent> {
-        self.events.iter().filter(|e| e.incident_id == incident_id).collect()
+        self.events
+            .iter()
+            .filter(|e| e.incident_id == incident_id)
+            .collect()
     }
     pub fn by_kind<'a>(&'a self, kind: &TimelineEventKind) -> Vec<&'a TimelineEvent> {
         self.events.iter().filter(|e| &e.kind == kind).collect()
     }
-    pub fn all(&self) -> &[TimelineEvent] { &self.events }
+    pub fn all(&self) -> &[TimelineEvent] {
+        &self.events
+    }
 }

@@ -1,7 +1,7 @@
 // Air-gapped fleet management via offline bundles
 
-use std::collections::HashMap;
 use crate::registration::DeviceId;
+use std::collections::HashMap;
 
 /// An offline bundle for air-gapped device fleet updates
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -93,11 +93,7 @@ impl AirGapFleetManager {
     }
 
     /// Apply a bundle to a device; verifies bundle integrity first
-    pub fn apply_bundle(
-        &mut self,
-        device_id: &DeviceId,
-        bundle_id: &str,
-    ) -> BundleApplyRecord {
+    pub fn apply_bundle(&mut self, device_id: &DeviceId, bundle_id: &str) -> BundleApplyRecord {
         let status = match self.bundles.get(bundle_id) {
             None => BundleApplyStatus::Error(format!("bundle {} not found", bundle_id)),
             Some(bundle) => {
@@ -115,10 +111,8 @@ impl AirGapFleetManager {
             status,
         };
 
-        self.apply_records.insert(
-            (device_id.0.clone(), bundle_id.to_string()),
-            record.clone(),
-        );
+        self.apply_records
+            .insert((device_id.0.clone(), bundle_id.to_string()), record.clone());
         record
     }
 

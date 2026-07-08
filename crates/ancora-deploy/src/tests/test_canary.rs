@@ -21,9 +21,14 @@ mod tests {
     #[test]
     fn canary_failure_triggers_rollback() {
         let mut c = ctrl();
-        for _ in 0..10 { c.record_canary_result(true); } // 100% error rate
+        for _ in 0..10 {
+            c.record_canary_result(true);
+        } // 100% error rate
         let err = c.check_health_gate().unwrap_err();
-        assert!(matches!(err, crate::DeployError::CanaryHealthGateFailed { .. }));
+        assert!(matches!(
+            err,
+            crate::DeployError::CanaryHealthGateFailed { .. }
+        ));
         c.rollback();
         assert!(c.canary.is_empty());
     }
@@ -31,7 +36,9 @@ mod tests {
     #[test]
     fn healthy_canary_passes_gate() {
         let mut c = ctrl();
-        for _ in 0..100 { c.record_canary_result(false); }
+        for _ in 0..100 {
+            c.record_canary_result(false);
+        }
         c.record_canary_result(true); // 1% errors - under threshold of 5%
         assert!(c.check_health_gate().is_ok());
     }

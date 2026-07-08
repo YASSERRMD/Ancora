@@ -10,7 +10,10 @@ pub struct EndpointRegistry {
 
 impl EndpointRegistry {
     pub fn new() -> Self {
-        Self { allowed: HashSet::new(), air_gapped: false }
+        Self {
+            allowed: HashSet::new(),
+            air_gapped: false,
+        }
     }
 
     /// Enable air-gapped mode: reject all external egress regardless of allowed list.
@@ -34,14 +37,17 @@ impl EndpointRegistry {
     /// Block model and tool calls to disallowed endpoints.
     pub fn check(&self, endpoint: &str) -> Result<(), PolicyError> {
         if self.air_gapped {
-            return Err(PolicyError::ResidencyViolation(
-                format!("air-gapped mode: all egress blocked (attempted '{endpoint}')")
-            ));
+            return Err(PolicyError::ResidencyViolation(format!(
+                "air-gapped mode: all egress blocked (attempted '{endpoint}')"
+            )));
         }
         if self.allowed.is_empty() {
             return Ok(());
         }
-        let ok = self.allowed.iter().any(|a| endpoint.starts_with(a.as_str()));
+        let ok = self
+            .allowed
+            .iter()
+            .any(|a| endpoint.starts_with(a.as_str()));
         if !ok {
             return Err(PolicyError::ResidencyViolation(endpoint.to_owned()));
         }

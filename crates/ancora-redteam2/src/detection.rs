@@ -66,9 +66,15 @@ pub struct DetectionLog {
 }
 
 impl DetectionLog {
-    pub fn new() -> Self { Self { events: Vec::new() } }
-    pub fn record(&mut self, event: DetectionEvent) { self.events.push(event); }
-    pub fn count(&self) -> usize { self.events.len() }
+    pub fn new() -> Self {
+        Self { events: Vec::new() }
+    }
+    pub fn record(&mut self, event: DetectionEvent) {
+        self.events.push(event);
+    }
+    pub fn count(&self) -> usize {
+        self.events.len()
+    }
     pub fn true_positives(&self) -> Vec<&DetectionEvent> {
         self.events.iter().filter(|e| e.true_positive).collect()
     }
@@ -76,14 +82,21 @@ impl DetectionLog {
         self.events.iter().filter(|e| !e.true_positive).collect()
     }
     pub fn for_scenario<'a>(&'a self, scenario_id: &str) -> Vec<&'a DetectionEvent> {
-        self.events.iter().filter(|e| e.scenario_id == scenario_id).collect()
+        self.events
+            .iter()
+            .filter(|e| e.scenario_id == scenario_id)
+            .collect()
     }
     pub fn by_source<'a>(&'a self, source: &DetectionSource) -> Vec<&'a DetectionEvent> {
         self.events.iter().filter(|e| &e.source == source).collect()
     }
     pub fn detection_rate(&self) -> f64 {
-        if self.events.is_empty() { return 0.0; }
+        if self.events.is_empty() {
+            return 0.0;
+        }
         self.true_positives().len() as f64 / self.events.len() as f64
     }
-    pub fn all(&self) -> impl Iterator<Item = &DetectionEvent> { self.events.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &DetectionEvent> {
+        self.events.iter()
+    }
 }

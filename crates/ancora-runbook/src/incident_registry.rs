@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::incident::{Incident, Severity};
+use std::collections::HashMap;
 
 pub struct IncidentRegistry {
     incidents: HashMap<String, Incident>,
@@ -7,7 +7,9 @@ pub struct IncidentRegistry {
 
 impl IncidentRegistry {
     pub fn new() -> Self {
-        Self { incidents: HashMap::new() }
+        Self {
+            incidents: HashMap::new(),
+        }
     }
 
     pub fn open(&mut self, incident: Incident) {
@@ -27,7 +29,10 @@ impl IncidentRegistry {
     }
 
     pub fn by_severity(&self, severity: &Severity) -> Vec<&Incident> {
-        self.incidents.values().filter(|i| &i.severity == severity).collect()
+        self.incidents
+            .values()
+            .filter(|i| &i.severity == severity)
+            .collect()
     }
 }
 

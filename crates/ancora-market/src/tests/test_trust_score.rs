@@ -3,7 +3,7 @@ use crate::identity::AuthorIdentity;
 use crate::license::LicenseDeclaration;
 use crate::residency::{Region, ResidencyDeclaration};
 use crate::security_scan::{ScanReport, ScanStatus};
-use crate::trust_score::{TrustSignals, compute_trust_score};
+use crate::trust_score::{compute_trust_score, TrustSignals};
 
 fn verified_author() -> AuthorIdentity {
     let mut a = AuthorIdentity::new("trusted-author", "Trusted Author", "PK").unwrap();

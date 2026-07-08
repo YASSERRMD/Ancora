@@ -42,8 +42,14 @@ fn unbound_openai_node_falls_back_to_gpt4o() {
 
 #[test]
 fn node_override_beats_default_not_binding() {
-    assert_eq!(openai_router().resolve("mini-node", Some(GPT4_TURBO)), GPT4O_MINI);
-    assert_eq!(openai_router().resolve("unbound", Some(GPT4_TURBO)), GPT4_TURBO);
+    assert_eq!(
+        openai_router().resolve("mini-node", Some(GPT4_TURBO)),
+        GPT4O_MINI
+    );
+    assert_eq!(
+        openai_router().resolve("unbound", Some(GPT4_TURBO)),
+        GPT4_TURBO
+    );
 }
 
 #[test]

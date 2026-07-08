@@ -23,8 +23,12 @@ use ancora_tools::{
 struct EchoTool;
 
 impl Tool for EchoTool {
-    fn name(&self) -> &str { "echo" }
-    fn description(&self) -> &str { "echoes input verbatim" }
+    fn name(&self) -> &str {
+        "echo"
+    }
+    fn description(&self) -> &str {
+        "echoes input verbatim"
+    }
     fn input_schema(&self) -> serde_json::Value {
         serde_json::json!({
             "type": "object",
@@ -34,7 +38,9 @@ impl Tool for EchoTool {
             }
         })
     }
-    fn effect(&self) -> ToolEffect { ToolEffect::ReadOnly }
+    fn effect(&self) -> ToolEffect {
+        ToolEffect::ReadOnly
+    }
     fn call(&self, input: &serde_json::Value) -> Result<serde_json::Value, ToolError> {
         let msg = input["message"].as_str().unwrap_or("");
         Ok(serde_json::json!({ "output": msg }))

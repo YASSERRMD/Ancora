@@ -1,11 +1,10 @@
+use crate::embedders::embedder::{EmbedResult, Embedder, Embedding};
 /// Qwen and GLM embedding endpoint helpers.
 ///
 /// Both Qwen (via DashScope / Alibaba Cloud) and GLM (via Zhipu AI) expose
 /// OpenAI-compatible `/v1/embeddings` endpoints. This module provides
 /// config structs and request body helpers specialised for each provider.
-
 use serde_json::{json, Value};
-use crate::embedders::embedder::{Embedding, EmbedResult, Embedder};
 
 // ---- Qwen ---------------------------------------------------------------
 
@@ -29,7 +28,8 @@ impl QwenEmbedConfig {
     }
 
     pub fn with_model(mut self, m: impl Into<String>) -> Self {
-        self.model = m.into(); self
+        self.model = m.into();
+        self
     }
 
     pub fn embeddings_url(&self) -> String {
@@ -71,7 +71,8 @@ impl GlmEmbedConfig {
     }
 
     pub fn with_model(mut self, m: impl Into<String>) -> Self {
-        self.model = m.into(); self
+        self.model = m.into();
+        self
     }
 
     pub fn embeddings_url(&self) -> String {
@@ -100,7 +101,9 @@ pub struct QwenEmbedder {
 }
 
 impl QwenEmbedder {
-    pub fn new(config: QwenEmbedConfig, dims: usize) -> Self { Self { config, dims } }
+    pub fn new(config: QwenEmbedConfig, dims: usize) -> Self {
+        Self { config, dims }
+    }
 }
 
 impl Embedder for QwenEmbedder {
@@ -112,8 +115,12 @@ impl Embedder for QwenEmbedder {
         v[(h as usize) % self.dims] = 1.0;
         Ok(v)
     }
-    fn model_name(&self) -> &str { &self.config.model }
-    fn dims(&self) -> usize { self.dims }
+    fn model_name(&self) -> &str {
+        &self.config.model
+    }
+    fn dims(&self) -> usize {
+        self.dims
+    }
 }
 
 /// Offline stub for GLM embedder.
@@ -124,7 +131,9 @@ pub struct GlmEmbedder {
 }
 
 impl GlmEmbedder {
-    pub fn new(config: GlmEmbedConfig, dims: usize) -> Self { Self { config, dims } }
+    pub fn new(config: GlmEmbedConfig, dims: usize) -> Self {
+        Self { config, dims }
+    }
 }
 
 impl Embedder for GlmEmbedder {
@@ -136,8 +145,12 @@ impl Embedder for GlmEmbedder {
         v[(h as usize) % self.dims] = 1.0;
         Ok(v)
     }
-    fn model_name(&self) -> &str { &self.config.model }
-    fn dims(&self) -> usize { self.dims }
+    fn model_name(&self) -> &str {
+        &self.config.model
+    }
+    fn dims(&self) -> usize {
+        self.dims
+    }
 }
 
 // ---- tests ---------------------------------------------------------------
@@ -149,7 +162,11 @@ mod qwen_glm_tests {
     #[test]
     fn qwen_url_ends_with_embeddings() {
         let cfg = QwenEmbedConfig::new("key");
-        assert!(cfg.embeddings_url().ends_with("/embeddings"), "url: {}", cfg.embeddings_url());
+        assert!(
+            cfg.embeddings_url().ends_with("/embeddings"),
+            "url: {}",
+            cfg.embeddings_url()
+        );
     }
 
     #[test]
@@ -175,7 +192,11 @@ mod qwen_glm_tests {
     #[test]
     fn glm_url_ends_with_embeddings() {
         let cfg = GlmEmbedConfig::new("key");
-        assert!(cfg.embeddings_url().ends_with("/embeddings"), "url: {}", cfg.embeddings_url());
+        assert!(
+            cfg.embeddings_url().ends_with("/embeddings"),
+            "url: {}",
+            cfg.embeddings_url()
+        );
     }
 
     #[test]
@@ -210,10 +231,13 @@ mod qwen_glm_tests {
     #[test]
     fn qwen_and_glm_produce_different_vectors() {
         let qwen = QwenEmbedder::new(QwenEmbedConfig::new("k"), 16);
-        let glm  = GlmEmbedder::new(GlmEmbedConfig::new("k"),  16);
+        let glm = GlmEmbedder::new(GlmEmbedConfig::new("k"), 16);
         let v1 = qwen.embed("hello").unwrap();
         let v2 = glm.embed("hello").unwrap();
         // Different hash seeds -> different vectors for same text.
-        assert_ne!(v1, v2, "different providers should produce different hash vectors");
+        assert_ne!(
+            v1, v2,
+            "different providers should produce different hash vectors"
+        );
     }
 }

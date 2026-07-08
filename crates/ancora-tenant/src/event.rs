@@ -21,7 +21,12 @@ pub struct TenantEvent {
 
 impl TenantEvent {
     pub fn new(tick: u64, tenant_id: impl Into<String>, kind: TenantEventKind) -> Self {
-        Self { tick, tenant_id: tenant_id.into(), kind, detail: None }
+        Self {
+            tick,
+            tenant_id: tenant_id.into(),
+            kind,
+            detail: None,
+        }
     }
 
     pub fn with_detail(mut self, detail: impl Into<String>) -> Self {
@@ -36,19 +41,30 @@ pub struct TenantEventLog {
 }
 
 impl TenantEventLog {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
-    pub fn record(&mut self, event: TenantEvent) { self.events.push_back(event); }
+    pub fn record(&mut self, event: TenantEvent) {
+        self.events.push_back(event);
+    }
 
-    pub fn count(&self) -> usize { self.events.len() }
+    pub fn count(&self) -> usize {
+        self.events.len()
+    }
 
     pub fn events_for(&self, tenant_id: &str) -> Vec<&TenantEvent> {
-        self.events.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.events
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
 
     pub fn events_of_kind(&self, kind: &TenantEventKind) -> Vec<&TenantEvent> {
         self.events.iter().filter(|e| &e.kind == kind).collect()
     }
 
-    pub fn all(&self) -> impl Iterator<Item = &TenantEvent> { self.events.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &TenantEvent> {
+        self.events.iter()
+    }
 }

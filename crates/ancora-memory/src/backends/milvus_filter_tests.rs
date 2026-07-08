@@ -56,7 +56,12 @@ mod milvus_filter_tests {
     #[test]
     fn search_with_filter_propagates_expr() {
         let body = search_with_filter_body(
-            "col", &[0.1f32], 5, metric_type::COSINE, "status == \"ok\"", &["payload"]
+            "col",
+            &[0.1f32],
+            5,
+            metric_type::COSINE,
+            "status == \"ok\"",
+            &["payload"],
         );
         assert_eq!(body["filter"], "status == \"ok\"");
     }
@@ -66,14 +71,20 @@ mod milvus_filter_tests {
         let expr = expr_and(&expr_gt("score", 5), &expr_eq_str("tag", "ml"));
         let body = query_body("col", &expr, &["id"]);
         let stored = body["filter"].as_str().unwrap();
-        assert!(stored.contains("score") && stored.contains("ml"), "expr: {stored}");
+        assert!(
+            stored.contains("score") && stored.contains("ml"),
+            "expr: {stored}"
+        );
     }
 
     #[test]
     fn delete_by_expr_accepts_complex_filter() {
         let expr = expr_or(&expr_lt("score", 1), &expr_eq_str("status", "deleted"));
         let body = delete_by_expr_body("col", &expr);
-        assert!(body["filter"].as_str().unwrap().contains("or"), "body: {body}");
+        assert!(
+            body["filter"].as_str().unwrap().contains("or"),
+            "body: {body}"
+        );
     }
 
     #[test]

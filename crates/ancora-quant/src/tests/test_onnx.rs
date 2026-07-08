@@ -52,5 +52,8 @@ fn onnx_with_provider_and_metadata() {
         .with_metadata("task", "classification");
     assert!(desc.providers.contains(&ExecutionProvider::Cuda));
     assert_eq!(desc.max_sequence_length, Some(512));
-    assert_eq!(desc.metadata.get("task").map(|s| s.as_str()), Some("classification"));
+    assert_eq!(
+        desc.metadata.get("task").map(|s| s.as_str()),
+        Some("classification")
+    );
 }

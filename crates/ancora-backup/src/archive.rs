@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use crate::journal::JournalEntry;
 use crate::manifest::BackupManifest;
+use serde::{Deserialize, Serialize};
 
 /// A complete backup archive (in memory / file bytes).
 #[derive(Clone, Debug, Serialize, Deserialize)]

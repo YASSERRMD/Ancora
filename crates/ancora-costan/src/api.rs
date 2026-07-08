@@ -1,5 +1,4 @@
 /// Cost analytics public API - entry point for querying aggregated cost data.
-
 use crate::{
     anomaly::{AnomalyAlert, AnomalyDetector},
     by_capability::{Capability, CapabilityCostBreakdown},
@@ -68,9 +67,11 @@ impl CostAnalytics {
         let cost = event.cost_usd;
 
         self.timeseries.record(event.timestamp, cost, event.tokens);
-        self.model_breakdown.record(&event.model, cost, event.tokens);
+        self.model_breakdown
+            .record(&event.model, cost, event.tokens);
         self.provider_breakdown.record(&event.provider, cost);
-        self.tenant_breakdown.record(&event.tenant_id, &event.project_id, cost);
+        self.tenant_breakdown
+            .record(&event.tenant_id, &event.project_id, cost);
         self.capability_breakdown.record(event.capability, cost);
 
         if let Some(tool) = &event.tool {
@@ -158,10 +159,9 @@ impl CostAnalytics {
 
         // Feed provider data.
         for (provider, _) in self.provider_breakdown.top_providers() {
-            builder.provider_mut().record(
-                &provider,
-                self.provider_breakdown.cost_for(&provider),
-            );
+            builder
+                .provider_mut()
+                .record(&provider, self.provider_breakdown.cost_for(&provider));
         }
 
         // Feed tool data.

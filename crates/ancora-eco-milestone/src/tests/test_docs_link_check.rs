@@ -9,9 +9,17 @@ fn test_registry_links_nonempty() {
 fn test_all_links_have_urls_and_labels() {
     let links = registry_links();
     for link in &links {
-        assert!(!link.url.is_empty(), "link {} should have a URL", link.label);
+        assert!(
+            !link.url.is_empty(),
+            "link {} should have a URL",
+            link.label
+        );
         assert!(!link.label.is_empty(), "link should have a label");
-        assert!(!link.description.is_empty(), "link {} should have a description", link.label);
+        assert!(
+            !link.description.is_empty(),
+            "link {} should have a description",
+            link.label
+        );
         assert!(
             link.url.starts_with("https://"),
             "link {} URL should use HTTPS",

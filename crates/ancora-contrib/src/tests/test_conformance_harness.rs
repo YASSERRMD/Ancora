@@ -1,7 +1,7 @@
-use std::sync::Arc;
-use crate::conformance::{Check, CheckResult, ConformanceSuite, grader_suite, provider_suite};
+use crate::conformance::{grader_suite, provider_suite, Check, CheckResult, ConformanceSuite};
 use crate::grader_template::MyGrader;
 use crate::provider_template::MyProvider;
+use std::sync::Arc;
 
 #[test]
 fn check_result_is_pass_predicate() {
@@ -20,7 +20,9 @@ fn check_result_is_fail_predicate() {
 fn check_result_display() {
     assert_eq!(CheckResult::Pass.to_string(), "PASS");
     assert!(CheckResult::Fail("bad".into()).to_string().contains("bad"));
-    assert!(CheckResult::Skip("reason".into()).to_string().contains("reason"));
+    assert!(CheckResult::Skip("reason".into())
+        .to_string()
+        .contains("reason"));
 }
 
 #[test]
@@ -38,7 +40,9 @@ fn suite_with_all_passing_checks() {
 fn suite_with_failing_check() {
     let mut suite = ConformanceSuite::new("has-failure");
     suite.add(Check::new("a", "passes", || CheckResult::Pass));
-    suite.add(Check::new("b", "fails", || CheckResult::Fail("intentional".into())));
+    suite.add(Check::new("b", "fails", || {
+        CheckResult::Fail("intentional".into())
+    }));
     let report = suite.run();
     assert_eq!(report.passed(), 1);
     assert_eq!(report.failed(), 1);
@@ -48,7 +52,9 @@ fn suite_with_failing_check() {
 #[test]
 fn suite_with_skipped_check() {
     let mut suite = ConformanceSuite::new("has-skip");
-    suite.add(Check::new("a", "skips", || CheckResult::Skip("not applicable".into())));
+    suite.add(Check::new("a", "skips", || {
+        CheckResult::Skip("not applicable".into())
+    }));
     let report = suite.run();
     assert_eq!(report.skipped(), 1);
     assert_eq!(report.total(), 1);
@@ -70,10 +76,7 @@ fn grader_conformance_suite_passes_for_my_grader() {
     let grader = Arc::new(MyGrader);
     let suite = grader_suite(grader);
     let report = suite.run();
-    assert!(
-        report.all_passed(),
-        "grader conformance failed:\n{report}"
-    );
+    assert!(report.all_passed(), "grader conformance failed:\n{report}");
 }
 
 #[test]

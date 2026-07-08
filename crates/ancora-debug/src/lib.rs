@@ -12,7 +12,6 @@
 /// - [`branch`] - Branch from a seq to explore alternative run paths.
 /// - [`annotate`] - Attach developer annotations to specific entries.
 /// - [`api`] - High-level debug API surface for the Ancora Studio.
-
 pub mod annotate;
 pub mod api;
 pub mod branch;

@@ -168,7 +168,15 @@ mod tests {
         record_or_replay("run-2", &activity("k1", r#""a""#, Arc::clone(&c1)), &store).unwrap();
         record_or_replay("run-2", &activity("k2", r#""b""#, Arc::clone(&c2)), &store).unwrap();
 
-        assert_eq!(c1.load(Ordering::SeqCst), 1, "k1 replay must not re-execute");
-        assert_eq!(c2.load(Ordering::SeqCst), 1, "k2 replay must not re-execute");
+        assert_eq!(
+            c1.load(Ordering::SeqCst),
+            1,
+            "k1 replay must not re-execute"
+        );
+        assert_eq!(
+            c2.load(Ordering::SeqCst),
+            1,
+            "k2 replay must not re-execute"
+        );
     }
 }

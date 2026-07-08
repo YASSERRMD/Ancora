@@ -98,7 +98,12 @@ impl TargetMeta {
             TargetTriple::IosArm64 => Some("14.0".to_string()),
             _ => None,
         };
-        Self { target, cpu_features, pic: true, min_sdk }
+        Self {
+            target,
+            cpu_features,
+            pic: true,
+            min_sdk,
+        }
     }
 }
 
@@ -115,7 +120,11 @@ pub struct Arm32Config {
 
 impl Default for Arm32Config {
     fn default() -> Self {
-        Self { thumb2: true, vfpv3: true, arch_version: 7 }
+        Self {
+            thumb2: true,
+            vfpv3: true,
+            arch_version: 7,
+        }
     }
 }
 

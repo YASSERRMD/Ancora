@@ -5,9 +5,14 @@ struct JournalStore {
 }
 
 impl JournalStore {
-    fn new() -> Self { Self { entries: Vec::new() } }
+    fn new() -> Self {
+        Self {
+            entries: Vec::new(),
+        }
+    }
     fn add(&mut self, user_id: &str, payload: &str) {
-        self.entries.push((user_id.to_string(), payload.to_string()));
+        self.entries
+            .push((user_id.to_string(), payload.to_string()));
     }
     fn erase_user(&mut self, user_id: &str) -> usize {
         let before = self.entries.len();
@@ -15,7 +20,10 @@ impl JournalStore {
         before - self.entries.len()
     }
     fn count_for(&self, user_id: &str) -> usize {
-        self.entries.iter().filter(|(uid, _)| uid == user_id).count()
+        self.entries
+            .iter()
+            .filter(|(uid, _)| uid == user_id)
+            .count()
     }
 }
 
@@ -71,8 +79,12 @@ fn test_double_erasure_is_safe() {
 #[test]
 fn test_total_entries_reduced_after_erasure() {
     let mut s = JournalStore::new();
-    for _ in 0..5 { s.add("alice", "x"); }
-    for _ in 0..3 { s.add("bob", "y"); }
+    for _ in 0..5 {
+        s.add("alice", "x");
+    }
+    for _ in 0..3 {
+        s.add("bob", "y");
+    }
     s.erase_user("alice");
     assert_eq!(s.entries.len(), 3);
 }

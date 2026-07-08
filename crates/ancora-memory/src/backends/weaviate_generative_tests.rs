@@ -7,7 +7,8 @@ mod weaviate_generative_tests {
 
     #[test]
     fn single_result_query_has_prompt_in_query() {
-        let body = graphql_generative_query("Document", &[0.1f32], 3, "Summarize {title}", &["title"]);
+        let body =
+            graphql_generative_query("Document", &[0.1f32], 3, "Summarize {title}", &["title"]);
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("singleResult"), "query: {q}");
         assert!(q.contains("Summarize"), "query: {q}");
@@ -15,7 +16,13 @@ mod weaviate_generative_tests {
 
     #[test]
     fn grouped_result_query_has_task_in_query() {
-        let body = graphql_grouped_generative_query("Document", &[0.1f32], 5, "Compare all docs", &["title"]);
+        let body = graphql_grouped_generative_query(
+            "Document",
+            &[0.1f32],
+            5,
+            "Compare all docs",
+            &["title"],
+        );
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("groupedResult"), "query: {q}");
         assert!(q.contains("Compare all docs"), "query: {q}");
@@ -45,7 +52,13 @@ mod weaviate_generative_tests {
 
     #[test]
     fn generative_query_includes_requested_fields() {
-        let body = graphql_generative_query("Document", &[0.1f32], 3, "prompt", &["title", "body", "year"]);
+        let body = graphql_generative_query(
+            "Document",
+            &[0.1f32],
+            3,
+            "prompt",
+            &["title", "body", "year"],
+        );
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("title"), "query: {q}");
         assert!(q.contains("body"), "query: {q}");

@@ -1,18 +1,20 @@
 // Example parity: single-agent example produces equivalent output across all 6 languages.
 
 const SINGLE_AGENT_EXPECTED: &[(&str, &str, &str)] = &[
-    ("rust",       "run_id_prefix", "sa-rust"),
-    ("go",         "run_id_prefix", "sa-go"),
-    ("python",     "run_id_prefix", "sa-python"),
+    ("rust", "run_id_prefix", "sa-rust"),
+    ("go", "run_id_prefix", "sa-go"),
+    ("python", "run_id_prefix", "sa-python"),
     ("typescript", "run_id_prefix", "sa-ts"),
-    ("dotnet",     "run_id_prefix", "sa-dotnet"),
-    ("java",       "run_id_prefix", "sa-java"),
+    ("dotnet", "run_id_prefix", "sa-dotnet"),
+    ("java", "run_id_prefix", "sa-java"),
 ];
 
 const SINGLE_AGENT_EVENT_SEQUENCE: &[&str] = &["started", "token", "completed"];
 
 fn validate_event_sequence(events: &[&str]) -> bool {
-    if events.is_empty() { return false; }
+    if events.is_empty() {
+        return false;
+    }
     events[0] == "started" && *events.last().unwrap() == "completed"
 }
 
@@ -38,7 +40,10 @@ fn test_started_first_completed_last() {
 
 #[test]
 fn test_run_id_prefix_for_rust() {
-    let rust = SINGLE_AGENT_EXPECTED.iter().find(|(l, _, _)| *l == "rust").unwrap();
+    let rust = SINGLE_AGENT_EXPECTED
+        .iter()
+        .find(|(l, _, _)| *l == "rust")
+        .unwrap();
     assert!(run_id_matches_prefix(&format!("{}-001", rust.2), rust.2));
 }
 

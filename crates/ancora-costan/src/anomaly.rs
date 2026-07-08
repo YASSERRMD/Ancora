@@ -18,7 +18,10 @@ pub struct AnomalyDetector {
 
 impl AnomalyDetector {
     pub fn new(threshold: f64) -> Self {
-        Self { history: Vec::new(), threshold }
+        Self {
+            history: Vec::new(),
+            threshold,
+        }
     }
 
     /// Add a historical observation (without checking for anomaly).

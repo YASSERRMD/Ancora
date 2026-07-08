@@ -7,7 +7,9 @@ pub fn build_stepfun_profile() -> ProviderProfile {
     ProviderProfile::new(
         "stepfun",
         "https://api.stepfun.com/v1",
-        AuthStrategy::BearerToken { env_var: "STEPFUN_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "STEPFUN_API_KEY".to_owned(),
+        },
     )
     // Step-1 256k -- very long context, flagship
     .add_model(
@@ -66,7 +68,9 @@ mod tests {
 
     #[test]
     fn stepfun_recorded_fixture_completes() {
-        let resp = sf_client().parse_response(STEPFUN_FIXTURE, "step-1-128k").unwrap();
+        let resp = sf_client()
+            .parse_response(STEPFUN_FIXTURE, "step-1-128k")
+            .unwrap();
         assert_eq!(resp.content, "Hello from StepFun");
         assert_eq!(resp.tokens_in, 10);
         assert_eq!(resp.tokens_out, 6);

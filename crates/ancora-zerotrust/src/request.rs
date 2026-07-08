@@ -34,10 +34,12 @@ impl AccessRequest {
     }
 
     pub fn with_device(mut self, device_id: impl Into<String>) -> Self {
-        self.device_id = Some(device_id.into()); self
+        self.device_id = Some(device_id.into());
+        self
     }
 
     pub fn with_context(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
-        self.context.insert(key.into(), value.into()); self
+        self.context.insert(key.into(), value.into());
+        self
     }
 }

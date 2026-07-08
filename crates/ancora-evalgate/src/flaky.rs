@@ -3,7 +3,6 @@
 /// Some evals are inherently noisy; instead of failing immediately on a
 /// single bad run, the gate retries up to a configurable limit and only
 /// blocks when the majority of retried runs show regression.
-
 use crate::regression::RegressionResult;
 
 /// Policy that governs retry behaviour for a metric.
@@ -43,7 +42,10 @@ pub enum FlakyOutcome {
     /// Not enough runs regressed - gate passes.
     Passed { retries: usize },
     /// Majority of runs showed regression - gate fails.
-    Failed { retries: usize, blocking_runs: usize },
+    Failed {
+        retries: usize,
+        blocking_runs: usize,
+    },
 }
 
 /// Run the flaky-eval retry loop.

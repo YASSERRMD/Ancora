@@ -39,8 +39,24 @@ pub struct ZtAuditEntry {
 }
 
 impl ZtAuditEntry {
-    pub fn new(tick: u64, tenant_id: impl Into<String>, identity_id: impl Into<String>, resource: impl Into<String>, action: ZtAction, success: bool, detail: impl Into<String>) -> Self {
-        Self { tick, tenant_id: tenant_id.into(), identity_id: identity_id.into(), resource: resource.into(), action, success, detail: detail.into() }
+    pub fn new(
+        tick: u64,
+        tenant_id: impl Into<String>,
+        identity_id: impl Into<String>,
+        resource: impl Into<String>,
+        action: ZtAction,
+        success: bool,
+        detail: impl Into<String>,
+    ) -> Self {
+        Self {
+            tick,
+            tenant_id: tenant_id.into(),
+            identity_id: identity_id.into(),
+            resource: resource.into(),
+            action,
+            success,
+            detail: detail.into(),
+        }
     }
 }
 
@@ -49,17 +65,33 @@ pub struct ZtAuditLog {
 }
 
 impl ZtAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: ZtAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: ZtAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a ZtAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
     pub fn for_identity<'a>(&'a self, identity_id: &str) -> Vec<&'a ZtAuditEntry> {
-        self.entries.iter().filter(|e| e.identity_id == identity_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.identity_id == identity_id)
+            .collect()
     }
     pub fn denied<'a>(&'a self) -> Vec<&'a ZtAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &ZtAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &ZtAuditEntry> {
+        self.entries.iter()
+    }
 }

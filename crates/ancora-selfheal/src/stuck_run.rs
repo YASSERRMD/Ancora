@@ -32,7 +32,9 @@ pub struct StuckRunDetector {
 
 impl StuckRunDetector {
     pub fn new() -> Self {
-        Self { runs: HashMap::new() }
+        Self {
+            runs: HashMap::new(),
+        }
     }
 
     pub fn register(&mut self, run_id: &str, started_at: u64, timeout_secs: u64) {

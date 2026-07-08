@@ -1,12 +1,17 @@
 /// Tests: span attributes are complete and correctly typed.
-
 use crate::genai_attrs::{self, *};
 use crate::span::{Span, SpanStatus};
 
 #[test]
 fn all_genai_request_attrs_present() {
     let mut s = Span::root("llm-call", 0);
-    genai_attrs::set_request_attrs(&mut s, provider::ANTHROPIC, "claude-3-opus", Some(2048), Some(0.5));
+    genai_attrs::set_request_attrs(
+        &mut s,
+        provider::ANTHROPIC,
+        "claude-3-opus",
+        Some(2048),
+        Some(0.5),
+    );
     assert_eq!(get_str(&s, GEN_AI_SYSTEM), Some(provider::ANTHROPIC));
     assert_eq!(get_str(&s, GEN_AI_REQUEST_MODEL), Some("claude-3-opus"));
     assert_eq!(get_int(&s, GEN_AI_REQUEST_MAX_TOKENS), Some(2048));
@@ -18,7 +23,10 @@ fn all_genai_request_attrs_present() {
 fn response_attrs_correct() {
     let mut s = Span::root("llm-call", 0);
     genai_attrs::set_response_attrs(&mut s, "claude-3-opus-20240229", 1000, 500);
-    assert_eq!(get_str(&s, GEN_AI_RESPONSE_MODEL), Some("claude-3-opus-20240229"));
+    assert_eq!(
+        get_str(&s, GEN_AI_RESPONSE_MODEL),
+        Some("claude-3-opus-20240229")
+    );
     assert_eq!(get_int(&s, GEN_AI_USAGE_INPUT_TOKENS), Some(1000));
     assert_eq!(get_int(&s, GEN_AI_USAGE_OUTPUT_TOKENS), Some(500));
 }
@@ -65,7 +73,13 @@ fn ancora_keys_returns_only_ancora() {
 #[test]
 fn span_status_error_preserved() {
     let mut s = Span::root("fail", 0);
-    s.finish(100, SpanStatus::Error { code: 500, message: "internal error".into() });
+    s.finish(
+        100,
+        SpanStatus::Error {
+            code: 500,
+            message: "internal error".into(),
+        },
+    );
     match s.status {
         SpanStatus::Error { code, ref message } => {
             assert_eq!(code, 500);

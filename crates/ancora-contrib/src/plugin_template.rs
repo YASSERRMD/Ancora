@@ -13,7 +13,11 @@ pub struct SemVer {
 
 impl SemVer {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     pub fn parse(s: &str) -> Result<Self, PluginError> {
@@ -132,7 +136,9 @@ impl MyPlugin {
                 version: SemVer::new(0, 1, 0),
                 kind: PluginKind::Tool,
                 author: Some("YASSERRMD".to_string()),
-                description: Some("Template plugin - replace with real implementation.".to_string()),
+                description: Some(
+                    "Template plugin - replace with real implementation.".to_string(),
+                ),
                 min_sdk: SemVer::new(0, 1, 0),
             },
             initialised: false,
@@ -172,7 +178,9 @@ impl Plugin for MyPlugin {
         if self.initialised {
             Ok(())
         } else {
-            Err(PluginError::InitFailed("plugin not initialised".to_string()))
+            Err(PluginError::InitFailed(
+                "plugin not initialised".to_string(),
+            ))
         }
     }
 }

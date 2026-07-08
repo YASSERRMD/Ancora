@@ -1,6 +1,5 @@
 use crate::perf::{
-    histogram_bucket, p95_ms, BootTimer, PhaseStopwatch, TimingSample,
-    DEFAULT_BOOT_TARGET_MS,
+    histogram_bucket, p95_ms, BootTimer, PhaseStopwatch, TimingSample, DEFAULT_BOOT_TARGET_MS,
 };
 use std::time::Duration;
 

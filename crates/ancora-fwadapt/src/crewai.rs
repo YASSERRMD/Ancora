@@ -55,9 +55,7 @@ impl std::fmt::Display for CrewMappingError {
 }
 
 /// Convert a CrewAI definition into an Ancora crew plan.
-pub fn map_crewai_to_ancora(
-    crew: CrewAIDefinition,
-) -> Result<AncoraCrewPlan, CrewMappingError> {
+pub fn map_crewai_to_ancora(crew: CrewAIDefinition) -> Result<AncoraCrewPlan, CrewMappingError> {
     if crew.agents.is_empty() {
         return Err(CrewMappingError::EmptyCrew);
     }

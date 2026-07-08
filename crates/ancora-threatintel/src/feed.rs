@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::indicator::Indicator;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FeedFormat {
@@ -43,8 +43,12 @@ impl ThreatFeed {
         }
     }
 
-    pub fn disable(&mut self) { self.enabled = false; }
-    pub fn update_tick(&mut self, tick: u64) { self.last_updated_tick = tick; }
+    pub fn disable(&mut self) {
+        self.enabled = false;
+    }
+    pub fn update_tick(&mut self, tick: u64) {
+        self.last_updated_tick = tick;
+    }
 }
 
 pub struct FeedStore {
@@ -53,31 +57,55 @@ pub struct FeedStore {
 }
 
 impl FeedStore {
-    pub fn new() -> Self { Self { feeds: HashMap::new(), indicators: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            feeds: HashMap::new(),
+            indicators: HashMap::new(),
+        }
+    }
 
     pub fn register_feed(&mut self, feed: ThreatFeed) {
         self.feeds.insert(feed.id.clone(), feed);
     }
 
-    pub fn get_feed(&self, id: &str) -> Option<&ThreatFeed> { self.feeds.get(id) }
+    pub fn get_feed(&self, id: &str) -> Option<&ThreatFeed> {
+        self.feeds.get(id)
+    }
 
-    pub fn add_indicator_to_feed(&mut self, feed_id: impl Into<String>, indicator_id: impl Into<String>) {
-        self.indicators.entry(feed_id.into()).or_default().push(indicator_id.into());
+    pub fn add_indicator_to_feed(
+        &mut self,
+        feed_id: impl Into<String>,
+        indicator_id: impl Into<String>,
+    ) {
+        self.indicators
+            .entry(feed_id.into())
+            .or_default()
+            .push(indicator_id.into());
     }
 
     pub fn indicators_for_feed(&self, feed_id: &str) -> &[String] {
-        self.indicators.get(feed_id).map(|v| v.as_slice()).unwrap_or(&[])
+        self.indicators
+            .get(feed_id)
+            .map(|v| v.as_slice())
+            .unwrap_or(&[])
     }
 
-    pub fn feed_count(&self) -> usize { self.feeds.len() }
+    pub fn feed_count(&self) -> usize {
+        self.feeds.len()
+    }
 
     pub fn enabled_feeds(&self) -> Vec<&ThreatFeed> {
         self.feeds.values().filter(|f| f.enabled).collect()
     }
 
-    pub fn get_feed_mut(&mut self, id: &str) -> Option<&mut ThreatFeed> { self.feeds.get_mut(id) }
+    pub fn get_feed_mut(&mut self, id: &str) -> Option<&mut ThreatFeed> {
+        self.feeds.get_mut(id)
+    }
 
     pub fn for_tenant(&self, tenant_id: &str) -> Vec<&ThreatFeed> {
-        self.feeds.values().filter(|f| f.tenant_id == tenant_id).collect()
+        self.feeds
+            .values()
+            .filter(|f| f.tenant_id == tenant_id)
+            .collect()
     }
 }

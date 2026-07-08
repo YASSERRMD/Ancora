@@ -1,8 +1,8 @@
+use crate::audit::ZtAuditLog;
 use crate::device::DeviceStore;
 use crate::identity::{Identity, IdentityKind};
-use crate::session::SessionStore;
-use crate::audit::ZtAuditLog;
 use crate::report::ZeroTrustReport;
+use crate::session::SessionStore;
 
 #[test]
 fn report_empty() {

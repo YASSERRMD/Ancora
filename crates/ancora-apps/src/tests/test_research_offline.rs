@@ -17,7 +17,10 @@ fn research_assistant_works_offline() {
     let ra = ResearchAssistant::new(kb);
 
     let summary = ra.research("Zero Trust");
-    assert!(!summary.bullets.is_empty(), "should return bullets for known topic");
+    assert!(
+        !summary.bullets.is_empty(),
+        "should return bullets for known topic"
+    );
 }
 
 #[test]

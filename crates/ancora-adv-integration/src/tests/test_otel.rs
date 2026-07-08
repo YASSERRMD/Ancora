@@ -12,7 +12,12 @@ struct Span {
 
 impl Span {
     fn new(name: &str) -> Self {
-        Self { name: name.to_string(), start: Instant::now(), ended: false, duration_us: 0 }
+        Self {
+            name: name.to_string(),
+            start: Instant::now(),
+            ended: false,
+            duration_us: 0,
+        }
     }
     fn end(&mut self) {
         self.duration_us = self.start.elapsed().as_micros() as u64;

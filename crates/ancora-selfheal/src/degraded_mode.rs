@@ -13,11 +13,15 @@ pub struct DegradedController {
 
 impl DegradedController {
     pub fn new() -> Self {
-        Self { mode: SystemMode::Normal }
+        Self {
+            mode: SystemMode::Normal,
+        }
     }
 
     pub fn enter_degraded(&mut self, lost: Vec<String>) {
-        self.mode = SystemMode::Degraded { capabilities_lost: lost };
+        self.mode = SystemMode::Degraded {
+            capabilities_lost: lost,
+        };
     }
 
     pub fn enter_emergency(&mut self) {

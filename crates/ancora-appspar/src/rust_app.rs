@@ -55,7 +55,10 @@ impl RustApp {
             role: "user".to_string(),
             content: user_input.to_string(),
         };
-        let reply = format!("[{}:edition{}] output: {}", self.name, self.edition, user_input);
+        let reply = format!(
+            "[{}:edition{}] output: {}",
+            self.name, self.edition, user_input
+        );
         let assistant_msg = RustMessage {
             role: "assistant".to_string(),
             content: reply,

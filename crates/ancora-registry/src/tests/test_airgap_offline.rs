@@ -37,8 +37,13 @@ fn airgapped_registry_serves_local_entries() {
     };
     let mut svc = RegistryService::new(cfg);
     let version = Version::new(1, 0, 0);
-    svc.publish(PublishEntry::new("local-tool", version.clone(), b"payload".to_vec(), "ci"))
-        .unwrap();
+    svc.publish(PublishEntry::new(
+        "local-tool",
+        version.clone(),
+        b"payload".to_vec(),
+        "ci",
+    ))
+    .unwrap();
 
     assert_eq!(
         svc.fetch("local-tool", &version),

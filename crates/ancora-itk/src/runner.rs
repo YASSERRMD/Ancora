@@ -1,5 +1,4 @@
 /// Kit runner - orchestrates multiple kit runs and collects results.
-
 use crate::report::{KitReport, KitStatus};
 
 /// A named check result from any kit.

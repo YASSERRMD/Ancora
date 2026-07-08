@@ -3,7 +3,6 @@
 /// Eval runs may capture prompts, completions, and scores. This module
 /// ensures that raw text payloads are never exported to telemetry sinks
 /// without explicit opt-in.
-
 use crate::pii_scrub::scrub_pii;
 
 /// An evaluation sample as it comes off the eval runner.

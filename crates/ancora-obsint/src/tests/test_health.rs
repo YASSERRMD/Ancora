@@ -1,6 +1,4 @@
-use crate::health::{
-    summarize_health, ExporterHealthReport, HealthChecker, HealthStatus,
-};
+use crate::health::{summarize_health, ExporterHealthReport, HealthChecker, HealthStatus};
 use crate::selection::ExporterBackend;
 
 #[test]
@@ -13,8 +11,7 @@ fn test_health_checker_healthy_below_threshold() {
 
 #[test]
 fn test_health_checker_degraded_between_thresholds() {
-    let checker = HealthChecker::new(vec![ExporterBackend::Prometheus])
-        .with_thresholds(500, 2000);
+    let checker = HealthChecker::new(vec![ExporterBackend::Prometheus]).with_thresholds(500, 2000);
     let report = checker.evaluate(ExporterBackend::Prometheus, 750);
     assert!(report.status.is_degraded());
     assert_eq!(report.latency_ms, Some(750));
@@ -22,8 +19,7 @@ fn test_health_checker_degraded_between_thresholds() {
 
 #[test]
 fn test_health_checker_unhealthy_above_threshold() {
-    let checker = HealthChecker::new(vec![ExporterBackend::Langfuse])
-        .with_thresholds(500, 2000);
+    let checker = HealthChecker::new(vec![ExporterBackend::Langfuse]).with_thresholds(500, 2000);
     let report = checker.evaluate(ExporterBackend::Langfuse, 3000);
     assert!(report.status.is_unhealthy());
     assert!(report.latency_ms.is_none());
@@ -80,11 +76,17 @@ fn test_summarize_health_empty_is_unhealthy() {
 fn test_health_status_label() {
     assert_eq!(HealthStatus::Healthy.label(), "healthy");
     assert_eq!(
-        HealthStatus::Degraded { reason: "slow".to_string() }.label(),
+        HealthStatus::Degraded {
+            reason: "slow".to_string()
+        }
+        .label(),
         "degraded"
     );
     assert_eq!(
-        HealthStatus::Unhealthy { reason: "down".to_string() }.label(),
+        HealthStatus::Unhealthy {
+            reason: "down".to_string()
+        }
+        .label(),
         "unhealthy"
     );
 }

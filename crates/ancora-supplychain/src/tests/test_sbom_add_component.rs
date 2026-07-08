@@ -8,7 +8,15 @@ mod tests {
     }
 
     fn make_component(id: &str, name: &str) -> Component {
-        Component::new(id, name, "1.0.0", ComponentKind::Library, License::Mit, "acme", "sha256:00")
+        Component::new(
+            id,
+            name,
+            "1.0.0",
+            ComponentKind::Library,
+            License::Mit,
+            "acme",
+            "sha256:00",
+        )
     }
 
     #[test]

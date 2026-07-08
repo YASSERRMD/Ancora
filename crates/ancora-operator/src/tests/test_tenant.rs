@@ -48,6 +48,10 @@ mod tests {
         let mut r = Reconciler::new();
         let mut tenant = make_tenant("acme");
         r.reconcile_tenant(&mut tenant).unwrap();
-        assert!(tenant.metadata.finalizers.iter().any(|f| f == "ancora.io/cleanup"));
+        assert!(tenant
+            .metadata
+            .finalizers
+            .iter()
+            .any(|f| f == "ancora.io/cleanup"));
     }
 }

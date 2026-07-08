@@ -3,7 +3,10 @@ use crate::runner::{run_offline_eval, EvalReport};
 #[test]
 fn offline_eval_runs_without_network() {
     let report: EvalReport = run_offline_eval();
-    assert!(!report.suite_results.is_empty(), "report should contain suite results");
+    assert!(
+        !report.suite_results.is_empty(),
+        "report should contain suite results"
+    );
 }
 
 #[test]
@@ -13,7 +16,9 @@ fn offline_eval_all_suites_pass() {
         assert!(
             suite.all_passed(),
             "suite '{}' failed: {}/{} passed",
-            suite.name, suite.passed, suite.total
+            suite.name,
+            suite.passed,
+            suite.total
         );
     }
 }

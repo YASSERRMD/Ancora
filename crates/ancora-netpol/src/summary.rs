@@ -1,5 +1,5 @@
-use crate::policy::NetworkPolicy;
 use crate::audit::NetpolAuditLog;
+use crate::policy::NetworkPolicy;
 
 #[derive(Debug)]
 pub struct PolicySummary {
@@ -16,7 +16,10 @@ pub struct PolicySummary {
 impl PolicySummary {
     pub fn from(policy: &NetworkPolicy, audit: &NetpolAuditLog) -> Self {
         let tenant_id = policy.tenant_id.clone();
-        let total_evaluations = audit.all().filter(|r| r.tenant_id == policy.tenant_id).count();
+        let total_evaluations = audit
+            .all()
+            .filter(|r| r.tenant_id == policy.tenant_id)
+            .count();
         let total_denied = audit.denied_for(&tenant_id).len();
         let total_allowed = audit.allowed_for(&tenant_id).len();
         Self {
@@ -32,7 +35,10 @@ impl PolicySummary {
     }
 
     pub fn deny_rate(&self) -> f64 {
-        if self.total_evaluations == 0 { 0.0 }
-        else { self.total_denied as f64 / self.total_evaluations as f64 }
+        if self.total_evaluations == 0 {
+            0.0
+        } else {
+            self.total_denied as f64 / self.total_evaluations as f64
+        }
     }
 }

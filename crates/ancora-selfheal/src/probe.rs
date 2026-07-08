@@ -12,7 +12,10 @@ pub struct LivenessProbe {
 
 impl LivenessProbe {
     pub fn new(max_stall_secs: u64) -> Self {
-        Self { max_stall_secs, last_heartbeat_secs: 0 }
+        Self {
+            max_stall_secs,
+            last_heartbeat_secs: 0,
+        }
     }
 
     pub fn heartbeat(&mut self, now: u64) {
@@ -23,7 +26,10 @@ impl LivenessProbe {
         let elapsed = now.saturating_sub(self.last_heartbeat_secs);
         if elapsed > self.max_stall_secs {
             ProbeStatus::Dead {
-                reason: format!("no heartbeat for {elapsed}s (limit {}s)", self.max_stall_secs),
+                reason: format!(
+                    "no heartbeat for {elapsed}s (limit {}s)",
+                    self.max_stall_secs
+                ),
             }
         } else {
             ProbeStatus::Alive
@@ -45,7 +51,10 @@ pub struct ReadinessProbe {
 
 impl ReadinessProbe {
     pub fn new() -> Self {
-        Self { deps_healthy: true, queue_saturated: false }
+        Self {
+            deps_healthy: true,
+            queue_saturated: false,
+        }
     }
 
     pub fn check(&self) -> ReadinessStatus {

@@ -23,7 +23,10 @@ fn key_builder_extractable() {
 
 #[test]
 fn slot_builder() {
-    let s = SlotBuilder::new(1, "HSM Slot 1").manufacturer("nShield").with_token().build();
+    let s = SlotBuilder::new(1, "HSM Slot 1")
+        .manufacturer("nShield")
+        .with_token()
+        .build();
     assert!(s.has_token());
     assert_eq!(s.manufacturer, "nShield");
     assert_eq!(s.id, 1);

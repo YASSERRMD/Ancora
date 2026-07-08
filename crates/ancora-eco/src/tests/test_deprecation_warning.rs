@@ -34,11 +34,7 @@ fn no_deprecation_warning_before_since_version() {
 
 #[test]
 fn item_is_removed_after_removed_in_version() {
-    let marker = DeprecationMarker::new(
-        SemVer::new(1, 0, 0),
-        SemVer::new(2, 0, 0),
-        "Removed",
-    );
+    let marker = DeprecationMarker::new(SemVer::new(1, 0, 0), SemVer::new(2, 0, 0), "Removed");
     assert!(marker.is_removed_at(&SemVer::new(2, 0, 0)));
     assert!(!marker.is_removed_at(&SemVer::new(1, 9, 0)));
 }

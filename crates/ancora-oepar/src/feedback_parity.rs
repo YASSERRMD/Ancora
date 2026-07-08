@@ -95,14 +95,8 @@ pub fn validate_feedback_event(event: &FeedbackEvent) -> Vec<String> {
 
 /// Build a reference feedback event for parity testing.
 pub fn reference_feedback(language: impl Into<String>) -> FeedbackEvent {
-    FeedbackEvent::new(
-        "run-001",
-        "span-root",
-        FeedbackKind::Thumbs,
-        1.0,
-        language,
-    )
-    .with_comment("Great answer!")
+    FeedbackEvent::new("run-001", "span-root", FeedbackKind::Thumbs, 1.0, language)
+        .with_comment("Great answer!")
 }
 
 /// Check parity of feedback events across languages.

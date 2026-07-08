@@ -10,43 +10,59 @@ fn error_code_round_trips(err: AncoraError) -> bool {
 #[test]
 fn nondeterminism_error_code_round_trips() {
     assert!(error_code_round_trips(AncoraError::Nondeterminism {
-        seq: 1, expected: "a".into(), got: "b".into()
+        seq: 1,
+        expected: "a".into(),
+        got: "b".into()
     }));
 }
 
 #[test]
 fn journal_write_error_code_round_trips() {
-    assert!(error_code_round_trips(AncoraError::JournalWrite("write fail".into())));
+    assert!(error_code_round_trips(AncoraError::JournalWrite(
+        "write fail".into()
+    )));
 }
 
 #[test]
 fn max_steps_error_code_round_trips() {
-    assert!(error_code_round_trips(AncoraError::MaxSteps { max_steps: 10 }));
+    assert!(error_code_round_trips(AncoraError::MaxSteps {
+        max_steps: 10
+    }));
 }
 
 #[test]
 fn policy_residency_error_code_round_trips() {
-    assert!(error_code_round_trips(AncoraError::PolicyResidency("eu-only".into())));
+    assert!(error_code_round_trips(AncoraError::PolicyResidency(
+        "eu-only".into()
+    )));
 }
 
 #[test]
 fn tool_not_found_error_code_round_trips() {
-    assert!(error_code_round_trips(AncoraError::ToolNotFound("unknown".into())));
+    assert!(error_code_round_trips(AncoraError::ToolNotFound(
+        "unknown".into()
+    )));
 }
 
 #[test]
 fn graph_invalid_error_code_round_trips() {
-    assert!(error_code_round_trips(AncoraError::GraphInvalid("cycle".into())));
+    assert!(error_code_round_trips(AncoraError::GraphInvalid(
+        "cycle".into()
+    )));
 }
 
 #[test]
 fn cancelled_error_code_round_trips() {
-    assert!(error_code_round_trips(AncoraError::Cancelled("by user".into())));
+    assert!(error_code_round_trips(AncoraError::Cancelled(
+        "by user".into()
+    )));
 }
 
 #[test]
 fn storage_error_code_round_trips() {
-    assert!(error_code_round_trips(AncoraError::Storage("disk full".into())));
+    assert!(error_code_round_trips(AncoraError::Storage(
+        "disk full".into()
+    )));
 }
 
 #[test]
@@ -63,19 +79,35 @@ fn error_unspecified_maps_to_internal() {
 #[test]
 fn all_display_messages_are_non_empty() {
     let errors: Vec<AncoraError> = vec![
-        AncoraError::Nondeterminism { seq: 0, expected: "x".into(), got: "y".into() },
+        AncoraError::Nondeterminism {
+            seq: 0,
+            expected: "x".into(),
+            got: "y".into(),
+        },
         AncoraError::JournalGap { seq: 0 },
         AncoraError::JournalWrite("e".into()),
         AncoraError::MaxSteps { max_steps: 1 },
-        AncoraError::OutputValidation { attempts: 1, reason: "r".into() },
+        AncoraError::OutputValidation {
+            attempts: 1,
+            reason: "r".into(),
+        },
         AncoraError::Timeout { timeout_ms: 100 },
         AncoraError::ModelRefused("r".into()),
-        AncoraError::ModelHttp { status: 500, body: "b".into() },
+        AncoraError::ModelHttp {
+            status: 500,
+            body: "b".into(),
+        },
         AncoraError::ModelParse("p".into()),
         AncoraError::ModelUnreachable("u".into()),
-        AncoraError::ToolFailed { name: "t".into(), message: "m".into() },
+        AncoraError::ToolFailed {
+            name: "t".into(),
+            message: "m".into(),
+        },
         AncoraError::ToolNotFound("t".into()),
-        AncoraError::ToolInputInvalid { name: "t".into(), reason: "r".into() },
+        AncoraError::ToolInputInvalid {
+            name: "t".into(),
+            reason: "r".into(),
+        },
         AncoraError::ToolDenied("t".into()),
         AncoraError::PolicyResidency("p".into()),
         AncoraError::PolicyPermission("p".into()),
@@ -89,6 +121,10 @@ fn all_display_messages_are_non_empty() {
 
     for err in errors {
         let msg = err.to_string();
-        assert!(!msg.is_empty(), "display message must be non-empty for {:?}", err);
+        assert!(
+            !msg.is_empty(),
+            "display message must be non-empty for {:?}",
+            err
+        );
     }
 }

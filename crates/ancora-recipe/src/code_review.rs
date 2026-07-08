@@ -4,10 +4,7 @@ use crate::params::ParamSet;
 /// Build a code-review recipe.
 pub fn build(params: &ParamSet) -> Recipe {
     let lang = params.get("language").unwrap_or("any");
-    let strict: bool = params
-        .get("strict")
-        .map(|v| v == "true")
-        .unwrap_or(false);
+    let strict: bool = params.get("strict").map(|v| v == "true").unwrap_or(false);
 
     let mut r = Recipe::new(
         "code-review",

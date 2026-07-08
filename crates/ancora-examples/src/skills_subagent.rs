@@ -1,6 +1,5 @@
 use ancora_skills::{
-    SkillDescriptor, SkillScope, SkillRegistry, SubAgentNode,
-    JitLoader, SkillJournal, Crew,
+    Crew, JitLoader, SkillDescriptor, SkillJournal, SkillRegistry, SkillScope, SubAgentNode,
 };
 use serde_json::json;
 
@@ -8,8 +7,20 @@ pub fn run_skills_subagent_example() {
     let mut registry = SkillRegistry::default();
     let mut loader = JitLoader::new();
 
-    let search = SkillDescriptor::new("search", 1, "keyword search", vec!["retrieval"], SkillScope::ReadOnly);
-    let summarize = SkillDescriptor::new("summarize", 1, "text summarization", vec!["nlp"], SkillScope::ReadOnly);
+    let search = SkillDescriptor::new(
+        "search",
+        1,
+        "keyword search",
+        vec!["retrieval"],
+        SkillScope::ReadOnly,
+    );
+    let summarize = SkillDescriptor::new(
+        "summarize",
+        1,
+        "text summarization",
+        vec!["nlp"],
+        SkillScope::ReadOnly,
+    );
 
     loader.load_on_demand(&mut registry, search).unwrap();
     loader.load_on_demand(&mut registry, summarize).unwrap();

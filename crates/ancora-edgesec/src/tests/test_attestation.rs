@@ -1,4 +1,6 @@
-use crate::attestation::{AttestationKind, AttestationResult, AttestationRegistry, attest_model, attest_config};
+use crate::attestation::{
+    attest_config, attest_model, AttestationKind, AttestationRegistry, AttestationResult,
+};
 
 #[test]
 fn test_model_attestation_verifies() {

@@ -67,6 +67,9 @@ mod pinecone_conformance {
     #[test]
     fn parse_index_host_extracts_string() {
         let body = serde_json::json!({ "host": "idx-abc.svc.pinecone.io" });
-        assert_eq!(parse_index_host(&body), Some("idx-abc.svc.pinecone.io".to_owned()));
+        assert_eq!(
+            parse_index_host(&body),
+            Some("idx-abc.svc.pinecone.io".to_owned())
+        );
     }
 }

@@ -5,8 +5,24 @@ use crate::schema::{Feedback, ThumbsRating};
 fn feedback_becomes_eval_cases() {
     let mut pipeline = FeedbackToEvalPipeline::new();
 
-    let fb1 = Feedback::new("f1", "run-1", None, ThumbsRating::Up, Some("perfect".into()), "alice", 0);
-    let fb2 = Feedback::new("f2", "run-2", Some("step-3".into()), ThumbsRating::Down, None, "bob", 1);
+    let fb1 = Feedback::new(
+        "f1",
+        "run-1",
+        None,
+        ThumbsRating::Up,
+        Some("perfect".into()),
+        "alice",
+        0,
+    );
+    let fb2 = Feedback::new(
+        "f2",
+        "run-2",
+        Some("step-3".into()),
+        ThumbsRating::Down,
+        None,
+        "bob",
+        1,
+    );
     pipeline.ingest(&fb1);
     pipeline.ingest(&fb2);
 
@@ -40,7 +56,11 @@ fn multiple_feedback_all_converted() {
             format!("f{}", i),
             format!("run-{}", i),
             None,
-            if i % 2 == 0 { ThumbsRating::Up } else { ThumbsRating::Down },
+            if i % 2 == 0 {
+                ThumbsRating::Up
+            } else {
+                ThumbsRating::Down
+            },
             None,
             "user",
             i as u64,

@@ -1,5 +1,7 @@
 use ancora_ageval::GuardrailMetric;
-use ancora_guard::{GuardrailJournal, GuardrailOutcome, GuardrailPolicy, InjectionInputGuardrail, PiiInputGuardrail};
+use ancora_guard::{
+    GuardrailJournal, GuardrailOutcome, GuardrailPolicy, InjectionInputGuardrail, PiiInputGuardrail,
+};
 
 const EPS: f64 = 1e-9;
 

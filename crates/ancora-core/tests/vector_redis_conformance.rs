@@ -62,7 +62,9 @@ fn redis_vector_activity_key_contains_redis() {
     let events = build_redis_vector_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.activity_key.contains("redis"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -72,7 +74,9 @@ fn redis_vector_input_has_index_and_algorithm() {
         assert!(a.input_json.contains("index_name"));
         assert!(a.input_json.contains("algorithm"));
         assert!(a.input_json.contains("HNSW"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -80,7 +84,9 @@ fn redis_vector_result_uses_key_field() {
     let events = build_redis_vector_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("\"key\""));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -89,7 +95,9 @@ fn redis_vector_result_has_two_entries() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.result_json).unwrap();
         assert_eq!(v.as_array().unwrap().len(), 2);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

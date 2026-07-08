@@ -1,5 +1,4 @@
 /// Phoenix (Arize) exporter: maps spans/traces to Phoenix's OpenInference schema.
-
 use crate::otlp::OtlpSpan;
 
 #[derive(Debug, Clone)]

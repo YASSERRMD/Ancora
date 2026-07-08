@@ -1,5 +1,5 @@
-use ancora_memcon::TokenBudget;
 use ancora_ageval::{MemoryMetric, PlanningMetric, ReasoningMetric};
+use ancora_memcon::TokenBudget;
 
 #[test]
 fn combined_cost_bounded() {
@@ -18,7 +18,11 @@ fn combined_cost_bounded() {
         MemoryMetric::score(8, 10),
     ];
     for score in &scores {
-        assert!(*score >= 0.0 && *score <= 1.0, "score {} out of bounds", score);
+        assert!(
+            *score >= 0.0 && *score <= 1.0,
+            "score {} out of bounds",
+            score
+        );
     }
 }
 

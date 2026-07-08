@@ -1,5 +1,5 @@
-use crate::indicator::Indicator;
 use crate::alert::AlertStore;
+use crate::indicator::Indicator;
 use crate::stats::ThreatIntelStats;
 
 pub struct ThreatIntelSummary {
@@ -14,7 +14,11 @@ pub struct ThreatIntelSummary {
 impl ThreatIntelSummary {
     pub fn generate(indicators: &[&Indicator], alerts: &AlertStore, tenant_id: &str) -> Self {
         let stats = ThreatIntelStats::for_tenant(indicators, tenant_id);
-        let open_alerts = alerts.for_tenant(tenant_id).into_iter().filter(|a| a.is_open()).count();
+        let open_alerts = alerts
+            .for_tenant(tenant_id)
+            .into_iter()
+            .filter(|a| a.is_open())
+            .count();
         let is_healthy = stats.critical_count == 0 && open_alerts == 0;
         Self {
             tenant_id: tenant_id.to_string(),

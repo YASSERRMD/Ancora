@@ -7,10 +7,7 @@ fn traffic_split_proportions_hold() {
     let experiment = Experiment::new(
         "split-test",
         "Test traffic split",
-        vec![
-            Variant::new("control", 0.5),
-            Variant::new("treatment", 0.5),
-        ],
+        vec![Variant::new("control", 0.5), Variant::new("treatment", 0.5)],
         Metric::new("success_rate", MetricKind::Maximize),
     )
     .unwrap();
@@ -48,10 +45,7 @@ fn unequal_traffic_split_proportions_hold() {
     let experiment = Experiment::new(
         "split-unequal",
         "Unequal split",
-        vec![
-            Variant::new("control", 0.8),
-            Variant::new("treatment", 0.2),
-        ],
+        vec![Variant::new("control", 0.8), Variant::new("treatment", 0.2)],
         Metric::new("latency_ms", MetricKind::Minimize),
     )
     .unwrap();

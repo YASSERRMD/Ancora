@@ -12,7 +12,9 @@ pub struct ToolRegistry {
 
 impl ToolRegistry {
     pub fn new() -> Self {
-        Self { tools: HashMap::new() }
+        Self {
+            tools: HashMap::new(),
+        }
     }
 }
 
@@ -39,7 +41,9 @@ impl ToolRegistry {
         name: &str,
         input: &serde_json::Value,
     ) -> Result<serde_json::Value, ToolError> {
-        let tool = self.tools.get(name)
+        let tool = self
+            .tools
+            .get(name)
             .ok_or_else(|| ToolError::NotFound(name.to_owned()))?;
         validate_input(&tool.input_schema(), input)?;
         tool.call(input)
@@ -54,12 +58,18 @@ mod tests {
     struct EchoTool;
 
     impl Tool for EchoTool {
-        fn name(&self) -> &str { "echo" }
-        fn description(&self) -> &str { "echoes the input message" }
+        fn name(&self) -> &str {
+            "echo"
+        }
+        fn description(&self) -> &str {
+            "echoes the input message"
+        }
         fn input_schema(&self) -> serde_json::Value {
             serde_json::json!({ "type": "object", "required": ["message"] })
         }
-        fn effect(&self) -> ToolEffect { ToolEffect::ReadOnly }
+        fn effect(&self) -> ToolEffect {
+            ToolEffect::ReadOnly
+        }
         fn call(&self, input: &serde_json::Value) -> Result<serde_json::Value, ToolError> {
             let msg = input["message"].as_str().unwrap_or("");
             Ok(serde_json::json!({ "output": msg }))

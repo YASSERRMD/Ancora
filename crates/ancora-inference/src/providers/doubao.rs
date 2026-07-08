@@ -8,7 +8,9 @@ pub fn build_doubao_profile() -> ProviderProfile {
     ProviderProfile::new(
         "doubao",
         "https://ark.cn-beijing.volces.com/api/v3",
-        AuthStrategy::BearerToken { env_var: "DOUBAO_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "DOUBAO_API_KEY".to_owned(),
+        },
     )
     // Doubao 1.5 Pro 32k -- production-grade, tools
     .add_model(
@@ -63,7 +65,9 @@ pub fn build_doubao_self_host_profile(base_url: impl Into<String>) -> ProviderPr
     ProviderProfile::new(
         "doubao-self-host",
         base_url,
-        AuthStrategy::BearerToken { env_var: "DOUBAO_SELF_HOST_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "DOUBAO_SELF_HOST_API_KEY".to_owned(),
+        },
     )
 }
 
@@ -101,7 +105,9 @@ mod tests {
 
     #[test]
     fn doubao_recorded_fixture_completes() {
-        let resp = doubao_client().parse_response(DOUBAO_FIXTURE, "doubao-1.5-pro-32k").unwrap();
+        let resp = doubao_client()
+            .parse_response(DOUBAO_FIXTURE, "doubao-1.5-pro-32k")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Doubao");
         assert_eq!(resp.tokens_in, 12);
         assert_eq!(resp.tokens_out, 5);

@@ -30,7 +30,10 @@ impl OtlpGrpcExporter {
     /// Create a new exporter pointing at the given gRPC endpoint.
     /// Typical default: `http://localhost:4317`.
     pub fn new(endpoint: impl Into<String>) -> Self {
-        Self { endpoint: endpoint.into(), buffer: Arc::new(Mutex::new(Vec::new())) }
+        Self {
+            endpoint: endpoint.into(),
+            buffer: Arc::new(Mutex::new(Vec::new())),
+        }
     }
 
     /// Returns the configured endpoint.
@@ -48,8 +51,7 @@ impl OtlpGrpcExporter {
             return Ok(());
         }
         let body = crate::otlp::spans_to_otlp(&spans);
-        let json = serde_json::to_string(&body)
-            .map_err(|e| OtlpGrpcError(e.to_string()))?;
+        let json = serde_json::to_string(&body).map_err(|e| OtlpGrpcError(e.to_string()))?;
         let http_endpoint = self.endpoint.replace(":4317", ":4318") + "/v1/traces";
         ureq::post(&http_endpoint)
             .set("Content-Type", "application/json")

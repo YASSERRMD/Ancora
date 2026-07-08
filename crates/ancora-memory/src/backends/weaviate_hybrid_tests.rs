@@ -26,12 +26,16 @@ mod weaviate_hybrid_tests {
         let q = body["query"].as_str().unwrap();
         // alpha 1.5 clamped to 1.0
         assert!(q.contains("alpha: 1"), "query: {q}");
-        assert!(!q.contains("1.5"), "should not contain unclamped value, query: {q}");
+        assert!(
+            !q.contains("1.5"),
+            "should not contain unclamped value, query: {q}"
+        );
     }
 
     #[test]
     fn hybrid_with_explicit_vector_includes_vector_in_query() {
-        let body = graphql_hybrid_query("Document", "test", Some(&[0.1f32, 0.2]), 0.5, 5, &["title"]);
+        let body =
+            graphql_hybrid_query("Document", "test", Some(&[0.1f32, 0.2]), 0.5, 5, &["title"]);
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("vector:"), "query: {q}");
         assert!(q.contains("0.1"), "query: {q}");
@@ -41,7 +45,10 @@ mod weaviate_hybrid_tests {
     fn hybrid_without_explicit_vector_no_vector_field() {
         let body = graphql_hybrid_query("Document", "test", None, 0.5, 5, &["title"]);
         let q = body["query"].as_str().unwrap();
-        assert!(!q.contains("vector:"), "should have no vector field, query: {q}");
+        assert!(
+            !q.contains("vector:"),
+            "should have no vector field, query: {q}"
+        );
     }
 
     #[test]
@@ -61,7 +68,8 @@ mod weaviate_hybrid_tests {
 
     #[test]
     fn near_vector_with_certainty_contains_threshold() {
-        let body = graphql_near_vector_with_certainty_query("Document", &[0.1f32], 5, 0.8, &["title"]);
+        let body =
+            graphql_near_vector_with_certainty_query("Document", &[0.1f32], 5, 0.8, &["title"]);
         let q = body["query"].as_str().unwrap();
         assert!(q.contains("certainty: 0.8"), "query: {q}");
     }

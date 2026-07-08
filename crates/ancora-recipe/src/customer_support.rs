@@ -36,7 +36,10 @@ pub fn build(params: &ParamSet) -> Recipe {
     r.add_step(RecipeStep::new(
         "escalate-check",
         StepAction::Review,
-        format!("Escalate to human agent if turn count >= {}", escalation_threshold),
+        format!(
+            "Escalate to human agent if turn count >= {}",
+            escalation_threshold
+        ),
     ));
     r
 }

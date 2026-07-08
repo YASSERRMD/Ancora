@@ -59,7 +59,11 @@ pub struct ScaffoldRequest {
 
 impl ScaffoldRequest {
     pub fn new(kind: ScaffoldKind, name: impl Into<String>) -> Self {
-        Self { kind, name: name.into(), author: None }
+        Self {
+            kind,
+            name: name.into(),
+            author: None,
+        }
     }
 
     pub fn with_author(mut self, author: impl Into<String>) -> Self {
@@ -173,12 +177,30 @@ pub fn scaffold(req: &ScaffoldRequest) -> Result<ScaffoldOutput, ScaffoldError> 
 
     Ok(ScaffoldOutput {
         files: vec![
-            GeneratedFile { path: "Cargo.toml".to_string(), content: cargo_toml },
-            GeneratedFile { path: format!("src/lib.rs"), content: src_lib },
-            GeneratedFile { path: format!("src/{snake}.rs"), content: src_impl },
-            GeneratedFile { path: "src/tests.rs".to_string(), content: src_test },
-            GeneratedFile { path: "docs/README.md".to_string(), content: docs_stub },
-            GeneratedFile { path: "src/conformance.rs".to_string(), content: conformance_stub },
+            GeneratedFile {
+                path: "Cargo.toml".to_string(),
+                content: cargo_toml,
+            },
+            GeneratedFile {
+                path: format!("src/lib.rs"),
+                content: src_lib,
+            },
+            GeneratedFile {
+                path: format!("src/{snake}.rs"),
+                content: src_impl,
+            },
+            GeneratedFile {
+                path: "src/tests.rs".to_string(),
+                content: src_test,
+            },
+            GeneratedFile {
+                path: "docs/README.md".to_string(),
+                content: docs_stub,
+            },
+            GeneratedFile {
+                path: "src/conformance.rs".to_string(),
+                content: conformance_stub,
+            },
         ],
     })
 }

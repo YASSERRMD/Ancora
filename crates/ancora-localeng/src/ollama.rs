@@ -3,7 +3,6 @@
 /// Ollama exposes a REST API on port 11434 by default. This module
 /// provides a typed client with a pluggable transport so tests run
 /// fully offline using mocks.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Default Ollama API base URL.
@@ -75,11 +74,9 @@ impl<T: OllamaTransport> OllamaClient<T> {
         self.transport.list_models(self.endpoint())
     }
 
-    pub fn complete(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, OllamaError> {
-        self.transport.generate(self.endpoint(), &self.model, request)
+    pub fn complete(&self, request: &CompletionRequest) -> Result<CompletionResult, OllamaError> {
+        self.transport
+            .generate(self.endpoint(), &self.model, request)
     }
 
     pub fn ping(&self) -> Result<bool, OllamaError> {

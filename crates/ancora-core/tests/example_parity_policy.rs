@@ -13,12 +13,42 @@ struct PolicyExample {
 }
 
 const POLICY_EXAMPLES: &[PolicyExample] = &[
-    PolicyExample { lang: "rust",       model: BLOCKED_MODEL, region: ALLOWED_REGION, should_block: true },
-    PolicyExample { lang: "go",         model: BLOCKED_MODEL, region: ALLOWED_REGION, should_block: true },
-    PolicyExample { lang: "python",     model: ALLOWED_MODEL, region: BLOCKED_REGION, should_block: true },
-    PolicyExample { lang: "typescript", model: ALLOWED_MODEL, region: ALLOWED_REGION, should_block: false },
-    PolicyExample { lang: "dotnet",     model: ALLOWED_MODEL, region: ALLOWED_REGION, should_block: false },
-    PolicyExample { lang: "java",       model: ALLOWED_MODEL, region: ALLOWED_REGION, should_block: false },
+    PolicyExample {
+        lang: "rust",
+        model: BLOCKED_MODEL,
+        region: ALLOWED_REGION,
+        should_block: true,
+    },
+    PolicyExample {
+        lang: "go",
+        model: BLOCKED_MODEL,
+        region: ALLOWED_REGION,
+        should_block: true,
+    },
+    PolicyExample {
+        lang: "python",
+        model: ALLOWED_MODEL,
+        region: BLOCKED_REGION,
+        should_block: true,
+    },
+    PolicyExample {
+        lang: "typescript",
+        model: ALLOWED_MODEL,
+        region: ALLOWED_REGION,
+        should_block: false,
+    },
+    PolicyExample {
+        lang: "dotnet",
+        model: ALLOWED_MODEL,
+        region: ALLOWED_REGION,
+        should_block: false,
+    },
+    PolicyExample {
+        lang: "java",
+        model: ALLOWED_MODEL,
+        region: ALLOWED_REGION,
+        should_block: false,
+    },
 ];
 
 fn policy_check(model: &str, region: &str) -> bool {
@@ -43,8 +73,12 @@ fn test_allowed_model_and_region_passes() {
 #[test]
 fn test_policy_examples_match_expected_block() {
     for e in POLICY_EXAMPLES {
-        assert_eq!(policy_check(e.model, e.region), e.should_block,
-            "lang {} policy outcome differs", e.lang);
+        assert_eq!(
+            policy_check(e.model, e.region),
+            e.should_block,
+            "lang {} policy outcome differs",
+            e.lang
+        );
     }
 }
 

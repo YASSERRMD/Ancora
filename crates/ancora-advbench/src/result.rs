@@ -50,7 +50,8 @@ impl BenchReport {
 
     /// Summarize as a plain-text table (for CI logs).
     pub fn summary(&self) -> String {
-        let mut lines = vec!["name                    elapsed_ns  token_units  quality".to_string()];
+        let mut lines =
+            vec!["name                    elapsed_ns  token_units  quality".to_string()];
         for r in &self.results {
             let q = match r.quality {
                 Some(v) => format!("{:.3}", v),

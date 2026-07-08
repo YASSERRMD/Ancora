@@ -1,5 +1,4 @@
 /// Eval run executor - drives evaluation cases through the pipeline.
-
 use std::collections::HashMap;
 
 /// Unique identifier for an evaluation run.
@@ -57,17 +56,13 @@ impl Executor {
     where
         F: Fn(&str, u64) -> (String, u64, u64),
     {
-        let (actual, latency_ms, cost_tokens) =
-            infer(&case.input, self.config.seed);
+        let (actual, latency_ms, cost_tokens) = infer(&case.input, self.config.seed);
         let passes = (self.config.scorer)(&actual, &case.expected);
         let outcome = if passes {
             Outcome::Pass
         } else {
             Outcome::Fail {
-                reason: format!(
-                    "expected {:?} got {:?}",
-                    case.expected, actual
-                ),
+                reason: format!("expected {:?} got {:?}", case.expected, actual),
             }
         };
         CaseResult {
@@ -80,11 +75,7 @@ impl Executor {
     }
 
     /// Execute all cases in the suite.
-    pub fn run_suite<F>(
-        &self,
-        cases: &[EvalCase],
-        infer: &F,
-    ) -> Vec<CaseResult>
+    pub fn run_suite<F>(&self, cases: &[EvalCase], infer: &F) -> Vec<CaseResult>
     where
         F: Fn(&str, u64) -> (String, u64, u64),
     {
@@ -108,9 +99,7 @@ pub fn prefix_match(actual: &str, expected: &str) -> bool {
 }
 
 /// Build a deterministic fixture inference function for testing.
-pub fn fixture_infer(
-    answers: HashMap<String, String>,
-) -> impl Fn(&str, u64) -> (String, u64, u64) {
+pub fn fixture_infer(answers: HashMap<String, String>) -> impl Fn(&str, u64) -> (String, u64, u64) {
     move |input: &str, _seed: u64| {
         let out = answers.get(input).cloned().unwrap_or_default();
         (out, 10, 5)

@@ -9,18 +9,21 @@ fn compute_cost(input_tokens: u64, output_tokens: u64) -> f64 {
 }
 
 const COST_TEST_CASES: &[(u64, u64, f64)] = &[
-    (1_000_000, 0,         3.0),
-    (0,         1_000_000, 15.0),
+    (1_000_000, 0, 3.0),
+    (0, 1_000_000, 15.0),
     (1_000_000, 1_000_000, 18.0),
-    (500_000,   200_000,   1.5 + 3.0),
-    (0,         0,         0.0),
+    (500_000, 200_000, 1.5 + 3.0),
+    (0, 0, 0.0),
 ];
 
 #[test]
 fn test_cost_formula_for_all_cases() {
     for (inp, out, expected) in COST_TEST_CASES {
         let actual = compute_cost(*inp, *out);
-        assert!((actual - expected).abs() < 0.0001, "inp={inp} out={out}: expected {expected} got {actual}");
+        assert!(
+            (actual - expected).abs() < 0.0001,
+            "inp={inp} out={out}: expected {expected} got {actual}"
+        );
     }
 }
 

@@ -1,5 +1,5 @@
-use crate::py_helpers::{PyCostAccessor, PyTraceAccessor};
 use crate::context::CostRecord;
+use crate::py_helpers::{PyCostAccessor, PyTraceAccessor};
 
 #[test]
 fn py_trace_accessor_returns_spans() {

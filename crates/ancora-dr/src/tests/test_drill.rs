@@ -1,10 +1,16 @@
 #[cfg(test)]
 mod tests {
-    use crate::{JournalEntry, JournalStore, drill::run_drill};
+    use crate::{drill::run_drill, JournalEntry, JournalStore};
 
     fn synced_pair(n: u64) -> (JournalStore, JournalStore) {
         let mut p = JournalStore::new();
-        for i in 1..=n { p.append(JournalEntry { seq: i, data: format!("d{}", i) }).unwrap(); }
+        for i in 1..=n {
+            p.append(JournalEntry {
+                seq: i,
+                data: format!("d{}", i),
+            })
+            .unwrap();
+        }
         let mut s = JournalStore::new();
         crate::replicate(&p, &mut s);
         (p, s)

@@ -143,7 +143,13 @@ mod tests {
         card.identity_key = Some("key".into());
         let bytes = card.canonical_bytes();
         let text = String::from_utf8(bytes).unwrap();
-        assert!(!text.contains("\"signature\""), "canonical bytes must not include signature");
-        assert!(text.contains("\"identity_key\""), "identity_key is part of canonical form");
+        assert!(
+            !text.contains("\"signature\""),
+            "canonical bytes must not include signature"
+        );
+        assert!(
+            text.contains("\"identity_key\""),
+            "identity_key is part of canonical form"
+        );
     }
 }

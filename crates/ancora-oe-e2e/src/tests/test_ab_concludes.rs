@@ -18,15 +18,15 @@ fn ab_experiment_concludes_with_winner() {
     }
 
     let conclusion = conclude_experiment(&metrics, &variants, 5);
-    assert_eq!(conclusion, ExperimentConclusion::Winner("treatment".to_string()));
+    assert_eq!(
+        conclusion,
+        ExperimentConclusion::Winner("treatment".to_string())
+    );
 }
 
 #[test]
 fn ab_experiment_is_inconclusive_without_enough_samples() {
-    let variants = vec![
-        Variant::new("control", "A"),
-        Variant::new("treatment", "B"),
-    ];
+    let variants = vec![Variant::new("control", "A"), Variant::new("treatment", "B")];
 
     let mut metrics = ExperimentMetrics::new();
     metrics.record("control", 0.8);
@@ -38,10 +38,7 @@ fn ab_experiment_is_inconclusive_without_enough_samples() {
 
 #[test]
 fn ab_experiment_ties_when_means_are_equal() {
-    let variants = vec![
-        Variant::new("v1", "A"),
-        Variant::new("v2", "B"),
-    ];
+    let variants = vec![Variant::new("v1", "A"), Variant::new("v2", "B")];
 
     let mut metrics = ExperimentMetrics::new();
     for _ in 0..5 {

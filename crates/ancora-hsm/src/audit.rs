@@ -45,11 +45,31 @@ pub struct HsmAuditEntry {
 }
 
 impl HsmAuditEntry {
-    pub fn new(tick: u64, slot_id: u32, operation: HsmOperation, success: bool, detail: impl Into<String>) -> Self {
-        Self { tick, slot_id, session_id: None, key_handle: None, operation, success, detail: detail.into() }
+    pub fn new(
+        tick: u64,
+        slot_id: u32,
+        operation: HsmOperation,
+        success: bool,
+        detail: impl Into<String>,
+    ) -> Self {
+        Self {
+            tick,
+            slot_id,
+            session_id: None,
+            key_handle: None,
+            operation,
+            success,
+            detail: detail.into(),
+        }
     }
-    pub fn with_session(mut self, id: u64) -> Self { self.session_id = Some(id); self }
-    pub fn with_key(mut self, handle: u64) -> Self { self.key_handle = Some(handle); self }
+    pub fn with_session(mut self, id: u64) -> Self {
+        self.session_id = Some(id);
+        self
+    }
+    pub fn with_key(mut self, handle: u64) -> Self {
+        self.key_handle = Some(handle);
+        self
+    }
 }
 
 pub struct HsmAuditLog {
@@ -57,11 +77,22 @@ pub struct HsmAuditLog {
 }
 
 impl HsmAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: HsmAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: HsmAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_slot<'a>(&'a self, slot_id: u32) -> Vec<&'a HsmAuditEntry> {
-        self.entries.iter().filter(|e| e.slot_id == slot_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.slot_id == slot_id)
+            .collect()
     }
     pub fn by_operation<'a>(&'a self, op: &HsmOperation) -> Vec<&'a HsmAuditEntry> {
         self.entries.iter().filter(|e| &e.operation == op).collect()
@@ -69,5 +100,7 @@ impl HsmAuditLog {
     pub fn failures<'a>(&'a self) -> Vec<&'a HsmAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &HsmAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &HsmAuditEntry> {
+        self.entries.iter()
+    }
 }

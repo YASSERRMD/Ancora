@@ -135,7 +135,11 @@ mod tests {
     fn make_trace(id: &str) -> Trace {
         let mut t = Trace::new(id);
         t.add_span(Span::new("s1", "agent.run", 0).finish(500));
-        t.add_span(Span::new("s2", "llm.call", 10).with_parent("s1").finish(400));
+        t.add_span(
+            Span::new("s2", "llm.call", 10)
+                .with_parent("s1")
+                .finish(400),
+        );
         t
     }
 

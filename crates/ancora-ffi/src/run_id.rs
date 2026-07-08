@@ -42,7 +42,10 @@ pub extern "C" fn ancora_run_id_free(ptr: *mut AncorRunId) {
 #[no_mangle]
 pub extern "C" fn ancora_run_id_to_str(ptr: *const AncorRunId) -> AncorBuffer {
     if ptr.is_null() {
-        return AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+        return AncorBuffer {
+            ptr: std::ptr::null_mut(),
+            len: 0,
+        };
     }
     let inner = unsafe { &*(ptr.cast::<InnerRunId>()) };
     ancora_buffer_from_str(&inner.id)

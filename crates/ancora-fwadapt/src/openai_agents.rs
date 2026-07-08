@@ -60,7 +60,9 @@ impl HandoffBridge {
                 return func(&handoff.context);
             }
         }
-        Err(HandoffError::NoTargetRegistered(handoff.target_agent.clone()))
+        Err(HandoffError::NoTargetRegistered(
+            handoff.target_agent.clone(),
+        ))
     }
 
     /// List all registered agent names.

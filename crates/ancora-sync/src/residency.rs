@@ -53,7 +53,8 @@ impl ResidencyFilter {
             .iter()
             .filter(|e| {
                 // Look up the tag; default to Global if no tag is present.
-                let zone = self.tags
+                let zone = self
+                    .tags
                     .iter()
                     .find(|t| t.seq == e.seq)
                     .map(|t| &t.zone)
@@ -64,12 +65,13 @@ impl ResidencyFilter {
     }
 
     /// Build a [`SyncRequest`] containing only the residency-allowed entries.
-    pub fn build_request(&self, device_id: impl Into<String>, entries: &[JournalEntry]) -> SyncRequest {
-        let allowed: Vec<JournalEntry> = self
-            .filter_allowed(entries)
-            .into_iter()
-            .cloned()
-            .collect();
+    pub fn build_request(
+        &self,
+        device_id: impl Into<String>,
+        entries: &[JournalEntry],
+    ) -> SyncRequest {
+        let allowed: Vec<JournalEntry> =
+            self.filter_allowed(entries).into_iter().cloned().collect();
         SyncRequest {
             device_id: device_id.into(),
             entries: allowed,

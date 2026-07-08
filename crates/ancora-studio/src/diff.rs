@@ -74,7 +74,12 @@ impl RunDiff {
                 DiffKind::Same => same += 1,
             }
         }
-        DiffSummary { added, removed, changed, same }
+        DiffSummary {
+            added,
+            removed,
+            changed,
+            same,
+        }
     }
 }
 

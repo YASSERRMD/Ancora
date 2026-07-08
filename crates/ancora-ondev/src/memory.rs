@@ -98,17 +98,27 @@ impl MemoryStore {
             .values()
             .map(|r| {
                 let score = cosine_similarity(query, &r.embedding);
-                SearchResult { record: r.clone(), score }
+                SearchResult {
+                    record: r.clone(),
+                    score,
+                }
             })
             .collect();
-        results.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+        results.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         results.truncate(k);
         results
     }
 
     /// Return all records belonging to `agent_id`.
     pub fn records_for_agent(&self, agent_id: &str) -> Vec<&MemoryRecord> {
-        self.records.values().filter(|r| r.agent_id == agent_id).collect()
+        self.records
+            .values()
+            .filter(|r| r.agent_id == agent_id)
+            .collect()
     }
 
     /// Export all records as JSON.
@@ -124,7 +134,8 @@ impl MemoryStore {
 pub fn seed_embedding(seed: u64, dim: usize) -> Embedding {
     let mut v: Vec<f32> = (0..dim)
         .map(|i| {
-            let raw = ((seed.wrapping_mul(6364136223846793005)
+            let raw = ((seed
+                .wrapping_mul(6364136223846793005)
                 .wrapping_add(1442695040888963407)
                 .wrapping_add(i as u64)) as f64
                 / u64::MAX as f64) as f32;

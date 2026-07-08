@@ -1,6 +1,6 @@
-use std::time::Instant;
-use crate::policy::ScalePolicy;
 use crate::metrics::AutoscaleMetrics;
+use crate::policy::ScalePolicy;
+use std::time::Instant;
 
 /// Measure autoscaling decision latency in microseconds.
 pub fn measure_decision_latency(policy: &mut ScalePolicy, iterations: usize) -> u64 {

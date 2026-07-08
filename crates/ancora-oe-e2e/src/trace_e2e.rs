@@ -1,6 +1,5 @@
 /// End-to-end trace module for observability testing.
 /// Provides structures and logic for recording, exporting, and verifying traces.
-
 use std::collections::HashMap;
 
 /// A single span within a trace.
@@ -15,7 +14,12 @@ pub struct Span {
 }
 
 impl Span {
-    pub fn new(span_id: impl Into<String>, name: impl Into<String>, start_ns: u64, end_ns: u64) -> Self {
+    pub fn new(
+        span_id: impl Into<String>,
+        name: impl Into<String>,
+        start_ns: u64,
+        end_ns: u64,
+    ) -> Self {
         Self {
             span_id: span_id.into(),
             parent_id: None,

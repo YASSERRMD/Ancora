@@ -1,6 +1,4 @@
-use crate::readiness::{
-    CheckStatus, ChecklistItem, ReadinessChecklist, build_default_checklist,
-};
+use crate::readiness::{build_default_checklist, CheckStatus, ChecklistItem, ReadinessChecklist};
 
 #[test]
 fn test_default_checklist_has_items() {

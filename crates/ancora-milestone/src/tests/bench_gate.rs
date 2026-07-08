@@ -11,5 +11,8 @@ fn bench_gate_routing_canonical() {
     let report = run_all();
     let r = report.get("routing").expect("routing bench");
     let q = r.quality.expect("quality set");
-    assert!((q - 0.8).abs() < 1e-9, "routing canonical quality should be 0.8, got {q}");
+    assert!(
+        (q - 0.8).abs() < 1e-9,
+        "routing canonical quality should be 0.8, got {q}"
+    );
 }

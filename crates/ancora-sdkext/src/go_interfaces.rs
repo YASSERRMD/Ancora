@@ -4,7 +4,6 @@
 /// that Go extensions must satisfy when linked via the FFI bridge. The actual
 /// Go code lives in the `sdk/go/` tree; this module documents and validates
 /// the binary protocol from the Rust side.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
@@ -74,14 +73,10 @@ impl GoExtensionAdapter {
     }
 
     /// Dispatch a call to the registered handler or return an error.
-    pub fn dispatch(
-        &self,
-        envelope: &GoCallEnvelope,
-    ) -> Result<String, ExtensionError> {
+    pub fn dispatch(&self, envelope: &GoCallEnvelope) -> Result<String, ExtensionError> {
         let key = envelope.method.to_string();
         if let Some(handler) = self.dispatch.get(&key) {
-            handler(envelope.payload.clone())
-                .map_err(|e| ExtensionError::ExecutionFailed(e))
+            handler(envelope.payload.clone()).map_err(|e| ExtensionError::ExecutionFailed(e))
         } else {
             Err(ExtensionError::NotSupported(format!(
                 "no handler registered for method '{key}'"

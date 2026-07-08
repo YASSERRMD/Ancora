@@ -20,15 +20,20 @@ pub struct TaskGraph {
 
 impl TaskGraph {
     pub fn new() -> Self {
-        Self { nodes: HashMap::new() }
+        Self {
+            nodes: HashMap::new(),
+        }
     }
 
     pub fn add_task(&mut self, task_id: &str, deps: Vec<String>) {
-        self.nodes.insert(task_id.to_string(), TaskNode {
-            task_id: task_id.to_string(),
-            state: TaskState::Pending,
-            deps,
-        });
+        self.nodes.insert(
+            task_id.to_string(),
+            TaskNode {
+                task_id: task_id.to_string(),
+                state: TaskState::Pending,
+                deps,
+            },
+        );
     }
 
     pub fn ready_tasks(&self) -> Vec<&str> {
@@ -37,7 +42,10 @@ impl TaskGraph {
             .filter(|(_, n)| {
                 n.state == TaskState::Pending
                     && n.deps.iter().all(|dep| {
-                        self.nodes.get(dep).map(|d| d.state == TaskState::Completed).unwrap_or(false)
+                        self.nodes
+                            .get(dep)
+                            .map(|d| d.state == TaskState::Completed)
+                            .unwrap_or(false)
                     })
             })
             .map(|(id, _)| id.as_str())
@@ -77,14 +85,25 @@ impl TaskGraph {
         false
     }
 
-    fn dfs_cycle(&self, id: &str, visited: &mut HashSet<String>, stack: &mut HashSet<String>) -> bool {
-        if stack.contains(id) { return true; }
-        if visited.contains(id) { return false; }
+    fn dfs_cycle(
+        &self,
+        id: &str,
+        visited: &mut HashSet<String>,
+        stack: &mut HashSet<String>,
+    ) -> bool {
+        if stack.contains(id) {
+            return true;
+        }
+        if visited.contains(id) {
+            return false;
+        }
         visited.insert(id.to_string());
         stack.insert(id.to_string());
         if let Some(node) = self.nodes.get(id) {
             for dep in &node.deps {
-                if self.dfs_cycle(dep, visited, stack) { return true; }
+                if self.dfs_cycle(dep, visited, stack) {
+                    return true;
+                }
             }
         }
         stack.remove(id);

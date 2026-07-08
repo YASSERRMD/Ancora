@@ -1,5 +1,5 @@
-use crate::spec::EffectClass;
 use crate::error::SynthError;
+use crate::spec::EffectClass;
 
 /// Scope of permissions granted to a synthesized tool.
 #[derive(Debug, Clone)]
@@ -9,18 +9,25 @@ pub struct PermissionScope {
 
 impl PermissionScope {
     pub fn read_only() -> Self {
-        Self { allowed_effects: vec![EffectClass::ReadOnly] }
+        Self {
+            allowed_effects: vec![EffectClass::ReadOnly],
+        }
     }
 
     pub fn local_write() -> Self {
-        Self { allowed_effects: vec![EffectClass::ReadOnly, EffectClass::WriteLocal] }
+        Self {
+            allowed_effects: vec![EffectClass::ReadOnly, EffectClass::WriteLocal],
+        }
     }
 
     pub fn check(&self, effect: &EffectClass) -> Result<(), SynthError> {
         if self.allowed_effects.contains(effect) {
             Ok(())
         } else {
-            Err(SynthError::PermissionDenied(format!("effect {:?} not in scope", effect)))
+            Err(SynthError::PermissionDenied(format!(
+                "effect {:?} not in scope",
+                effect
+            )))
         }
     }
 }

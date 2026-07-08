@@ -1,5 +1,5 @@
-use serde_json::{json, Value};
 use crate::audit::AuditEvent;
+use serde_json::{json, Value};
 
 /// Export an audit event in a SIEM-compatible format (Common Event Format fields).
 pub fn to_siem(event: &AuditEvent) -> Value {

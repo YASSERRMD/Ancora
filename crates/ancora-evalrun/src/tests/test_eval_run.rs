@@ -1,13 +1,25 @@
-use crate::executor::{EvalCase, Executor, RunConfig, RunId, exact_match, fixture_infer};
-use crate::rollout::RolloutRunner;
 use crate::aggregate::compute_aggregate;
+use crate::executor::{exact_match, fixture_infer, EvalCase, Executor, RunConfig, RunId};
+use crate::rollout::RolloutRunner;
 
 #[test]
 fn eval_run_completes_on_fixture_suite() {
     let cases = vec![
-        EvalCase { id: "c1".into(), input: "2+2".into(), expected: "4".into() },
-        EvalCase { id: "c2".into(), input: "3+3".into(), expected: "6".into() },
-        EvalCase { id: "c3".into(), input: "hello".into(), expected: "world".into() },
+        EvalCase {
+            id: "c1".into(),
+            input: "2+2".into(),
+            expected: "4".into(),
+        },
+        EvalCase {
+            id: "c2".into(),
+            input: "3+3".into(),
+            expected: "6".into(),
+        },
+        EvalCase {
+            id: "c3".into(),
+            input: "hello".into(),
+            expected: "world".into(),
+        },
     ];
 
     let mut answers = std::collections::HashMap::new();
@@ -28,19 +40,32 @@ fn eval_run_completes_on_fixture_suite() {
     assert_eq!(rollouts.len(), 3);
     for r in &rollouts {
         assert_eq!(r.results.len(), 3);
-        assert_eq!(r.pass_count(), 3, "all rollouts should pass for case {}", r.case_id);
+        assert_eq!(
+            r.pass_count(),
+            3,
+            "all rollouts should pass for case {}",
+            r.case_id
+        );
     }
 
     let metrics = compute_aggregate(&rollouts);
-    assert!((metrics.pass_rate - 1.0).abs() < 1e-9, "expected 100% pass rate");
-    assert!(metrics.ci_lower > 0.6, "ci lower should be high for 9 total rollouts all passing");
+    assert!(
+        (metrics.pass_rate - 1.0).abs() < 1e-9,
+        "expected 100% pass rate"
+    );
+    assert!(
+        metrics.ci_lower > 0.6,
+        "ci lower should be high for 9 total rollouts all passing"
+    );
 }
 
 #[test]
 fn eval_run_records_failures() {
-    let cases = vec![
-        EvalCase { id: "f1".into(), input: "bad".into(), expected: "good".into() },
-    ];
+    let cases = vec![EvalCase {
+        id: "f1".into(),
+        input: "bad".into(),
+        expected: "good".into(),
+    }];
 
     let infer = |_: &str, _: u64| -> (String, u64, u64) { ("wrong".into(), 5, 2) };
 

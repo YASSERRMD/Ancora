@@ -1,6 +1,6 @@
-use crate::store::JournalStore;
 use crate::failover::FailoverController;
 use crate::replication::replicate;
+use crate::store::JournalStore;
 
 /// Result of a DR drill run.
 #[derive(Debug)]

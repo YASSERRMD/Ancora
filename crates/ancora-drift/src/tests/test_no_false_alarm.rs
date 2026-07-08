@@ -30,14 +30,10 @@ fn no_false_alarm_when_all_metrics_stable() {
     let mut tool_counts = HashMap::new();
     tool_counts.insert("search".to_string(), 50);
 
-    let input_result = InputDriftDetector::new(3.0)
-        .check(&reference, &input_current);
-    let output_result = OutputDriftDetector::new(3.0)
-        .check(&reference, &output_current);
-    let cost_result = CostDriftDetector::new(3.0)
-        .check(&reference, &cost_current);
-    let tool_result = ToolDriftDetector::new(0.15)
-        .check(&reference, &tool_counts);
+    let input_result = InputDriftDetector::new(3.0).check(&reference, &input_current);
+    let output_result = OutputDriftDetector::new(3.0).check(&reference, &output_current);
+    let cost_result = CostDriftDetector::new(3.0).check(&reference, &cost_current);
+    let tool_result = ToolDriftDetector::new(0.15).check(&reference, &tool_counts);
 
     let mut agg = AlertAggregator::new();
 

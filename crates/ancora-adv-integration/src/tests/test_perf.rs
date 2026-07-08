@@ -1,15 +1,17 @@
 use std::time::Instant;
 
+use ancora_guard::{GuardrailJournal, GuardrailPolicy, SafetyOutputGuardrail};
 use ancora_orchestrate::fan_out;
 use ancora_reason::StepDecomposer;
-use ancora_guard::{GuardrailJournal, GuardrailPolicy, SafetyOutputGuardrail};
 
 #[test]
 fn combined_pipeline_overhead() {
     let start = Instant::now();
 
     // Fan out 100 tasks
-    let inputs: Vec<serde_json::Value> = (0..100).map(|i| serde_json::json!(format!("input-{}", i))).collect();
+    let inputs: Vec<serde_json::Value> = (0..100)
+        .map(|i| serde_json::json!(format!("input-{}", i)))
+        .collect();
     let tasks = fan_out("bench-orch", "agent", inputs, "root");
     assert_eq!(tasks.len(), 100);
 
@@ -27,5 +29,9 @@ fn combined_pipeline_overhead() {
     }
 
     let elapsed_ms = start.elapsed().as_millis();
-    assert!(elapsed_ms < 500, "combined pipeline took {}ms (limit 500ms)", elapsed_ms);
+    assert!(
+        elapsed_ms < 500,
+        "combined pipeline took {}ms (limit 500ms)",
+        elapsed_ms
+    );
 }

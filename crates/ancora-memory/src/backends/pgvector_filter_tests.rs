@@ -56,7 +56,10 @@ mod filter_tests {
 
     #[test]
     fn filter_ne_produces_not_equal_op() {
-        let f = Filter::Ne("status".to_owned(), PayloadValue::String("archived".to_owned()));
+        let f = Filter::Ne(
+            "status".to_owned(),
+            PayloadValue::String("archived".to_owned()),
+        );
         let (sql, _) = filter_to_sql(&f, 0);
         assert!(sql.contains("!="), "SQL: {sql}");
     }
@@ -97,8 +100,10 @@ mod filter_tests {
 
     #[test]
     fn filter_or_compound_wraps_in_parens() {
-        let f = Filter::Eq("a".to_owned(), PayloadValue::String("x".to_owned()))
-            .or(Filter::Eq("a".to_owned(), PayloadValue::String("y".to_owned())));
+        let f = Filter::Eq("a".to_owned(), PayloadValue::String("x".to_owned())).or(Filter::Eq(
+            "a".to_owned(),
+            PayloadValue::String("y".to_owned()),
+        ));
         let (sql, _) = filter_to_sql(&f, 0);
         assert!(sql.starts_with('('), "SQL: {sql}");
         assert!(sql.contains("OR"), "SQL: {sql}");

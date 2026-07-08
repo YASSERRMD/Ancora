@@ -3,7 +3,6 @@
 /// Produces a structured JSON-compatible representation of the current
 /// evaluation state for consumption by monitoring UIs and external tooling.
 /// Implemented without external dependencies using manual JSON building.
-
 use crate::alerting::{AlertSeverity, QualityAlert};
 
 /// A snapshot of a model's quality metrics for the dashboard.

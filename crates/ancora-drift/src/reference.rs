@@ -25,12 +25,14 @@ impl Stats {
         let min = values.iter().cloned().fold(f64::INFINITY, f64::min);
         let max = values.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
         let mean = values.iter().sum::<f64>() / count as f64;
-        let variance = values
-            .iter()
-            .map(|v| (v - mean) * (v - mean))
-            .sum::<f64>()
-            / count as f64;
-        Some(Self { count, mean, variance, min, max })
+        let variance = values.iter().map(|v| (v - mean) * (v - mean)).sum::<f64>() / count as f64;
+        Some(Self {
+            count,
+            mean,
+            variance,
+            min,
+            max,
+        })
     }
 
     /// Standard deviation.

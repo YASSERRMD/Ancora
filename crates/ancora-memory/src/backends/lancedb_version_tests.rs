@@ -49,6 +49,9 @@ mod lancedb_version_tests {
         let checkout = checkout_as_of("t", 100);
         let restore = restore_version("t", 1);
         assert!(checkout.get("as_of").is_some(), "checkout has as_of");
-        assert!(restore.get("restore_to").is_some(), "restore has restore_to");
+        assert!(
+            restore.get("restore_to").is_some(),
+            "restore has restore_to"
+        );
     }
 }

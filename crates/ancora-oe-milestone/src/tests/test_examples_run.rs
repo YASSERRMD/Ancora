@@ -1,4 +1,4 @@
-use crate::quickstarts::{Language, Quickstart, QuickstartStep, for_language};
+use crate::quickstarts::{for_language, Language, Quickstart, QuickstartStep};
 
 #[test]
 fn all_language_quickstarts_have_steps() {
@@ -36,10 +36,7 @@ fn filter_quickstarts_by_language_returns_correct_count() {
 #[test]
 fn quickstart_render_produces_content() {
     let qs = Quickstart::new(Language::Rust, "Test")
-        .add_step(
-            QuickstartStep::new("Step 1", "Description")
-                .with_command("cargo test"),
-        );
+        .add_step(QuickstartStep::new("Step 1", "Description").with_command("cargo test"));
     let rendered = qs.render();
     assert!(rendered.contains("cargo test"));
     assert!(rendered.contains("Rust Quickstart"));

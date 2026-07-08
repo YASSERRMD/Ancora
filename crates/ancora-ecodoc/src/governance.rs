@@ -38,7 +38,11 @@ pub struct SemVer {
 
 impl SemVer {
     pub const fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     /// Returns `true` if bumping from `self` to `next` is a breaking change.
@@ -59,11 +63,7 @@ pub const DEPRECATION_NOTICE_RELEASES: u32 = 2;
 /// Returns the minimum release in which a symbol may be removed
 /// given the release it was first deprecated.
 pub fn earliest_removal(deprecated_in: SemVer) -> SemVer {
-    SemVer::new(
-        deprecated_in.major + 1,
-        0,
-        0,
-    )
+    SemVer::new(deprecated_in.major + 1, 0, 0)
 }
 
 #[cfg(test)]

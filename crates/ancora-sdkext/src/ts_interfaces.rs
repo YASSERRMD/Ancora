@@ -3,7 +3,6 @@
 /// TypeScript / Node.js extensions communicate with Ancora via the `ancora-napi`
 /// N-API binding.  This module contains the Rust-side mirror of the TypeScript
 /// interface contract plus validation helpers used by the binding layer.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
@@ -87,10 +86,7 @@ pub fn canonical_ts_interface() -> TsInterfaceDescriptor {
                 name: "execute".to_string(),
                 params: vec![(
                     "args".to_string(),
-                    TsType::Record(
-                        Box::new(TsType::String),
-                        Box::new(TsType::Unknown),
-                    ),
+                    TsType::Record(Box::new(TsType::String), Box::new(TsType::Unknown)),
                 )],
                 return_type: TsType::Unknown,
                 is_async: true,
@@ -114,8 +110,7 @@ pub fn canonical_ts_interface() -> TsInterfaceDescriptor {
 /// binding; in tests we inject a plain closure.
 pub struct TsExtensionAdapter {
     meta: ToolMeta,
-    execute_fn:
-        Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
+    execute_fn: Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
 }
 
 impl TsExtensionAdapter {

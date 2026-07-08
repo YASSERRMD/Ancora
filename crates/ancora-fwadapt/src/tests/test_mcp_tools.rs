@@ -1,4 +1,4 @@
-use crate::mcp_native::{McpParamDef, McpParamType, McpToolDef, McpToolRegistry, McpRegistryError};
+use crate::mcp_native::{McpParamDef, McpParamType, McpRegistryError, McpToolDef, McpToolRegistry};
 
 #[test]
 fn mcp_tools_run_register_and_validate() {
@@ -20,13 +20,17 @@ fn mcp_tools_run_register_and_validate() {
                 description: "File content".into(),
             },
         ],
-    }).unwrap();
+    })
+    .unwrap();
 
     // Validate a correct call.
-    reg.validate_call("write_file", &[("path", "/tmp/x"), ("content", "hello")]).unwrap();
+    reg.validate_call("write_file", &[("path", "/tmp/x"), ("content", "hello")])
+        .unwrap();
 
     // Validate an incomplete call.
-    let err = reg.validate_call("write_file", &[("path", "/tmp/x")]).unwrap_err();
+    let err = reg
+        .validate_call("write_file", &[("path", "/tmp/x")])
+        .unwrap_err();
     assert!(matches!(err, McpRegistryError::ToolNotFound(_)));
 }
 
@@ -46,7 +50,8 @@ fn mcp_duplicate_tool_rejected() {
         name: "ping".into(),
         description: "Ping".into(),
         params: vec![],
-    }).unwrap();
+    })
+    .unwrap();
     assert!(matches!(
         reg.register(McpToolDef {
             name: "ping".into(),
@@ -65,7 +70,8 @@ fn mcp_tool_names_lists_all() {
             name: name.into(),
             description: "desc".into(),
             params: vec![],
-        }).unwrap();
+        })
+        .unwrap();
     }
     let names = reg.tool_names();
     assert_eq!(names.len(), 3);

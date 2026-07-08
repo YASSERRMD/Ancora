@@ -15,7 +15,10 @@ pub struct PermissionChecker<'a> {
 
 impl<'a> PermissionChecker<'a> {
     pub fn new(assignments: &'a AssignmentStore, policy: &'a RolePolicy) -> Self {
-        Self { assignments, policy }
+        Self {
+            assignments,
+            policy,
+        }
     }
 
     pub fn check(&self, subject: &str, tenant_id: &str, perm: &Permission) -> AuthzDecision {
@@ -40,7 +43,12 @@ impl<'a> PermissionChecker<'a> {
         self.check(subject, tenant_id, perm) == AuthzDecision::Allow
     }
 
-    pub fn require_role_dominates(&self, subject: &str, tenant_id: &str, minimum: &crate::role::Role) -> AuthzDecision {
+    pub fn require_role_dominates(
+        &self,
+        subject: &str,
+        tenant_id: &str,
+        minimum: &crate::role::Role,
+    ) -> AuthzDecision {
         match self.assignments.role_of(subject, tenant_id) {
             None => AuthzDecision::Deny(format!("no role for {subject}")),
             Some(role) => {

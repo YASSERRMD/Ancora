@@ -17,7 +17,9 @@ pub struct BackupOps {
 
 impl BackupOps {
     pub fn new() -> Self {
-        Self { backups: Vec::new() }
+        Self {
+            backups: Vec::new(),
+        }
     }
 
     pub fn create_backup(&mut self, tenant_id: &str, now: u64) -> &CliBackup {

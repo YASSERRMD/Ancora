@@ -2,9 +2,11 @@
 
 #[cfg(test)]
 mod loader_ext_tests {
+    use crate::embedders::batch::{
+        chunk_embeddings, merge_batch_results, BatchConfig, BatchEmbedder, BatchResult,
+    };
+    use crate::embedders::embedder::{EmbedResult, Embedder, Embedding};
     use crate::embedders::loader::*;
-    use crate::embedders::batch::{BatchEmbedder, BatchConfig, chunk_embeddings, merge_batch_results, BatchResult};
-    use crate::embedders::embedder::{Embedding, EmbedResult, Embedder};
     use crate::embedders::local::HashEmbedder;
     use std::collections::HashMap;
 
@@ -64,8 +66,11 @@ mod loader_ext_tests {
         let md = "# Hello World\nContent.";
         let docs = split_markdown_sections("file.md", md);
         assert!(!docs.is_empty());
-        assert!(docs[0].source.contains("hello-world") || docs[0].source.contains("file.md"),
-            "source: {}", docs[0].source);
+        assert!(
+            docs[0].source.contains("hello-world") || docs[0].source.contains("file.md"),
+            "source: {}",
+            docs[0].source
+        );
     }
 
     #[test]
@@ -97,18 +102,21 @@ mod loader_ext_tests {
 
     impl Embedder for AlwaysFail {
         fn embed(&self, _text: &str) -> EmbedResult<Embedding> {
-            Err(crate::embedders::embedder::EmbedError::Other("always fails".to_owned()))
+            Err(crate::embedders::embedder::EmbedError::Other(
+                "always fails".to_owned(),
+            ))
         }
-        fn model_name(&self) -> &str { "fail" }
-        fn dims(&self) -> usize { 4 }
+        fn model_name(&self) -> &str {
+            "fail"
+        }
+        fn dims(&self) -> usize {
+            4
+        }
     }
 
     #[test]
     fn batch_skip_on_error_produces_none_entries() {
-        let be = BatchEmbedder::new(
-            AlwaysFail,
-            BatchConfig::new(2).skip_errors(),
-        );
+        let be = BatchEmbedder::new(AlwaysFail, BatchConfig::new(2).skip_errors());
         let result = be.embed_all(&["a", "b", "c"]);
         assert_eq!(result.total, 3);
         assert_eq!(result.error_count, 3);

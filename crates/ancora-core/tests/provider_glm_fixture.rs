@@ -1,10 +1,10 @@
 /// GLM (Zhipu AI) provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const GLM5: &str       = "glm-5";
-const GLM4_PLUS: &str  = "glm-4-plus";
-const GLM4: &str       = "glm-4";
-const GLM4_AIR: &str   = "glm-4-air";
+const GLM5: &str = "glm-5";
+const GLM4_PLUS: &str = "glm-4-plus";
+const GLM4: &str = "glm-4";
+const GLM4_AIR: &str = "glm-4-air";
 const GLM4_FLASH: &str = "glm-4-flash";
 
 fn glm_router() -> ModelRouter {

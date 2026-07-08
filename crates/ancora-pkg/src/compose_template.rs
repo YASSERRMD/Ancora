@@ -86,10 +86,14 @@ pub struct ComposeTemplate {
 impl ComposeTemplate {
     pub fn render(config: ComposeConfig) -> Result<Self, ComposeError> {
         if config.project_name.is_empty() {
-            return Err(ComposeError::InvalidConfig("project_name is required".to_string()));
+            return Err(ComposeError::InvalidConfig(
+                "project_name is required".to_string(),
+            ));
         }
         if config.services.is_empty() {
-            return Err(ComposeError::InvalidConfig("at least one service is required".to_string()));
+            return Err(ComposeError::InvalidConfig(
+                "at least one service is required".to_string(),
+            ));
         }
 
         let mut out = format!(
@@ -104,7 +108,10 @@ impl ComposeTemplate {
             out.push_str(&format!("  {}:\n", svc.name));
             out.push_str(&format!("    image: {}\n", svc.image));
             out.push_str(&format!("    read_only: {}\n", svc.read_only));
-            out.push_str(&format!("    security_opt:\n      - no-new-privileges:{}\n", svc.no_new_privileges));
+            out.push_str(&format!(
+                "    security_opt:\n      - no-new-privileges:{}\n",
+                svc.no_new_privileges
+            ));
             if !svc.ports.is_empty() {
                 out.push_str("    ports:\n");
                 for (h, c) in &svc.ports {
@@ -128,7 +135,10 @@ impl ComposeTemplate {
 
         out.push_str("networks:\n");
         for net in &config.networks {
-            out.push_str(&format!("  {}:\n    driver: bridge\n    internal: true\n", net));
+            out.push_str(&format!(
+                "  {}:\n    driver: bridge\n    internal: true\n",
+                net
+            ));
         }
 
         if !config.volumes.is_empty() {
@@ -138,7 +148,10 @@ impl ComposeTemplate {
             }
         }
 
-        Ok(Self { config, rendered: out })
+        Ok(Self {
+            config,
+            rendered: out,
+        })
     }
 
     pub fn contains(&self, field: &str) -> bool {

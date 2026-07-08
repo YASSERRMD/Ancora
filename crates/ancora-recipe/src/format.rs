@@ -109,7 +109,11 @@ mod tests {
     #[test]
     fn valid_recipe_passes_validation() {
         let mut r = Recipe::new("test", "Test Recipe", "a test");
-        r.add_step(RecipeStep::new("step1", StepAction::Generate, "generate something"));
+        r.add_step(RecipeStep::new(
+            "step1",
+            StepAction::Generate,
+            "generate something",
+        ));
         assert!(r.validate().is_ok());
         assert_eq!(r.step_count(), 1);
     }

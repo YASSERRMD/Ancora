@@ -43,9 +43,7 @@ pub fn parse_ios_version(version: &str) -> Option<(u32, u32)> {
 /// Return whether a version string meets the minimum.
 pub fn meets_min_version(version: &str, min: &str) -> bool {
     match (parse_ios_version(version), parse_ios_version(min)) {
-        (Some((vmaj, vmin)), Some((mmaj, mmin))) => {
-            (vmaj, vmin) >= (mmaj, mmin)
-        }
+        (Some((vmaj, vmin)), Some((mmaj, mmin))) => (vmaj, vmin) >= (mmaj, mmin),
         _ => false,
     }
 }

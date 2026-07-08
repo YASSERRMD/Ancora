@@ -1,5 +1,4 @@
 /// Statistical analysis of experiment results using Welch's t-test.
-
 use crate::outcome::VariantStats;
 
 /// Result of a two-sample significance test.
@@ -28,10 +27,16 @@ impl std::fmt::Display for AnalysisError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AnalysisError::InsufficientData { variant, n } => {
-                write!(f, "variant '{variant}' has only {n} observations (need >= 2)")
+                write!(
+                    f,
+                    "variant '{variant}' has only {n} observations (need >= 2)"
+                )
             }
             AnalysisError::ZeroVariance { variant } => {
-                write!(f, "variant '{variant}' has zero variance; cannot run t-test")
+                write!(
+                    f,
+                    "variant '{variant}' has zero variance; cannot run t-test"
+                )
             }
         }
     }
@@ -85,8 +90,7 @@ pub fn welch_t_test(
 
     // Welch-Satterthwaite degrees of freedom.
     let df = se_total.powi(2)
-        / (se_c.powi(2) / (control.n as f64 - 1.0)
-            + se_t.powi(2) / (treatment.n as f64 - 1.0));
+        / (se_c.powi(2) / (control.n as f64 - 1.0) + se_t.powi(2) / (treatment.n as f64 - 1.0));
 
     // Approximate two-tailed p-value using the regularized incomplete beta function.
     let p_value = two_tailed_p(t_stat.abs(), df);
@@ -125,8 +129,7 @@ fn normal_cdf(z: f64) -> f64 {
     let t = 1.0 / (1.0 + 0.2316419 * z);
     let poly = t
         * (0.319381530
-            + t * (-0.356563782
-                + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+            + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
     1.0 - pdf_standard_normal(z) * poly
 }
 

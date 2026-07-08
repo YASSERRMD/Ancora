@@ -101,8 +101,14 @@ impl MockSamlIdp {
         if config.mfa_required && assertion.mfa_context.is_none() {
             return Err(SamlError::MfaRequired);
         }
-        let entity_id = config.extra.get("entity_id").map(String::as_str).unwrap_or("");
-        if !self.trusted_entity_ids.is_empty() && !self.trusted_entity_ids.iter().any(|e| e == entity_id) {
+        let entity_id = config
+            .extra
+            .get("entity_id")
+            .map(String::as_str)
+            .unwrap_or("");
+        if !self.trusted_entity_ids.is_empty()
+            && !self.trusted_entity_ids.iter().any(|e| e == entity_id)
+        {
             return Err(SamlError::AssertionInvalid);
         }
         Ok(Token::new(

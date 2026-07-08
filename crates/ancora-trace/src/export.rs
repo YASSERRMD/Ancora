@@ -4,7 +4,6 @@
 /// them to a configurable collector endpoint.  The actual HTTP transport
 /// is stubbed so that tests can run without network access; real export
 /// would replace the stub with a proper OTLP/HTTP or gRPC transport.
-
 use crate::span::{AttributeValue, Span, SpanStatus};
 use crate::trace::Trace;
 
@@ -89,8 +88,11 @@ pub struct ExportBatch {
 
 impl ExportBatch {
     pub fn from_trace(trace: &Trace, resource: Resource) -> Self {
-        let spans: Vec<ExportedSpan> =
-            trace.all_spans().into_iter().map(span_to_exported).collect();
+        let spans: Vec<ExportedSpan> = trace
+            .all_spans()
+            .into_iter()
+            .map(span_to_exported)
+            .collect();
         ExportBatch { resource, spans }
     }
 }
@@ -112,7 +114,9 @@ pub struct NoopExporter;
 
 impl SpanExporter for NoopExporter {
     fn export(&self, batch: &ExportBatch) -> ExportResult {
-        ExportResult::Success { span_count: batch.spans.len() }
+        ExportResult::Success {
+            span_count: batch.spans.len(),
+        }
     }
 }
 
@@ -125,7 +129,9 @@ pub struct MockCollector {
 
 impl MockCollector {
     pub fn new() -> Self {
-        MockCollector { inner: std::sync::Mutex::new(Vec::new()) }
+        MockCollector {
+            inner: std::sync::Mutex::new(Vec::new()),
+        }
     }
 
     /// Return a snapshot of all received spans.
@@ -149,7 +155,9 @@ impl SpanExporter for MockCollector {
     fn export(&self, batch: &ExportBatch) -> ExportResult {
         let mut guard = self.inner.lock().unwrap();
         guard.extend(batch.spans.iter().cloned());
-        ExportResult::Success { span_count: batch.spans.len() }
+        ExportResult::Success {
+            span_count: batch.spans.len(),
+        }
     }
 }
 

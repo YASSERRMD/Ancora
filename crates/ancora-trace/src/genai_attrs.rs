@@ -5,7 +5,6 @@
 /// https://opentelemetry.io/docs/specs/semconv/gen-ai/
 ///
 /// All string keys follow the `gen_ai.*` namespace.
-
 use crate::span::Span;
 
 // --- Attribute key constants ---
@@ -42,7 +41,13 @@ pub mod provider {
 }
 
 /// Attach GenAI request attributes to a span.
-pub fn set_request_attrs(span: &mut Span, system: &str, model: &str, max_tokens: Option<i64>, temperature: Option<f64>) {
+pub fn set_request_attrs(
+    span: &mut Span,
+    system: &str,
+    model: &str,
+    max_tokens: Option<i64>,
+    temperature: Option<f64>,
+) {
     span.set_attr_str(GEN_AI_SYSTEM, system);
     span.set_attr_str(GEN_AI_REQUEST_MODEL, model);
     if let Some(t) = max_tokens {
@@ -54,7 +59,12 @@ pub fn set_request_attrs(span: &mut Span, system: &str, model: &str, max_tokens:
 }
 
 /// Attach GenAI response / usage attributes to a span.
-pub fn set_response_attrs(span: &mut Span, response_model: &str, input_tokens: i64, output_tokens: i64) {
+pub fn set_response_attrs(
+    span: &mut Span,
+    response_model: &str,
+    input_tokens: i64,
+    output_tokens: i64,
+) {
     span.set_attr_str(GEN_AI_RESPONSE_MODEL, response_model);
     span.set_attr_int(GEN_AI_USAGE_INPUT_TOKENS, input_tokens);
     span.set_attr_int(GEN_AI_USAGE_OUTPUT_TOKENS, output_tokens);
@@ -171,7 +181,11 @@ pub fn model_identity(span: &Span) -> Option<ModelIdentity> {
     let provider = get_str(span, GEN_AI_SYSTEM)?.to_owned();
     let requested_model = get_str(span, GEN_AI_REQUEST_MODEL)?.to_owned();
     let response_model = get_str(span, GEN_AI_RESPONSE_MODEL).map(|s| s.to_owned());
-    Some(ModelIdentity { provider, requested_model, response_model })
+    Some(ModelIdentity {
+        provider,
+        requested_model,
+        response_model,
+    })
 }
 
 /// Set both system (provider) and request model in one call.
@@ -195,7 +209,11 @@ pub fn tenant_run_context(span: &Span) -> Option<TenantRunContext> {
     let tenant_id = get_str(span, ANCORA_TENANT_ID)?.to_owned();
     let run_id = get_str(span, ANCORA_RUN_ID)?.to_owned();
     let agent_id = get_str(span, ANCORA_AGENT_ID)?.to_owned();
-    Some(TenantRunContext { tenant_id, run_id, agent_id })
+    Some(TenantRunContext {
+        tenant_id,
+        run_id,
+        agent_id,
+    })
 }
 
 /// Error and retry context for a failed span.
@@ -211,7 +229,10 @@ pub struct ErrorContext {
 pub fn error_context(span: &Span) -> Option<ErrorContext> {
     let error_kind = get_str(span, ANCORA_ERROR_KIND)?.to_owned();
     let retry_count = get_int(span, ANCORA_RETRY_COUNT).unwrap_or(0);
-    Some(ErrorContext { error_kind, retry_count })
+    Some(ErrorContext {
+        error_kind,
+        retry_count,
+    })
 }
 
 #[cfg(test)]
@@ -222,7 +243,13 @@ mod tests {
     #[test]
     fn request_attrs_set() {
         let mut s = Span::root("llm-call", 0);
-        set_request_attrs(&mut s, provider::ANTHROPIC, "claude-3-5-sonnet", Some(4096), Some(0.7));
+        set_request_attrs(
+            &mut s,
+            provider::ANTHROPIC,
+            "claude-3-5-sonnet",
+            Some(4096),
+            Some(0.7),
+        );
         assert_eq!(get_str(&s, GEN_AI_SYSTEM), Some(provider::ANTHROPIC));
         assert_eq!(get_str(&s, GEN_AI_REQUEST_MODEL), Some("claude-3-5-sonnet"));
         assert_eq!(get_int(&s, GEN_AI_REQUEST_MAX_TOKENS), Some(4096));

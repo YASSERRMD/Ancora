@@ -20,7 +20,10 @@ fn extraction_recipe_has_four_steps() {
 
 #[test]
 fn schema_with_optional_fields_passes_empty_record() {
-    let schema = Schema::new(vec![SchemaField { name: "optional".into(), required: false }]);
+    let schema = Schema::new(vec![SchemaField {
+        name: "optional".into(),
+        required: false,
+    }]);
     let record = ExtractedRecord::default();
     assert!(schema.validate(&record).is_ok());
 }

@@ -16,12 +16,18 @@ pub struct Timer {
 impl Timer {
     /// Start a new named timer.
     pub fn start(name: impl Into<String>) -> Self {
-        Self { name: name.into(), start: Instant::now() }
+        Self {
+            name: name.into(),
+            start: Instant::now(),
+        }
     }
 
     /// Stop the timer and return the elapsed duration.
     pub fn stop(self) -> TimerResult {
-        TimerResult { name: self.name, elapsed: self.start.elapsed() }
+        TimerResult {
+            name: self.name,
+            elapsed: self.start.elapsed(),
+        }
     }
 }
 
@@ -128,7 +134,10 @@ impl MemorySnapshot {
                 };
             }
         }
-        Self { rss_bytes: 0, vsz_bytes: 0 }
+        Self {
+            rss_bytes: 0,
+            vsz_bytes: 0,
+        }
     }
 
     /// Return RSS in kibibytes.
@@ -184,7 +193,11 @@ mod unit {
     fn cold_start_metrics_within_budget() {
         let m = measure_cold_start("host");
         // Initialisation should complete well within 1 s.
-        assert!(m.within_budget_ms(1000.0), "cold start too slow: {:.2} ms", m.total_ms);
+        assert!(
+            m.within_budget_ms(1000.0),
+            "cold start too slow: {:.2} ms",
+            m.total_ms
+        );
     }
 
     #[test]
@@ -196,7 +209,10 @@ mod unit {
 
     #[test]
     fn memory_within_limit() {
-        let snap = MemorySnapshot { rss_bytes: 10 * 1024 * 1024, vsz_bytes: 20 * 1024 * 1024 };
+        let snap = MemorySnapshot {
+            rss_bytes: 10 * 1024 * 1024,
+            vsz_bytes: 20 * 1024 * 1024,
+        };
         assert!(snap.within_limit_mib(20));
         assert!(!snap.within_limit_mib(5));
     }

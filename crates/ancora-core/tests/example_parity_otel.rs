@@ -12,14 +12,44 @@ struct OtelSpan {
 
 const OTEL_EXAMPLES: &[&[OtelSpan]] = &[
     &[
-        OtelSpan { trace_id: EXAMPLE_TRACE_ID, span_id: "span-rust-0", operation: "run", lang: "rust" },
-        OtelSpan { trace_id: EXAMPLE_TRACE_ID, span_id: "span-rust-1", operation: "activity", lang: "rust" },
-        OtelSpan { trace_id: EXAMPLE_TRACE_ID, span_id: "span-rust-2", operation: "complete", lang: "rust" },
+        OtelSpan {
+            trace_id: EXAMPLE_TRACE_ID,
+            span_id: "span-rust-0",
+            operation: "run",
+            lang: "rust",
+        },
+        OtelSpan {
+            trace_id: EXAMPLE_TRACE_ID,
+            span_id: "span-rust-1",
+            operation: "activity",
+            lang: "rust",
+        },
+        OtelSpan {
+            trace_id: EXAMPLE_TRACE_ID,
+            span_id: "span-rust-2",
+            operation: "complete",
+            lang: "rust",
+        },
     ],
     &[
-        OtelSpan { trace_id: EXAMPLE_TRACE_ID, span_id: "span-go-0", operation: "run", lang: "go" },
-        OtelSpan { trace_id: EXAMPLE_TRACE_ID, span_id: "span-go-1", operation: "activity", lang: "go" },
-        OtelSpan { trace_id: EXAMPLE_TRACE_ID, span_id: "span-go-2", operation: "complete", lang: "go" },
+        OtelSpan {
+            trace_id: EXAMPLE_TRACE_ID,
+            span_id: "span-go-0",
+            operation: "run",
+            lang: "go",
+        },
+        OtelSpan {
+            trace_id: EXAMPLE_TRACE_ID,
+            span_id: "span-go-1",
+            operation: "activity",
+            lang: "go",
+        },
+        OtelSpan {
+            trace_id: EXAMPLE_TRACE_ID,
+            span_id: "span-go-2",
+            operation: "complete",
+            lang: "go",
+        },
     ],
 ];
 
@@ -27,7 +57,11 @@ const OTEL_EXAMPLES: &[&[OtelSpan]] = &[
 fn test_all_spans_share_trace_id() {
     for spans in OTEL_EXAMPLES {
         for span in *spans {
-            assert_eq!(span.trace_id, EXAMPLE_TRACE_ID, "lang {} span trace_id differs", span.lang);
+            assert_eq!(
+                span.trace_id, EXAMPLE_TRACE_ID,
+                "lang {} span trace_id differs",
+                span.lang
+            );
         }
     }
 }

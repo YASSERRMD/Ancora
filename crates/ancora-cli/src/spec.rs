@@ -14,8 +14,12 @@ pub struct NodeSpec {
 }
 
 impl NodeSpec {
-    pub fn is_agent(&self) -> bool { self.kind == "agent" }
-    pub fn is_tool(&self) -> bool { self.kind == "tool" }
+    pub fn is_agent(&self) -> bool {
+        self.kind == "agent"
+    }
+    pub fn is_tool(&self) -> bool {
+        self.kind == "tool"
+    }
     pub fn effective_model(&self) -> &str {
         self.model.as_deref().unwrap_or("default")
     }
@@ -30,7 +34,9 @@ pub struct GraphSpec {
 }
 
 impl GraphSpec {
-    pub fn node_count(&self) -> usize { self.nodes.len() }
+    pub fn node_count(&self) -> usize {
+        self.nodes.len()
+    }
     pub fn agent_nodes(&self) -> Vec<&NodeSpec> {
         self.nodes.iter().filter(|n| n.is_agent()).collect()
     }

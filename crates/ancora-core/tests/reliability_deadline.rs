@@ -6,8 +6,12 @@ struct Deadline {
 }
 
 impl Deadline {
-    fn new(start_ns: u64, limit_ns: u64) -> Self { Self { start_ns, limit_ns } }
-    fn exceeded(&self, now_ns: u64) -> bool { now_ns.saturating_sub(self.start_ns) > self.limit_ns }
+    fn new(start_ns: u64, limit_ns: u64) -> Self {
+        Self { start_ns, limit_ns }
+    }
+    fn exceeded(&self, now_ns: u64) -> bool {
+        now_ns.saturating_sub(self.start_ns) > self.limit_ns
+    }
     fn remaining_ns(&self, now_ns: u64) -> u64 {
         let elapsed = now_ns.saturating_sub(self.start_ns);
         self.limit_ns.saturating_sub(elapsed)

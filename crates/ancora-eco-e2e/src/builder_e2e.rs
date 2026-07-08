@@ -1,5 +1,4 @@
 /// Builder end-to-end: graph builder for plugin pipelines.
-
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

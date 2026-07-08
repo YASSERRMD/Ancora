@@ -20,7 +20,8 @@ fn test_air_gapped_proof_wrong_nonce_fails() {
     let nonce = 9999u64;
 
     let proof = AirGappedProof::generate(device_id, &boot_hash, tick, nonce);
-    let verified = AirGappedProof::verify(device_id, &boot_hash, tick, nonce + 1, &proof.proof_token);
+    let verified =
+        AirGappedProof::verify(device_id, &boot_hash, tick, nonce + 1, &proof.proof_token);
     assert!(!verified, "wrong nonce should not verify");
 }
 

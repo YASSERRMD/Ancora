@@ -177,7 +177,10 @@ mod pinecone_index_tests {
     #[test]
     fn parse_index_host_returns_host() {
         let b = serde_json::json!({ "host": "idx-abc.svc.pinecone.io" });
-        assert_eq!(parse_index_host(&b), Some("idx-abc.svc.pinecone.io".to_owned()));
+        assert_eq!(
+            parse_index_host(&b),
+            Some("idx-abc.svc.pinecone.io".to_owned())
+        );
     }
 
     #[test]

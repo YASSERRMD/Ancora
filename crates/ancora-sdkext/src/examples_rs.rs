@@ -3,7 +3,6 @@
 /// These concrete extensions demonstrate the idiomatic way to write Ancora
 /// tool extensions in Rust.  They are intentionally simple so they can serve
 /// as copy-paste starting points.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolExtension, ToolMeta, Value};
@@ -87,48 +86,32 @@ impl ToolExtension for KvStoreTool {
     }
 
     fn execute(&self, args: HashMap<String, Value>) -> Result<Value, ExtensionError> {
-        let op = args
-            .get("op")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| {
-                ExtensionError::InvalidArgument("'op' argument required (get|set)".to_string())
-            })?;
+        let op = args.get("op").and_then(|v| v.as_str()).ok_or_else(|| {
+            ExtensionError::InvalidArgument("'op' argument required (get|set)".to_string())
+        })?;
 
         match op {
             "set" => {
-                let key = args
-                    .get("key")
-                    .and_then(|v| v.as_str())
-                    .ok_or_else(|| {
-                        ExtensionError::InvalidArgument("'key' required for set".to_string())
-                    })?;
-                let val = args
-                    .get("value")
-                    .and_then(|v| v.as_str())
-                    .ok_or_else(|| {
-                        ExtensionError::InvalidArgument("'value' required for set".to_string())
-                    })?;
+                let key = args.get("key").and_then(|v| v.as_str()).ok_or_else(|| {
+                    ExtensionError::InvalidArgument("'key' required for set".to_string())
+                })?;
+                let val = args.get("value").and_then(|v| v.as_str()).ok_or_else(|| {
+                    ExtensionError::InvalidArgument("'value' required for set".to_string())
+                })?;
                 self.store
                     .lock()
-                    .map_err(|_| {
-                        ExtensionError::ExecutionFailed("lock poisoned".to_string())
-                    })?
+                    .map_err(|_| ExtensionError::ExecutionFailed("lock poisoned".to_string()))?
                     .insert(key.to_string(), val.to_string());
                 Ok(Value::Bool(true))
             }
             "get" => {
-                let key = args
-                    .get("key")
-                    .and_then(|v| v.as_str())
-                    .ok_or_else(|| {
-                        ExtensionError::InvalidArgument("'key' required for get".to_string())
-                    })?;
+                let key = args.get("key").and_then(|v| v.as_str()).ok_or_else(|| {
+                    ExtensionError::InvalidArgument("'key' required for get".to_string())
+                })?;
                 let result = self
                     .store
                     .lock()
-                    .map_err(|_| {
-                        ExtensionError::ExecutionFailed("lock poisoned".to_string())
-                    })?
+                    .map_err(|_| ExtensionError::ExecutionFailed("lock poisoned".to_string()))?
                     .get(key)
                     .cloned()
                     .map(Value::Str)
@@ -142,7 +125,8 @@ impl ToolExtension for KvStoreTool {
     }
 
     fn health_check(&self) -> Result<(), ExtensionError> {
-        let _guard = self.store
+        let _guard = self
+            .store
             .lock()
             .map_err(|_| ExtensionError::ExecutionFailed("lock poisoned".to_string()))?;
         Ok(())

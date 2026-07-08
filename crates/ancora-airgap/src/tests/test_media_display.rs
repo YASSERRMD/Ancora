@@ -27,7 +27,10 @@ fn display_bluetooth() {
 
 #[test]
 fn display_printed_document() {
-    assert_eq!(format!("{}", MediaType::PrintedDocument), "PRINTED_DOCUMENT");
+    assert_eq!(
+        format!("{}", MediaType::PrintedDocument),
+        "PRINTED_DOCUMENT"
+    );
 }
 
 #[test]

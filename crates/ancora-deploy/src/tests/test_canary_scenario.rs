@@ -11,13 +11,18 @@ mod tests {
     #[test]
     fn canary_rollback_then_new_canary_is_clean() {
         let mut c = ctrl_with_pct(0.2);
-        for _ in 0..5 { c.record_canary_result(true); } // trigger failure
+        for _ in 0..5 {
+            c.record_canary_result(true);
+        } // trigger failure
         c.rollback(); // clear canary state
-        // Start fresh canary
+                      // Start fresh canary
         c.canary = vec![VersionedWorker::new("c2", Version::new(2, 1, 0))];
         c.canary_pct = 0.2;
         // New canary has clean counters
-        assert!(c.check_health_gate().is_ok(), "fresh canary should pass health gate");
+        assert!(
+            c.check_health_gate().is_ok(),
+            "fresh canary should pass health gate"
+        );
     }
 
     #[test]

@@ -1,6 +1,5 @@
 /// Plugin permission system - defines permission scopes and enforces them
 /// before a plugin command is allowed to execute.
-
 use std::collections::{HashMap, HashSet};
 
 use crate::interface::PluginError;
@@ -142,11 +141,7 @@ impl PermissionEnforcer {
     /// Check whether a plugin has a given permission.
     ///
     /// Returns `Ok(())` if granted, or a [`PluginError::PermissionDenied`] if not.
-    pub fn check(
-        &self,
-        plugin_id: &str,
-        scope: &PermissionScope,
-    ) -> Result<(), PluginError> {
+    pub fn check(&self, plugin_id: &str, scope: &PermissionScope) -> Result<(), PluginError> {
         let granted = self
             .grants
             .get(plugin_id)

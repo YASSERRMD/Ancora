@@ -7,10 +7,19 @@ pub struct JournalEntry {
 
 #[derive(Debug, Clone)]
 pub enum ConsolidationEvent {
-    Summarized { dropped_count: usize, summary_len: usize },
-    Promoted { key: String },
-    Forgot { key: String },
-    Deduped { removed_count: usize },
+    Summarized {
+        dropped_count: usize,
+        summary_len: usize,
+    },
+    Promoted {
+        key: String,
+    },
+    Forgot {
+        key: String,
+    },
+    Deduped {
+        removed_count: usize,
+    },
 }
 
 /// Append-only journal of consolidation events.

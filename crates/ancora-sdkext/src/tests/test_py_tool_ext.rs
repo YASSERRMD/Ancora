@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use crate::py_classes::{
-    validate_manifest, PyArgSpec, PyDecoratorDescriptor, PyExtensionAdapter,
-    PyExtensionManifest, PyType,
+    validate_manifest, PyArgSpec, PyDecoratorDescriptor, PyExtensionAdapter, PyExtensionManifest,
+    PyType,
 };
 use crate::rs_traits::{ExtensionError, Value};
+use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -11,12 +11,8 @@ use crate::rs_traits::{ExtensionError, Value};
 
 #[test]
 fn test_manifest_to_meta() {
-    let manifest = PyExtensionManifest::new(
-        "py_tool",
-        "A Python tool.",
-        "2.0.0",
-        "mypkg.tools.PyTool",
-    );
+    let manifest =
+        PyExtensionManifest::new("py_tool", "A Python tool.", "2.0.0", "mypkg.tools.PyTool");
     let meta = manifest.to_meta();
     assert_eq!(meta.name, "py_tool");
     assert_eq!(meta.version, "2.0.0");
@@ -32,12 +28,7 @@ fn test_manifest_with_requirement() {
 
 #[test]
 fn test_validate_manifest_valid() {
-    let manifest = PyExtensionManifest::new(
-        "tool",
-        "desc",
-        "1.0.0",
-        "pkg.Tool",
-    );
+    let manifest = PyExtensionManifest::new("tool", "desc", "1.0.0", "pkg.Tool");
     let errors = validate_manifest(&manifest);
     assert!(errors.is_empty(), "unexpected errors: {errors:?}");
 }

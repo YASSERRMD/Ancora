@@ -25,8 +25,18 @@ pub struct HsmConfig {
 }
 
 impl HsmConfig {
-    pub fn software() -> Self { Self { backend: HsmBackend::Software, slot_id: 0 } }
-    pub fn cloud_kms(slot_id: u32) -> Self { Self { backend: HsmBackend::CloudKms, slot_id } }
+    pub fn software() -> Self {
+        Self {
+            backend: HsmBackend::Software,
+            slot_id: 0,
+        }
+    }
+    pub fn cloud_kms(slot_id: u32) -> Self {
+        Self {
+            backend: HsmBackend::CloudKms,
+            slot_id,
+        }
+    }
 
     pub fn is_hardware_backed(&self) -> bool {
         self.backend != HsmBackend::Software
@@ -39,7 +49,12 @@ pub struct HsmStub {
 }
 
 impl HsmStub {
-    pub fn new(config: HsmConfig) -> Self { Self { config, monotonic: 0 } }
+    pub fn new(config: HsmConfig) -> Self {
+        Self {
+            config,
+            monotonic: 0,
+        }
+    }
 
     pub fn generate_key(
         &mut self,
@@ -54,5 +69,7 @@ impl HsmStub {
         CryptoKey::new(id, tenant_id, algorithm, purpose, tick, material)
     }
 
-    pub fn backend(&self) -> &HsmBackend { &self.config.backend }
+    pub fn backend(&self) -> &HsmBackend {
+        &self.config.backend
+    }
 }

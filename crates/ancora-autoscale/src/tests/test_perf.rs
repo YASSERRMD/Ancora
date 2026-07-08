@@ -11,6 +11,10 @@ mod tests {
         p.cooldown = Cooldown::new(0, 0);
         let avg_us = measure_decision_latency(&mut p, 1000);
         // A pure-Rust evaluation should complete well under 1 ms
-        assert!(avg_us < 1000, "decision took {}us avg, expected < 1000us", avg_us);
+        assert!(
+            avg_us < 1000,
+            "decision took {}us avg, expected < 1000us",
+            avg_us
+        );
     }
 }

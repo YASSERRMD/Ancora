@@ -15,41 +15,61 @@ fn ev(seq: u64, run: &str, inner: Event) -> JournalEvent {
 }
 
 fn started(seq: u64, run: &str) -> JournalEvent {
-    ev(seq, run, Event::RunStarted(RunStartedEvent {
-        run_id: run.to_owned(),
-        spec_bytes: vec![],
-        spec_type: "AgentSpec".into(),
-    }))
+    ev(
+        seq,
+        run,
+        Event::RunStarted(RunStartedEvent {
+            run_id: run.to_owned(),
+            spec_bytes: vec![],
+            spec_type: "AgentSpec".into(),
+        }),
+    )
 }
 
 fn activity(seq: u64, run: &str, key: &str) -> JournalEvent {
-    ev(seq, run, Event::ActivityRecorded(ActivityRecordedEvent {
-        activity_key: key.to_owned(),
-        activity_kind: "llm_call".to_owned(),
-        input_json: "{}".to_owned(),
-        result_json: "secret model text".to_owned(),
-        replayed: false,
-    }))
+    ev(
+        seq,
+        run,
+        Event::ActivityRecorded(ActivityRecordedEvent {
+            activity_key: key.to_owned(),
+            activity_kind: "llm_call".to_owned(),
+            input_json: "{}".to_owned(),
+            result_json: "secret model text".to_owned(),
+            replayed: false,
+        }),
+    )
 }
 
 fn node_entered(seq: u64, run: &str, node: &str) -> JournalEvent {
-    ev(seq, run, Event::NodeEntered(NodeEnteredEvent {
-        node_id: node.to_owned(),
-        node_kind: "agent".to_owned(),
-    }))
+    ev(
+        seq,
+        run,
+        Event::NodeEntered(NodeEnteredEvent {
+            node_id: node.to_owned(),
+            node_kind: "agent".to_owned(),
+        }),
+    )
 }
 
 fn node_exited(seq: u64, run: &str, node: &str) -> JournalEvent {
-    ev(seq, run, Event::NodeExited(NodeExitedEvent {
-        node_id: node.to_owned(),
-        success: true,
-    }))
+    ev(
+        seq,
+        run,
+        Event::NodeExited(NodeExitedEvent {
+            node_id: node.to_owned(),
+            success: true,
+        }),
+    )
 }
 
 fn completed(seq: u64, run: &str) -> JournalEvent {
-    ev(seq, run, Event::RunCompleted(RunCompletedEvent {
-        output_json: "secret output".to_owned(),
-    }))
+    ev(
+        seq,
+        run,
+        Event::RunCompleted(RunCompletedEvent {
+            output_json: "secret output".to_owned(),
+        }),
+    )
 }
 
 #[test]
@@ -59,7 +79,10 @@ fn mask_activity_result_is_not_exposed() {
     assert_eq!(masked.len(), 1);
     // The masked event does NOT contain model-generated text
     let repr = format!("{:?}", masked[0]);
-    assert!(!repr.contains("secret"), "model-generated content must not appear in MaskedEvent");
+    assert!(
+        !repr.contains("secret"),
+        "model-generated content must not appear in MaskedEvent"
+    );
 }
 
 #[test]

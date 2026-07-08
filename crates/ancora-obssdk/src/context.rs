@@ -110,7 +110,12 @@ pub struct EvalResult {
 }
 
 impl EvalResult {
-    pub fn new(trace_id: impl Into<String>, passed: bool, score: f64, notes: impl Into<String>) -> Self {
+    pub fn new(
+        trace_id: impl Into<String>,
+        passed: bool,
+        score: f64,
+        notes: impl Into<String>,
+    ) -> Self {
         EvalResult {
             trace_id: trace_id.into(),
             passed,

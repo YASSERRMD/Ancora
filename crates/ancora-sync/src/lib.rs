@@ -21,14 +21,14 @@
 //! | [`transport`] | Encrypted sync transport (envelope seal / open) |
 //! | [`residency`] | Residency-aware filtering before data leaves the device |
 
-pub mod model;
-pub mod journal;
 pub mod changelog;
-pub mod protocol;
 pub mod conflict;
+pub mod journal;
+pub mod model;
 pub mod partial;
-pub mod transport;
+pub mod protocol;
 pub mod residency;
+pub mod transport;
 
 #[cfg(test)]
 mod tests;

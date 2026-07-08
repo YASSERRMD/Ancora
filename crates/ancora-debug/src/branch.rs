@@ -4,7 +4,6 @@
 /// up to and including a given sequence number, then diverges with new
 /// entries.  This enables "what if" analysis: keep the same initial
 /// conditions but simulate a different continuation.
-
 use crate::loader::{Journal, JournalEntry, RunId, Seq};
 
 /// Errors that can occur when creating or manipulating branches.
@@ -20,7 +19,11 @@ impl std::fmt::Display for BranchError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             BranchError::SeqOutOfRange { seq, journal_len } => {
-                write!(f, "seq {} is out of range for journal of length {}", seq, journal_len)
+                write!(
+                    f,
+                    "seq {} is out of range for journal of length {}",
+                    seq, journal_len
+                )
             }
             BranchError::NoPrefixShared => {
                 write!(f, "branches share no common prefix")
@@ -158,7 +161,10 @@ mod tests {
         JournalEntry::new(
             RunId::new(run),
             seq,
-            EntryKind::StateChange { from: from.into(), to: to.into() },
+            EntryKind::StateChange {
+                from: from.into(),
+                to: to.into(),
+            },
         )
     }
 

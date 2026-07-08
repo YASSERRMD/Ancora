@@ -1,4 +1,4 @@
-use crate::gate_parity::{standard_gates, run_gates, check_gate_parity, RegressionGate};
+use crate::gate_parity::{check_gate_parity, run_gates, standard_gates, RegressionGate};
 
 #[test]
 fn test_standard_gates_are_three() {

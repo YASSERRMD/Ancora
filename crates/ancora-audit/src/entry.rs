@@ -66,8 +66,12 @@ impl AuditEntry {
     pub fn compute_checksum(&self) -> u64 {
         let mut h: u64 = self.id.wrapping_mul(2654435761);
         h = h.wrapping_add(self.tick.wrapping_mul(2246822519));
-        for b in self.tenant_id.bytes() { h = h.wrapping_add(b as u64).wrapping_mul(6364136223846793005); }
-        for b in self.operation.bytes() { h = h.wrapping_add(b as u64).wrapping_mul(6364136223846793005); }
+        for b in self.tenant_id.bytes() {
+            h = h.wrapping_add(b as u64).wrapping_mul(6364136223846793005);
+        }
+        for b in self.operation.bytes() {
+            h = h.wrapping_add(b as u64).wrapping_mul(6364136223846793005);
+        }
         h
     }
 

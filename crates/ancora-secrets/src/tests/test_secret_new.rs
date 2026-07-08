@@ -1,7 +1,13 @@
 use crate::{Secret, SecretKind};
 #[test]
 fn new_secret_has_version_one() {
-    let s = Secret::new("db/password", "t1", SecretKind::DatabaseCredential, "s3cr3t", 1);
+    let s = Secret::new(
+        "db/password",
+        "t1",
+        SecretKind::DatabaseCredential,
+        "s3cr3t",
+        1,
+    );
     assert_eq!(s.active_version, 1);
     assert_eq!(s.version_count(), 1);
 }

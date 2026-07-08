@@ -39,9 +39,20 @@ fn main() {
     let decision = ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices);
     println!("Decision: {:?}", decision);
 
-    audit.record(ZtAuditEntry::new(1000, "acme", "alice", "admin/dashboard", ZtAction::PolicyEvaluated, true, "evaluated"));
+    audit.record(ZtAuditEntry::new(
+        1000,
+        "acme",
+        "alice",
+        "admin/dashboard",
+        ZtAction::PolicyEvaluated,
+        true,
+        "evaluated",
+    ));
 
     let identities = vec![&identity];
     let summary = ZeroTrustSummary::generate(&identities, &sessions, &audit, "acme", 1000);
-    println!("Active sessions: {} Denied: {} Healthy: {}", summary.active_sessions, summary.denied_requests, summary.is_healthy);
+    println!(
+        "Active sessions: {} Denied: {} Healthy: {}",
+        summary.active_sessions, summary.denied_requests, summary.is_healthy
+    );
 }

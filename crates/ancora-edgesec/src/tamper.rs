@@ -78,7 +78,10 @@ impl TamperMonitor {
 
     /// Get all events for a device.
     pub fn events_for(&self, device_id: &str) -> Vec<&TamperEvent> {
-        self.events.iter().filter(|e| e.device_id == device_id).collect()
+        self.events
+            .iter()
+            .filter(|e| e.device_id == device_id)
+            .collect()
     }
 
     /// Get all events.

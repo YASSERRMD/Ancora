@@ -27,7 +27,10 @@ impl EpisodicToSemanticPromoter {
         entries
             .iter()
             .filter(|e| e.occurrences >= self.min_occurrences)
-            .map(|e| SemanticEntry { key: e.key.clone(), content: e.content.clone() })
+            .map(|e| SemanticEntry {
+                key: e.key.clone(),
+                content: e.content.clone(),
+            })
             .collect()
     }
 }

@@ -1,5 +1,5 @@
-use crate::opt_in::{OptInFeature, OptInRegistry};
 use crate::eval_policy::{EvalPolicy, EvalSample};
+use crate::opt_in::{OptInFeature, OptInRegistry};
 
 #[test]
 fn prompt_capture_disabled_by_default() {

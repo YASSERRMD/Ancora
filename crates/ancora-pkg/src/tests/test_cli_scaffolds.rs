@@ -88,11 +88,26 @@ fn test_scaffold_kind_from_str() {
     assert_eq!(ScaffoldKind::from_str("saas"), Some(ScaffoldKind::Saas));
     assert_eq!(ScaffoldKind::from_str("onprem"), Some(ScaffoldKind::OnPrem));
     assert_eq!(ScaffoldKind::from_str("airgap"), Some(ScaffoldKind::Airgap));
-    assert_eq!(ScaffoldKind::from_str("compose"), Some(ScaffoldKind::Compose));
-    assert_eq!(ScaffoldKind::from_str("k8s"), Some(ScaffoldKind::Kubernetes));
-    assert_eq!(ScaffoldKind::from_str("kubernetes"), Some(ScaffoldKind::Kubernetes));
+    assert_eq!(
+        ScaffoldKind::from_str("compose"),
+        Some(ScaffoldKind::Compose)
+    );
+    assert_eq!(
+        ScaffoldKind::from_str("k8s"),
+        Some(ScaffoldKind::Kubernetes)
+    );
+    assert_eq!(
+        ScaffoldKind::from_str("kubernetes"),
+        Some(ScaffoldKind::Kubernetes)
+    );
     assert_eq!(ScaffoldKind::from_str("edge"), Some(ScaffoldKind::Edge));
-    assert_eq!(ScaffoldKind::from_str("whitelabel"), Some(ScaffoldKind::Whitelabel));
-    assert_eq!(ScaffoldKind::from_str("tenant"), Some(ScaffoldKind::TenantOnboard));
+    assert_eq!(
+        ScaffoldKind::from_str("whitelabel"),
+        Some(ScaffoldKind::Whitelabel)
+    );
+    assert_eq!(
+        ScaffoldKind::from_str("tenant"),
+        Some(ScaffoldKind::TenantOnboard)
+    );
     assert_eq!(ScaffoldKind::from_str("unknown"), None);
 }

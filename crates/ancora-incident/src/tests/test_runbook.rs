@@ -15,8 +15,12 @@ fn runbook_add_and_complete_steps() {
     rb.add_step(RunbookStep::new("s2", "Step 2", "Do thing 2"));
     assert_eq!(rb.step_count(), 2);
     assert!(!rb.is_complete());
-    if let Some(s) = rb.get_step_mut("s1") { s.complete(10); }
-    if let Some(s) = rb.get_step_mut("s2") { s.complete(20); }
+    if let Some(s) = rb.get_step_mut("s1") {
+        s.complete(10);
+    }
+    if let Some(s) = rb.get_step_mut("s2") {
+        s.complete(20);
+    }
     assert!(rb.is_complete());
     assert_eq!(rb.progress(), 1.0);
 }
@@ -25,7 +29,9 @@ fn runbook_add_and_complete_steps() {
 fn runbook_skip_counts_as_done() {
     let mut rb = Runbook::new("rb1", "Test", "i1");
     rb.add_step(RunbookStep::new("s1", "Step 1", "Desc"));
-    if let Some(s) = rb.get_step_mut("s1") { s.skip(); }
+    if let Some(s) = rb.get_step_mut("s1") {
+        s.skip();
+    }
     assert!(rb.is_complete());
 }
 
@@ -49,7 +55,9 @@ fn completed_count() {
     let mut rb = Runbook::new("rb1", "Test", "i1");
     rb.add_step(RunbookStep::new("s1", "A", "Desc"));
     rb.add_step(RunbookStep::new("s2", "B", "Desc"));
-    if let Some(s) = rb.get_step_mut("s1") { s.complete(1); }
+    if let Some(s) = rb.get_step_mut("s1") {
+        s.complete(1);
+    }
     assert_eq!(rb.completed_count(), 1);
     assert_eq!(rb.pending_count(), 1);
 }

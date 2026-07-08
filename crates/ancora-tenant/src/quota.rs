@@ -17,7 +17,14 @@ impl ResourceQuota {
         max_secrets: u64,
         max_log_entries: u64,
     ) -> Self {
-        Self { max_agents, max_tasks, max_memory_mb, max_cpu_millicores, max_secrets, max_log_entries }
+        Self {
+            max_agents,
+            max_tasks,
+            max_memory_mb,
+            max_cpu_millicores,
+            max_secrets,
+            max_log_entries,
+        }
     }
 
     pub fn unlimited() -> Self {
@@ -44,5 +51,7 @@ pub struct ResourceUsage {
 }
 
 impl ResourceUsage {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 }

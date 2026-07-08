@@ -1,5 +1,4 @@
 /// N-rollout per case - run the same case N times and collect all results.
-
 use crate::executor::{CaseResult, EvalCase, Executor, Outcome};
 
 /// A collection of N results for a single case.
@@ -38,7 +37,11 @@ impl RolloutResult {
         if n == 0 {
             return 0.0;
         }
-        self.results.iter().map(|r| r.latency_ms as f64).sum::<f64>() / n as f64
+        self.results
+            .iter()
+            .map(|r| r.latency_ms as f64)
+            .sum::<f64>()
+            / n as f64
     }
 
     /// Total cost tokens across all rollouts.
@@ -59,12 +62,7 @@ impl RolloutRunner {
     }
 
     /// Run a single case N times, using seed + rollout index for reproducibility.
-    pub fn rollout<F>(
-        &self,
-        executor: &Executor,
-        case: &EvalCase,
-        infer: &F,
-    ) -> RolloutResult
+    pub fn rollout<F>(&self, executor: &Executor, case: &EvalCase, infer: &F) -> RolloutResult
     where
         F: Fn(&str, u64) -> (String, u64, u64),
     {
@@ -74,8 +72,7 @@ impl RolloutRunner {
                 // Vary the seed per rollout so each run is independent.
                 let seed_i = base_seed.wrapping_add(i as u64);
                 let (actual, latency_ms, cost_tokens) = infer(&case.input, seed_i);
-                let passes =
-                    (executor.config().scorer)(&actual, &case.expected);
+                let passes = (executor.config().scorer)(&actual, &case.expected);
                 let outcome = if passes {
                     Outcome::Pass
                 } else {
@@ -111,6 +108,9 @@ impl RolloutRunner {
     where
         F: Fn(&str, u64) -> (String, u64, u64),
     {
-        cases.iter().map(|c| self.rollout(executor, c, infer)).collect()
+        cases
+            .iter()
+            .map(|c| self.rollout(executor, c, infer))
+            .collect()
     }
 }

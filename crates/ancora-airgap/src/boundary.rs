@@ -64,21 +64,32 @@ pub struct AirGapBoundary {
 }
 
 impl AirGapBoundary {
-    pub fn new() -> Self { Self { zones: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            zones: HashMap::new(),
+        }
+    }
 
     pub fn add_zone(&mut self, zone: AirGapZone) {
         self.zones.insert(zone.id.clone(), zone);
     }
 
-    pub fn get(&self, id: &str) -> Option<&AirGapZone> { self.zones.get(id) }
+    pub fn get(&self, id: &str) -> Option<&AirGapZone> {
+        self.zones.get(id)
+    }
 
     pub fn restricted_zones(&self) -> Vec<&AirGapZone> {
         self.zones.values().filter(|z| z.is_restricted()).collect()
     }
 
     pub fn for_tenant(&self, tenant_id: &str) -> Vec<&AirGapZone> {
-        self.zones.values().filter(|z| z.tenant_id == tenant_id).collect()
+        self.zones
+            .values()
+            .filter(|z| z.tenant_id == tenant_id)
+            .collect()
     }
 
-    pub fn count(&self) -> usize { self.zones.len() }
+    pub fn count(&self) -> usize {
+        self.zones.len()
+    }
 }

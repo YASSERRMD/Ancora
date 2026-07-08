@@ -1,4 +1,4 @@
-use crate::{TenantBuilder, ResourceQuota};
+use crate::{ResourceQuota, TenantBuilder};
 #[test]
 fn builder_produces_active_tenant_with_standard_quota() {
     let (tenant, quota) = TenantBuilder::new("t1", "Acme", 100).build();

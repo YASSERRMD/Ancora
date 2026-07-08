@@ -2,8 +2,8 @@
 
 #[cfg(test)]
 mod rerank_ext_tests {
-    use crate::embedders::rerank::*;
     use crate::embedders::embedder::{cosine_similarity, Reranker};
+    use crate::embedders::rerank::*;
 
     // ---- RRF fusion extended tests -------------------------------------
 
@@ -11,9 +11,12 @@ mod rerank_ext_tests {
     fn rrf_k_parameter_affects_score_magnitude() {
         // Smaller k -> higher scores for top-ranked items.
         let list = vec![0, 1, 2];
-        let fused_k1  = reciprocal_rank_fusion(&[list.clone()], 1.0);
+        let fused_k1 = reciprocal_rank_fusion(&[list.clone()], 1.0);
         let fused_k60 = reciprocal_rank_fusion(&[list], 60.0);
-        assert!(fused_k1[0].1 > fused_k60[0].1, "smaller k should give higher scores");
+        assert!(
+            fused_k1[0].1 > fused_k60[0].1,
+            "smaller k should give higher scores"
+        );
     }
 
     #[test]
@@ -72,7 +75,10 @@ mod rerank_ext_tests {
         let embs = vec![vec![1.0f32, 0.0], vec![0.0f32, 1.0]];
         let r = CosineReranker::new(q, embs);
         let s = r.scores();
-        assert!(s[0] != s[1], "distinct embeddings should give distinct scores");
+        assert!(
+            s[0] != s[1],
+            "distinct embeddings should give distinct scores"
+        );
     }
 
     // ---- ScoredPassage -------------------------------------------------
@@ -127,7 +133,10 @@ mod rerank_ext_tests {
 
     #[test]
     fn apply_rerank_scores_returns_same_length() {
-        let passages = vec![ScoredPassage::new(0, "a", 0.5), ScoredPassage::new(1, "b", 0.3)];
+        let passages = vec![
+            ScoredPassage::new(0, "a", 0.5),
+            ScoredPassage::new(1, "b", 0.3),
+        ];
         let scores = vec![0.9f32, 0.1f32];
         let updated = apply_rerank_scores(passages, scores);
         assert_eq!(updated.len(), 2);

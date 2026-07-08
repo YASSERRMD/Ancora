@@ -47,7 +47,10 @@ mod lancedb_conformance {
         let schema = table_schema(256, &[]);
         let cols = schema["columns"].as_array().unwrap();
         let emb = cols.iter().find(|c| c["name"] == "embedding").unwrap();
-        assert!(emb["type"].as_str().unwrap().contains("256"), "dims not in type");
+        assert!(
+            emb["type"].as_str().unwrap().contains("256"),
+            "dims not in type"
+        );
     }
 
     #[test]
@@ -68,7 +71,9 @@ mod lancedb_conformance {
 
     #[test]
     fn rows_batch_length_matches_input() {
-        let data: Vec<_> = (0..5).map(|i| (i as i64, vec![0.1f32], serde_json::json!({}))).collect();
+        let data: Vec<_> = (0..5)
+            .map(|i| (i as i64, vec![0.1f32], serde_json::json!({})))
+            .collect();
         assert_eq!(rows(&data).len(), 5);
     }
 

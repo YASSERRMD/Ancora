@@ -60,7 +60,11 @@ mod redis_vector_filter_tests {
 
     #[test]
     fn filtered_ann_embeds_compound_filter() {
-        let pre = format!("({}) ({})", tag_filter("lang", "en"), numeric_range("score", 0.8, 1.0));
+        let pre = format!(
+            "({}) ({})",
+            tag_filter("lang", "en"),
+            numeric_range("score", 0.8, 1.0)
+        );
         let s = SearchArgs::filtered_ann("idx", &pre, "emb", 5);
         let q = s.to_json()["query"].as_str().unwrap().to_owned();
         assert!(q.contains("@lang:{en}"), "q: {q}");
@@ -71,8 +75,7 @@ mod redis_vector_filter_tests {
 
     #[test]
     fn extra_text_field_added_to_schema() {
-        let idx = CreateIndexArgs::new("docs", "doc:", 128)
-            .add_field("title", field_type::TEXT);
+        let idx = CreateIndexArgs::new("docs", "doc:", 128).add_field("title", field_type::TEXT);
         let j = idx.to_json();
         let schema = j["schema"].as_array().unwrap();
         let has_title = schema.iter().any(|v| v.as_str() == Some("title"));
@@ -81,8 +84,7 @@ mod redis_vector_filter_tests {
 
     #[test]
     fn extra_tag_field_added_to_schema() {
-        let idx = CreateIndexArgs::new("docs", "doc:", 128)
-            .add_field("lang", field_type::TAG);
+        let idx = CreateIndexArgs::new("docs", "doc:", 128).add_field("lang", field_type::TAG);
         let j = idx.to_json();
         let schema = j["schema"].as_array().unwrap();
         let has_tag_type = schema.iter().any(|v| v.as_str() == Some(field_type::TAG));
@@ -91,11 +93,12 @@ mod redis_vector_filter_tests {
 
     #[test]
     fn extra_numeric_field_added() {
-        let idx = CreateIndexArgs::new("docs", "doc:", 128)
-            .add_field("score", field_type::NUMERIC);
+        let idx = CreateIndexArgs::new("docs", "doc:", 128).add_field("score", field_type::NUMERIC);
         let j = idx.to_json();
         let schema = j["schema"].as_array().unwrap();
-        let has_numeric = schema.iter().any(|v| v.as_str() == Some(field_type::NUMERIC));
+        let has_numeric = schema
+            .iter()
+            .any(|v| v.as_str() == Some(field_type::NUMERIC));
         assert!(has_numeric, "schema: {schema:?}");
     }
 
@@ -131,8 +134,7 @@ mod redis_vector_filter_tests {
 
     #[test]
     fn search_returns_custom_fields() {
-        let s = SearchArgs::ann("idx", "emb", 10)
-            .returns(&["score", "title", "lang"]);
+        let s = SearchArgs::ann("idx", "emb", 10).returns(&["score", "title", "lang"]);
         let j = s.to_json();
         let ret = j["return"].as_array().unwrap();
         assert!(ret.contains(&serde_json::json!("title")));

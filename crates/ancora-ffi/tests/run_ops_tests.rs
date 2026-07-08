@@ -25,7 +25,10 @@ fn cstr(s: &str) -> std::ffi::CString {
 fn run_start_returns_non_empty_run_id() {
     let rt = make_rt();
     let spec = b"{}";
-    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let code = ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
     assert_eq!(code, AncorErrorCode::Ok);
     assert!(out.len > 0, "run id buffer should not be empty");
@@ -35,7 +38,10 @@ fn run_start_returns_non_empty_run_id() {
 
 fn start_run(rt: *mut ancora_ffi::handles::AncorRuntime) -> String {
     let spec = b"{}";
-    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out);
     let id = buf_to_string(&out);
     ancora_buffer_free(out);
@@ -47,10 +53,16 @@ fn run_poll_first_event_is_started() {
     let rt = make_rt();
     let id = start_run(rt);
     let c_id = cstr(&id);
-    let mut event = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut event = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     ancora_run_poll(rt, c_id.as_ptr(), &mut event);
     let s = buf_to_string(&event);
-    assert!(s.contains("started"), "first event should be started, got: {s}");
+    assert!(
+        s.contains("started"),
+        "first event should be started, got: {s}"
+    );
     ancora_buffer_free(event);
     ancora_free_runtime(rt);
 }
@@ -60,12 +72,21 @@ fn run_poll_second_event_is_completed() {
     let rt = make_rt();
     let id = start_run(rt);
     let c_id = cstr(&id);
-    let mut e1 = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
-    let mut e2 = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut e1 = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    let mut e2 = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
     ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
     let s = buf_to_string(&e2);
-    assert!(s.contains("completed"), "second event should be completed, got: {s}");
+    assert!(
+        s.contains("completed"),
+        "second event should be completed, got: {s}"
+    );
     ancora_buffer_free(e1);
     ancora_buffer_free(e2);
     ancora_free_runtime(rt);
@@ -76,14 +97,20 @@ fn run_poll_returns_empty_after_all_events_consumed() {
     let rt = make_rt();
     let id = start_run(rt);
     let c_id = cstr(&id);
-    let empty = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let empty = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let mut e1 = empty;
     let mut e2 = empty;
     let mut e3 = empty;
     ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
     ancora_run_poll(rt, c_id.as_ptr(), &mut e2);
     ancora_run_poll(rt, c_id.as_ptr(), &mut e3);
-    assert!(e3.ptr.is_null() && e3.len == 0, "third poll should be empty");
+    assert!(
+        e3.ptr.is_null() && e3.len == 0,
+        "third poll should be empty"
+    );
     ancora_buffer_free(e1);
     ancora_buffer_free(e2);
     ancora_free_runtime(rt);
@@ -94,11 +121,17 @@ fn run_cost_returns_json_with_total_usd() {
     let rt = make_rt();
     let id = start_run(rt);
     let c_id = cstr(&id);
-    let mut cost = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut cost = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let code = ancora_run_cost(rt, c_id.as_ptr(), &mut cost);
     assert_eq!(code, AncorErrorCode::Ok);
     let s = buf_to_string(&cost);
-    assert!(s.contains("total_usd"), "cost should contain total_usd, got: {s}");
+    assert!(
+        s.contains("total_usd"),
+        "cost should contain total_usd, got: {s}"
+    );
     ancora_buffer_free(cost);
     ancora_free_runtime(rt);
 }
@@ -117,7 +150,10 @@ fn run_resume_returns_ok() {
 #[test]
 fn run_start_with_null_runtime_returns_null_ptr() {
     let spec = b"{}";
-    let mut out = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let code = ancora_run_start(std::ptr::null_mut(), spec.as_ptr(), spec.len(), &mut out);
     assert_eq!(code, AncorErrorCode::NullPtr);
 }
@@ -127,7 +163,10 @@ fn resume_after_poll_adds_resumed_event() {
     let rt = make_rt();
     let id = start_run(rt);
     let c_id = cstr(&id);
-    let zero = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let zero = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let mut e1 = zero;
     let mut e2 = zero;
     ancora_run_poll(rt, c_id.as_ptr(), &mut e1);
@@ -149,7 +188,10 @@ fn drive_full_run_start_poll_poll_cost() {
     let rt = make_rt();
     let id = start_run(rt);
     let c_id = cstr(&id);
-    let zero = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+    let zero = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
     let mut e1 = zero;
     let mut e2 = zero;
     let mut cost = zero;

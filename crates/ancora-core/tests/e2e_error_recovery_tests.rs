@@ -10,7 +10,12 @@ use ancora_core::{
 };
 
 fn policy(max: u32, initial_ms: u64, max_ms: u64, jitter: f64) -> RetryPolicy {
-    RetryPolicy { max_attempts: max, initial_backoff_ms: initial_ms, max_backoff_ms: max_ms, jitter }
+    RetryPolicy {
+        max_attempts: max,
+        initial_backoff_ms: initial_ms,
+        max_backoff_ms: max_ms,
+        jitter,
+    }
 }
 
 fn transient(msg: &str) -> AncoraError {
@@ -27,7 +32,10 @@ fn timeout_err() -> AncoraError {
 
 #[test]
 fn model_unreachable_is_retryable() {
-    assert_eq!(classify(&transient("connection reset")), ErrorClass::Retryable);
+    assert_eq!(
+        classify(&transient("connection reset")),
+        ErrorClass::Retryable
+    );
 }
 
 #[test]
@@ -53,7 +61,14 @@ fn one_transient_then_success_uses_two_attempts() {
     let mut n = 0u32;
     let outcome = run_with_retry(
         &p,
-        |_| { n += 1; if n == 1 { Err(transient("first fail")) } else { Ok("ok") } },
+        |_| {
+            n += 1;
+            if n == 1 {
+                Err(transient("first fail"))
+            } else {
+                Ok("ok")
+            }
+        },
         |_| {},
     );
     assert!(matches!(outcome, RetryOutcome::Ok { attempts: 2, .. }));
@@ -65,7 +80,14 @@ fn two_storage_errors_then_success_uses_three_attempts() {
     let mut n = 0u32;
     let outcome = run_with_retry(
         &p,
-        |_| { n += 1; if n <= 2 { Err(storage_err()) } else { Ok("ok") } },
+        |_| {
+            n += 1;
+            if n <= 2 {
+                Err(storage_err())
+            } else {
+                Ok("ok")
+            }
+        },
         |_| {},
     );
     assert!(matches!(outcome, RetryOutcome::Ok { attempts: 3, .. }));
@@ -94,12 +116,11 @@ fn alternating_transient_and_storage_errors_both_retry() {
 #[test]
 fn budget_exhausted_when_all_transient() {
     let p = policy(3, 0, 0, 0.0);
-    let outcome = run_with_retry(
-        &p,
-        |_| Err::<(), _>(transient("always fail")),
-        |_| {},
-    );
-    assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 3, .. }));
+    let outcome = run_with_retry(&p, |_| Err::<(), _>(transient("always fail")), |_| {});
+    assert!(matches!(
+        outcome,
+        RetryOutcome::Exhausted { attempts: 3, .. }
+    ));
 }
 
 #[test]
@@ -117,11 +138,23 @@ fn sleep_fn_called_between_attempts() {
     let mut op_calls: Vec<u32> = Vec::new();
     run_with_retry(
         &p,
-        |attempt| { op_calls.push(attempt); Err::<(), _>(transient("fail")) },
-        |_delay_ms| { sleep_calls += 1; },
+        |attempt| {
+            op_calls.push(attempt);
+            Err::<(), _>(transient("fail"))
+        },
+        |_delay_ms| {
+            sleep_calls += 1;
+        },
     );
-    assert_eq!(op_calls, vec![1u32, 2u32, 3u32], "op must be called for each attempt");
-    assert_eq!(sleep_calls, 2, "sleep must be called between attempts (n-1 times)");
+    assert_eq!(
+        op_calls,
+        vec![1u32, 2u32, 3u32],
+        "op must be called for each attempt"
+    );
+    assert_eq!(
+        sleep_calls, 2,
+        "sleep must be called between attempts (n-1 times)"
+    );
 }
 
 #[test]
@@ -129,7 +162,10 @@ fn zero_backoff_policy_never_sleeps_for_real() {
     let p = policy(5, 0, 0, 0.0);
     let start = std::time::Instant::now();
     run_with_retry(&p, |_| Err::<(), _>(transient("fail")), |_| {});
-    assert!(start.elapsed().as_millis() < 500, "zero backoff must complete fast");
+    assert!(
+        start.elapsed().as_millis() < 500,
+        "zero backoff must complete fast"
+    );
 }
 
 #[test]
@@ -138,14 +174,24 @@ fn mixed_error_types_all_retry_until_exhausted() {
         transient("a"),
         storage_err(),
         timeout_err(),
-        AncoraError::ModelHttp { status: 503, body: String::new() },
+        AncoraError::ModelHttp {
+            status: 503,
+            body: String::new(),
+        },
     ];
     let p = policy(4, 0, 0, 0.0);
     let mut idx = 0usize;
     let outcome = run_with_retry(
         &p,
-        |_| { let e = errors[idx.min(errors.len() - 1)].clone(); idx += 1; Err::<(), _>(e) },
+        |_| {
+            let e = errors[idx.min(errors.len() - 1)].clone();
+            idx += 1;
+            Err::<(), _>(e)
+        },
         |_| {},
     );
-    assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 4, .. }));
+    assert!(matches!(
+        outcome,
+        RetryOutcome::Exhausted { attempts: 4, .. }
+    ));
 }

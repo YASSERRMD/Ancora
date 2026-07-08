@@ -9,7 +9,11 @@ pub struct SlidingWindow {
 
 impl SlidingWindow {
     pub fn new(window_secs: u64, now: u64) -> Self {
-        Self { window_secs, window_start: now, count: 0 }
+        Self {
+            window_secs,
+            window_start: now,
+            count: 0,
+        }
     }
 
     /// Advance to `now`, resetting the counter if the window has elapsed.
@@ -33,6 +37,10 @@ impl SlidingWindow {
     /// Seconds until the current window resets.
     pub fn seconds_until_reset(&self, now: u64) -> u64 {
         let end = self.window_start + self.window_secs;
-        if now >= end { 0 } else { end - now }
+        if now >= end {
+            0
+        } else {
+            end - now
+        }
     }
 }

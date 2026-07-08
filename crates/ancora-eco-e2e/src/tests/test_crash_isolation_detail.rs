@@ -1,5 +1,4 @@
 /// Additional crash isolation detail tests.
-
 use crate::plugin_e2e::{Plugin, PluginState, PluginTemplate};
 
 fn running_plugin(id: u64) -> Plugin {

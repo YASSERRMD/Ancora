@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
+    use crate::api::runs::RunsApi;
     use crate::auth::{AuthError, TokenAuth};
     use crate::model::RunPriority;
     use crate::store::ControlPlaneStore;
-    use crate::api::runs::RunsApi;
 
     #[test]
     fn auth_rejects_missing_token() {
@@ -11,7 +11,10 @@ mod tests {
         let auth = TokenAuth::new(&["secret"]);
         let mut api = RunsApi::new(&mut store, &auth);
         let err = api.create(None, "t1", RunPriority::Normal).unwrap_err();
-        matches!(err, crate::api::runs::RunsApiError::Auth(AuthError::MissingToken));
+        matches!(
+            err,
+            crate::api::runs::RunsApiError::Auth(AuthError::MissingToken)
+        );
     }
 
     #[test]
@@ -19,8 +22,13 @@ mod tests {
         let mut store = ControlPlaneStore::new();
         let auth = TokenAuth::new(&["correct-token"]);
         let mut api = RunsApi::new(&mut store, &auth);
-        let err = api.create(Some("wrong-token"), "t1", RunPriority::Normal).unwrap_err();
-        matches!(err, crate::api::runs::RunsApiError::Auth(AuthError::InvalidToken));
+        let err = api
+            .create(Some("wrong-token"), "t1", RunPriority::Normal)
+            .unwrap_err();
+        matches!(
+            err,
+            crate::api::runs::RunsApiError::Auth(AuthError::InvalidToken)
+        );
     }
 
     #[test]
@@ -28,7 +36,9 @@ mod tests {
         let mut store = ControlPlaneStore::new();
         let auth = TokenAuth::new(&["my-token"]);
         let mut api = RunsApi::new(&mut store, &auth);
-        let run = api.create(Some("my-token"), "t1", RunPriority::Normal).unwrap();
+        let run = api
+            .create(Some("my-token"), "t1", RunPriority::Normal)
+            .unwrap();
         assert!(!run.id.is_empty());
     }
 
@@ -37,7 +47,9 @@ mod tests {
         let mut store = ControlPlaneStore::new();
         let auth = TokenAuth::new(&["token-a", "token-b"]);
         let mut api = RunsApi::new(&mut store, &auth);
-        api.create(Some("token-a"), "t1", RunPriority::Normal).unwrap();
-        api.create(Some("token-b"), "t1", RunPriority::Normal).unwrap();
+        api.create(Some("token-a"), "t1", RunPriority::Normal)
+            .unwrap();
+        api.create(Some("token-b"), "t1", RunPriority::Normal)
+            .unwrap();
     }
 }

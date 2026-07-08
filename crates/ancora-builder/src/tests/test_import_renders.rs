@@ -1,5 +1,4 @@
 /// test_import_renders - Test that importing a spec correctly populates the canvas.
-
 use crate::import::{import_spec, parse_simple_spec, GraphSpec, SpecEdge, SpecNode};
 use crate::scaffold::Position;
 use std::collections::HashMap;
@@ -54,13 +53,21 @@ fn sample_spec() -> GraphSpec {
 #[test]
 fn import_renders_all_nodes() {
     let result = import_spec(sample_spec()).unwrap();
-    assert_eq!(result.canvas.node_count(), 3, "all 3 nodes should be on the canvas");
+    assert_eq!(
+        result.canvas.node_count(),
+        3,
+        "all 3 nodes should be on the canvas"
+    );
 }
 
 #[test]
 fn import_renders_all_edges() {
     let result = import_spec(sample_spec()).unwrap();
-    assert_eq!(result.edges.edge_count(), 2, "all 2 edges should be present");
+    assert_eq!(
+        result.edges.edge_count(),
+        2,
+        "all 2 edges should be present"
+    );
 }
 
 #[test]
@@ -78,7 +85,10 @@ fn import_preserves_config() {
     let result = import_spec(sample_spec()).unwrap();
     let id = crate::scaffold::Id::new("tool1");
     let node = result.canvas.get_node(&id).unwrap();
-    assert_eq!(node.config.get("max_results").map(String::as_str), Some("5"));
+    assert_eq!(
+        node.config.get("max_results").map(String::as_str),
+        Some("5")
+    );
 }
 
 #[test]
@@ -98,5 +108,9 @@ edge e1 a b verification";
 fn import_no_warnings_for_clean_spec() {
     let result = import_spec(sample_spec()).unwrap();
     // A clean spec should have no warnings.
-    assert!(result.warnings.is_empty(), "unexpected warnings: {:?}", result.warnings);
+    assert!(
+        result.warnings.is_empty(),
+        "unexpected warnings: {:?}",
+        result.warnings
+    );
 }

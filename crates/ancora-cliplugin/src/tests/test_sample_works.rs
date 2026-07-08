@@ -66,7 +66,10 @@ fn test_sample_unknown_command_fails() {
 fn test_sample_registers_two_commands() {
     let plugin = SamplePlugin::new();
     let cmds = plugin.commands();
-    assert!(cmds.len() >= 2, "sample plugin should register at least two commands");
+    assert!(
+        cmds.len() >= 2,
+        "sample plugin should register at least two commands"
+    );
     let names: Vec<&str> = cmds.iter().map(|c| c.name.as_str()).collect();
     assert!(names.contains(&"greet"));
     assert!(names.contains(&"echo"));

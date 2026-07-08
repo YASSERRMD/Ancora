@@ -7,10 +7,7 @@ fn mem(id: &str, content: &str) -> MemoryEntry {
 
 #[test]
 fn retrieves_matching_memory() {
-    let entries = vec![
-        mem("1", "rust is fast"),
-        mem("2", "python is slow"),
-    ];
+    let entries = vec![mem("1", "rust is fast"), mem("2", "python is slow")];
     let refs: Vec<&MemoryEntry> = entries.iter().collect();
     let results = KeywordRetriever::retrieve(&refs, "rust", 5);
     assert_eq!(results.len(), 1);

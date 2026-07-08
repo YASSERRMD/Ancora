@@ -1,5 +1,4 @@
 /// Cost and latency analysis per eval run.
-
 use crate::rollout::RolloutResult;
 
 /// Cost and latency statistics for an eval run.
@@ -19,10 +18,7 @@ pub struct CostLatencyStats {
 
 /// Compute cost and latency stats from a list of rollout results.
 pub fn compute_cost_latency(rollouts: &[RolloutResult]) -> CostLatencyStats {
-    let all_results: Vec<_> = rollouts
-        .iter()
-        .flat_map(|r| r.results.iter())
-        .collect();
+    let all_results: Vec<_> = rollouts.iter().flat_map(|r| r.results.iter()).collect();
 
     if all_results.is_empty() {
         return CostLatencyStats {

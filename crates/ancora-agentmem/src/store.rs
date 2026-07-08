@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::entry::{MemoryEntry, MemoryKind};
+use std::collections::HashMap;
 
 pub struct MemoryStore {
     entries: HashMap<String, MemoryEntry>,
@@ -8,7 +8,10 @@ pub struct MemoryStore {
 
 impl MemoryStore {
     pub fn new(max_entries: usize) -> Self {
-        Self { entries: HashMap::new(), max_entries }
+        Self {
+            entries: HashMap::new(),
+            max_entries,
+        }
     }
 
     pub fn insert(&mut self, entry: MemoryEntry, now: u64) {
@@ -30,12 +33,17 @@ impl MemoryStore {
     }
 
     pub fn top_k(&self, k: usize, now: u64) -> Vec<&MemoryEntry> {
-        let mut scored: Vec<(&str, f64)> = self.entries
+        let mut scored: Vec<(&str, f64)> = self
+            .entries
             .iter()
             .map(|(id, e)| (id.as_str(), e.score(now)))
             .collect();
         scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-        scored.iter().take(k).filter_map(|(id, _)| self.entries.get(*id)).collect()
+        scored
+            .iter()
+            .take(k)
+            .filter_map(|(id, _)| self.entries.get(*id))
+            .collect()
     }
 
     pub fn remove(&mut self, id: &str) {
@@ -47,7 +55,8 @@ impl MemoryStore {
     }
 
     fn evict_lowest_score(&mut self, now: u64) {
-        if let Some(id) = self.entries
+        if let Some(id) = self
+            .entries
             .iter()
             .min_by(|a, b| a.1.score(now).partial_cmp(&b.1.score(now)).unwrap())
             .map(|(id, _)| id.clone())

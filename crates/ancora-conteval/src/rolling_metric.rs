@@ -32,7 +32,8 @@ impl RollingMetric {
         if self.observations.len() == self.capacity {
             self.observations.remove(0);
         }
-        self.observations.push(QualityObservation { timestamp, score });
+        self.observations
+            .push(QualityObservation { timestamp, score });
     }
 
     /// Number of observations currently stored.

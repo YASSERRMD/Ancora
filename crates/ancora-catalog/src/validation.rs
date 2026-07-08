@@ -42,10 +42,16 @@ pub fn validate_tool(entry: &ToolEntry) -> Vec<ValidationError> {
         errors.push(ValidationError::new("license", "must not be empty"));
     }
     if !entry.input_schema.is_valid() {
-        errors.push(ValidationError::new("input_schema", "contains unnamed fields"));
+        errors.push(ValidationError::new(
+            "input_schema",
+            "contains unnamed fields",
+        ));
     }
     if !entry.output_schema.is_valid() {
-        errors.push(ValidationError::new("output_schema", "contains unnamed fields"));
+        errors.push(ValidationError::new(
+            "output_schema",
+            "contains unnamed fields",
+        ));
     }
     errors
 }

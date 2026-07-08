@@ -7,7 +7,10 @@ mod tests {
     #[test]
     fn tenant_cap_enforced_on_scale_up() {
         let mut e = TenantPolicyEngine::new();
-        e.set_cap(TenantCap { tenant_id: "t1".to_string(), max_workers: 3 });
+        e.set_cap(TenantCap {
+            tenant_id: "t1".to_string(),
+            max_workers: 3,
+        });
         e.set_workers("t1", 3);
         let result = e.apply("t1", ScaleDecision::ScaleUp { by: 2 });
         assert!(result.is_noop(), "should be noop when already at cap");
@@ -16,7 +19,10 @@ mod tests {
     #[test]
     fn tenant_cap_allows_partial_scale_up() {
         let mut e = TenantPolicyEngine::new();
-        e.set_cap(TenantCap { tenant_id: "t1".to_string(), max_workers: 5 });
+        e.set_cap(TenantCap {
+            tenant_id: "t1".to_string(),
+            max_workers: 5,
+        });
         e.set_workers("t1", 4);
         let result = e.apply("t1", ScaleDecision::ScaleUp { by: 3 });
         match result {
@@ -35,7 +41,10 @@ mod tests {
     #[test]
     fn scale_down_not_affected_by_cap() {
         let mut e = TenantPolicyEngine::new();
-        e.set_cap(TenantCap { tenant_id: "t1".to_string(), max_workers: 3 });
+        e.set_cap(TenantCap {
+            tenant_id: "t1".to_string(),
+            max_workers: 3,
+        });
         let result = e.apply("t1", ScaleDecision::ScaleDown { by: 1 });
         assert!(result.is_scale_down());
     }

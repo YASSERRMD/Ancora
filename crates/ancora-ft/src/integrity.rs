@@ -11,7 +11,13 @@ pub fn compute_pseudo_sha256(descriptor: &AdapterDescriptor) -> String {
     let mut hasher = DefaultHasher::new();
     descriptor.path.hash(&mut hasher);
     descriptor.id.as_str().hash(&mut hasher);
-    format!("{:016x}{:016x}{:016x}{:016x}", hasher.finish(), hasher.finish(), hasher.finish(), hasher.finish())
+    format!(
+        "{:016x}{:016x}{:016x}{:016x}",
+        hasher.finish(),
+        hasher.finish(),
+        hasher.finish(),
+        hasher.finish()
+    )
 }
 
 /// Attach integrity metadata to a descriptor (modifies in place).
@@ -93,9 +99,8 @@ mod tests {
 
     #[test]
     fn integrity_verify_all_passes() {
-        let mut descs: Vec<AdapterDescriptor> = (0..3)
-            .map(|i| make_desc(&format!("a{}", i)))
-            .collect();
+        let mut descs: Vec<AdapterDescriptor> =
+            (0..3).map(|i| make_desc(&format!("a{}", i))).collect();
         for d in &mut descs {
             attach_integrity(d, 512);
         }
@@ -104,9 +109,8 @@ mod tests {
 
     #[test]
     fn integrity_verify_all_fails_on_bad_entry() {
-        let mut descs: Vec<AdapterDescriptor> = (0..3)
-            .map(|i| make_desc(&format!("a{}", i)))
-            .collect();
+        let mut descs: Vec<AdapterDescriptor> =
+            (0..3).map(|i| make_desc(&format!("a{}", i))).collect();
         for d in &mut descs {
             attach_integrity(d, 512);
         }

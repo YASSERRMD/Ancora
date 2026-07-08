@@ -7,7 +7,9 @@ pub fn build_hunyuan_profile() -> ProviderProfile {
     ProviderProfile::new(
         "hunyuan",
         "https://api.hunyuan.cloud.tencent.com/v1",
-        AuthStrategy::BearerToken { env_var: "HUNYUAN_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "HUNYUAN_API_KEY".to_owned(),
+        },
     )
     // Hunyuan Turbo -- fastest, large context
     .add_model(
@@ -73,7 +75,9 @@ mod tests {
 
     #[test]
     fn hunyuan_recorded_fixture_completes() {
-        let resp = hy_client().parse_response(HUNYUAN_FIXTURE, "hunyuan-turbo").unwrap();
+        let resp = hy_client()
+            .parse_response(HUNYUAN_FIXTURE, "hunyuan-turbo")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Hunyuan");
         assert_eq!(resp.tokens_in, 11);
         assert_eq!(resp.tokens_out, 5);

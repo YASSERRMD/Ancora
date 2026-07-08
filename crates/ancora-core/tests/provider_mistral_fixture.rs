@@ -1,10 +1,10 @@
 /// Mistral provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const MISTRAL_LARGE: &str   = "mistral-large-latest";
-const MISTRAL_SMALL: &str   = "mistral-small-latest";
-const MISTRAL_7B: &str      = "open-mistral-7b";
-const CODESTRAL: &str       = "codestral-latest";
+const MISTRAL_LARGE: &str = "mistral-large-latest";
+const MISTRAL_SMALL: &str = "mistral-small-latest";
+const MISTRAL_7B: &str = "open-mistral-7b";
+const CODESTRAL: &str = "codestral-latest";
 
 fn mistral_router() -> ModelRouter {
     let mut r = ModelRouter::new(MISTRAL_LARGE);

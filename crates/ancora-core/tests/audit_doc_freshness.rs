@@ -9,12 +9,30 @@ struct VersionRef {
 }
 
 const VERSION_REFS: &[VersionRef] = &[
-    VersionRef { doc: "sdk/rust/install.md",   version: "0.6.0" },
-    VersionRef { doc: "sdk/go/install.md",      version: "0.6.0" },
-    VersionRef { doc: "sdk/python/install.md",  version: "0.6.0" },
-    VersionRef { doc: "sdk/ts/install.md",      version: "0.6.0" },
-    VersionRef { doc: "sdk/dotnet/install.md",  version: "0.6.0" },
-    VersionRef { doc: "sdk/java/install.md",    version: "0.6.0" },
+    VersionRef {
+        doc: "sdk/rust/install.md",
+        version: "0.6.0",
+    },
+    VersionRef {
+        doc: "sdk/go/install.md",
+        version: "0.6.0",
+    },
+    VersionRef {
+        doc: "sdk/python/install.md",
+        version: "0.6.0",
+    },
+    VersionRef {
+        doc: "sdk/ts/install.md",
+        version: "0.6.0",
+    },
+    VersionRef {
+        doc: "sdk/dotnet/install.md",
+        version: "0.6.0",
+    },
+    VersionRef {
+        doc: "sdk/java/install.md",
+        version: "0.6.0",
+    },
 ];
 
 fn is_current_or_newer(version: &str, current: &str) -> bool {
@@ -31,8 +49,11 @@ fn test_current_version_defined() {
 #[test]
 fn test_all_install_docs_reference_current_version() {
     for vr in VERSION_REFS {
-        assert_eq!(vr.version, CURRENT_VERSION,
-            "{} references version {} but current is {}", vr.doc, vr.version, CURRENT_VERSION);
+        assert_eq!(
+            vr.version, CURRENT_VERSION,
+            "{} references version {} but current is {}",
+            vr.doc, vr.version, CURRENT_VERSION
+        );
     }
 }
 
@@ -49,8 +70,13 @@ fn test_sdk_min_version_is_at_least_0_3() {
 #[test]
 fn test_no_version_older_than_min() {
     for vr in VERSION_REFS {
-        assert!(is_current_or_newer(vr.version, SDK_MIN_VERSION),
-            "{} version {} is older than min {}", vr.doc, vr.version, SDK_MIN_VERSION);
+        assert!(
+            is_current_or_newer(vr.version, SDK_MIN_VERSION),
+            "{} version {} is older than min {}",
+            vr.doc,
+            vr.version,
+            SDK_MIN_VERSION
+        );
     }
 }
 

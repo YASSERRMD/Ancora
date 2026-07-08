@@ -24,13 +24,54 @@ fn computes_correctly() {
     let scenarios = vec![&sc1, &sc2];
 
     let mut attacks = AttackLog::new();
-    attacks.record(AttackStep::new("s1", "sc1", "N", AttackVector::Network, AttackOutcome::Success, "", "", 1));
-    attacks.record(AttackStep::new("s2", "sc1", "N", AttackVector::Local, AttackOutcome::Detected, "", "", 2));
-    attacks.record(AttackStep::new("s3", "sc1", "N", AttackVector::Local, AttackOutcome::Failure, "", "", 3));
+    attacks.record(AttackStep::new(
+        "s1",
+        "sc1",
+        "N",
+        AttackVector::Network,
+        AttackOutcome::Success,
+        "",
+        "",
+        1,
+    ));
+    attacks.record(AttackStep::new(
+        "s2",
+        "sc1",
+        "N",
+        AttackVector::Local,
+        AttackOutcome::Detected,
+        "",
+        "",
+        2,
+    ));
+    attacks.record(AttackStep::new(
+        "s3",
+        "sc1",
+        "N",
+        AttackVector::Local,
+        AttackOutcome::Failure,
+        "",
+        "",
+        3,
+    ));
 
     let mut detections = DetectionLog::new();
-    detections.record(DetectionEvent::new("d1", "sc1", DetectionSource::Edr, "x", 2, true));
-    detections.record(DetectionEvent::new("d2", "sc1", DetectionSource::Siem, "y", 3, false));
+    detections.record(DetectionEvent::new(
+        "d1",
+        "sc1",
+        DetectionSource::Edr,
+        "x",
+        2,
+        true,
+    ));
+    detections.record(DetectionEvent::new(
+        "d2",
+        "sc1",
+        DetectionSource::Siem,
+        "y",
+        3,
+        false,
+    ));
 
     let stats = RedTeamStats::compute(&scenarios, &attacks, &detections);
     assert_eq!(stats.total_scenarios, 2);

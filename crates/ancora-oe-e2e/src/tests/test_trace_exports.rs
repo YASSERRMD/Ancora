@@ -1,4 +1,4 @@
-use crate::trace_e2e::{build_run_trace, MockCollector, TraceExporter, Trace};
+use crate::trace_e2e::{build_run_trace, MockCollector, Trace, TraceExporter};
 
 #[test]
 fn trace_exports_to_mock_collector() {
@@ -8,7 +8,9 @@ fn trace_exports_to_mock_collector() {
     collector.export(&trace).expect("export must succeed");
 
     assert_eq!(collector.count(), 1);
-    let stored = collector.find_trace("trace-exp-001").expect("trace must be findable");
+    let stored = collector
+        .find_trace("trace-exp-001")
+        .expect("trace must be findable");
     assert_eq!(stored.trace_id, "trace-exp-001");
     assert_eq!(stored.spans.len(), trace.spans.len());
 }

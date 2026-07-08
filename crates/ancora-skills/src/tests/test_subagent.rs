@@ -1,5 +1,5 @@
-use crate::subagent::SubAgentNode;
 use crate::skill::SkillScope;
+use crate::subagent::SubAgentNode;
 use serde_json::json;
 
 #[test]

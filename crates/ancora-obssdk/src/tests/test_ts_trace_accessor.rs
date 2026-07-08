@@ -1,5 +1,5 @@
-use crate::ts_helpers::{TsCostAccessor, TsTraceAccessor};
 use crate::context::CostRecord;
+use crate::ts_helpers::{TsCostAccessor, TsTraceAccessor};
 
 #[test]
 fn ts_trace_accessor_returns_spans() {

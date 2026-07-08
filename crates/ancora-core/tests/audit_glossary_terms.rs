@@ -49,14 +49,26 @@ fn test_no_duplicate_glossary_terms() {
 #[test]
 fn test_all_terms_snake_case() {
     for term in GLOSSARY_TERMS {
-        assert!(term.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'), "not snake_case: {term}");
+        assert!(
+            term.chars()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'),
+            "not snake_case: {term}"
+        );
     }
 }
 
 #[test]
 fn test_core_terms_present() {
-    let core = ["journal", "replay", "determinism", "agent", "tool_allowlist"];
-    for t in &core { assert!(GLOSSARY_TERMS.contains(t), "glossary missing: {t}"); }
+    let core = [
+        "journal",
+        "replay",
+        "determinism",
+        "agent",
+        "tool_allowlist",
+    ];
+    for t in &core {
+        assert!(GLOSSARY_TERMS.contains(t), "glossary missing: {t}");
+    }
 }
 
 #[test]
@@ -67,6 +79,16 @@ fn test_a2a_and_mcp_in_glossary() {
 
 #[test]
 fn test_security_terms_in_glossary() {
-    let sec = ["data_sovereignty", "gdpr_erasure", "tool_allowlist", "data_residency"];
-    for t in &sec { assert!(GLOSSARY_TERMS.contains(t), "glossary missing security term: {t}"); }
+    let sec = [
+        "data_sovereignty",
+        "gdpr_erasure",
+        "tool_allowlist",
+        "data_residency",
+    ];
+    for t in &sec {
+        assert!(
+            GLOSSARY_TERMS.contains(t),
+            "glossary missing security term: {t}"
+        );
+    }
 }

@@ -1,4 +1,4 @@
-use crate::escalation::{EscalationPolicy, default_policy_for};
+use crate::escalation::{default_policy_for, EscalationPolicy};
 use crate::incident::Severity;
 
 #[test]

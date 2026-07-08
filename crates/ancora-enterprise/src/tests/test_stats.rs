@@ -28,8 +28,22 @@ fn populated_stats() {
     let licenses = vec![&lic1, &lic2];
 
     let mut incidents = IncidentLog::new();
-    incidents.record(EnterpriseIncident::new("i1", "t1", "N", IncidentSeverity::Critical, "d", 1));
-    incidents.record(EnterpriseIncident::new("i2", "t1", "N", IncidentSeverity::Low, "d", 1));
+    incidents.record(EnterpriseIncident::new(
+        "i1",
+        "t1",
+        "N",
+        IncidentSeverity::Critical,
+        "d",
+        1,
+    ));
+    incidents.record(EnterpriseIncident::new(
+        "i2",
+        "t1",
+        "N",
+        IncidentSeverity::Low,
+        "d",
+        1,
+    ));
 
     let mut cp = EnterpriseCheckpoint::new(1);
     cp.add(chk("c1", CheckStatus::Pass));

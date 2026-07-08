@@ -64,7 +64,9 @@ pub struct DotnetCostAccessor {
 
 impl DotnetCostAccessor {
     pub fn new() -> Self {
-        DotnetCostAccessor { records: Vec::new() }
+        DotnetCostAccessor {
+            records: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, cost: CostRecord) {

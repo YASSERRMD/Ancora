@@ -76,7 +76,11 @@ impl ToolDriftDetector {
         let mut entries: Vec<ToolDriftEntry> = all_tools
             .into_iter()
             .map(|tool| {
-                let ref_freq = reference.tool_frequencies.get(&tool).cloned().unwrap_or(0.0);
+                let ref_freq = reference
+                    .tool_frequencies
+                    .get(&tool)
+                    .cloned()
+                    .unwrap_or(0.0);
                 let cur_freq = cur_freqs.get(&tool).cloned().unwrap_or(0.0);
                 let abs_diff = (cur_freq - ref_freq).abs();
                 ToolDriftEntry {
@@ -91,7 +95,10 @@ impl ToolDriftDetector {
 
         entries.sort_by(|a, b| a.tool.cmp(&b.tool));
         let any_drifted = entries.iter().any(|e| e.drifted);
-        ToolDriftResult { entries, any_drifted }
+        ToolDriftResult {
+            entries,
+            any_drifted,
+        }
     }
 }
 

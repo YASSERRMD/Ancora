@@ -3,7 +3,15 @@ mod tests {
     use crate::component::{Component, ComponentKind, License};
 
     fn make_component(license: License) -> Component {
-        Component::new("id", "name", "1.0.0", ComponentKind::Library, license, "supplier", "sha256:00")
+        Component::new(
+            "id",
+            "name",
+            "1.0.0",
+            ComponentKind::Library,
+            license,
+            "supplier",
+            "sha256:00",
+        )
     }
 
     #[test]

@@ -1,4 +1,4 @@
-use crate::parity_e2e::{ExtensionCapabilities, LanguageRuntime, check_cross_runtime_parity};
+use crate::parity_e2e::{check_cross_runtime_parity, ExtensionCapabilities, LanguageRuntime};
 
 #[test]
 fn test_extension_parity_across_languages() {

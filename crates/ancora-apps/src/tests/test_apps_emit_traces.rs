@@ -43,5 +43,8 @@ fn multi_app_cost_accumulates() {
     tracer.record(Span::new("review", "compliance-review", 25, 500, 100));
 
     assert_eq!(tracer.span_count(), 6);
-    assert!(tracer.total_cost_usd() > 0.002, "accumulated cost should be non-trivial");
+    assert!(
+        tracer.total_cost_usd() > 0.002,
+        "accumulated cost should be non-trivial"
+    );
 }

@@ -2,7 +2,6 @@
 ///
 /// Each app records spans and associated token costs so that
 /// operators can audit usage after an offline run.
-
 use std::time::Instant;
 
 #[derive(Debug, Clone)]

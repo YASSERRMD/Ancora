@@ -7,7 +7,10 @@ pub struct Sampler {
 
 impl Sampler {
     pub fn new(rate: u64) -> Self {
-        Self { rate: rate.max(1), counter: 0 }
+        Self {
+            rate: rate.max(1),
+            counter: 0,
+        }
     }
 
     pub fn should_sample(&mut self) -> bool {

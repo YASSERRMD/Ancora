@@ -7,7 +7,13 @@ mod tests {
         let mut sched = BackupSchedule::new(3600);
         let eng = BackupEngine::plaintext();
         let mut j = Journal::new();
-        j.append(JournalEntry { seq: 1, run_id: "r".into(), tenant_id: "t".into(), kind: "step".into(), payload: "{}".into() });
+        j.append(JournalEntry {
+            seq: 1,
+            run_id: "r".into(),
+            tenant_id: "t".into(),
+            kind: "step".into(),
+            payload: "{}".into(),
+        });
 
         // Due once the interval has elapsed from the epoch start
         assert!(sched.is_due(3600), "due after one interval");

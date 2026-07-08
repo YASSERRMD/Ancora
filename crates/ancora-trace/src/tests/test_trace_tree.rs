@@ -1,5 +1,4 @@
 /// Tests: trace tree mirrors run structure.
-
 use crate::span::{Span, SpanStatus};
 use crate::trace::{build_trace_from_spans, Trace};
 

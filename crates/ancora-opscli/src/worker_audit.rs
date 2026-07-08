@@ -14,7 +14,14 @@ pub struct WorkerAuditLog {
 }
 
 impl WorkerAuditLog {
-    pub fn record(&mut self, worker_id: &str, from: WorkerState, to: WorkerState, at: u64, reason: &str) {
+    pub fn record(
+        &mut self,
+        worker_id: &str,
+        from: WorkerState,
+        to: WorkerState,
+        at: u64,
+        reason: &str,
+    ) {
         self.entries.push(WorkerAuditEntry {
             worker_id: worker_id.to_string(),
             from_state: from,

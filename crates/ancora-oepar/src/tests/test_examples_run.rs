@@ -1,9 +1,9 @@
+use crate::cost_parity::{check_cost_parity, reference_cost_record};
+use crate::eval_parity::{check_eval_parity, run_eval, shared_eval_dataset, EvalRunSummary};
+use crate::polyglot::reference_polyglot_trace;
 /// Smoke-tests that verify the example logic runs without panicking.
 /// These mirror the obs_eval_example binary logic.
-use crate::trace_parity::{Language, reference_trace, compare_traces};
-use crate::cost_parity::{reference_cost_record, check_cost_parity};
-use crate::eval_parity::{shared_eval_dataset, run_eval, EvalRunSummary, check_eval_parity};
-use crate::polyglot::reference_polyglot_trace;
+use crate::trace_parity::{compare_traces, reference_trace, Language};
 
 const LANGUAGES: &[&str] = &["rust", "python", "typescript", "go", "java", "csharp"];
 
@@ -19,7 +19,10 @@ fn test_example_trace_parity_runs() {
 
 #[test]
 fn test_example_cost_parity_runs() {
-    let records: Vec<_> = LANGUAGES.iter().map(|l| reference_cost_record(*l)).collect();
+    let records: Vec<_> = LANGUAGES
+        .iter()
+        .map(|l| reference_cost_record(*l))
+        .collect();
     let issues = check_cost_parity(&records);
     assert!(issues.is_empty());
 }

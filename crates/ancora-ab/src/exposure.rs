@@ -1,5 +1,4 @@
 /// Records that a subject was exposed to a variant during an experiment.
-
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// An exposure event: records when a subject saw a specific variant.
@@ -71,7 +70,9 @@ impl ExposureLog {
     /// Return exposures for a specific experiment.
     pub fn for_experiment<'a>(&'a self, experiment_id: &str) -> impl Iterator<Item = &'a Exposure> {
         let exp_id = experiment_id.to_string();
-        self.entries.iter().filter(move |e| e.experiment_id == exp_id)
+        self.entries
+            .iter()
+            .filter(move |e| e.experiment_id == exp_id)
     }
 
     /// Return exposures for a specific variant within an experiment.

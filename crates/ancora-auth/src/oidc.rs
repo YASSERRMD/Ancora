@@ -1,6 +1,6 @@
 use crate::idp::{IdpConfig, IdpKind};
-use crate::jwt::{JwtClaims, JwtValidator};
 use crate::jwks::JwksStore;
+use crate::jwt::{JwtClaims, JwtValidator};
 use crate::token::Token;
 
 #[derive(Debug, PartialEq, Eq)]

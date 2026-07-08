@@ -10,10 +10,7 @@ pub fn apply_overrides(
     extra: Vec<(String, String)>,
 ) -> PresetDescriptor {
     for (new_key, new_val) in extra {
-        let existing = preset
-            .overrides
-            .iter_mut()
-            .find(|(k, _)| k == &new_key);
+        let existing = preset.overrides.iter_mut().find(|(k, _)| k == &new_key);
         match existing {
             Some(pair) => pair.1 = new_val,
             None => preset.overrides.push((new_key, new_val)),

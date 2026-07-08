@@ -94,7 +94,10 @@ pub fn health_probe(profile: &ProviderProfile) -> HealthStatus {
 /// - At least one model supports streaming
 pub fn is_throughput_host(profile: &ProviderProfile) -> bool {
     let has_https = profile.base_url.starts_with("https://");
-    let has_streaming = profile.model_catalog.values().any(|m| m.capabilities.streaming);
+    let has_streaming = profile
+        .model_catalog
+        .values()
+        .any(|m| m.capabilities.streaming);
     let has_bearer = matches!(
         profile.auth,
         crate::provider::AuthStrategy::BearerToken { .. }
@@ -238,7 +241,10 @@ mod tests {
         }
         let p = build_groq_profile();
         let status = health_probe(&p);
-        assert_eq!(status, HealthStatus::MissingCredential("GROQ_API_KEY".to_owned()));
+        assert_eq!(
+            status,
+            HealthStatus::MissingCredential("GROQ_API_KEY".to_owned())
+        );
     }
 
     #[test]
@@ -246,7 +252,10 @@ mod tests {
         use crate::provider::AuthStrategy;
         let p = ProviderProfile::new("test", "http://insecure.example.com", AuthStrategy::None);
         let status = health_probe(&p);
-        assert_eq!(status, HealthStatus::InvalidProfile("base_url must use HTTPS".to_owned()));
+        assert_eq!(
+            status,
+            HealthStatus::InvalidProfile("base_url must use HTTPS".to_owned())
+        );
     }
 
     #[test]
@@ -254,7 +263,10 @@ mod tests {
         use crate::provider::AuthStrategy;
         let p = ProviderProfile::new("test", "https://example.com", AuthStrategy::None);
         let status = health_probe(&p);
-        assert_eq!(status, HealthStatus::InvalidProfile("no models registered".to_owned()));
+        assert_eq!(
+            status,
+            HealthStatus::InvalidProfile("no models registered".to_owned())
+        );
     }
 
     #[test]
@@ -269,7 +281,8 @@ mod tests {
             r#"data: {"choices":[{"delta":{"content":" three"},"finish_reason":"stop"}]}"#,
             "data: [DONE]",
         ];
-        let tokens: Vec<String> = lines.iter()
+        let tokens: Vec<String> = lines
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -285,7 +298,8 @@ mod tests {
             r#"data: {"choices":[{"delta":{"content":" Together"},"finish_reason":"stop"}]}"#,
             "data: [DONE]",
         ];
-        let tokens: Vec<String> = lines.iter()
+        let tokens: Vec<String> = lines
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -301,7 +315,8 @@ mod tests {
             r#"data: {"choices":[{"delta":{"content":"s"},"finish_reason":"stop"}]}"#,
             "data: [DONE]",
         ];
-        let tokens: Vec<String> = lines.iter()
+        let tokens: Vec<String> = lines
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())

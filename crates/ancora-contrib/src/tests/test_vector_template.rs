@@ -1,6 +1,4 @@
-use crate::vectorstore_template::{
-    Document, MyVectorStore, VectorStoreAdapter, VectorStoreError,
-};
+use crate::vectorstore_template::{Document, MyVectorStore, VectorStoreAdapter, VectorStoreError};
 
 fn make_store() -> MyVectorStore {
     MyVectorStore::new("test-store")
@@ -65,7 +63,9 @@ fn delete_nonexistent_returns_error() {
 fn search_returns_at_most_k_results() {
     let mut store = make_store();
     for i in 0..10u32 {
-        store.upsert(doc(&format!("d{i}"), vec![i as f32, 0.0])).unwrap();
+        store
+            .upsert(doc(&format!("d{i}"), vec![i as f32, 0.0]))
+            .unwrap();
     }
     let results = store.search(&[1.0, 0.0], 3).unwrap();
     assert_eq!(results.len(), 3);
@@ -90,8 +90,15 @@ fn document_metadata() {
 
 #[test]
 fn vector_store_error_display() {
-    assert!(VectorStoreError::NotFound("x".into()).to_string().contains("x"));
-    assert!(VectorStoreError::DuplicateId("y".into()).to_string().contains("y"));
-    let e = VectorStoreError::DimensionMismatch { expected: 4, got: 3 };
+    assert!(VectorStoreError::NotFound("x".into())
+        .to_string()
+        .contains("x"));
+    assert!(VectorStoreError::DuplicateId("y".into())
+        .to_string()
+        .contains("y"));
+    let e = VectorStoreError::DimensionMismatch {
+        expected: 4,
+        got: 3,
+    };
     assert!(e.to_string().contains("4") && e.to_string().contains("3"));
 }

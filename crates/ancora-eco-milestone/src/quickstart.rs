@@ -14,7 +14,12 @@ impl QuickstartStep {
         description: &'static str,
         command: Option<&'static str>,
     ) -> Self {
-        Self { number, title, description, command }
+        Self {
+            number,
+            title,
+            description,
+            command,
+        }
     }
 
     pub fn has_command(&self) -> bool {

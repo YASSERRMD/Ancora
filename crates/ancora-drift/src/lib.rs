@@ -25,12 +25,12 @@ pub mod tool_drift;
 
 #[cfg(test)]
 mod tests {
-    mod test_input_drift;
-    mod test_output_drift;
-    mod test_tool_drift;
-    mod test_provider_change;
     mod test_alert_fires;
-    mod test_no_false_alarm;
-    mod test_sampled_traces;
     mod test_dashboard_json;
+    mod test_input_drift;
+    mod test_no_false_alarm;
+    mod test_output_drift;
+    mod test_provider_change;
+    mod test_sampled_traces;
+    mod test_tool_drift;
 }

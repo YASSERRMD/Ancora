@@ -73,11 +73,17 @@ pub struct ValidationReport {
 
 impl ValidationReport {
     fn ok() -> Self {
-        Self { passed: true, issues: vec![] }
+        Self {
+            passed: true,
+            issues: vec![],
+        }
     }
 
     fn fail(issues: Vec<String>) -> Self {
-        Self { passed: false, issues }
+        Self {
+            passed: false,
+            issues,
+        }
     }
 }
 

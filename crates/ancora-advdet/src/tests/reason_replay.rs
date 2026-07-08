@@ -57,6 +57,9 @@ fn reason_citation_store_stable() {
     cs1.add("ice melts at 0C", "physics-textbook".to_string());
     cs2.add("ice melts at 0C", "physics-textbook".to_string());
 
-    assert_eq!(cs1.has_citations("ice melts at 0C"), cs2.has_citations("ice melts at 0C"));
+    assert_eq!(
+        cs1.has_citations("ice melts at 0C"),
+        cs2.has_citations("ice melts at 0C")
+    );
     assert_eq!(cs1.get("ice melts at 0C"), cs2.get("ice melts at 0C"));
 }

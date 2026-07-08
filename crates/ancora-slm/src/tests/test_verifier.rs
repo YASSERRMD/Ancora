@@ -47,7 +47,9 @@ fn test_length_verifier() {
 
 #[test]
 fn test_required_keys_verifier() {
-    let v = RequiredKeysVerifier { keys: vec!["name".into(), "score".into()] };
+    let v = RequiredKeysVerifier {
+        keys: vec!["name".into(), "score".into()],
+    };
     assert_eq!(v.verify(r#"{"name": "test", "score": 0.9}"#), Verdict::Pass);
     assert!(v.verify(r#"{"name": "only-name"}"#).is_fail());
 }
@@ -67,10 +69,8 @@ fn test_fn_verifier_custom_logic() {
 
 #[test]
 fn test_run_verifiers_all_pass() {
-    let verifiers: Vec<Box<dyn Verifier>> = vec![
-        Box::new(NonEmptyVerifier),
-        Box::new(ValidJsonVerifier),
-    ];
+    let verifiers: Vec<Box<dyn Verifier>> =
+        vec![Box::new(NonEmptyVerifier), Box::new(ValidJsonVerifier)];
     let report = run_verifiers(r#"{"x": 1}"#, &verifiers);
     assert!(report.passed());
     assert_eq!(report.checks.len(), 2);
@@ -78,10 +78,11 @@ fn test_run_verifiers_all_pass() {
 
 #[test]
 fn test_run_verifiers_one_fail() {
-    let verifiers: Vec<Box<dyn Verifier>> = vec![
-        Box::new(NonEmptyVerifier),
-        Box::new(ValidJsonVerifier),
-    ];
+    let verifiers: Vec<Box<dyn Verifier>> =
+        vec![Box::new(NonEmptyVerifier), Box::new(ValidJsonVerifier)];
     let report = run_verifiers("just prose", &verifiers);
-    assert!(!report.passed(), "should fail when JSON verifier rejects prose");
+    assert!(
+        !report.passed(),
+        "should fail when JSON verifier rejects prose"
+    );
 }

@@ -2,7 +2,14 @@ use crate::key::{HsmKey, HsmKeyAlgorithm, KeyClass};
 
 #[test]
 fn key_defaults() {
-    let k = HsmKey::new(1, 0, "aes-key", HsmKeyAlgorithm::Aes256, KeyClass::SecretKey, 100);
+    let k = HsmKey::new(
+        1,
+        0,
+        "aes-key",
+        HsmKeyAlgorithm::Aes256,
+        KeyClass::SecretKey,
+        100,
+    );
     assert!(!k.extractable);
     assert!(k.sensitive);
     assert_eq!(k.handle, 1);
@@ -11,7 +18,17 @@ fn key_defaults() {
 
 #[test]
 fn key_with_attribute() {
-    let k = HsmKey::new(1, 0, "key", HsmKeyAlgorithm::Ed25519, KeyClass::PrivateKey, 1)
-        .with_attribute("purpose", "signing");
-    assert_eq!(k.attributes.get("purpose").map(|s| s.as_str()), Some("signing"));
+    let k = HsmKey::new(
+        1,
+        0,
+        "key",
+        HsmKeyAlgorithm::Ed25519,
+        KeyClass::PrivateKey,
+        1,
+    )
+    .with_attribute("purpose", "signing");
+    assert_eq!(
+        k.attributes.get("purpose").map(|s| s.as_str()),
+        Some("signing")
+    );
 }

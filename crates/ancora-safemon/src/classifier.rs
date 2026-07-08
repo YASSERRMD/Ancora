@@ -1,12 +1,11 @@
+use crate::hallucination::HallucinationDetector;
 /// Safety classifier hook that runs on agent outputs.
 ///
 /// The `SafetyClassifier` composes all sub-classifiers and returns
 /// a aggregated `ClassificationReport` for a given text output.
-
 use crate::pii::PiiDetector;
-use crate::toxicity::ToxicityDetector;
 use crate::policy_violation::PolicyViolationDetector;
-use crate::hallucination::HallucinationDetector;
+use crate::toxicity::ToxicityDetector;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SafetyLevel {

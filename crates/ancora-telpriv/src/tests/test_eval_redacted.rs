@@ -59,6 +59,10 @@ fn metadata_pii_scrubbed() {
         metadata: vec![("annotator".to_string(), "ann@example.com".to_string())],
     };
     let result = policy.apply(sample);
-    let annotator = result.metadata.iter().find(|(k, _)| k == "annotator").unwrap();
+    let annotator = result
+        .metadata
+        .iter()
+        .find(|(k, _)| k == "annotator")
+        .unwrap();
     assert!(!annotator.1.contains("ann@example.com"));
 }

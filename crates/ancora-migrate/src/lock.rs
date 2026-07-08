@@ -12,12 +12,18 @@ pub struct MigrationLock {
 
 impl MigrationLock {
     pub fn new(ttl_secs: u64) -> Self {
-        Self { state: LockState::Free, ttl_secs }
+        Self {
+            state: LockState::Free,
+            ttl_secs,
+        }
     }
 
     pub fn acquire(&mut self, holder: &str, now: u64) -> bool {
         if self.is_free(now) {
-            self.state = LockState::Held { holder: holder.to_string(), acquired_at: now };
+            self.state = LockState::Held {
+                holder: holder.to_string(),
+                acquired_at: now,
+            };
             true
         } else {
             false

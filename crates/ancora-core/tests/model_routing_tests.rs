@@ -20,10 +20,7 @@ fn explicit_binding_overrides_default_and_node_model() {
 #[test]
 fn node_model_id_used_when_no_binding_exists() {
     let router = ModelRouter::new("default");
-    assert_eq!(
-        router.resolve("node-b", Some("node-model")),
-        "node-model"
-    );
+    assert_eq!(router.resolve("node-b", Some("node-model")), "node-model");
 }
 
 #[test]

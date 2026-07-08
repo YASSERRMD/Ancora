@@ -9,10 +9,7 @@ fn report_generated_with_all_fields() {
     let experiment = Experiment::new(
         "report-exp",
         "Report generation test",
-        vec![
-            Variant::new("control", 0.5),
-            Variant::new("treatment", 0.5),
-        ],
+        vec![Variant::new("control", 0.5), Variant::new("treatment", 0.5)],
         Metric::new("conversion_rate", MetricKind::Maximize),
     )
     .unwrap();
@@ -22,8 +19,18 @@ fn report_generated_with_all_fields() {
 
     let mut store = OutcomeStore::new();
     for i in 0..30 {
-        store.record(Observation::new("report-exp", format!("c{i}"), "control", 0.4));
-        store.record(Observation::new("report-exp", format!("t{i}"), "treatment", 0.7));
+        store.record(Observation::new(
+            "report-exp",
+            format!("c{i}"),
+            "control",
+            0.4,
+        ));
+        store.record(Observation::new(
+            "report-exp",
+            format!("t{i}"),
+            "treatment",
+            0.7,
+        ));
     }
 
     let ctrl_stats = store.stats_for_variant("report-exp", "control").unwrap();
@@ -47,10 +54,7 @@ fn report_render_contains_key_info() {
     let experiment = Experiment::new(
         "render-exp",
         "Render test",
-        vec![
-            Variant::new("ctrl", 0.5),
-            Variant::new("trt", 0.5),
-        ],
+        vec![Variant::new("ctrl", 0.5), Variant::new("trt", 0.5)],
         Metric::new("score", MetricKind::Maximize),
     )
     .unwrap();

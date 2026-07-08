@@ -11,7 +11,14 @@ fn stats_empty() {
 #[test]
 fn stats_with_keys() {
     let k1 = HsmKey::new(1, 0, "k1", HsmKeyAlgorithm::Aes256, KeyClass::SecretKey, 1);
-    let k2 = HsmKey::new(2, 0, "k2", HsmKeyAlgorithm::Ed25519, KeyClass::PrivateKey, 1);
+    let k2 = HsmKey::new(
+        2,
+        0,
+        "k2",
+        HsmKeyAlgorithm::Ed25519,
+        KeyClass::PrivateKey,
+        1,
+    );
     let v: Vec<&HsmKey> = vec![&k1, &k2];
     let s = HsmStats::from_keys(&v);
     assert_eq!(s.total_keys, 2);

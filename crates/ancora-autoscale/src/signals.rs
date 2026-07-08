@@ -1,6 +1,6 @@
 use crate::decision::ScaleDecision;
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 /// Scaling signal emitted to observability and external systems (e.g. HPA).
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::{TenantConfig, TenantContext, TenantRegistry};
     use crate::vector_scope::vector_collection;
+    use crate::{TenantConfig, TenantContext, TenantRegistry};
 
     #[test]
     fn vector_collections_differ_across_tenants() {
@@ -19,6 +19,9 @@ mod tests {
         let mut reg = TenantRegistry::new();
         let a = reg.create("a", TenantConfig::default());
         let name = vector_collection(&TenantContext::new(a), "docs");
-        assert!(name.contains("docs"), "collection name should contain base name");
+        assert!(
+            name.contains("docs"),
+            "collection name should contain base name"
+        );
     }
 }

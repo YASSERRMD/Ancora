@@ -52,7 +52,10 @@ fn category_drift_detector_flags_shifted_frequency() {
     candidate.insert("A".to_string(), 0.2);
     candidate.insert("B".to_string(), 0.8);
 
-    assert!(detector.is_drifted(&candidate), "large frequency shift must be detected");
+    assert!(
+        detector.is_drifted(&candidate),
+        "large frequency shift must be detected"
+    );
     let shifted = detector.shifted_categories(&candidate);
     assert!(shifted.contains(&"A".to_string()));
     assert!(shifted.contains(&"B".to_string()));

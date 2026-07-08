@@ -41,8 +41,14 @@ fn layer_assignments_sum_to_total() {
     };
     let assignments = layer_assignments(&policy);
     assert_eq!(assignments.len(), 20);
-    let gpu_count = assignments.iter().filter(|t| **t == LayerTarget::Gpu).count();
-    let cpu_count = assignments.iter().filter(|t| **t == LayerTarget::Cpu).count();
+    let gpu_count = assignments
+        .iter()
+        .filter(|t| **t == LayerTarget::Gpu)
+        .count();
+    let cpu_count = assignments
+        .iter()
+        .filter(|t| **t == LayerTarget::Cpu)
+        .count();
     assert_eq!(gpu_count, 10);
     assert_eq!(cpu_count, 10);
 }

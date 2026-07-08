@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::error::CostError;
+use serde::{Deserialize, Serialize};
 
 /// Budget period in seconds.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -95,7 +95,12 @@ impl ProjectBudget {
         hard_limit_usd: f64,
         soft_limit_fraction: f64,
     ) -> Self {
-        Self { project_id: project_id.into(), hard_limit_usd, soft_limit_fraction, spent_usd: 0.0 }
+        Self {
+            project_id: project_id.into(),
+            hard_limit_usd,
+            soft_limit_fraction,
+            spent_usd: 0.0,
+        }
     }
 
     pub fn record_spend(&mut self, amount: f64) -> Result<(), CostError> {

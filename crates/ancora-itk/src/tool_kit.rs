@@ -1,5 +1,4 @@
 /// Conformance kit for tool extensions.
-
 use std::collections::HashMap;
 
 /// The input/output schema for a tool.

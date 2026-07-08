@@ -1,13 +1,16 @@
-use crate::presets::{aes256_key, default_slot, ed25519_signing_key, strict_hsm_policy};
 use crate::key::HsmKeyAlgorithm;
 use crate::mock::SoftHsm;
+use crate::presets::{aes256_key, default_slot, ed25519_signing_key, strict_hsm_policy};
 
 #[test]
 fn aes256_preset() {
     let mut hsm = SoftHsm::new();
     let h = aes256_key(&mut hsm, 0, 1);
     assert!(hsm.get_key(h).is_some());
-    assert_eq!(hsm.get_key(h).map(|k| k.algorithm.clone()), Some(HsmKeyAlgorithm::Aes256));
+    assert_eq!(
+        hsm.get_key(h).map(|k| k.algorithm.clone()),
+        Some(HsmKeyAlgorithm::Aes256)
+    );
 }
 
 #[test]

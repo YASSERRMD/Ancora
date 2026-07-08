@@ -7,8 +7,12 @@ pub enum LhError {
 impl std::fmt::Display for LhError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            LhError::DeadlineExceeded { run_id, at } => write!(f, "run {run_id} deadline exceeded at tick {at}"),
-            LhError::Throttled { ops_this_tick, max } => write!(f, "throttled: {ops_this_tick}/{max} ops this tick"),
+            LhError::DeadlineExceeded { run_id, at } => {
+                write!(f, "run {run_id} deadline exceeded at tick {at}")
+            }
+            LhError::Throttled { ops_this_tick, max } => {
+                write!(f, "throttled: {ops_this_tick}/{max} ops this tick")
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
-use crate::lifecycle::BackgroundRun;
-use crate::progress::{ProgressStore};
 use crate::dashboard::RunDashboard;
+use crate::lifecycle::BackgroundRun;
+use crate::progress::ProgressStore;
 
 #[test]
 fn dashboard_data_accurate_running() {
@@ -19,7 +19,9 @@ fn dashboard_data_accurate_completed_with_progress() {
     run.complete();
     let mut store = ProgressStore::default();
     store.init("r1", 10);
-    for i in 0..10 { store.advance("r1", i); }
+    for i in 0..10 {
+        store.advance("r1", i);
+    }
     let p = store.get("r1").unwrap();
     let d = RunDashboard::from(&run, Some(p));
     assert_eq!(d.state_label, "completed");

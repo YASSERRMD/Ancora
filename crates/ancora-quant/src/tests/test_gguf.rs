@@ -39,8 +39,7 @@ fn gguf_bits_per_weight() {
 #[test]
 fn gguf_estimated_ram_increases_with_quant() {
     let make = |q: GgufQuantType| {
-        GgufDescriptor::new("m", "/tmp/m.gguf", "arch", 7.0, q, 0, 2048)
-            .estimated_ram_bytes()
+        GgufDescriptor::new("m", "/tmp/m.gguf", "arch", 7.0, q, 0, 2048).estimated_ram_bytes()
     };
     let f32_ram = make(GgufQuantType::F32);
     let q8_ram = make(GgufQuantType::Q8_0);
@@ -62,6 +61,12 @@ fn gguf_metadata_roundtrip() {
     )
     .with_metadata("source", "huggingface")
     .with_metadata("license", "llama3");
-    assert_eq!(desc.metadata.get("source").map(|s| s.as_str()), Some("huggingface"));
-    assert_eq!(desc.metadata.get("license").map(|s| s.as_str()), Some("llama3"));
+    assert_eq!(
+        desc.metadata.get("source").map(|s| s.as_str()),
+        Some("huggingface")
+    );
+    assert_eq!(
+        desc.metadata.get("license").map(|s| s.as_str()),
+        Some("llama3")
+    );
 }

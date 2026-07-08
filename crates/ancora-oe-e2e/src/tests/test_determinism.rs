@@ -1,9 +1,8 @@
+use crate::cost_e2e::simulate_run_cost;
+use crate::eval_e2e::{default_eval_suite, run_eval_suite};
 /// Tests that traces and eval results are deterministic on replay.
 /// Given the same inputs, traces and eval scores must be identical across runs.
-
 use crate::trace_e2e::build_run_trace;
-use crate::eval_e2e::{default_eval_suite, run_eval_suite};
-use crate::cost_e2e::simulate_run_cost;
 
 #[test]
 fn traces_are_deterministic_on_replay() {
@@ -16,10 +15,19 @@ fn traces_are_deterministic_on_replay() {
     for (a, b) in trace_a.spans.iter().zip(trace_b.spans.iter()) {
         assert_eq!(a.span_id, b.span_id, "span ids must match on replay");
         assert_eq!(a.name, b.name, "span names must match on replay");
-        assert_eq!(a.start_ns, b.start_ns, "span start times must match on replay");
+        assert_eq!(
+            a.start_ns, b.start_ns,
+            "span start times must match on replay"
+        );
         assert_eq!(a.end_ns, b.end_ns, "span end times must match on replay");
-        assert_eq!(a.parent_id, b.parent_id, "span parent ids must match on replay");
-        assert_eq!(a.attributes, b.attributes, "span attributes must match on replay");
+        assert_eq!(
+            a.parent_id, b.parent_id,
+            "span parent ids must match on replay"
+        );
+        assert_eq!(
+            a.attributes, b.attributes,
+            "span attributes must match on replay"
+        );
     }
 }
 
@@ -36,7 +44,10 @@ fn eval_scores_are_deterministic_on_replay() {
     for (a, b) in result_a.scores.iter().zip(result_b.scores.iter()) {
         assert_eq!(a.case_id, b.case_id, "case ids must match on replay");
         assert_eq!(a.passed, b.passed, "pass/fail must match on replay");
-        assert!((a.score - b.score).abs() < f64::EPSILON, "scores must be identical on replay");
+        assert!(
+            (a.score - b.score).abs() < f64::EPSILON,
+            "scores must be identical on replay"
+        );
     }
 }
 
@@ -46,7 +57,10 @@ fn cost_analytics_are_deterministic_on_replay() {
     let cost_b = simulate_run_cost("det-cost-001");
 
     assert_eq!(cost_a.total_tokens(), cost_b.total_tokens());
-    assert_eq!(cost_a.total_cost_microdollars(), cost_b.total_cost_microdollars());
+    assert_eq!(
+        cost_a.total_cost_microdollars(),
+        cost_b.total_cost_microdollars()
+    );
     assert_eq!(cost_a.entry_count(), cost_b.entry_count());
 }
 
@@ -64,7 +78,9 @@ fn pass_rate_is_stable_across_replays() {
         assert!(
             (r - first).abs() < f64::EPSILON,
             "pass_rate at replay {} ({}) differs from first ({})",
-            i, r, first
+            i,
+            r,
+            first
         );
     }
 }

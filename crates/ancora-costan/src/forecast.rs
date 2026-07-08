@@ -30,7 +30,11 @@ impl CostForecaster {
         let n_f = n as f64;
         let sum_x: f64 = self.observations.iter().map(|(x, _)| *x as f64).sum();
         let sum_y: f64 = self.observations.iter().map(|(_, y)| y).sum();
-        let sum_xx: f64 = self.observations.iter().map(|(x, _)| (*x as f64).powi(2)).sum();
+        let sum_xx: f64 = self
+            .observations
+            .iter()
+            .map(|(x, _)| (*x as f64).powi(2))
+            .sum();
         let sum_xy: f64 = self.observations.iter().map(|(x, y)| *x as f64 * y).sum();
         let denom = n_f * sum_xx - sum_x * sum_x;
         if denom.abs() < 1e-12 {

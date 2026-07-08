@@ -3,11 +3,7 @@
 /// An air-gapped policy must block every outbound call unconditionally,
 /// including calls to endpoints that are listed in `allowed_endpoints`.
 /// This prevents accidental data exfiltration from isolated deployments.
-use ancora_policy::{
-    error::PolicyError,
-    eval::check_endpoint,
-    policy::Policy,
-};
+use ancora_policy::{error::PolicyError, eval::check_endpoint, policy::Policy};
 
 const ANY_ENDPOINT: &str = "https://api.openai.com/v1/chat/completions";
 const INTERNAL: &str = "https://internal.corp.example/api";
@@ -70,5 +66,8 @@ fn error_message_contains_blocked_endpoint() {
     let policy = Policy::new().air_gapped();
     let err = check_endpoint(&policy, ANY_ENDPOINT).unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains(ANY_ENDPOINT), "error must name the blocked endpoint, got: {msg}");
+    assert!(
+        msg.contains(ANY_ENDPOINT),
+        "error must name the blocked endpoint, got: {msg}"
+    );
 }

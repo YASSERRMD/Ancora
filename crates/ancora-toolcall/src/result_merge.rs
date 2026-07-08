@@ -1,5 +1,5 @@
-use serde_json::{Value, Map};
 use crate::schema::ToolResult;
+use serde_json::{Map, Value};
 
 /// Merges multiple tool results into a single context Value for the next model turn.
 pub fn merge_results(results: &[ToolResult]) -> Value {

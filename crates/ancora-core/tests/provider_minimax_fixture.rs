@@ -1,9 +1,9 @@
 /// MiniMax provider mapping fixture -- offline, no HTTP calls.
 use ancora_core::routing::ModelRouter;
 
-const MINIMAX_TEXT_01: &str  = "minimax/abab7-chat-preview";
-const MINIMAX_TEXT_02: &str  = "minimax/abab6.5s-chat";
-const MINIMAX_VIDEO: &str    = "minimax/video-01";
+const MINIMAX_TEXT_01: &str = "minimax/abab7-chat-preview";
+const MINIMAX_TEXT_02: &str = "minimax/abab6.5s-chat";
+const MINIMAX_VIDEO: &str = "minimax/video-01";
 
 fn minimax_router() -> ModelRouter {
     let mut r = ModelRouter::new(MINIMAX_TEXT_01);

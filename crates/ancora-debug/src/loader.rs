@@ -6,7 +6,6 @@
 /// serialised journal (here represented as a slice of pre-parsed entries)
 /// and validates its internal consistency before handing it to the rest
 /// of the debug toolkit.
-
 use std::collections::HashMap;
 
 /// Opaque identifier for a single agent run.
@@ -50,7 +49,11 @@ pub struct JournalEntry {
 
 impl JournalEntry {
     pub fn new(run_id: RunId, seq: u64, kind: EntryKind) -> Self {
-        Self { run_id, seq: Seq(seq), kind }
+        Self {
+            run_id,
+            seq: Seq(seq),
+            kind,
+        }
     }
 }
 
@@ -114,7 +117,10 @@ pub fn load_journal(mut entries: Vec<JournalEntry>) -> Result<Journal, LoadError
             if entries.iter().filter(|e| e.seq == entry.seq).count() > 1 {
                 return Err(LoadError::DuplicateSeq(entry.seq.0));
             }
-            return Err(LoadError::SeqGap { expected, found: entry.seq.0 });
+            return Err(LoadError::SeqGap {
+                expected,
+                found: entry.seq.0,
+            });
         }
     }
 
@@ -182,7 +188,10 @@ mod tests {
         let entries = vec![make_entry(0), make_entry(2)];
         assert!(matches!(
             load_journal(entries),
-            Err(LoadError::SeqGap { expected: 1, found: 2 })
+            Err(LoadError::SeqGap {
+                expected: 1,
+                found: 2
+            })
         ));
     }
 

@@ -1,6 +1,6 @@
 use ancora_tenant::{
-    AdmissionController, IsolationChecker, QuotaUpdate, ResourceQuota,
-    TenantBuilder, TenantEvent, TenantEventKind, TenantEventLog, TenantRegistry,
+    AdmissionController, IsolationChecker, QuotaUpdate, ResourceQuota, TenantBuilder, TenantEvent,
+    TenantEventKind, TenantEventLog, TenantRegistry,
 };
 
 fn main() {
@@ -8,18 +8,24 @@ fn main() {
     let mut event_log = TenantEventLog::new();
     let mut tick = 0u64;
 
-    let (t1, q1) = TenantBuilder::new("acme", "Acme Corp", { tick += 1; tick })
-        .metadata("plan", "enterprise")
-        .metadata("region", "us-east-1")
-        .quota(ResourceQuota::standard())
-        .build();
+    let (t1, q1) = TenantBuilder::new("acme", "Acme Corp", {
+        tick += 1;
+        tick
+    })
+    .metadata("plan", "enterprise")
+    .metadata("region", "us-east-1")
+    .quota(ResourceQuota::standard())
+    .build();
     registry.register(t1, q1).unwrap();
     event_log.record(TenantEvent::new(tick, "acme", TenantEventKind::Registered));
 
-    let (t2, q2) = TenantBuilder::new("beta", "Beta Ltd", { tick += 1; tick })
-        .metadata("plan", "starter")
-        .quota(ResourceQuota::restricted())
-        .build();
+    let (t2, q2) = TenantBuilder::new("beta", "Beta Ltd", {
+        tick += 1;
+        tick
+    })
+    .metadata("plan", "starter")
+    .quota(ResourceQuota::restricted())
+    .build();
     registry.register(t2, q2).unwrap();
     event_log.record(TenantEvent::new(tick, "beta", TenantEventKind::Registered));
 
@@ -56,7 +62,10 @@ fn main() {
     println!("Suspended tenants: {}", registry.suspended_tenants().len());
 
     let mut acme_quota = registry.quota("acme").unwrap().clone();
-    QuotaUpdate::new().agents(20).tasks(200).apply(&mut acme_quota);
+    QuotaUpdate::new()
+        .agents(20)
+        .tasks(200)
+        .apply(&mut acme_quota);
     println!("\nUpdated acme max_agents to {}", acme_quota.max_agents);
 
     println!("\nTotal events: {}", event_log.count());

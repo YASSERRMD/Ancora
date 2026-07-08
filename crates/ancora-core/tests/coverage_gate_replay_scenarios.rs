@@ -59,6 +59,9 @@ fn test_no_duplicate_scenarios() {
 
 #[test]
 fn test_divergence_scenarios_both_present() {
-    let divergence: Vec<&&str> = REPLAY_SCENARIOS.iter().filter(|s| s.starts_with("divergence")).collect();
+    let divergence: Vec<&&str> = REPLAY_SCENARIOS
+        .iter()
+        .filter(|s| s.starts_with("divergence"))
+        .collect();
     assert_eq!(divergence.len(), 2);
 }

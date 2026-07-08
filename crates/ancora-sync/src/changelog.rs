@@ -41,7 +41,9 @@ pub struct ChangeLog {
 impl ChangeLog {
     /// Create an empty change log.
     pub fn new() -> Self {
-        Self { records: Vec::new() }
+        Self {
+            records: Vec::new(),
+        }
     }
 
     /// Record a Put change derived from a journal entry.
@@ -67,11 +69,7 @@ impl ChangeLog {
     }
 
     /// Record an Update change.
-    pub fn record_update(
-        &mut self,
-        entry: &JournalEntry,
-        before: Vec<u8>,
-    ) {
+    pub fn record_update(&mut self, entry: &JournalEntry, before: Vec<u8>) {
         self.records.push(ChangeRecord {
             journal_seq: entry.seq,
             key: entry.key.clone(),

@@ -2,7 +2,9 @@ use crate::{ResourceQuota, ResourceUsage, Tenant, TenantRegistry};
 #[test]
 fn registry_provides_mutable_usage() {
     let mut registry = TenantRegistry::new();
-    registry.register(Tenant::new("t1", "A", 1), ResourceQuota::standard()).unwrap();
+    registry
+        .register(Tenant::new("t1", "A", 1), ResourceQuota::standard())
+        .unwrap();
     let usage = registry.usage_mut("t1").unwrap();
     usage.agents = 5;
     usage.tasks = 20;

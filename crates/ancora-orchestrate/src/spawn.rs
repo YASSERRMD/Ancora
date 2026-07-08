@@ -26,7 +26,10 @@ impl SpawnTracker {
     }
 
     pub fn by_parent(&self, parent_agent_id: &str) -> Vec<&SpawnRecord> {
-        self.records.iter().filter(|r| r.parent_agent_id == parent_agent_id).collect()
+        self.records
+            .iter()
+            .filter(|r| r.parent_agent_id == parent_agent_id)
+            .collect()
     }
 
     pub fn total_spawned(&self) -> usize {

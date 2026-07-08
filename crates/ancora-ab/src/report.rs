@@ -2,7 +2,6 @@
 ///
 /// The report captures the state, per-variant statistics, significance result,
 /// and an optional winner at the time of conclusion.
-
 use crate::analysis::SignificanceResult;
 use crate::experiment::Experiment;
 use crate::lifecycle::{ExperimentState, LifecycleManager};

@@ -1,14 +1,14 @@
 // Coverage gate: verify all test suites are documented as offline-only.
 
 const OFFLINE_SUITES: &[(&str, bool)] = &[
-    ("det_suite",          true),
-    ("chaos_suite",        true),
-    ("load_suite",         true),
-    ("reliability_suite",  true),
-    ("sec_suite",          true),
-    ("policy_suite",       true),
-    ("vector_suite",       true),
-    ("xlang_suite",        true),
+    ("det_suite", true),
+    ("chaos_suite", true),
+    ("load_suite", true),
+    ("reliability_suite", true),
+    ("sec_suite", true),
+    ("policy_suite", true),
+    ("vector_suite", true),
+    ("xlang_suite", true),
 ];
 
 fn all_offline(suites: &[(&str, bool)]) -> bool {
@@ -16,12 +16,20 @@ fn all_offline(suites: &[(&str, bool)]) -> bool {
 }
 
 fn non_offline_suites<'a>(suites: &[(&'a str, bool)]) -> Vec<&'a str> {
-    suites.iter().filter(|(_, offline)| !offline).map(|(name, _)| *name).collect()
+    suites
+        .iter()
+        .filter(|(_, offline)| !offline)
+        .map(|(name, _)| *name)
+        .collect()
 }
 
 #[test]
 fn test_all_suites_are_offline() {
-    assert!(all_offline(OFFLINE_SUITES), "some suites are not offline: {:?}", non_offline_suites(OFFLINE_SUITES));
+    assert!(
+        all_offline(OFFLINE_SUITES),
+        "some suites are not offline: {:?}",
+        non_offline_suites(OFFLINE_SUITES)
+    );
 }
 
 #[test]
@@ -50,6 +58,9 @@ fn test_no_suite_has_live_network() {
 #[test]
 fn test_suite_names_end_with_suite() {
     for (name, _) in OFFLINE_SUITES {
-        assert!(name.ends_with("_suite"), "suite name should end with _suite: {name}");
+        assert!(
+            name.ends_with("_suite"),
+            "suite name should end with _suite: {name}"
+        );
     }
 }

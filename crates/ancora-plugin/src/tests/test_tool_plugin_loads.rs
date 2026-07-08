@@ -1,8 +1,8 @@
 //! Tests: a sample tool plugin loads and executes correctly.
 
-use std::collections::HashMap;
 use crate::manifest::{ManifestBuilder, PluginKind, SemVer};
 use crate::tool_ext::{EchoTool, ToolError, ToolInput, ToolPlugin, Value};
+use std::collections::HashMap;
 
 fn build_tool_manifest() -> crate::manifest::PluginManifest {
     ManifestBuilder::new()
@@ -30,17 +30,24 @@ fn echo_tool_returns_input_text() {
     let t = EchoTool::new();
     let mut args = HashMap::new();
     args.insert("text".to_string(), Value::Str("ping".to_string()));
-    let out = t.call(ToolInput { tool_name: "echo".to_string(), args }).unwrap();
+    let out = t
+        .call(ToolInput {
+            tool_name: "echo".to_string(),
+            args,
+        })
+        .unwrap();
     assert_eq!(out.value, Value::Str("ping".to_string()));
 }
 
 #[test]
 fn echo_tool_missing_arg_returns_error() {
     let t = EchoTool::new();
-    let err = t.call(ToolInput {
-        tool_name: "echo".to_string(),
-        args: HashMap::new(),
-    }).unwrap_err();
+    let err = t
+        .call(ToolInput {
+            tool_name: "echo".to_string(),
+            args: HashMap::new(),
+        })
+        .unwrap_err();
     assert_eq!(err, ToolError::MissingArg("text".into()));
 }
 

@@ -4,7 +4,6 @@
 /// module holds the Rust-side mirror of the ABC (abstract base class) contract
 /// that Python extension authors sub-class, plus helpers for validating Python
 /// extension manifests.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};

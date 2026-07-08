@@ -51,7 +51,11 @@ pub struct GradeResult {
 impl GradeResult {
     pub fn new(score: f32, rationale: impl Into<String>) -> Self {
         let passed = score >= 0.5;
-        Self { score, rationale: rationale.into(), passed }
+        Self {
+            score,
+            rationale: rationale.into(),
+            passed,
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 /// Plugin configuration - stores per-plugin key/value settings and provides
 /// helpers for loading, merging, and validating configuration.
-
 use std::collections::HashMap;
 
 /// A single plugin's configuration block.

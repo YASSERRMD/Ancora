@@ -66,5 +66,8 @@ fn test_lifecycle_transitions() {
 #[test]
 fn test_service_state_display() {
     assert_eq!(ServiceState::Ready.to_string(), "ready");
-    assert_eq!(ServiceState::Failed("oops".to_string()).to_string(), "failed: oops");
+    assert_eq!(
+        ServiceState::Failed("oops".to_string()).to_string(),
+        "failed: oops"
+    );
 }

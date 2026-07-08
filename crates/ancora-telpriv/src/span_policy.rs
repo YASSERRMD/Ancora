@@ -2,7 +2,6 @@
 ///
 /// Determines which span attributes are safe to export and which must be
 /// scrubbed or dropped before leaving the process boundary.
-
 use crate::classification::DataClass;
 
 /// Action to take for a given span attribute.

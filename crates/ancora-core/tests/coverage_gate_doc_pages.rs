@@ -20,7 +20,10 @@ fn test_nine_testing_doc_pages_expected() {
 #[test]
 fn test_all_pages_under_testing_directory() {
     for page in EXPECTED_DOC_PAGES {
-        assert!(page.starts_with("testing/"), "page should be under testing/: {page}");
+        assert!(
+            page.starts_with("testing/"),
+            "page should be under testing/: {page}"
+        );
     }
 }
 

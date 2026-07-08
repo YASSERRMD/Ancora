@@ -14,13 +14,21 @@ fn combined_zero_duplicate_effects() {
     run.apply_effect("send-notification");
 
     let unique: HashSet<&str> = run.effects_applied.iter().map(|s| s.as_str()).collect();
-    assert_eq!(run.effects_applied.len(), unique.len(), "duplicate effects found");
+    assert_eq!(
+        run.effects_applied.len(),
+        unique.len(),
+        "duplicate effects found"
+    );
     assert_eq!(run.effects_applied.len(), 2);
 }
 
 #[test]
 fn deduplicator_removes_duplicate_keys() {
-    let items = vec!["key-a".to_string(), "key-b".to_string(), "key-a".to_string()];
+    let items = vec![
+        "key-a".to_string(),
+        "key-b".to_string(),
+        "key-a".to_string(),
+    ];
     let unique = Deduplicator::dedup(items);
     assert_eq!(unique.len(), 2);
 

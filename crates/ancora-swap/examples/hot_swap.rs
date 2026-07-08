@@ -1,10 +1,9 @@
+use ancora_swap::model::ModelHandle;
 /// Example: model hot-swap without stopping in-flight runs.
 ///
 /// Run with:
 ///   cargo run --example hot_swap -p ancora-swap
-
 use ancora_swap::model::{ModelMeta, ModelVersion};
-use ancora_swap::model::ModelHandle;
 use ancora_swap::runtime::{RunId, SwapRuntime, WarmupStatus};
 
 fn main() {
@@ -24,7 +23,10 @@ fn main() {
     // --- Start an in-flight run that pins model v1 ---
     let run_a = RunId(1);
     rt.start_run(run_a).expect("run_a started");
-    println!("run_a pinned to model {}", rt.run_model_version(run_a).unwrap());
+    println!(
+        "run_a pinned to model {}",
+        rt.run_model_version(run_a).unwrap()
+    );
 
     // --- Prepare a new model (simulate warmup) ---
     let v2 = ModelVersion::next();
@@ -63,7 +65,10 @@ fn main() {
     // New runs use the new model.
     let run_b = RunId(2);
     rt.start_run(run_b).expect("run_b started");
-    println!("run_b pinned to new model {}", rt.run_model_version(run_b).unwrap());
+    println!(
+        "run_b pinned to new model {}",
+        rt.run_model_version(run_b).unwrap()
+    );
     rt.finish_run(run_b);
 
     // Finish old run and reclaim memory.

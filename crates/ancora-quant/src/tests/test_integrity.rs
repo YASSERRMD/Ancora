@@ -48,7 +48,10 @@ fn integrity_check_rejects_corruption() {
     let expected = ExpectedChecksum::new(ChecksumAlgorithm::Adler32, &good_checksum);
     let result = verify_file(&path, &expected, None);
     let _ = std::fs::remove_file(&path);
-    assert!(matches!(result, Err(IntegrityError::ChecksumMismatch { .. })));
+    assert!(matches!(
+        result,
+        Err(IntegrityError::ChecksumMismatch { .. })
+    ));
 }
 
 #[test]

@@ -55,7 +55,10 @@ impl RegressionReport {
             });
         }
         let total_regressions = entries.iter().filter(|e| e.regressed).count();
-        RegressionReport { entries, total_regressions }
+        RegressionReport {
+            entries,
+            total_regressions,
+        }
     }
 
     pub fn is_clean(&self) -> bool {
@@ -69,12 +72,19 @@ mod tests {
     use crate::eval_runner::CaseResult;
 
     fn make_result(id: &str, n: usize, pass_count: usize) -> CaseResult {
-        CaseResult { case_id: id.into(), rollouts: vec![], pass_count, n }
+        CaseResult {
+            case_id: id.into(),
+            rollouts: vec![],
+            pass_count,
+            n,
+        }
     }
 
     #[test]
     fn regression_report_is_clean_when_no_regressions() {
-        let baseline = EvalBaseline { case_pass_rates: vec![("c1".into(), 0.8)] };
+        let baseline = EvalBaseline {
+            case_pass_rates: vec![("c1".into(), 0.8)],
+        };
         let current = vec![make_result("c1", 5, 5)];
         let report = RegressionReport::build(&baseline, &current);
         assert!(report.is_clean());
@@ -82,7 +92,9 @@ mod tests {
 
     #[test]
     fn regression_report_detects_regression() {
-        let baseline = EvalBaseline { case_pass_rates: vec![("c1".into(), 1.0)] };
+        let baseline = EvalBaseline {
+            case_pass_rates: vec![("c1".into(), 1.0)],
+        };
         let current = vec![make_result("c1", 5, 0)];
         let report = RegressionReport::build(&baseline, &current);
         assert!(!report.is_clean());
@@ -91,7 +103,9 @@ mod tests {
 
     #[test]
     fn regression_report_delta_is_correct() {
-        let baseline = EvalBaseline { case_pass_rates: vec![("c1".into(), 0.5)] };
+        let baseline = EvalBaseline {
+            case_pass_rates: vec![("c1".into(), 0.5)],
+        };
         let current = vec![make_result("c1", 4, 4)];
         let report = RegressionReport::build(&baseline, &current);
         assert!((report.entries[0].delta - 0.5).abs() < 1e-9);
@@ -106,7 +120,9 @@ mod tests {
 
     #[test]
     fn regression_report_no_baseline_entry_treats_as_zero() {
-        let baseline = EvalBaseline { case_pass_rates: vec![] };
+        let baseline = EvalBaseline {
+            case_pass_rates: vec![],
+        };
         let current = vec![make_result("new_case", 5, 5)];
         let report = RegressionReport::build(&baseline, &current);
         assert_eq!(report.entries[0].baseline_rate, 0.0);

@@ -36,7 +36,9 @@ impl TenantPolicyEngine {
             ScaleDecision::ScaleUp { by } => {
                 let desired = (current + by).min(cap);
                 if desired > current {
-                    ScaleDecision::ScaleUp { by: desired - current }
+                    ScaleDecision::ScaleUp {
+                        by: desired - current,
+                    }
                 } else {
                     ScaleDecision::NoOp {
                         reason: format!("tenant {} at cap {}", tenant_id, cap),

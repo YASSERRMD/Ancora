@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use crate::interface::{CliPlugin, CommandSpec, ExecContext, ExecOutput, PluginError, PluginMeta, PluginResult};
+use crate::interface::{
+    CliPlugin, CommandSpec, ExecContext, ExecOutput, PluginError, PluginMeta, PluginResult,
+};
 use crate::registration::PluginRegistry;
 
 struct AliasPlugin {
@@ -90,7 +92,9 @@ fn test_conflicting_plugin_not_partially_registered() {
         meta: PluginMeta,
     }
     impl CliPlugin for TwoCmdPlugin {
-        fn meta(&self) -> &PluginMeta { &self.meta }
+        fn meta(&self) -> &PluginMeta {
+            &self.meta
+        }
         fn commands(&self) -> Vec<CommandSpec> {
             vec![
                 CommandSpec::new("unique-cmd", "short", "long"),
@@ -103,7 +107,13 @@ fn test_conflicting_plugin_not_partially_registered() {
     }
 
     // Pre-register "conflict-cmd".
-    registry.register(Box::new(AliasPlugin::new("pre", "conflict-cmd", "pre-alias"))).unwrap();
+    registry
+        .register(Box::new(AliasPlugin::new(
+            "pre",
+            "conflict-cmd",
+            "pre-alias",
+        )))
+        .unwrap();
 
     let conflicting = Box::new(TwoCmdPlugin {
         meta: PluginMeta::new("plug.conflict", "Conflict", "1.0.0", "test", "test"),

@@ -9,8 +9,8 @@ use ancora_core::{
     run::RunStatus,
 };
 use ancora_proto::ancora::{
-    journal_event::Event, ActivityRecordedEvent, JournalEvent, NodeEnteredEvent,
-    NodeExitedEvent, RunCompletedEvent, RunStartedEvent,
+    journal_event::Event, ActivityRecordedEvent, JournalEvent, NodeEnteredEvent, NodeExitedEvent,
+    RunCompletedEvent, RunStartedEvent,
 };
 
 fn ev(seq: u64, run_id: &str, event: Event) -> JournalEvent {
@@ -33,43 +33,65 @@ fn tool_result_json(tool: &str, result: &str) -> String {
 
 fn build_mcp_tool_journal(run_id: &str) -> Vec<JournalEvent> {
     let call = tool_call_json("web-search", r#"{"query":"Rust async runtimes"}"#);
-    let result = tool_result_json(
-        "web-search",
-        r#"["tokio","async-std","smol"]"#,
-    );
-    let final_output = r#"{"summary":"Popular Rust async runtimes are tokio, async-std, and smol."}"#;
+    let result = tool_result_json("web-search", r#"["tokio","async-std","smol"]"#);
+    let final_output =
+        r#"{"summary":"Popular Rust async runtimes are tokio, async-std, and smol."}"#;
 
     vec![
-        ev(0, run_id, Event::RunStarted(RunStartedEvent {
-            run_id: run_id.to_owned(),
-            spec_bytes: vec![],
-            spec_type: "AgentSpec".into(),
-        })),
-        ev(1, run_id, Event::NodeEntered(NodeEnteredEvent {
-            node_id: "agent-node".into(),
-            node_kind: "agent".into(),
-        })),
-        ev(2, run_id, Event::ActivityRecorded(ActivityRecordedEvent {
-            activity_key: "tool-call-web-search-1".into(),
-            activity_kind: "tool".into(),
-            input_json: call,
-            result_json: result,
-            replayed: false,
-        })),
-        ev(3, run_id, Event::ActivityRecorded(ActivityRecordedEvent {
-            activity_key: "llm-after-tool-1".into(),
-            activity_kind: "llm".into(),
-            input_json: r#"{"messages":["tool result received"]}"#.into(),
-            result_json: final_output.into(),
-            replayed: false,
-        })),
-        ev(4, run_id, Event::NodeExited(NodeExitedEvent {
-            node_id: "agent-node".into(),
-            success: true,
-        })),
-        ev(5, run_id, Event::RunCompleted(RunCompletedEvent {
-            output_json: final_output.into(),
-        })),
+        ev(
+            0,
+            run_id,
+            Event::RunStarted(RunStartedEvent {
+                run_id: run_id.to_owned(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".into(),
+            }),
+        ),
+        ev(
+            1,
+            run_id,
+            Event::NodeEntered(NodeEnteredEvent {
+                node_id: "agent-node".into(),
+                node_kind: "agent".into(),
+            }),
+        ),
+        ev(
+            2,
+            run_id,
+            Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: "tool-call-web-search-1".into(),
+                activity_kind: "tool".into(),
+                input_json: call,
+                result_json: result,
+                replayed: false,
+            }),
+        ),
+        ev(
+            3,
+            run_id,
+            Event::ActivityRecorded(ActivityRecordedEvent {
+                activity_key: "llm-after-tool-1".into(),
+                activity_kind: "llm".into(),
+                input_json: r#"{"messages":["tool result received"]}"#.into(),
+                result_json: final_output.into(),
+                replayed: false,
+            }),
+        ),
+        ev(
+            4,
+            run_id,
+            Event::NodeExited(NodeExitedEvent {
+                node_id: "agent-node".into(),
+                success: true,
+            }),
+        ),
+        ev(
+            5,
+            run_id,
+            Event::RunCompleted(RunCompletedEvent {
+                output_json: final_output.into(),
+            }),
+        ),
     ]
 }
 

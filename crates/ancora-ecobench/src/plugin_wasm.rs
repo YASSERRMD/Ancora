@@ -67,7 +67,11 @@ pub struct WasmCallResult {
 /// Invoke a WASM export function with the given payload.
 ///
 /// Simulates serialisation, execution, and deserialisation phases.
-pub fn call_wasm(module: &WasmModule, fn_name: &str, input: WasmPayload) -> Result<WasmCallResult, String> {
+pub fn call_wasm(
+    module: &WasmModule,
+    fn_name: &str,
+    input: WasmPayload,
+) -> Result<WasmCallResult, String> {
     if module.export_count() == 0 {
         return Err(format!("module '{}' has no exports", module.name()));
     }
@@ -76,7 +80,10 @@ pub fn call_wasm(module: &WasmModule, fn_name: &str, input: WasmPayload) -> Resu
 
     // Serialise: simulate by computing a checksum over the input bytes.
     let t = Instant::now();
-    let _checksum: u64 = input.bytes.iter().fold(0u64, |acc, &b| acc.wrapping_add(b as u64));
+    let _checksum: u64 = input
+        .bytes
+        .iter()
+        .fold(0u64, |acc, &b| acc.wrapping_add(b as u64));
     let serialize_time = t.elapsed();
 
     // Execute: simulate by reversing the bytes.

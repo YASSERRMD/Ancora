@@ -107,13 +107,13 @@ impl Grader for TrajectoryGrader {
             if Self::is_subsequence(&exp_tools, &cand_tools) {
                 Score::new(1.0).with_rationale("Expected tools appear in order")
             } else {
-                let present: usize = exp_tools
-                    .iter()
-                    .filter(|e| cand_tools.contains(e))
-                    .count();
+                let present: usize = exp_tools.iter().filter(|e| cand_tools.contains(e)).count();
                 let value = present as f64 / exp_tools.len() as f64;
-                Score::new(value.clamp(0.0, 1.0))
-                    .with_rationale(format!("Partial order match: {}/{}", present, exp_tools.len()))
+                Score::new(value.clamp(0.0, 1.0)).with_rationale(format!(
+                    "Partial order match: {}/{}",
+                    present,
+                    exp_tools.len()
+                ))
             }
         }
     }

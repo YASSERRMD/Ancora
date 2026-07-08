@@ -5,8 +5,9 @@ use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status, Streaming};
 
 use crate::proto::{
-    run_service_server::RunService, DecisionRequest, EventResponse, PollRunRequest, PollRunResponse,
-    ResumeRunRequest, ResumeRunResponse, StartRunRequest, StartRunResponse, StreamEventsRequest,
+    run_service_server::RunService, DecisionRequest, EventResponse, PollRunRequest,
+    PollRunResponse, ResumeRunRequest, ResumeRunResponse, StartRunRequest, StartRunResponse,
+    StreamEventsRequest,
 };
 use crate::store::RunStore;
 
@@ -16,7 +17,9 @@ pub struct RunServiceImpl {
 
 impl RunServiceImpl {
     pub fn new() -> Self {
-        Self { store: Arc::new(RunStore::new()) }
+        Self {
+            store: Arc::new(RunStore::new()),
+        }
     }
 
     pub fn with_store(store: Arc<RunStore>) -> Self {
@@ -54,7 +57,11 @@ impl RunService for RunServiceImpl {
         let req = request.into_inner();
         let decision = String::from_utf8_lossy(&req.decision).into_owned();
         let found = self.store.resume(&req.run_id, &decision);
-        let status = if found { "ok".into() } else { "not_found".into() };
+        let status = if found {
+            "ok".into()
+        } else {
+            "not_found".into()
+        };
         Ok(Response::new(ResumeRunResponse { status }))
     }
 

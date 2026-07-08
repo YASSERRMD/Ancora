@@ -6,19 +6,28 @@ struct CostPolicy {
 }
 
 impl CostPolicy {
-    fn new(ceiling_usd: f64) -> Self { Self { ceiling_usd, accumulated_usd: 0.0 } }
+    fn new(ceiling_usd: f64) -> Self {
+        Self {
+            ceiling_usd,
+            accumulated_usd: 0.0,
+        }
+    }
 
     fn record(&mut self, cost: f64) -> Result<(), String> {
         if self.accumulated_usd + cost > self.ceiling_usd {
-            Err(format!("cost ceiling exceeded: {:.4} + {:.4} > {:.4}",
-                self.accumulated_usd, cost, self.ceiling_usd))
+            Err(format!(
+                "cost ceiling exceeded: {:.4} + {:.4} > {:.4}",
+                self.accumulated_usd, cost, self.ceiling_usd
+            ))
         } else {
             self.accumulated_usd += cost;
             Ok(())
         }
     }
 
-    fn remaining(&self) -> f64 { (self.ceiling_usd - self.accumulated_usd).max(0.0) }
+    fn remaining(&self) -> f64 {
+        (self.ceiling_usd - self.accumulated_usd).max(0.0)
+    }
 }
 
 #[test]

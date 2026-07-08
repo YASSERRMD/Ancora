@@ -31,7 +31,10 @@ where
             Err(reason) => {
                 attempt += 1;
                 if attempt >= max_attempts {
-                    return Err(AncoraError::OutputValidation { attempts: attempt, reason });
+                    return Err(AncoraError::OutputValidation {
+                        attempts: attempt,
+                        reason,
+                    });
                 }
                 current = repair_fn(&current, &reason)?;
             }
@@ -62,15 +65,10 @@ mod tests {
     fn valid_output_passes_invalid_triggers_repair() {
         let mut repair_calls = 0u32;
 
-        let result = validate_with_repair(
-            "not json".to_string(),
-            SCHEMA,
-            3,
-            |_output, _reason| {
-                repair_calls += 1;
-                Ok(r#"{"fixed": true}"#.to_string())
-            },
-        )
+        let result = validate_with_repair("not json".to_string(), SCHEMA, 3, |_output, _reason| {
+            repair_calls += 1;
+            Ok(r#"{"fixed": true}"#.to_string())
+        })
         .unwrap();
 
         assert_eq!(result, r#"{"fixed": true}"#);
@@ -97,6 +95,10 @@ mod tests {
             matches!(err, AncoraError::OutputValidation { attempts, .. } if attempts == max_attempts),
             "expected OutputValidation with attempts = {max_attempts}, got {err:?}",
         );
-        assert_eq!(repair_calls, max_attempts - 1, "repair is called max_attempts - 1 times before the budget is exhausted");
+        assert_eq!(
+            repair_calls,
+            max_attempts - 1,
+            "repair is called max_attempts - 1 times before the budget is exhausted"
+        );
     }
 }

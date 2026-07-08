@@ -2,7 +2,6 @@
 ///
 /// vLLM presents an OpenAI-compatible HTTP endpoint.  This module provides
 /// typed request/response wrappers and a mock transport for offline testing.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Default vLLM endpoint.
@@ -92,10 +91,7 @@ impl<T: VllmTransport> VllmClient<T> {
         self.config.endpoint.as_deref().unwrap_or(DEFAULT_ENDPOINT)
     }
 
-    pub fn complete(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, VllmError> {
+    pub fn complete(&self, request: &CompletionRequest) -> Result<CompletionResult, VllmError> {
         let params = SamplingParams::from_request(request);
         self.transport
             .complete(self.endpoint(), &self.model, &request.prompt, &params)

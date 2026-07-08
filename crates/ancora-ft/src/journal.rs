@@ -49,13 +49,10 @@ impl SelectionJournal {
     }
 
     /// Record a selection event.
-    pub fn record(
-        &mut self,
-        tenant_id: impl Into<String>,
-        adapter_id: Option<AdapterId>,
-    ) -> u64 {
+    pub fn record(&mut self, tenant_id: impl Into<String>, adapter_id: Option<AdapterId>) -> u64 {
         let seq = self.next_seq;
-        self.events.push(SelectionEvent::new(seq, tenant_id, adapter_id));
+        self.events
+            .push(SelectionEvent::new(seq, tenant_id, adapter_id));
         self.next_seq += 1;
         seq
     }

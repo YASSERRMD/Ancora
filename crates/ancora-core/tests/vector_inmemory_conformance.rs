@@ -10,8 +10,15 @@ use ancora_proto::ancora::{
 
 fn build_inmemory_journal(run_id: &str, chunks: &[(&str, f32)]) -> Vec<JournalEvent> {
     let result: String = {
-        let items: Vec<String> = chunks.iter()
-            .map(|(t, s)| format!(r#"{{"text":{},"score":{}}}"#, serde_json::to_string(t).unwrap(), s))
+        let items: Vec<String> = chunks
+            .iter()
+            .map(|(t, s)| {
+                format!(
+                    r#"{{"text":{},"score":{}}}"#,
+                    serde_json::to_string(t).unwrap(),
+                    s
+                )
+            })
             .collect();
         format!("[{}]", items.join(","))
     };

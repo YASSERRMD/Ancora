@@ -62,7 +62,10 @@ fn main() {
     println!();
 
     println!("Messages: {}", req.messages.len());
-    println!("System prompt length: {} chars", req.messages[0].content.len());
+    println!(
+        "System prompt length: {} chars",
+        req.messages[0].content.len()
+    );
     println!();
     println!("// To send the request (requires DASHSCOPE_API_KEY):");
     println!("// let resp = client.complete(&req)?;");

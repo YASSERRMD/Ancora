@@ -49,7 +49,9 @@ pub enum SignatureError {
 impl std::fmt::Display for SignatureError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::MissingSignature => write!(f, "plugin is unsigned and policy requires a signature"),
+            Self::MissingSignature => {
+                write!(f, "plugin is unsigned and policy requires a signature")
+            }
             Self::UnknownKey(kid) => write!(f, "unknown signing key: {}", kid),
             Self::InvalidSignature => write!(f, "signature is invalid"),
         }
@@ -86,7 +88,9 @@ impl SignatureVerifier {
         match policy {
             SignaturePolicy::Disabled => return Ok(()),
             SignaturePolicy::Optional if sig.is_none() => return Ok(()),
-            SignaturePolicy::Required if sig.is_none() => return Err(SignatureError::MissingSignature),
+            SignaturePolicy::Required if sig.is_none() => {
+                return Err(SignatureError::MissingSignature)
+            }
             _ => {}
         }
 
@@ -141,28 +145,42 @@ mod tests {
         let (v, key) = make_verifier();
         let content = b"plugin bytes";
         let sig_bytes = SignatureVerifier::stub_sign(&key.public_key_bytes, content);
-        let sig = PluginSignature { key_id: "key-1".into(), signature_bytes: sig_bytes };
-        assert!(v.verify(content, Some(&sig), &SignaturePolicy::Required).is_ok());
+        let sig = PluginSignature {
+            key_id: "key-1".into(),
+            signature_bytes: sig_bytes,
+        };
+        assert!(v
+            .verify(content, Some(&sig), &SignaturePolicy::Required)
+            .is_ok());
     }
 
     #[test]
     fn missing_signature_rejected_in_strict_mode() {
         let (v, _) = make_verifier();
-        let err = v.verify(b"plugin", None, &SignaturePolicy::Required).unwrap_err();
+        let err = v
+            .verify(b"plugin", None, &SignaturePolicy::Required)
+            .unwrap_err();
         assert_eq!(err, SignatureError::MissingSignature);
     }
 
     #[test]
     fn unknown_key_rejected() {
         let (v, _) = make_verifier();
-        let sig = PluginSignature { key_id: "unknown-key".into(), signature_bytes: vec![1, 2, 3] };
-        let err = v.verify(b"plugin", Some(&sig), &SignaturePolicy::Required).unwrap_err();
+        let sig = PluginSignature {
+            key_id: "unknown-key".into(),
+            signature_bytes: vec![1, 2, 3],
+        };
+        let err = v
+            .verify(b"plugin", Some(&sig), &SignaturePolicy::Required)
+            .unwrap_err();
         assert!(matches!(err, SignatureError::UnknownKey(_)));
     }
 
     #[test]
     fn disabled_policy_skips_verification() {
         let v = SignatureVerifier::new(); // no trusted keys
-        assert!(v.verify(b"anything", None, &SignaturePolicy::Disabled).is_ok());
+        assert!(v
+            .verify(b"anything", None, &SignaturePolicy::Disabled)
+            .is_ok());
     }
 }

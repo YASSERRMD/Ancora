@@ -7,7 +7,10 @@ pub struct ScheduledWakeup {
 
 impl ScheduledWakeup {
     pub fn new(run_id: &str, wake_at_tick: u64) -> Self {
-        Self { run_id: run_id.to_string(), wake_at_tick }
+        Self {
+            run_id: run_id.to_string(),
+            wake_at_tick,
+        }
     }
 
     pub fn should_fire(&self, now: u64) -> bool {
@@ -25,7 +28,11 @@ pub struct EventWakeup {
 
 impl EventWakeup {
     pub fn new(run_id: &str, event_name: &str) -> Self {
-        Self { run_id: run_id.to_string(), event_name: event_name.to_string(), fired: false }
+        Self {
+            run_id: run_id.to_string(),
+            event_name: event_name.to_string(),
+            fired: false,
+        }
     }
 
     pub fn trigger(&mut self, event_name: &str) -> bool {

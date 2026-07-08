@@ -17,8 +17,8 @@ impl SandboxedEnv {
     fn spawn(&mut self, name: &str, version: &str) -> Result<(), String> {
         let template = PluginTemplate::new(name, version, "sandboxed", "main.rs");
         let id = self.env_id * 1000 + self.plugins.len() as u64;
-        let mut plugin = Plugin::from_template(template, id)
-            .ok_or_else(|| "template invalid".to_string())?;
+        let mut plugin =
+            Plugin::from_template(template, id).ok_or_else(|| "template invalid".to_string())?;
         plugin.compile()?;
         plugin.install()?;
         plugin.start()?;
@@ -45,7 +45,8 @@ impl SandboxedEnv {
 #[test]
 fn test_plugin_runs_sandboxed() {
     let mut env = SandboxedEnv::new(1);
-    env.spawn("sandbox-plugin", "0.1.0").expect("spawn must succeed");
+    env.spawn("sandbox-plugin", "0.1.0")
+        .expect("spawn must succeed");
     assert_eq!(env.running_count(), 1);
 }
 

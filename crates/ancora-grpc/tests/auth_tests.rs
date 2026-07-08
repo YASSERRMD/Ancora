@@ -10,7 +10,8 @@ async fn bind_authed_server(token: &str) -> u16 {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let port = listener.local_addr().unwrap().port();
     drop(listener);
-    let svc = RunServiceServer::with_interceptor(RunServiceImpl::new(), AuthInterceptor::new(token));
+    let svc =
+        RunServiceServer::with_interceptor(RunServiceImpl::new(), AuthInterceptor::new(token));
     tokio::spawn(async move {
         Server::builder()
             .add_service(svc)
@@ -29,8 +30,11 @@ async fn authenticated_request_succeeds() {
     let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
         .await
         .unwrap();
-    let mut req = Request::new(StartRunRequest { agent_spec: b"{}".to_vec() });
-    req.metadata_mut().insert("authorization", "Bearer mytoken".parse().unwrap());
+    let mut req = Request::new(StartRunRequest {
+        agent_spec: b"{}".to_vec(),
+    });
+    req.metadata_mut()
+        .insert("authorization", "Bearer mytoken".parse().unwrap());
     let resp = client.start_run(req).await;
     assert!(resp.is_ok(), "authenticated request should succeed");
 }
@@ -43,7 +47,9 @@ async fn unauthenticated_request_is_rejected() {
         .await
         .unwrap();
     let resp = client
-        .start_run(Request::new(StartRunRequest { agent_spec: b"{}".to_vec() }))
+        .start_run(Request::new(StartRunRequest {
+            agent_spec: b"{}".to_vec(),
+        }))
         .await;
     let err = resp.unwrap_err();
     assert_eq!(err.code(), tonic::Code::Unauthenticated);
@@ -56,8 +62,11 @@ async fn wrong_token_request_is_rejected() {
     let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
         .await
         .unwrap();
-    let mut req = Request::new(StartRunRequest { agent_spec: b"{}".to_vec() });
-    req.metadata_mut().insert("authorization", "Bearer wrongtoken".parse().unwrap());
+    let mut req = Request::new(StartRunRequest {
+        agent_spec: b"{}".to_vec(),
+    });
+    req.metadata_mut()
+        .insert("authorization", "Bearer wrongtoken".parse().unwrap());
     let err = client.start_run(req).await.unwrap_err();
     assert_eq!(err.code(), tonic::Code::Unauthenticated);
 }
@@ -69,8 +78,11 @@ async fn authenticated_start_run_returns_valid_run_id() {
     let mut client = RunServiceClient::connect(format!("http://127.0.0.1:{port}"))
         .await
         .unwrap();
-    let mut req = Request::new(StartRunRequest { agent_spec: b"{}".to_vec() });
-    req.metadata_mut().insert("authorization", "Bearer tok".parse().unwrap());
+    let mut req = Request::new(StartRunRequest {
+        agent_spec: b"{}".to_vec(),
+    });
+    req.metadata_mut()
+        .insert("authorization", "Bearer tok".parse().unwrap());
     let id = client.start_run(req).await.unwrap().into_inner().run_id;
     assert!(!id.is_empty());
 }
@@ -82,6 +94,7 @@ async fn auth_interceptor_clones_correctly() {
     let interceptor = AuthInterceptor::new("abc");
     let mut cloned = interceptor.clone();
     let mut req = Request::new(());
-    req.metadata_mut().insert("authorization", "Bearer abc".parse().unwrap());
+    req.metadata_mut()
+        .insert("authorization", "Bearer abc".parse().unwrap());
     assert!(cloned.call(req).is_ok());
 }

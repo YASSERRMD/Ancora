@@ -2,8 +2,7 @@
 ///
 /// Verifies that all language sample apps expose the same set of features
 /// and that their trace shapes are equivalent.
-
-use crate::{go_app, python_app, ts_app, dotnet_app, java_app, rust_app};
+use crate::{dotnet_app, go_app, java_app, python_app, rust_app, ts_app};
 
 /// A canonical feature set that every language sample app must implement.
 pub const REQUIRED_FEATURES: &[&str] = &[

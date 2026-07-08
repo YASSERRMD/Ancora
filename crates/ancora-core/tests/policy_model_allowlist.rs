@@ -5,8 +5,12 @@ struct ModelPolicy {
 }
 
 impl ModelPolicy {
-    fn new(approved: Vec<&'static str>) -> Self { Self { approved } }
-    fn is_approved(&self, model_id: &str) -> bool { self.approved.contains(&model_id) }
+    fn new(approved: Vec<&'static str>) -> Self {
+        Self { approved }
+    }
+    fn is_approved(&self, model_id: &str) -> bool {
+        self.approved.contains(&model_id)
+    }
     fn check(&self, model_id: &str) -> Result<(), String> {
         if self.is_approved(model_id) {
             Ok(())
@@ -35,7 +39,9 @@ fn test_unapproved_model_rejected() {
 #[test]
 fn test_all_approved_models_pass() {
     let p = ModelPolicy::new(APPROVED.to_vec());
-    for m in APPROVED { assert!(p.check(m).is_ok()); }
+    for m in APPROVED {
+        assert!(p.check(m).is_ok());
+    }
 }
 
 #[test]

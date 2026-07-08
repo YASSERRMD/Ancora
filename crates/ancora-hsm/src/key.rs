@@ -59,7 +59,14 @@ pub struct HsmKey {
 }
 
 impl HsmKey {
-    pub fn new(handle: u64, slot_id: u32, label: impl Into<String>, algorithm: HsmKeyAlgorithm, class: KeyClass, tick: u64) -> Self {
+    pub fn new(
+        handle: u64,
+        slot_id: u32,
+        label: impl Into<String>,
+        algorithm: HsmKeyAlgorithm,
+        class: KeyClass,
+        tick: u64,
+    ) -> Self {
         Self {
             handle,
             slot_id,
@@ -74,6 +81,7 @@ impl HsmKey {
     }
 
     pub fn with_attribute(mut self, k: impl Into<String>, v: impl Into<String>) -> Self {
-        self.attributes.insert(k.into(), v.into()); self
+        self.attributes.insert(k.into(), v.into());
+        self
     }
 }

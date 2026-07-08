@@ -2,7 +2,6 @@
 ///
 /// `RollbackStack` keeps a bounded history of model handles so that multiple
 /// successive rollbacks can be performed (not just a single undo).
-
 use std::collections::VecDeque;
 
 use crate::model::ModelHandle;

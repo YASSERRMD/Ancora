@@ -1,5 +1,4 @@
 /// Assigns subjects to variants using a deterministic hash of a key.
-
 use crate::experiment::Experiment;
 
 /// Result of a variant assignment.

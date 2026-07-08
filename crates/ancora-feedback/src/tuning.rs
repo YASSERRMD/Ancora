@@ -77,7 +77,11 @@ mod tests {
             thumbs_up: up,
             thumbs_down: total - up,
             with_comment: 0,
-            approval_rate: if total == 0 { None } else { Some(up as f64 / total as f64) },
+            approval_rate: if total == 0 {
+                None
+            } else {
+                Some(up as f64 / total as f64)
+            },
         }
     }
 

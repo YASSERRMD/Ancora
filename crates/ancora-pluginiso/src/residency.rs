@@ -26,8 +26,11 @@ pub enum ResidencyViolation {
 impl std::fmt::Display for ResidencyViolation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::RegionNotPermitted { region } =>
-                write!(f, "data transfer to region '{}' is not permitted by residency policy", region),
+            Self::RegionNotPermitted { region } => write!(
+                f,
+                "data transfer to region '{}' is not permitted by residency policy",
+                region
+            ),
         }
     }
 }
@@ -35,17 +38,23 @@ impl std::fmt::Display for ResidencyViolation {
 impl ResidencyPolicy {
     /// Allow data transfers only to the specified regions.
     pub fn allow_only(regions: Vec<RegionCode>) -> Self {
-        Self { allowed_regions: Some(regions) }
+        Self {
+            allowed_regions: Some(regions),
+        }
     }
 
     /// Allow data transfers to any region (no residency restriction).
     pub fn global() -> Self {
-        Self { allowed_regions: None }
+        Self {
+            allowed_regions: None,
+        }
     }
 
     /// Deny all data transfers regardless of region.
     pub fn deny_all() -> Self {
-        Self { allowed_regions: Some(vec![]) }
+        Self {
+            allowed_regions: Some(vec![]),
+        }
     }
 
     /// Check whether a data transfer to `region` is permitted.
@@ -58,7 +67,9 @@ impl ResidencyPolicy {
                 if allowed.iter().any(|r| r == region) {
                     Ok(())
                 } else {
-                    Err(ResidencyViolation::RegionNotPermitted { region: region.to_string() })
+                    Err(ResidencyViolation::RegionNotPermitted {
+                        region: region.to_string(),
+                    })
                 }
             }
         }

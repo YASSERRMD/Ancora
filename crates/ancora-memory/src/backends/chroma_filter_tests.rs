@@ -77,10 +77,10 @@ mod chroma_filter_tests {
 
     #[test]
     fn where_in_wraps_array() {
-        let f = where_in("category", vec![
-            serde_json::json!("news"),
-            serde_json::json!("sports"),
-        ]);
+        let f = where_in(
+            "category",
+            vec![serde_json::json!("news"), serde_json::json!("sports")],
+        );
         let arr = f["category"]["$in"].as_array().unwrap();
         assert_eq!(arr.len(), 2);
         assert!(arr.contains(&serde_json::json!("sports")));
@@ -98,13 +98,19 @@ mod chroma_filter_tests {
     fn query_body_passes_where_filter() {
         let filter = where_eq("lang", serde_json::json!("en"));
         let body = query_body(&[vec![0.1f32]], 5, Some(filter), &["distances"]);
-        assert!(body["where"].is_object(), "where must be present when filter given");
+        assert!(
+            body["where"].is_object(),
+            "where must be present when filter given"
+        );
     }
 
     #[test]
     fn query_body_no_where_when_none() {
         let body = query_body(&[vec![0.1f32]], 5, None, &["distances"]);
-        assert!(body["where"].is_null(), "where should be absent when filter is None");
+        assert!(
+            body["where"].is_null(),
+            "where should be absent when filter is None"
+        );
     }
 
     #[test]
@@ -145,12 +151,7 @@ mod chroma_filter_tests {
 
     #[test]
     fn add_body_without_documents_omits_key() {
-        let body = add_body(
-            &["a"],
-            &[vec![0.1f32]],
-            &[serde_json::json!({})],
-            None,
-        );
+        let body = add_body(&["a"], &[vec![0.1f32]], &[serde_json::json!({})], None);
         assert!(body["documents"].is_null());
     }
 

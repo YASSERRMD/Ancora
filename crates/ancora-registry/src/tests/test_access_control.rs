@@ -9,8 +9,14 @@ fn allowed_publisher_can_publish() {
     cfg.access_policy = AccessPolicy::allow_list(["trusted-ci"]);
     let mut svc = RegistryService::new(cfg);
 
-    let entry = PublishEntry::new("tool", Version::new(1, 0, 0), b"data".to_vec(), "trusted-ci");
-    svc.publish(entry).expect("allowed publisher should succeed");
+    let entry = PublishEntry::new(
+        "tool",
+        Version::new(1, 0, 0),
+        b"data".to_vec(),
+        "trusted-ci",
+    );
+    svc.publish(entry)
+        .expect("allowed publisher should succeed");
 }
 
 #[test]
@@ -43,5 +49,6 @@ fn open_policy_accepts_any_publisher() {
     };
     let mut svc = RegistryService::new(cfg);
     let entry = PublishEntry::new("tool", Version::new(1, 0, 0), b"data".to_vec(), "anyone");
-    svc.publish(entry).expect("open policy should accept anyone");
+    svc.publish(entry)
+        .expect("open policy should accept anyone");
 }

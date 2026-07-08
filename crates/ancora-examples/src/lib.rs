@@ -3,14 +3,14 @@
 //! These utilities are intentionally minimal and self-contained so each
 //! example remains easy to read without diving into library internals.
 
-pub mod long_running_memory;
-pub mod guarded_tool_synthesis;
-pub mod skills_subagent;
+pub mod advanced_combined;
+pub mod agent_eval_harness;
 pub mod background_agent;
 pub mod contract_net_example;
+pub mod guarded_tool_synthesis;
+pub mod long_running_memory;
+pub mod skills_subagent;
 pub mod verified_reasoning;
-pub mod agent_eval_harness;
-pub mod advanced_combined;
 
 use std::collections::HashMap;
 use std::time::Instant;
@@ -112,7 +112,10 @@ pub struct Passage {
 
 impl Passage {
     pub fn new(key: &str, content: &str) -> Self {
-        Self { key: key.to_string(), content: content.to_string() }
+        Self {
+            key: key.to_string(),
+            content: content.to_string(),
+        }
     }
 }
 

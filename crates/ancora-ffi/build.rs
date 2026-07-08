@@ -4,8 +4,8 @@ fn main() {
     let header_path = format!("{}/ancora.h", out_dir);
     let snapshot_path = format!("{}/include/ancora.h", crate_dir);
 
-    let config = cbindgen::Config::from_file(format!("{}/cbindgen.toml", crate_dir))
-        .unwrap_or_default();
+    let config =
+        cbindgen::Config::from_file(format!("{}/cbindgen.toml", crate_dir)).unwrap_or_default();
 
     let bindings = cbindgen::Builder::new()
         .with_crate(&crate_dir)

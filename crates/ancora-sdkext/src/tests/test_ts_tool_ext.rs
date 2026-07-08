@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-use crate::ts_interfaces::{
-    canonical_ts_interface, validate_ts_value, TsExtensionAdapter, TsType,
-};
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
+use crate::ts_interfaces::{canonical_ts_interface, validate_ts_value, TsExtensionAdapter, TsType};
+use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // Tests

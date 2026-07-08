@@ -63,17 +63,33 @@ pub struct BootAuditLog {
 }
 
 impl BootAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: BootAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: BootAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a BootAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
     pub fn for_node<'a>(&'a self, node_id: &str) -> Vec<&'a BootAuditEntry> {
-        self.entries.iter().filter(|e| e.node_id == node_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.node_id == node_id)
+            .collect()
     }
     pub fn failures<'a>(&'a self) -> Vec<&'a BootAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &BootAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &BootAuditEntry> {
+        self.entries.iter()
+    }
 }

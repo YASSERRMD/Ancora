@@ -11,6 +11,10 @@ fn test_all_e2e_scenarios_pass() {
 fn test_e2e_durations_are_positive() {
     let scenarios = ecosystem_e2e_scenarios();
     for s in &scenarios {
-        assert!(s.duration_ms > 0, "scenario {} should have positive duration", s.name);
+        assert!(
+            s.duration_ms > 0,
+            "scenario {} should have positive duration",
+            s.name
+        );
     }
 }

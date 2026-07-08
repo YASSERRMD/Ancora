@@ -93,8 +93,11 @@ impl Journal {
 
     /// Return all entries for a given agent, ordered by `seq`.
     pub fn entries_for(&self, agent_id: &str) -> Vec<&JournalEntry> {
-        let mut v: Vec<&JournalEntry> =
-            self.rows.iter().filter(|e| e.agent_id == agent_id).collect();
+        let mut v: Vec<&JournalEntry> = self
+            .rows
+            .iter()
+            .filter(|e| e.agent_id == agent_id)
+            .collect();
         v.sort_by_key(|e| e.seq);
         v
     }
@@ -131,7 +134,12 @@ mod unit {
     #[test]
     fn append_and_retrieve() {
         let mut j = Journal::open();
-        let r = j.append("agent-1", 1, "2026-01-01T00:00:00Z", json!({"step": "init"}));
+        let r = j.append(
+            "agent-1",
+            1,
+            "2026-01-01T00:00:00Z",
+            json!({"step": "init"}),
+        );
         assert!(matches!(r, WriteResult::Ok(_)));
         let entries = j.entries_for("agent-1");
         assert_eq!(entries.len(), 1);

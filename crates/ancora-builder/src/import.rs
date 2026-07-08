@@ -1,5 +1,4 @@
 /// import - Import an existing graph spec into the canvas model.
-
 use crate::edges::{EdgeStore, EdgeType};
 use crate::placement::{Canvas, CanvasNode};
 use crate::scaffold::{Id, Position};
@@ -68,8 +67,12 @@ impl std::fmt::Display for ImportError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ImportError::DuplicateNodeId(id) => write!(f, "duplicate node id: {}", id),
-            ImportError::UnknownEdgeSource(id) => write!(f, "edge references unknown source node: {}", id),
-            ImportError::UnknownEdgeTarget(id) => write!(f, "edge references unknown target node: {}", id),
+            ImportError::UnknownEdgeSource(id) => {
+                write!(f, "edge references unknown source node: {}", id)
+            }
+            ImportError::UnknownEdgeTarget(id) => {
+                write!(f, "edge references unknown target node: {}", id)
+            }
             ImportError::MalformedSpec(msg) => write!(f, "malformed spec: {}", msg),
         }
     }
@@ -78,7 +81,9 @@ impl std::fmt::Display for ImportError {
 /// Import a GraphSpec into canvas and edge store representations.
 pub fn import_spec(spec: GraphSpec) -> Result<ImportResult, ImportError> {
     if spec.name.trim().is_empty() {
-        return Err(ImportError::MalformedSpec("spec name must not be empty".into()));
+        return Err(ImportError::MalformedSpec(
+            "spec name must not be empty".into(),
+        ));
     }
 
     let mut canvas = Canvas::new();
@@ -129,7 +134,11 @@ pub fn import_spec(spec: GraphSpec) -> Result<ImportResult, ImportError> {
         }
     }
 
-    Ok(ImportResult { canvas, edges, warnings })
+    Ok(ImportResult {
+        canvas,
+        edges,
+        warnings,
+    })
 }
 
 /// Parse a simple key=value line-based spec format for testing.

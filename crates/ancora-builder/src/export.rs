@@ -1,5 +1,4 @@
 /// export - Export the canvas model to a graph spec.
-
 use crate::edges::EdgeStore;
 use crate::import::{GraphSpec, SpecEdge, SpecNode};
 use crate::placement::Canvas;
@@ -64,8 +63,16 @@ pub fn export_spec(
             id: n.id.0.clone(),
             kind: n.kind.clone(),
             label: n.label.clone(),
-            x: if opts.include_positions { n.position.x } else { 0.0 },
-            y: if opts.include_positions { n.position.y } else { 0.0 },
+            x: if opts.include_positions {
+                n.position.x
+            } else {
+                0.0
+            },
+            y: if opts.include_positions {
+                n.position.y
+            } else {
+                0.0
+            },
             config: n.config.clone(),
         })
         .collect();
@@ -80,7 +87,11 @@ pub fn export_spec(
             source: e.source.0.clone(),
             target: e.target.0.clone(),
             edge_type: e.edge_type.to_string(),
-            label: if opts.include_edge_labels { e.label.clone() } else { None },
+            label: if opts.include_edge_labels {
+                e.label.clone()
+            } else {
+                None
+            },
         })
         .collect();
     spec_edges.sort_by(|a, b| a.id.cmp(&b.id));
@@ -96,10 +107,16 @@ pub fn spec_to_text(spec: &GraphSpec) -> String {
     for n in &spec.nodes {
         // Replace spaces in label with underscores so the line-based format stays parseable.
         let safe_label = n.label.replace(' ', "_");
-        lines.push(format!("node {} {} {} {} {}", n.id, n.kind, safe_label, n.x, n.y));
+        lines.push(format!(
+            "node {} {} {} {} {}",
+            n.id, n.kind, safe_label, n.x, n.y
+        ));
     }
     for e in &spec.edges {
-        lines.push(format!("edge {} {} {} {}", e.id, e.source, e.target, e.edge_type));
+        lines.push(format!(
+            "edge {} {} {} {}",
+            e.id, e.source, e.target, e.edge_type
+        ));
     }
     lines.join("\n")
 }
@@ -116,9 +133,19 @@ mod unit {
         let mut canvas = Canvas::new();
         let mut edges = EdgeStore::new();
         let a = canvas.place_node("agent.llm", "Agent", Position::new(0.0, 0.0));
-        let b = canvas.place_node("verifier.json_schema", "Verifier", Position::new(200.0, 0.0));
+        let b = canvas.place_node(
+            "verifier.json_schema",
+            "Verifier",
+            Position::new(200.0, 0.0),
+        );
         edges
-            .add_edge(a.clone(), "agent.llm", b.clone(), "verifier.json_schema", EdgeType::DataFlow)
+            .add_edge(
+                a.clone(),
+                "agent.llm",
+                b.clone(),
+                "verifier.json_schema",
+                EdgeType::DataFlow,
+            )
             .unwrap();
         (canvas, edges)
     }

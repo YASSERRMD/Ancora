@@ -1,5 +1,4 @@
 /// Tests verifying rollback restores the prior model.
-
 use crate::runtime::{make_model, SwapRuntime};
 
 #[test]

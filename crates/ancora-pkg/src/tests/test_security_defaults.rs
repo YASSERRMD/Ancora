@@ -39,7 +39,10 @@ fn test_k8s_pod_security_non_root() {
 #[test]
 fn test_k8s_network_policy_on_by_default() {
     let config = K8sConfig::new("netpol-agent", "ns", "img:v1");
-    assert!(config.network_policy_enabled, "network policy must be on by default");
+    assert!(
+        config.network_policy_enabled,
+        "network policy must be on by default"
+    );
 }
 
 #[test]
@@ -52,7 +55,8 @@ fn test_onprem_tls_required_in_output() {
 #[test]
 fn test_airgap_fips_in_output() {
     let config = AirgapConfig::new(
-        "fips-agent", "1.0.0",
+        "fips-agent",
+        "1.0.0",
         ArtifactSource::LocalRegistry("local:5000".to_string()),
         "/etc/ancora/license.key",
     );
@@ -90,7 +94,8 @@ fn test_all_templates_have_audit_log() {
 
     // Air-gapped
     let airgap_config = AirgapConfig::new(
-        "c", "1.0.0",
+        "c",
+        "1.0.0",
         ArtifactSource::LocalRegistry("r:5000".to_string()),
         "/lic",
     );
@@ -105,5 +110,9 @@ fn test_all_templates_have_audit_log() {
     // K8s (audit log is implied via operator secureDefaults)
     let k8s_config = K8sConfig::new("e", "ns", "img:v1");
     let k8s_tmpl = K8sTemplate::render(k8s_config).unwrap();
-    assert!(k8s_tmpl.operator_cr_yaml.as_ref().unwrap().contains("secureDefaults: true"));
+    assert!(k8s_tmpl
+        .operator_cr_yaml
+        .as_ref()
+        .unwrap()
+        .contains("secureDefaults: true"));
 }

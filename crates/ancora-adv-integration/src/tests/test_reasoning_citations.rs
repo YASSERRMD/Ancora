@@ -1,8 +1,8 @@
+use ancora_ageval::ReasoningMetric;
 use ancora_reason::{
     CitationStore, ContradictionDetector, EvidenceStore, FactChecker, ReasoningEvent,
     ReasoningJournal, StepDecomposer, StepVerifier,
 };
-use ancora_ageval::ReasoningMetric;
 
 #[test]
 fn reasoning_chain_plus_citations() {
@@ -16,10 +16,13 @@ fn reasoning_chain_plus_citations() {
     let mut citations = CitationStore::new();
 
     for step in &steps {
-        journal.record(step.index as u64, ReasoningEvent::StepAdded {
-            index: step.index,
-            claim: step.claim.clone(),
-        });
+        journal.record(
+            step.index as u64,
+            ReasoningEvent::StepAdded {
+                index: step.index,
+                claim: step.claim.clone(),
+            },
+        );
     }
 
     // Verify step 0

@@ -4,7 +4,15 @@ mod tests {
     use crate::sbom::{Sbom, SbomFormat};
 
     fn make_component(id: &str, license: License) -> Component {
-        Component::new(id, "comp", "1.0.0", ComponentKind::Library, license, "s", "sha256:00")
+        Component::new(
+            id,
+            "comp",
+            "1.0.0",
+            ComponentKind::Library,
+            license,
+            "s",
+            "sha256:00",
+        )
     }
 
     fn make_sbom() -> Sbom {

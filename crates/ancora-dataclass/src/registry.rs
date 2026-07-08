@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::record::DataRecord;
 use crate::label::SensitivityLevel;
+use crate::record::DataRecord;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum RegistryError {
@@ -22,7 +22,11 @@ pub struct DataRegistry {
 }
 
 impl DataRegistry {
-    pub fn new() -> Self { Self { records: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            records: HashMap::new(),
+        }
+    }
 
     pub fn insert(&mut self, record: DataRecord) -> Result<(), RegistryError> {
         if self.records.contains_key(&record.id) {
@@ -33,26 +37,42 @@ impl DataRegistry {
     }
 
     pub fn get(&self, id: &str) -> Result<&DataRecord, RegistryError> {
-        self.records.get(id).ok_or_else(|| RegistryError::RecordNotFound(id.to_string()))
+        self.records
+            .get(id)
+            .ok_or_else(|| RegistryError::RecordNotFound(id.to_string()))
     }
 
     pub fn remove(&mut self, id: &str) -> Result<DataRecord, RegistryError> {
-        self.records.remove(id).ok_or_else(|| RegistryError::RecordNotFound(id.to_string()))
+        self.records
+            .remove(id)
+            .ok_or_else(|| RegistryError::RecordNotFound(id.to_string()))
     }
 
-    pub fn count(&self) -> usize { self.records.len() }
+    pub fn count(&self) -> usize {
+        self.records.len()
+    }
 
     pub fn by_tenant(&self, tenant_id: &str) -> Vec<&DataRecord> {
-        self.records.values().filter(|r| r.tenant_id == tenant_id).collect()
+        self.records
+            .values()
+            .filter(|r| r.tenant_id == tenant_id)
+            .collect()
     }
 
     pub fn at_or_above(&self, level: &SensitivityLevel) -> Vec<&DataRecord> {
-        self.records.values().filter(|r| r.level.is_at_least(level)).collect()
+        self.records
+            .values()
+            .filter(|r| r.level.is_at_least(level))
+            .collect()
     }
 
-    pub fn all(&self) -> impl Iterator<Item = &DataRecord> { self.records.values() }
+    pub fn all(&self) -> impl Iterator<Item = &DataRecord> {
+        self.records.values()
+    }
 }
 
 impl Default for DataRegistry {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

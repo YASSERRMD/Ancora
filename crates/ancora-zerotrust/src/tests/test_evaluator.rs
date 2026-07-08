@@ -1,8 +1,8 @@
+use crate::device::{DevicePosture, DeviceStore};
 use crate::evaluator::ZeroTrustEvaluator;
 use crate::identity::{Identity, IdentityKind};
-use crate::device::{DevicePosture, DeviceStore};
-use crate::request::AccessRequest;
 use crate::policy::{AuthzDecision, ZeroTrustPolicy};
+use crate::request::AccessRequest;
 
 fn make_trusted_device(id: &str, tenant_id: &str, tick: u64) -> DevicePosture {
     let mut d = DevicePosture::new(id, tenant_id, tick);
@@ -30,7 +30,10 @@ fn deny_suspended_identity() {
     identity.suspend();
     let request = AccessRequest::new("r1", "t1", "i1", "api", "GET", 1);
     let devices = DeviceStore::new();
-    assert!(matches!(ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices), AuthzDecision::Deny(_)));
+    assert!(matches!(
+        ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices),
+        AuthzDecision::Deny(_)
+    ));
 }
 
 #[test]
@@ -39,5 +42,8 @@ fn deny_blocked_resource() {
     let identity = Identity::new("i1", "t1", IdentityKind::Human, 1);
     let request = AccessRequest::new("r1", "t1", "i1", "admin/secrets", "GET", 1);
     let devices = DeviceStore::new();
-    assert!(matches!(ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices), AuthzDecision::Deny(_)));
+    assert!(matches!(
+        ZeroTrustEvaluator::evaluate(&policy, &request, &identity, &devices),
+        AuthzDecision::Deny(_)
+    ));
 }

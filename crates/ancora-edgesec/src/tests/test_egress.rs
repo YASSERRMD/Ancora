@@ -4,16 +4,28 @@ use crate::egress::{EdgeEgress, EgressPolicy};
 fn test_edge_egress_zero_by_default() {
     let egress = EdgeEgress::new();
     // By default, all egress is blocked.
-    assert!(!egress.is_allowed("example.com", 443), "egress should be blocked by default");
-    assert!(!egress.is_allowed("api.internal", 8080), "egress should be blocked by default");
+    assert!(
+        !egress.is_allowed("example.com", 443),
+        "egress should be blocked by default"
+    );
+    assert!(
+        !egress.is_allowed("api.internal", 8080),
+        "egress should be blocked by default"
+    );
 }
 
 #[test]
 fn test_edge_egress_allow_explicit() {
     let mut egress = EdgeEgress::new();
     egress.allow("attestation-server.local", 8443);
-    assert!(egress.is_allowed("attestation-server.local", 8443), "explicitly allowed endpoint should pass");
-    assert!(!egress.is_allowed("other.com", 80), "non-allowed endpoint should still fail");
+    assert!(
+        egress.is_allowed("attestation-server.local", 8443),
+        "explicitly allowed endpoint should pass"
+    );
+    assert!(
+        !egress.is_allowed("other.com", 80),
+        "non-allowed endpoint should still fail"
+    );
 }
 
 #[test]

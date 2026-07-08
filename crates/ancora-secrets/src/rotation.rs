@@ -1,14 +1,18 @@
-use crate::store::SecretStore;
 use crate::error::SecretError;
+use crate::store::SecretStore;
 
 pub struct RotationPolicy {
     pub max_versions: usize,
 }
 
 impl RotationPolicy {
-    pub fn new(max_versions: usize) -> Self { Self { max_versions } }
+    pub fn new(max_versions: usize) -> Self {
+        Self { max_versions }
+    }
 
-    pub fn default_policy() -> Self { Self { max_versions: 10 } }
+    pub fn default_policy() -> Self {
+        Self { max_versions: 10 }
+    }
 
     pub fn rotate(
         &self,
@@ -27,7 +31,12 @@ impl RotationPolicy {
         Ok(new_version)
     }
 
-    pub fn versions_retained(&self, store: &SecretStore, tenant_id: &str, path: &str) -> Result<usize, SecretError> {
+    pub fn versions_retained(
+        &self,
+        store: &SecretStore,
+        tenant_id: &str,
+        path: &str,
+    ) -> Result<usize, SecretError> {
         let secret = store.read(tenant_id, path)?;
         Ok(secret.version_count())
     }

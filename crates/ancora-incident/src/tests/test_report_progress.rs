@@ -1,7 +1,7 @@
-use crate::incident::{Incident, Severity};
-use crate::timeline::IncidentTimeline;
 use crate::audit::IncidentAuditLog;
+use crate::incident::{Incident, Severity};
 use crate::report::IncidentReport;
+use crate::timeline::IncidentTimeline;
 
 #[test]
 fn report_progress_zero_steps() {

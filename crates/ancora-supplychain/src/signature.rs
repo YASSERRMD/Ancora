@@ -60,7 +60,11 @@ pub struct SignatureStore {
 }
 
 impl SignatureStore {
-    pub fn new() -> Self { Self { sigs: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            sigs: HashMap::new(),
+        }
+    }
 
     pub fn register(&mut self, sig: ComponentSignature) {
         self.sigs.insert(sig.component_id.clone(), sig);
@@ -83,7 +87,9 @@ impl SignatureStore {
         self.sigs.contains_key(component_id)
     }
 
-    pub fn count(&self) -> usize { self.sigs.len() }
+    pub fn count(&self) -> usize {
+        self.sigs.len()
+    }
 
     pub fn by_signer(&self, signer: &str) -> Vec<&ComponentSignature> {
         self.sigs.values().filter(|s| s.signer == signer).collect()

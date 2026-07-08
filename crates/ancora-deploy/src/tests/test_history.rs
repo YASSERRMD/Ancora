@@ -20,8 +20,13 @@ mod tests {
     #[test]
     fn rollback_event_stored_in_history() {
         let mut h = DeployHistory::new();
-        h.record(DeployEvent::CanaryRolledBack { reason: "error rate exceeded".into() });
+        h.record(DeployEvent::CanaryRolledBack {
+            reason: "error rate exceeded".into(),
+        });
         assert!(!h.is_empty());
-        assert!(matches!(h.events()[0], DeployEvent::CanaryRolledBack { .. }));
+        assert!(matches!(
+            h.events()[0],
+            DeployEvent::CanaryRolledBack { .. }
+        ));
     }
 }

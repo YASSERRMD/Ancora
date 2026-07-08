@@ -20,7 +20,10 @@ mod milvus_reconnect_tests {
     #[test]
     fn retry_delay_caps_at_12s() {
         for attempt in 7..=20 {
-            assert!(milvus_retry_delay_ms(attempt) <= 12_000, "attempt {attempt} exceeded cap");
+            assert!(
+                milvus_retry_delay_ms(attempt) <= 12_000,
+                "attempt {attempt} exceeded cap"
+            );
         }
     }
 

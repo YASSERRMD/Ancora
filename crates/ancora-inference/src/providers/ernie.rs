@@ -12,7 +12,9 @@ pub fn build_ernie_profile() -> ProviderProfile {
     ProviderProfile::new(
         "ernie",
         ERNIE_URL,
-        AuthStrategy::BearerToken { env_var: "ERNIE_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "ERNIE_API_KEY".to_owned(),
+        },
     )
     // ERNIE 4.0 -- flagship, tools, 8k context
     .add_model(
@@ -65,7 +67,9 @@ mod tests {
 
     #[test]
     fn ernie_recorded_fixture_completes() {
-        let resp = ernie_client().parse_response(ERNIE_FIXTURE, "ernie-4.0-8k").unwrap();
+        let resp = ernie_client()
+            .parse_response(ERNIE_FIXTURE, "ernie-4.0-8k")
+            .unwrap();
         assert_eq!(resp.content, "Hello from ERNIE 4.0");
         assert_eq!(resp.tokens_in, 9);
         assert_eq!(resp.tokens_out, 7);

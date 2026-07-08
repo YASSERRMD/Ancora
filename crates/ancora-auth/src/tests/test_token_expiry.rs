@@ -24,7 +24,14 @@ fn revoked_token_invalid_even_if_not_expired() {
 
 #[test]
 fn token_scope_check() {
-    let token = Token::new("t4", TokenKind::Bearer, "u", "ten", 999, vec!["read:agents".into(), "write:tasks".into()]);
+    let token = Token::new(
+        "t4",
+        TokenKind::Bearer,
+        "u",
+        "ten",
+        999,
+        vec!["read:agents".into(), "write:tasks".into()],
+    );
     assert!(token.has_scope("read:agents"));
     assert!(!token.has_scope("admin"));
 }

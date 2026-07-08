@@ -1,11 +1,10 @@
 /// Runtime binding, hot-swap, graceful drain, warmup, and memory reclaim.
-
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
+use crate::journal::{JournalEntry, SwapEvent, SwapJournal};
 use crate::model::{ModelHandle, ModelMeta, ModelPin, ModelVersion};
-use crate::journal::{JournalEntry, SwapJournal, SwapEvent};
 
 /// Identifies a run (in-flight inference request or agent turn).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
@@ -124,7 +123,10 @@ impl SwapRuntime {
         g.swap_latencies_ns.push(elapsed_ns);
 
         g.journal.append(JournalEntry {
-            event: SwapEvent::Swap { from: old_version, to: new_version },
+            event: SwapEvent::Swap {
+                from: old_version,
+                to: new_version,
+            },
             timestamp_ns: elapsed_ns,
         });
 
@@ -142,7 +144,10 @@ impl SwapRuntime {
     pub fn rollback(&self) -> Result<RollbackResult, &'static str> {
         let mut g = self.inner.lock().unwrap();
 
-        let prev = g.draining.take().ok_or("no draining model to roll back to")?;
+        let prev = g
+            .draining
+            .take()
+            .ok_or("no draining model to roll back to")?;
 
         // Un-unload the old model so new pins can be created again.
         prev.reload();
@@ -158,11 +163,16 @@ impl SwapRuntime {
         g.active = prev;
 
         g.journal.append(JournalEntry {
-            event: SwapEvent::Rollback { from: old_version, to: prev_version },
+            event: SwapEvent::Rollback {
+                from: old_version,
+                to: prev_version,
+            },
             timestamp_ns: 0,
         });
 
-        Ok(RollbackResult { restored_version: prev_version })
+        Ok(RollbackResult {
+            restored_version: prev_version,
+        })
     }
 
     /// Perform a warmup of a candidate model before it is swapped in.

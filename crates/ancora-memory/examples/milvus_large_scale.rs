@@ -6,19 +6,13 @@
 ///
 /// Set MILVUS_URL to run against a real Milvus instance.
 /// Without the env var the example prints request shapes and exits cleanly.
-
 use ancora_memory::backends::milvus::{
-    MilvusConfig,
-    create_collection_hnsw_body, create_collection_ivf_body,
-    insert_into_partition_body, search_partition_body,
-    search_with_consistency_body, search_hnsw_body,
-    load_collection_body, load_partition_body,
-    hybrid_search_body, delete_by_expr_body,
-    sizing_guidance, recommended_nlist,
-    collections_url, entities_insert_url, entities_search_url,
-    collection_load_url, partition_load_url, entities_delete_url,
-    entities_hybrid_url, partitions_url, create_partition_body,
-    metric_type, consistency, index_type,
+    collection_load_url, collections_url, consistency, create_collection_hnsw_body,
+    create_collection_ivf_body, create_partition_body, delete_by_expr_body, entities_delete_url,
+    entities_hybrid_url, entities_insert_url, entities_search_url, hybrid_search_body, index_type,
+    insert_into_partition_body, load_collection_body, load_partition_body, metric_type,
+    partition_load_url, partitions_url, recommended_nlist, search_hnsw_body, search_partition_body,
+    search_with_consistency_body, sizing_guidance, MilvusConfig,
 };
 
 const COLLECTION: &str = "ArticleIndex";
@@ -44,14 +38,20 @@ fn main() {
 
     // 2b. IVF_FLAT collection (lower memory, faster indexing)
     let ivf = create_collection_ivf_body(COLLECTION, DIMS, metric_type::L2, nlist);
-    println!("-- POST {} (IVF_FLAT collection) --", collections_url(&cfg.url));
+    println!(
+        "-- POST {} (IVF_FLAT collection) --",
+        collections_url(&cfg.url)
+    );
     println!("{}\n", serde_json::to_string_pretty(&ivf).unwrap());
 
     // 3. Partition strategy: shard by region
     let regions = ["us-east", "eu-west", "ap-south"];
     for region in &regions {
         let body = create_partition_body(COLLECTION, region);
-        println!("-- POST {} (partition: {region}) --", partitions_url(&cfg.url));
+        println!(
+            "-- POST {} (partition: {region}) --",
+            partitions_url(&cfg.url)
+        );
         println!("{}\n", serde_json::to_string_pretty(&body).unwrap());
     }
 
@@ -65,9 +65,15 @@ fn main() {
     println!("{}\n", serde_json::to_string_pretty(&load_parts).unwrap());
 
     // 5. Insert into partition
-    let entities = vec![(vec![0.1f32; 8], serde_json::json!({"title": "example", "region": "us-east"}))];
+    let entities = vec![(
+        vec![0.1f32; 8],
+        serde_json::json!({"title": "example", "region": "us-east"}),
+    )];
     let insert = insert_into_partition_body(COLLECTION, "us-east", &entities);
-    println!("-- POST {} (partition insert) --", entities_insert_url(&cfg.url));
+    println!(
+        "-- POST {} (partition insert) --",
+        entities_insert_url(&cfg.url)
+    );
     println!("{}\n", serde_json::to_string_pretty(&insert).unwrap());
 
     // 6. Search with HNSW ef override (trading accuracy for speed)
@@ -76,26 +82,48 @@ fn main() {
     println!("{}\n", serde_json::to_string_pretty(&fast_search).unwrap());
 
     // 7. Partition-scoped search
-    let part_search = search_partition_body(COLLECTION, "eu-west", &[0.1f32; 8], 10, metric_type::COSINE);
-    println!("-- POST {} (partition-scoped) --", entities_search_url(&cfg.url));
+    let part_search =
+        search_partition_body(COLLECTION, "eu-west", &[0.1f32; 8], 10, metric_type::COSINE);
+    println!(
+        "-- POST {} (partition-scoped) --",
+        entities_search_url(&cfg.url)
+    );
     println!("{}\n", serde_json::to_string_pretty(&part_search).unwrap());
 
     // 8. Consistency level trade-offs
-    for level in &[consistency::STRONG, consistency::BOUNDED, consistency::EVENTUALLY] {
-        let b = search_with_consistency_body(COLLECTION, &[0.1f32; 8], 5, metric_type::COSINE, level);
+    for level in &[
+        consistency::STRONG,
+        consistency::BOUNDED,
+        consistency::EVENTUALLY,
+    ] {
+        let b =
+            search_with_consistency_body(COLLECTION, &[0.1f32; 8], 5, metric_type::COSINE, level);
         println!("-- Search with {level} consistency --");
         println!("{}\n", serde_json::to_string_pretty(&b).unwrap());
     }
 
     // 9. Hybrid dense+sparse search (requires sparse index on collection)
     let sparse = vec![(0u32, 0.9f32), (42u32, 0.4f32), (99u32, 0.2f32)];
-    let hybrid = hybrid_search_body(COLLECTION, &[0.1f32; 8], "sparse_embedding", &sparse, 10, metric_type::COSINE);
-    println!("-- POST {} (hybrid dense+sparse) --", entities_hybrid_url(&cfg.url));
+    let hybrid = hybrid_search_body(
+        COLLECTION,
+        &[0.1f32; 8],
+        "sparse_embedding",
+        &sparse,
+        10,
+        metric_type::COSINE,
+    );
+    println!(
+        "-- POST {} (hybrid dense+sparse) --",
+        entities_hybrid_url(&cfg.url)
+    );
     println!("{}\n", serde_json::to_string_pretty(&hybrid).unwrap());
 
     // 10. Delete stale data
     let del = delete_by_expr_body(COLLECTION, "created_at < 1700000000");
-    println!("-- POST {} (delete old data) --", entities_delete_url(&cfg.url));
+    println!(
+        "-- POST {} (delete old data) --",
+        entities_delete_url(&cfg.url)
+    );
     println!("{}\n", serde_json::to_string_pretty(&del).unwrap());
 
     println!("Set MILVUS_URL to run against a live Milvus cluster.");

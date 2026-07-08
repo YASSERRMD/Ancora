@@ -25,7 +25,9 @@ struct AlwaysApprove;
 
 impl VerifierNode for AlwaysApprove {
     fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
-        Ok(VerifierResult::Approved { output: candidate.to_string() })
+        Ok(VerifierResult::Approved {
+            output: candidate.to_string(),
+        })
     }
 }
 
@@ -33,17 +35,21 @@ struct AlwaysReject;
 
 impl VerifierNode for AlwaysReject {
     fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
-        Ok(VerifierResult::Rejected { reason: format!("rejected: {}", candidate) })
+        Ok(VerifierResult::Rejected {
+            reason: format!("rejected: {}", candidate),
+        })
     }
 }
 
 /// Runs N verifiers and returns the number of approvals.
 fn run_n_verifiers<V: VerifierNode>(verifier: &V, node: &Node, candidate: &str, n: usize) -> usize {
     (0..n)
-        .filter(|_| matches!(
-            verifier.verify(node, candidate).unwrap(),
-            VerifierResult::Approved { .. }
-        ))
+        .filter(|_| {
+            matches!(
+                verifier.verify(node, candidate).unwrap(),
+                VerifierResult::Approved { .. }
+            )
+        })
         .count()
 }
 
@@ -60,7 +66,10 @@ fn always_reject_verifier_rejects_with_reason() {
     let result = AlwaysReject.verify(&node, "my-output").unwrap();
     assert!(matches!(result, VerifierResult::Rejected { .. }));
     if let VerifierResult::Rejected { reason } = result {
-        assert!(reason.contains("my-output"), "rejection reason must cite the candidate");
+        assert!(
+            reason.contains("my-output"),
+            "rejection reason must cite the candidate"
+        );
     }
 }
 

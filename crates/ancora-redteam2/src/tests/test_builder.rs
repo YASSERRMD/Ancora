@@ -23,10 +23,17 @@ fn scenario_builder_with_mitre() {
 
 #[test]
 fn attack_step_builder() {
-    let step = AttackStepBuilder::new("s1", "sc1", "Scan", AttackVector::Network, AttackOutcome::Success, 5)
-        .technique("T1046")
-        .detail("Found open port 22")
-        .build();
+    let step = AttackStepBuilder::new(
+        "s1",
+        "sc1",
+        "Scan",
+        AttackVector::Network,
+        AttackOutcome::Success,
+        5,
+    )
+    .technique("T1046")
+    .detail("Found open port 22")
+    .build();
     assert_eq!(step.id, "s1");
     assert_eq!(step.technique, "T1046");
     assert_eq!(step.detail, "Found open port 22");

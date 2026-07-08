@@ -16,13 +16,30 @@ pub struct ComplianceReport {
 }
 
 impl ComplianceReport {
-    pub fn generate(registry: &ControlRegistry, framework: &Framework, tenant_id: &str, tick: u64) -> Self {
+    pub fn generate(
+        registry: &ControlRegistry,
+        framework: &Framework,
+        tenant_id: &str,
+        tick: u64,
+    ) -> Self {
         let controls: Vec<&ComplianceControl> = registry.for_framework(framework);
         let total = controls.len();
-        let compliant = controls.iter().filter(|c| c.status == ControlStatus::Compliant).count();
-        let non_compliant = controls.iter().filter(|c| c.status == ControlStatus::NonCompliant).count();
-        let partially_compliant = controls.iter().filter(|c| c.status == ControlStatus::PartiallyCompliant).count();
-        let not_applicable = controls.iter().filter(|c| c.status == ControlStatus::NotApplicable).count();
+        let compliant = controls
+            .iter()
+            .filter(|c| c.status == ControlStatus::Compliant)
+            .count();
+        let non_compliant = controls
+            .iter()
+            .filter(|c| c.status == ControlStatus::NonCompliant)
+            .count();
+        let partially_compliant = controls
+            .iter()
+            .filter(|c| c.status == ControlStatus::PartiallyCompliant)
+            .count();
+        let not_applicable = controls
+            .iter()
+            .filter(|c| c.status == ControlStatus::NotApplicable)
+            .count();
         let not_assessed = total - compliant - non_compliant - partially_compliant - not_applicable;
         Self {
             framework: framework.clone(),
@@ -39,7 +56,9 @@ impl ComplianceReport {
 
     pub fn compliance_rate(&self) -> f64 {
         let assessed = self.total_controls - self.not_assessed - self.not_applicable;
-        if assessed == 0 { return 0.0; }
+        if assessed == 0 {
+            return 0.0;
+        }
         self.compliant as f64 / assessed as f64
     }
 

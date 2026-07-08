@@ -17,7 +17,9 @@ fn exfiltration_dataset_has_safe_baseline() {
 #[test]
 fn exfiltration_scenarios_categorized_correctly() {
     let scenarios = exfiltration_scenarios();
-    assert!(scenarios.iter().all(|s| s.category == AttackCategory::DataExfiltration));
+    assert!(scenarios
+        .iter()
+        .all(|s| s.category == AttackCategory::DataExfiltration));
 }
 
 #[test]

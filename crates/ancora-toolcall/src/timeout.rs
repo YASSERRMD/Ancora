@@ -7,16 +7,22 @@ pub struct ToolTimeoutTracker {
 
 impl ToolTimeoutTracker {
     pub fn new() -> Self {
-        Self { deadlines: HashMap::new() }
+        Self {
+            deadlines: HashMap::new(),
+        }
     }
 
     pub fn register(&mut self, call_id: &str, tool_name: &str, started_at: u64, timeout_ms: u64) {
         let deadline = started_at + timeout_ms / 1000;
-        self.deadlines.insert(call_id.to_string(), (deadline, tool_name.to_string()));
+        self.deadlines
+            .insert(call_id.to_string(), (deadline, tool_name.to_string()));
     }
 
     pub fn is_timed_out(&self, call_id: &str, now: u64) -> bool {
-        self.deadlines.get(call_id).map(|(d, _)| now >= *d).unwrap_or(false)
+        self.deadlines
+            .get(call_id)
+            .map(|(d, _)| now >= *d)
+            .unwrap_or(false)
     }
 
     pub fn timed_out_calls(&self, now: u64) -> Vec<(&str, &str)> {

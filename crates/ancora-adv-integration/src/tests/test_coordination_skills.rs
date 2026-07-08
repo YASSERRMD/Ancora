@@ -1,6 +1,6 @@
+use ancora_ageval::CoordinationMetric;
 use ancora_coord::Blackboard;
 use ancora_skills::{JitLoader, SkillDescriptor, SkillRegistry, SkillScope};
-use ancora_ageval::CoordinationMetric;
 
 #[test]
 fn coordination_plus_skills_registry() {
@@ -18,7 +18,9 @@ fn coordination_plus_skills_registry() {
     let found = registry.find("search").unwrap();
     let mut board = Blackboard::default();
     board.claim_role("coordinator", "selected_skill");
-    board.write("coordinator", "selected_skill", &found.name).unwrap();
+    board
+        .write("coordinator", "selected_skill", &found.name)
+        .unwrap();
     assert_eq!(board.read("selected_skill").unwrap(), "search");
 
     assert_eq!(CoordinationMetric::score(3, 3), 1.0);

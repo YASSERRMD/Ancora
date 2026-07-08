@@ -22,8 +22,12 @@ fn error_rate_correct() {
 #[test]
 fn peak_rps_returns_highest_bucket() {
     let mut t = ThroughputTracker::new(10);
-    for i in 0..10 { t.record_ok(i); }       // bucket 0: 10 req
-    for i in 20..25 { t.record_ok(i); }      // bucket 2: 5 req
+    for i in 0..10 {
+        t.record_ok(i);
+    } // bucket 0: 10 req
+    for i in 20..25 {
+        t.record_ok(i);
+    } // bucket 2: 5 req
     assert!((t.peak_rps() - 1.0).abs() < 0.001);
 }
 

@@ -87,10 +87,16 @@ impl SessionStore {
     }
 
     pub fn active_count(&self, current_tick: u64) -> usize {
-        self.sessions.values().filter(|s| s.is_valid(current_tick)).count()
+        self.sessions
+            .values()
+            .filter(|s| s.is_valid(current_tick))
+            .count()
     }
 
     pub fn sessions_for_subject(&self, subject: &str) -> Vec<&Session> {
-        self.sessions.values().filter(|s| s.subject == subject).collect()
+        self.sessions
+            .values()
+            .filter(|s| s.subject == subject)
+            .collect()
     }
 }

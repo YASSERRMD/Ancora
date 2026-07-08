@@ -13,7 +13,7 @@ pub struct MemoryEntry {
     pub id: String,
     pub kind: MemoryKind,
     pub content: String,
-    pub importance: u8,  // 1-10
+    pub importance: u8, // 1-10
     pub created_at: u64,
     pub last_accessed: u64,
     pub access_count: u32,

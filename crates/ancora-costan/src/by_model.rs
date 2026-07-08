@@ -1,5 +1,4 @@
 /// Cost breakdown by model.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Default)]
@@ -38,8 +37,7 @@ impl ModelCostBreakdown {
 
     /// Return all models sorted by descending cost.
     pub fn top_models(&self) -> Vec<(String, f64)> {
-        let mut v: Vec<(String, f64)> =
-            self.costs.iter().map(|(k, v)| (k.clone(), *v)).collect();
+        let mut v: Vec<(String, f64)> = self.costs.iter().map(|(k, v)| (k.clone(), *v)).collect();
         v.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         v
     }

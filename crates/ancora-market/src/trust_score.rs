@@ -3,7 +3,6 @@
 /// A trust score from 0-100 is computed from a set of signals. Higher scores
 /// indicate more trustworthy extensions. The score is used by the install
 /// policy to gate or warn on installs.
-
 use crate::badge::BadgeSet;
 use crate::identity::AuthorIdentity;
 use crate::license::LicenseDeclaration;
@@ -70,7 +69,13 @@ pub fn compute_trust_score(signals: &TrustSignals<'_>) -> TrustScore {
             ScanStatus::Findings(findings) => {
                 let has_critical = findings.iter().any(|f| f.severity == Severity::Critical);
                 let has_high = findings.iter().any(|f| f.severity == Severity::High);
-                if has_critical { 0 } else if has_high { 5 } else { 20 }
+                if has_critical {
+                    0
+                } else if has_high {
+                    5
+                } else {
+                    20
+                }
             }
         },
     };
@@ -79,7 +84,11 @@ pub fn compute_trust_score(signals: &TrustSignals<'_>) -> TrustScore {
     let license = match &signals.license {
         None => 0,
         Some(l) => {
-            if l.is_open_source { 15 } else { 5 }
+            if l.is_open_source {
+                15
+            } else {
+                5
+            }
         }
     };
 
@@ -87,7 +96,11 @@ pub fn compute_trust_score(signals: &TrustSignals<'_>) -> TrustScore {
     let residency = match &signals.residency {
         None => 0,
         Some(r) => {
-            if r.is_complete() { 15 } else { 5 }
+            if r.is_complete() {
+                15
+            } else {
+                5
+            }
         }
     };
 
@@ -118,9 +131,9 @@ pub fn compute_trust_score(signals: &TrustSignals<'_>) -> TrustScore {
 mod tests {
     use super::*;
     use crate::identity::AuthorIdentity;
-    use crate::security_scan::{ScanReport, ScanStatus};
     use crate::license::LicenseDeclaration;
     use crate::residency::{Region, ResidencyDeclaration};
+    use crate::security_scan::{ScanReport, ScanStatus};
 
     #[test]
     fn perfect_score() {

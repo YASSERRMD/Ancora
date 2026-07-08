@@ -23,7 +23,10 @@ pub struct ConstrainedConfig {
 
 impl Default for ConstrainedConfig {
     fn default() -> Self {
-        Self { max_retries: 3, add_json_fence_instruction: true }
+        Self {
+            max_retries: 3,
+            add_json_fence_instruction: true,
+        }
     }
 }
 
@@ -104,8 +107,7 @@ pub fn validate_json_output(raw: &str) -> Result<Value, ConstrainedError> {
     let extracted =
         extract_json(raw).ok_or_else(|| ConstrainedError::NotJson("no JSON found".into()))?;
 
-    serde_json::from_str::<Value>(&extracted)
-        .map_err(|e| ConstrainedError::NotJson(e.to_string()))
+    serde_json::from_str::<Value>(&extracted).map_err(|e| ConstrainedError::NotJson(e.to_string()))
 }
 
 /// A deterministic mock "model" function type used for testing / replay.
@@ -151,5 +153,7 @@ where
         }
     }
 
-    Err(ConstrainedError::RetryBudgetExceeded { attempts: config.max_retries + 1 })
+    Err(ConstrainedError::RetryBudgetExceeded {
+        attempts: config.max_retries + 1,
+    })
 }

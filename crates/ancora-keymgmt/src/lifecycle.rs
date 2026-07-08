@@ -12,7 +12,15 @@ pub fn deactivate_key(
     let key = store.get_latest_mut(tenant_id, key_id)?;
     let version = key.version;
     key.deactivate();
-    audit.record(KeyAuditEntry::new(tick, tenant_id, key_id, version, KeyOperation::Deactivate, subject, true));
+    audit.record(KeyAuditEntry::new(
+        tick,
+        tenant_id,
+        key_id,
+        version,
+        KeyOperation::Deactivate,
+        subject,
+        true,
+    ));
     Ok(())
 }
 
@@ -27,7 +35,15 @@ pub fn compromise_key(
     let key = store.get_latest_mut(tenant_id, key_id)?;
     let version = key.version;
     key.mark_compromised();
-    audit.record(KeyAuditEntry::new(tick, tenant_id, key_id, version, KeyOperation::Compromise, subject, true));
+    audit.record(KeyAuditEntry::new(
+        tick,
+        tenant_id,
+        key_id,
+        version,
+        KeyOperation::Compromise,
+        subject,
+        true,
+    ));
     Ok(())
 }
 
@@ -42,7 +58,15 @@ pub fn destroy_key(
     let key = store.get_latest_mut(tenant_id, key_id)?;
     let version = key.version;
     key.destroy();
-    audit.record(KeyAuditEntry::new(tick, tenant_id, key_id, version, KeyOperation::Destroy, subject, true));
+    audit.record(KeyAuditEntry::new(
+        tick,
+        tenant_id,
+        key_id,
+        version,
+        KeyOperation::Destroy,
+        subject,
+        true,
+    ));
     Ok(())
 }
 
@@ -57,6 +81,14 @@ pub fn schedule_key_deletion(
     let key = store.get_latest_mut(tenant_id, key_id)?;
     let version = key.version;
     key.schedule_deletion();
-    audit.record(KeyAuditEntry::new(tick, tenant_id, key_id, version, KeyOperation::Deactivate, subject, true));
+    audit.record(KeyAuditEntry::new(
+        tick,
+        tenant_id,
+        key_id,
+        version,
+        KeyOperation::Deactivate,
+        subject,
+        true,
+    ));
     Ok(())
 }

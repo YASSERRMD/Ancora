@@ -60,33 +60,38 @@ pub enum RetryOutcome<T> {
 ///
 /// The `sleep_fn` parameter replaces actual sleep so tests run without delay.
 /// Pass `|_ms| {}` to skip sleeping entirely.
-pub fn run_with_retry<T, F, S>(
-    policy: &RetryPolicy,
-    mut op: F,
-    mut sleep_fn: S,
-) -> RetryOutcome<T>
+pub fn run_with_retry<T, F, S>(policy: &RetryPolicy, mut op: F, mut sleep_fn: S) -> RetryOutcome<T>
 where
     F: FnMut(u32) -> Result<T, AncoraError>,
     S: FnMut(u64),
 {
     for attempt in 1..=policy.max_attempts {
         match op(attempt) {
-            Ok(value) => return RetryOutcome::Ok { value, attempts: attempt },
+            Ok(value) => {
+                return RetryOutcome::Ok {
+                    value,
+                    attempts: attempt,
+                }
+            }
             Err(err) => {
                 if classify(&err) == ErrorClass::Terminal {
-                    return RetryOutcome::Terminal { error: err, attempt };
+                    return RetryOutcome::Terminal {
+                        error: err,
+                        attempt,
+                    };
                 }
                 if attempt < policy.max_attempts {
                     let exp = (attempt - 1) as u32;
                     let shift = exp.min(63);
-                    let base = policy
-                        .initial_backoff_ms
-                        .saturating_mul(1u64 << shift);
+                    let base = policy.initial_backoff_ms.saturating_mul(1u64 << shift);
                     let capped = base.min(policy.max_backoff_ms);
                     let jittered = (capped as f64 * (1.0 - policy.jitter * 0.5)) as u64;
                     sleep_fn(jittered);
                 } else {
-                    return RetryOutcome::Exhausted { error: err, attempts: attempt };
+                    return RetryOutcome::Exhausted {
+                        error: err,
+                        attempts: attempt,
+                    };
                 }
             }
         }
@@ -99,7 +104,10 @@ mod tests {
     use super::*;
 
     fn retryable() -> AncoraError {
-        AncoraError::ModelHttp { status: 500, body: "err".to_string() }
+        AncoraError::ModelHttp {
+            status: 500,
+            body: "err".to_string(),
+        }
     }
 
     fn terminal() -> AncoraError {
@@ -108,7 +116,12 @@ mod tests {
 
     #[test]
     fn retries_stop_at_max_attempts() {
-        let policy = RetryPolicy { max_attempts: 3, initial_backoff_ms: 0, max_backoff_ms: 0, jitter: 0.0 };
+        let policy = RetryPolicy {
+            max_attempts: 3,
+            initial_backoff_ms: 0,
+            max_backoff_ms: 0,
+            jitter: 0.0,
+        };
         let mut call_count = 0u32;
 
         let outcome = run_with_retry(
@@ -121,7 +134,10 @@ mod tests {
         );
 
         assert_eq!(call_count, 3, "must attempt exactly max_attempts times");
-        assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 3, .. }));
+        assert!(matches!(
+            outcome,
+            RetryOutcome::Exhausted { attempts: 3, .. }
+        ));
     }
 
     #[test]
@@ -143,7 +159,10 @@ mod tests {
             |_ms| {},
         );
 
-        assert_eq!(call_count, 1, "terminal error must stop after first attempt");
+        assert_eq!(
+            call_count, 1,
+            "terminal error must stop after first attempt"
+        );
         assert!(matches!(outcome, RetryOutcome::Terminal { attempt: 1, .. }));
     }
 }

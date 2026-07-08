@@ -2,8 +2,8 @@
 use ancora_core::routing::ModelRouter;
 
 const COMMAND_R_PLUS: &str = "command-r-plus";
-const COMMAND_R: &str      = "command-r";
-const COMMAND_LIGHT: &str  = "command-light";
+const COMMAND_R: &str = "command-r";
+const COMMAND_LIGHT: &str = "command-light";
 
 fn cohere_router() -> ModelRouter {
     let mut r = ModelRouter::new(COMMAND_R_PLUS);

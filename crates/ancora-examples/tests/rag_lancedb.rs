@@ -2,9 +2,18 @@ use ancora_examples::{keyword_retrieve, Passage};
 
 fn corpus() -> Vec<Passage> {
     vec![
-        Passage::new("lancedb.md",  "LanceDB stores vectors with column-level compression for efficient similarity search."),
-        Passage::new("ancora.md",   "Ancora is a multi-agent runtime for AI applications."),
-        Passage::new("qdrant.md",   "Qdrant is a vector database supporting filtering and payload-based search."),
+        Passage::new(
+            "lancedb.md",
+            "LanceDB stores vectors with column-level compression for efficient similarity search.",
+        ),
+        Passage::new(
+            "ancora.md",
+            "Ancora is a multi-agent runtime for AI applications.",
+        ),
+        Passage::new(
+            "qdrant.md",
+            "Qdrant is a vector database supporting filtering and payload-based search.",
+        ),
     ]
 }
 
@@ -33,7 +42,11 @@ fn retrieve_all_returns_full_corpus() {
 fn context_can_be_assembled_from_passages() {
     let c = corpus();
     let hits = keyword_retrieve(&c, "lancedb vector", 2);
-    let context: String = hits.iter().map(|p| p.content.as_str()).collect::<Vec<_>>().join("\n");
+    let context: String = hits
+        .iter()
+        .map(|p| p.content.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
     assert!(context.contains("LanceDB"));
 }
 

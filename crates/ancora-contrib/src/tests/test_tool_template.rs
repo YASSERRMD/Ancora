@@ -2,7 +2,10 @@ use crate::tool_template::{MyTool, ToolError, ToolPlugin, Value};
 use std::collections::HashMap;
 
 fn args(pairs: &[(&str, &str)]) -> HashMap<String, Value> {
-    pairs.iter().map(|(k, v)| (k.to_string(), Value::Text(v.to_string()))).collect()
+    pairs
+        .iter()
+        .map(|(k, v)| (k.to_string(), Value::Text(v.to_string())))
+        .collect()
 }
 
 #[test]
@@ -27,13 +30,17 @@ fn params_schema_has_two_entries() {
 
 #[test]
 fn execute_concatenates_strings() {
-    let result = MyTool.execute(args(&[("left", "foo"), ("right", "bar")])).unwrap();
+    let result = MyTool
+        .execute(args(&[("left", "foo"), ("right", "bar")]))
+        .unwrap();
     assert_eq!(result, Value::Text("foobar".to_string()));
 }
 
 #[test]
 fn execute_empty_strings() {
-    let result = MyTool.execute(args(&[("left", ""), ("right", "")])).unwrap();
+    let result = MyTool
+        .execute(args(&[("left", ""), ("right", "")]))
+        .unwrap();
     assert_eq!(result, Value::Text("".to_string()));
 }
 
@@ -78,7 +85,12 @@ fn value_helpers() {
 
 #[test]
 fn tool_error_display() {
-    assert!(!ToolError::MissingArgument("x".into()).to_string().is_empty());
-    let e = ToolError::InvalidArgument { name: "a".into(), reason: "bad".into() };
+    assert!(!ToolError::MissingArgument("x".into())
+        .to_string()
+        .is_empty());
+    let e = ToolError::InvalidArgument {
+        name: "a".into(),
+        reason: "bad".into(),
+    };
     assert!(e.to_string().contains("a") && e.to_string().contains("bad"));
 }

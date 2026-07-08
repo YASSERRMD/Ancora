@@ -1,7 +1,8 @@
 /// Tests: cost attributes match journal entries.
-
-use crate::genai_attrs::{self, ANCORA_COST_USD, GEN_AI_USAGE_INPUT_TOKENS, GEN_AI_USAGE_OUTPUT_TOKENS};
-use crate::journal::{JournalEvent, JournalEventKind, JournalMetadata, journal_event_to_span};
+use crate::genai_attrs::{
+    self, ANCORA_COST_USD, GEN_AI_USAGE_INPUT_TOKENS, GEN_AI_USAGE_OUTPUT_TOKENS,
+};
+use crate::journal::{journal_event_to_span, JournalEvent, JournalEventKind, JournalMetadata};
 use crate::span::{SpanId, TraceId};
 
 fn make_llm_event(cost: f64, input_tokens: i64, output_tokens: i64) -> JournalEvent {
@@ -37,8 +38,14 @@ fn cost_attr_matches_journal_value() {
 fn token_attrs_match_journal() {
     let ev = make_llm_event(0.001, 2000, 800);
     let span = journal_event_to_span(&ev);
-    assert_eq!(genai_attrs::get_int(&span, GEN_AI_USAGE_INPUT_TOKENS), Some(2000));
-    assert_eq!(genai_attrs::get_int(&span, GEN_AI_USAGE_OUTPUT_TOKENS), Some(800));
+    assert_eq!(
+        genai_attrs::get_int(&span, GEN_AI_USAGE_INPUT_TOKENS),
+        Some(2000)
+    );
+    assert_eq!(
+        genai_attrs::get_int(&span, GEN_AI_USAGE_OUTPUT_TOKENS),
+        Some(800)
+    );
 }
 
 #[test]

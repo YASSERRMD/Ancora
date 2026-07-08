@@ -63,7 +63,10 @@ pub struct DecompositionPlan {
 impl DecompositionPlan {
     /// Create a new plan.
     pub fn new(task_description: impl Into<String>, steps: Vec<Step>) -> Self {
-        Self { task_description: task_description.into(), steps }
+        Self {
+            task_description: task_description.into(),
+            steps,
+        }
     }
 
     /// Build the prompt for a specific step, incorporating prior step results
@@ -104,8 +107,8 @@ pub fn validate_step_output(raw: &str, format: &OutputFormat) -> Result<(), Stri
             }
         }
         OutputFormat::JsonObject => {
-            let v: serde_json::Value = serde_json::from_str(trimmed)
-                .map_err(|e| format!("not valid JSON: {}", e))?;
+            let v: serde_json::Value =
+                serde_json::from_str(trimmed).map_err(|e| format!("not valid JSON: {}", e))?;
             if v.is_object() {
                 Ok(())
             } else {
@@ -113,8 +116,8 @@ pub fn validate_step_output(raw: &str, format: &OutputFormat) -> Result<(), Stri
             }
         }
         OutputFormat::JsonArray => {
-            let v: serde_json::Value = serde_json::from_str(trimmed)
-                .map_err(|e| format!("not valid JSON: {}", e))?;
+            let v: serde_json::Value =
+                serde_json::from_str(trimmed).map_err(|e| format!("not valid JSON: {}", e))?;
             if v.is_array() {
                 Ok(())
             } else {
@@ -150,8 +153,12 @@ where
         let valid = valid_res.is_ok();
         let error = valid_res.err();
 
-        let result =
-            StepResult { step_id: step.id.clone(), raw_output: raw, valid, error };
+        let result = StepResult {
+            step_id: step.id.clone(),
+            raw_output: raw,
+            valid,
+            error,
+        };
 
         let should_stop = !valid && !step.optional;
         results.push(result);

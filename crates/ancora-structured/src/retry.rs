@@ -1,8 +1,8 @@
-use serde_json::Value;
 use crate::error::StructuredError;
+use crate::extractor::JsonExtractor;
 use crate::schema::OutputSchema;
 use crate::validator::OutputValidator;
-use crate::extractor::JsonExtractor;
+use serde_json::Value;
 
 pub struct RetryConfig {
     pub max_attempts: u32,
@@ -11,7 +11,10 @@ pub struct RetryConfig {
 
 impl RetryConfig {
     pub fn new(max_attempts: u32) -> Self {
-        Self { max_attempts, include_error_in_prompt: true }
+        Self {
+            max_attempts,
+            include_error_in_prompt: true,
+        }
     }
 }
 
@@ -34,15 +37,19 @@ impl StructuredRetry {
         for attempt in 0..self.config.max_attempts {
             let text = gen(attempt, last_error.as_deref());
             match JsonExtractor::extract(&text) {
-                Ok(value) => {
-                    match OutputValidator::validate(schema, &value) {
-                        Ok(()) => return Ok(value),
-                        Err(e) => { last_error = Some(e.to_string()); }
+                Ok(value) => match OutputValidator::validate(schema, &value) {
+                    Ok(()) => return Ok(value),
+                    Err(e) => {
+                        last_error = Some(e.to_string());
                     }
+                },
+                Err(e) => {
+                    last_error = Some(e.to_string());
                 }
-                Err(e) => { last_error = Some(e.to_string()); }
             }
         }
-        Err(StructuredError::RetryLimitReached { attempts: self.config.max_attempts })
+        Err(StructuredError::RetryLimitReached {
+            attempts: self.config.max_attempts,
+        })
     }
 }

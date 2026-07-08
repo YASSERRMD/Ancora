@@ -2,7 +2,6 @@
 ///
 /// Extensions may depend on other extensions or well-known runtime capabilities.
 /// The dependency graph is validated before publishing and on install.
-
 use crate::versioning::SemVer;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -133,6 +132,9 @@ mod tests {
         let dep1 = DependencySpec::new("com.example.dep", SemVer::parse("1.0.0").unwrap()).unwrap();
         let dep2 = DependencySpec::new("com.example.dep", SemVer::parse("1.0.0").unwrap()).unwrap();
         list.add(dep1).unwrap();
-        assert!(matches!(list.add(dep2), Err(DependencyError::DuplicateDependency(_))));
+        assert!(matches!(
+            list.add(dep2),
+            Err(DependencyError::DuplicateDependency(_))
+        ));
     }
 }

@@ -11,6 +11,10 @@ fn test_all_itk_tests_pass() {
 fn test_itk_categories_nonempty() {
     let tests = itk_tests();
     for t in &tests {
-        assert!(!t.category.is_empty(), "test {} should have a category", t.name);
+        assert!(
+            !t.category.is_empty(),
+            "test {} should have a category",
+            t.name
+        );
     }
 }

@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::spec::ToolSpec;
+use std::collections::HashMap;
 
 /// Caches synthesized tools by goal for reuse across invocations.
 #[derive(Debug, Default)]

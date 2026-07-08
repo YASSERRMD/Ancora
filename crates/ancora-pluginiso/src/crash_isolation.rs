@@ -46,7 +46,9 @@ impl CrashIsolationHandle {
     /// Record a crash.  Returns `true` when the host should propagate the
     /// crash (i.e., the mode is `Propagate`).
     pub fn record_crash(&mut self, reason: impl Into<String>) -> bool {
-        self.health = PluginHealth::Faulted { reason: reason.into() };
+        self.health = PluginHealth::Faulted {
+            reason: reason.into(),
+        };
         self.mode == CrashIsolationMode::Propagate
     }
 

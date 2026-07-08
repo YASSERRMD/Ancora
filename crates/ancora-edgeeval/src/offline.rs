@@ -54,7 +54,11 @@ pub struct OfflineSample {
 }
 
 impl OfflineSample {
-    pub fn new(id: impl Into<String>, input: impl Into<String>, ground_truth: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        input: impl Into<String>,
+        ground_truth: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             input: input.into(),
@@ -94,10 +98,26 @@ impl OfflineDataset {
     pub fn builtin_smoke() -> Self {
         let mut ds = Self::new();
         ds.add(OfflineSample::new("s1", "What is 2+2?", "4"));
-        ds.add(OfflineSample::new("s2", "Classify: 'Great product!' -> positive/negative", "positive"));
-        ds.add(OfflineSample::new("s3", "Extract the city: 'Meeting in Paris next week.'", "Paris"));
-        ds.add(OfflineSample::new("s4", "True or False: The sky is blue.", "True"));
-        ds.add(OfflineSample::new("s5", "Summarize in one word: 'The quick brown fox jumps.'", "fox"));
+        ds.add(OfflineSample::new(
+            "s2",
+            "Classify: 'Great product!' -> positive/negative",
+            "positive",
+        ));
+        ds.add(OfflineSample::new(
+            "s3",
+            "Extract the city: 'Meeting in Paris next week.'",
+            "Paris",
+        ));
+        ds.add(OfflineSample::new(
+            "s4",
+            "True or False: The sky is blue.",
+            "True",
+        ));
+        ds.add(OfflineSample::new(
+            "s5",
+            "Summarize in one word: 'The quick brown fox jumps.'",
+            "fox",
+        ));
         ds
     }
 }
@@ -143,18 +163,18 @@ impl OfflineEvalRunner {
 
     /// Run evaluation on a dataset with provided outputs (offline).
     /// Returns (sample_id, score) pairs.
-    pub fn run(
-        &self,
-        dataset: &OfflineDataset,
-        outputs: &[(&str, &str)],
-    ) -> Vec<(String, f64)> {
+    pub fn run(&self, dataset: &OfflineDataset, outputs: &[(&str, &str)]) -> Vec<(String, f64)> {
         let scorer = MockScorer::new(self.config.seed);
         dataset
             .samples()
             .iter()
             .take(self.config.max_samples)
             .map(|s| {
-                let output = outputs.iter().find(|(id, _)| *id == s.id).map(|(_, o)| *o).unwrap_or("");
+                let output = outputs
+                    .iter()
+                    .find(|(id, _)| *id == s.id)
+                    .map(|(_, o)| *o)
+                    .unwrap_or("");
                 let score = scorer.score(output, &s.ground_truth);
                 (s.id.clone(), score)
             })

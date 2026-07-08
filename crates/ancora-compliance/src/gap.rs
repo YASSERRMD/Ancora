@@ -18,7 +18,9 @@ impl GapAnalyzer {
         let mut gaps: Vec<GapItem> = registry
             .for_framework(framework)
             .into_iter()
-            .filter(|c| c.status != ControlStatus::Compliant && c.status != ControlStatus::NotApplicable)
+            .filter(|c| {
+                c.status != ControlStatus::Compliant && c.status != ControlStatus::NotApplicable
+            })
             .map(|c: &ComplianceControl| GapItem {
                 control_id: c.id.0.clone(),
                 framework: c.framework.clone(),

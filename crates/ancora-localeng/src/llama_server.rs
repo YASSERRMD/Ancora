@@ -3,7 +3,6 @@
 /// The llama.cpp server exposes an OpenAI-compatible HTTP API at a
 /// configurable host:port. This module provides a typed client and
 /// mock-friendly abstractions for use in offline tests.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Default endpoint for a locally-started llama.cpp server.
@@ -72,10 +71,7 @@ impl<T: LlamaServerTransport> LlamaServerClient<T> {
     }
 
     pub fn endpoint(&self) -> &str {
-        self.config
-            .endpoint
-            .as_deref()
-            .unwrap_or(DEFAULT_ENDPOINT)
+        self.config.endpoint.as_deref().unwrap_or(DEFAULT_ENDPOINT)
     }
 
     pub fn complete(
@@ -92,6 +88,5 @@ impl<T: LlamaServerTransport> LlamaServerClient<T> {
 
 /// Construct a default config targeting the llama.cpp server engine.
 pub fn default_config() -> EngineConfig {
-    EngineConfig::new(EngineKind::LlamaCppServer)
-        .with_endpoint(DEFAULT_ENDPOINT)
+    EngineConfig::new(EngineKind::LlamaCppServer).with_endpoint(DEFAULT_ENDPOINT)
 }

@@ -65,11 +65,17 @@ impl ReadinessChecklist {
     }
 
     pub fn pass_count(&self) -> usize {
-        self.items.iter().filter(|i| i.status == CheckStatus::Pass).count()
+        self.items
+            .iter()
+            .filter(|i| i.status == CheckStatus::Pass)
+            .count()
     }
 
     pub fn fail_count(&self) -> usize {
-        self.items.iter().filter(|i| i.status == CheckStatus::Fail).count()
+        self.items
+            .iter()
+            .filter(|i| i.status == CheckStatus::Fail)
+            .count()
     }
 
     pub fn is_ready(&self) -> bool {
@@ -89,21 +95,39 @@ impl ReadinessChecklist {
 pub fn build_default_checklist() -> ReadinessChecklist {
     let mut checklist = ReadinessChecklist::default();
     let items = [
-        ("obs-001", "Distributed tracing is enabled and exporting spans"),
+        (
+            "obs-001",
+            "Distributed tracing is enabled and exporting spans",
+        ),
         ("obs-002", "Metrics collection is configured"),
         ("obs-003", "Log aggregation is connected"),
         ("obs-004", "Cost analytics are recording token usage"),
         ("obs-005", "Drift monitor is calibrated with a baseline"),
-        ("obs-006", "Safety monitor is active with critical alert routing"),
+        (
+            "obs-006",
+            "Safety monitor is active with critical alert routing",
+        ),
         ("obs-007", "PII redaction policies are applied to telemetry"),
-        ("eval-001", "Eval platform is connected to the agent under test"),
-        ("eval-002", "At least one dataset with ground truth is loaded"),
-        ("eval-003", "Regression gates are defined with threshold values"),
+        (
+            "eval-001",
+            "Eval platform is connected to the agent under test",
+        ),
+        (
+            "eval-002",
+            "At least one dataset with ground truth is loaded",
+        ),
+        (
+            "eval-003",
+            "Regression gates are defined with threshold values",
+        ),
         ("eval-004", "A/B experiment tracking is configured"),
         ("eval-005", "Human feedback queue is draining to a store"),
         ("eval-006", "Continuous eval schedule is set for OnDeploy"),
         ("eval-007", "Dev studio is accessible for local replay"),
-        ("eval-008", "Observability integrations are tested end-to-end"),
+        (
+            "eval-008",
+            "Observability integrations are tested end-to-end",
+        ),
     ];
     for (id, desc) in items {
         checklist.add(ChecklistItem::new(id, desc));

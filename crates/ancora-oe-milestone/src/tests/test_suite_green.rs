@@ -1,4 +1,4 @@
-use crate::suite_status::{SuiteResult, SuiteStatus, milestone_green};
+use crate::suite_status::{milestone_green, SuiteResult, SuiteStatus};
 
 #[test]
 fn full_obs_and_eval_suite_green() {

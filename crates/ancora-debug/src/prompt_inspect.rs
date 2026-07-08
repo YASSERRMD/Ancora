@@ -4,7 +4,6 @@
 /// This module provides thin wrappers around [`Inspector`] that surface only
 /// prompt/response data, making it convenient for UIs that display LLM
 /// exchange details without needing access to the full inspector.
-
 use crate::inspector::{Inspector, LlmSnapshot};
 use crate::loader::{Journal, Seq};
 
@@ -24,7 +23,9 @@ pub fn response_at(journal: &Journal, seq: Seq) -> Option<String> {
 
 /// Return both prompt and response at or before `seq` as a pair.
 pub fn exchange_at(journal: &Journal, seq: Seq) -> Option<(String, String)> {
-    Inspector::new(journal).llm_at(seq).map(|s| (s.prompt, s.response))
+    Inspector::new(journal)
+        .llm_at(seq)
+        .map(|s| (s.prompt, s.response))
 }
 
 /// Return all LLM exchanges up to `seq` in sequence order.
@@ -42,7 +43,10 @@ mod tests {
             JournalEntry::new(
                 RunId::new("r-prompt"),
                 0,
-                EntryKind::StateChange { from: "init".into(), to: "ready".into() },
+                EntryKind::StateChange {
+                    from: "init".into(),
+                    to: "ready".into(),
+                },
             ),
             JournalEntry::new(
                 RunId::new("r-prompt"),

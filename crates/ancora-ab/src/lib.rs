@@ -4,13 +4,13 @@
 //! exposure logging, metric collection, statistical analysis, guardrails,
 //! lifecycle management, and structured reporting.
 
-pub mod experiment;
-pub mod assignment;
-pub mod exposure;
-pub mod outcome;
 pub mod analysis;
+pub mod assignment;
+pub mod experiment;
+pub mod exposure;
 pub mod guardrail;
 pub mod lifecycle;
+pub mod outcome;
 pub mod report;
 
 #[cfg(test)]

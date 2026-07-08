@@ -2,7 +2,13 @@ use crate::scenario::{RedTeamScenario, ScenarioKind, ScenarioStatus};
 
 #[test]
 fn basic_fields() {
-    let s = RedTeamScenario::new("sc-1", "t1", "Test Scenario", ScenarioKind::LateralMovement, 10);
+    let s = RedTeamScenario::new(
+        "sc-1",
+        "t1",
+        "Test Scenario",
+        ScenarioKind::LateralMovement,
+        10,
+    );
     assert_eq!(s.id, "sc-1");
     assert_eq!(s.tenant_id, "t1");
     assert_eq!(s.name, "Test Scenario");
@@ -24,5 +30,8 @@ fn with_mitre() {
 fn with_metadata() {
     let s = RedTeamScenario::new("sc-3", "t1", "Name", ScenarioKind::InitialAccess, 1)
         .with_metadata("severity", "critical");
-    assert_eq!(s.metadata.get("severity").map(|v| v.as_str()), Some("critical"));
+    assert_eq!(
+        s.metadata.get("severity").map(|v| v.as_str()),
+        Some("critical")
+    );
 }

@@ -30,7 +30,7 @@ fn hundred_chars_returns_twenty_five() {
 #[test]
 fn estimate_scales_with_length() {
     let short = TokenEstimator::estimate_tokens("hi");
-    let long  = TokenEstimator::estimate_tokens("This is a somewhat longer piece of text.");
+    let long = TokenEstimator::estimate_tokens("This is a somewhat longer piece of text.");
     assert!(long > short);
 }
 

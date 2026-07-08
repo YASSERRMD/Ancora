@@ -38,20 +38,23 @@ fn assignment_does_not_depend_on_order() {
     let experiment = Experiment::new(
         "order-exp",
         "Order independence",
-        vec![
-            Variant::new("x", 0.5),
-            Variant::new("y", 0.5),
-        ],
+        vec![Variant::new("x", 0.5), Variant::new("y", 0.5)],
         Metric::new("m", MetricKind::Minimize),
     )
     .unwrap();
 
     let keys: Vec<String> = (0..50).map(|i| format!("u{i}")).collect();
-    let forward: Vec<_> = keys.iter().map(|k| assign(&experiment, k).variant_name.clone()).collect();
+    let forward: Vec<_> = keys
+        .iter()
+        .map(|k| assign(&experiment, k).variant_name.clone())
+        .collect();
 
     let mut backward_keys = keys.clone();
     backward_keys.reverse();
-    let backward: Vec<_> = backward_keys.iter().map(|k| assign(&experiment, k).variant_name.clone()).collect();
+    let backward: Vec<_> = backward_keys
+        .iter()
+        .map(|k| assign(&experiment, k).variant_name.clone())
+        .collect();
 
     // Re-sort backward to original order so we can compare element-wise.
     let mut backward_map: std::collections::HashMap<&str, &str> = std::collections::HashMap::new();

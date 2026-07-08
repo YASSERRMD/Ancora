@@ -12,7 +12,13 @@ impl Histogram {
     /// Create a histogram with bucket upper bounds in ms.
     pub fn new(label: impl Into<String>, buckets: Vec<u64>) -> Self {
         let n = buckets.len();
-        Self { label: label.into(), buckets, counts: vec![0; n], sum: 0, total: 0 }
+        Self {
+            label: label.into(),
+            buckets,
+            counts: vec![0; n],
+            sum: 0,
+            total: 0,
+        }
     }
 
     /// Record a latency observation in ms.
@@ -35,7 +41,11 @@ impl Histogram {
     }
 
     pub fn mean_ms(&self) -> f64 {
-        if self.total == 0 { 0.0 } else { self.sum as f64 / self.total as f64 }
+        if self.total == 0 {
+            0.0
+        } else {
+            self.sum as f64 / self.total as f64
+        }
     }
 
     /// Return count of observations within the given bucket bound.

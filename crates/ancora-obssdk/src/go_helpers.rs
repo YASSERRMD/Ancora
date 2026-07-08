@@ -14,7 +14,13 @@ impl GoTraceAccessor {
     }
 
     /// Record a span as the Go SDK would emit it.
-    pub fn record_span(&mut self, span_id: impl Into<String>, name: impl Into<String>, start_ns: u64, end_ns: u64) {
+    pub fn record_span(
+        &mut self,
+        span_id: impl Into<String>,
+        name: impl Into<String>,
+        start_ns: u64,
+        end_ns: u64,
+    ) {
         let span = Span::new(span_id, name, start_ns).finish(end_ns);
         self.trace.add_span(span);
     }
@@ -54,7 +60,9 @@ pub struct GoCostAccessor {
 
 impl GoCostAccessor {
     pub fn new() -> Self {
-        GoCostAccessor { records: Vec::new() }
+        GoCostAccessor {
+            records: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, cost: CostRecord) {

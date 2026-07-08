@@ -3,18 +3,39 @@ use crate::onnx::{OnnxDescriptor, OnnxPrecision};
 use crate::registry::ModelRegistry;
 
 fn sample_gguf(name: &str, params: f32, quant: GgufQuantType) -> GgufDescriptor {
-    GgufDescriptor::new(name, format!("/tmp/{}.gguf", name), "llama", params, quant, 0, 2048)
+    GgufDescriptor::new(
+        name,
+        format!("/tmp/{}.gguf", name),
+        "llama",
+        params,
+        quant,
+        0,
+        2048,
+    )
 }
 
 fn sample_onnx(name: &str, params: f32) -> OnnxDescriptor {
-    OnnxDescriptor::new(name, format!("/tmp/{}.onnx", name), 17, OnnxPrecision::Int8, 0, params)
+    OnnxDescriptor::new(
+        name,
+        format!("/tmp/{}.onnx", name),
+        17,
+        OnnxPrecision::Int8,
+        0,
+        params,
+    )
 }
 
 #[test]
 fn registry_lists_local_models() {
     let mut reg = ModelRegistry::new();
-    reg.register_gguf("llama-7b-q4", sample_gguf("llama-7b-q4", 7.0, GgufQuantType::Q4_K));
-    reg.register_gguf("llama-7b-q8", sample_gguf("llama-7b-q8", 7.0, GgufQuantType::Q8_0));
+    reg.register_gguf(
+        "llama-7b-q4",
+        sample_gguf("llama-7b-q4", 7.0, GgufQuantType::Q4_K),
+    );
+    reg.register_gguf(
+        "llama-7b-q8",
+        sample_gguf("llama-7b-q8", 7.0, GgufQuantType::Q8_0),
+    );
     reg.register_onnx("bert-int8", sample_onnx("bert-int8", 0.11));
 
     assert_eq!(reg.len(), 3);
@@ -50,7 +71,10 @@ fn registry_list_by_ram_sorted() {
     reg.register_gguf("medium", sample_gguf("medium", 13.0, GgufQuantType::Q8_0));
 
     let sorted = reg.list_by_ram();
-    let rams: Vec<u64> = sorted.iter().map(|(_, e)| e.estimated_ram_bytes()).collect();
+    let rams: Vec<u64> = sorted
+        .iter()
+        .map(|(_, e)| e.estimated_ram_bytes())
+        .collect();
     for i in 1..rams.len() {
         assert!(rams[i] >= rams[i - 1]);
     }

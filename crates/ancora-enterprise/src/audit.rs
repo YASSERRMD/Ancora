@@ -63,14 +63,30 @@ pub struct EnterpriseAuditLog {
 }
 
 impl EnterpriseAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: EnterpriseAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: EnterpriseAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a EnterpriseAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
     pub fn by_action<'a>(&'a self, action: &EnterpriseAction) -> Vec<&'a EnterpriseAuditEntry> {
-        self.entries.iter().filter(|e| &e.action == action).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.action == action)
+            .collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &EnterpriseAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &EnterpriseAuditEntry> {
+        self.entries.iter()
+    }
 }

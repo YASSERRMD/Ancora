@@ -1,5 +1,4 @@
 /// Manages the lifecycle of an experiment: pending, running, stopped, concluded.
-
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// The current state of an experiment.

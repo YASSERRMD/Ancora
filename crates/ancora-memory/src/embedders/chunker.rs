@@ -19,7 +19,10 @@ pub struct FixedSizeChunker {
 impl FixedSizeChunker {
     pub fn new(chunk_size: usize, overlap: usize) -> Self {
         let overlap = overlap.min(chunk_size.saturating_sub(1));
-        Self { chunk_size: chunk_size.max(1), overlap }
+        Self {
+            chunk_size: chunk_size.max(1),
+            overlap,
+        }
     }
 
     /// Split `text` into overlapping word-window chunks.
@@ -34,7 +37,9 @@ impl FixedSizeChunker {
         while start < words.len() {
             let end = (start + self.chunk_size).min(words.len());
             chunks.push(words[start..end].join(" "));
-            if end == words.len() { break; }
+            if end == words.len() {
+                break;
+            }
             start += step;
         }
         chunks
@@ -42,9 +47,10 @@ impl FixedSizeChunker {
 
     /// Chunk multiple documents and return `(doc_index, chunk_text)` pairs.
     pub fn chunk_docs<'a>(&self, docs: &'a [&'a str]) -> Vec<(usize, String)> {
-        docs.iter().enumerate().flat_map(|(i, doc)| {
-            self.chunk(doc).into_iter().map(move |c| (i, c))
-        }).collect()
+        docs.iter()
+            .enumerate()
+            .flat_map(|(i, doc)| self.chunk(doc).into_iter().map(move |c| (i, c)))
+            .collect()
     }
 }
 
@@ -72,15 +78,27 @@ pub struct SemanticChunker {
 
 impl SemanticChunker {
     pub fn paragraph() -> Self {
-        Self { boundary: SemanticBoundary::Paragraph, min_chars: 50, max_chars: 2000 }
+        Self {
+            boundary: SemanticBoundary::Paragraph,
+            min_chars: 50,
+            max_chars: 2000,
+        }
     }
 
     pub fn markdown_header() -> Self {
-        Self { boundary: SemanticBoundary::MarkdownHeader, min_chars: 50, max_chars: 3000 }
+        Self {
+            boundary: SemanticBoundary::MarkdownHeader,
+            min_chars: 50,
+            max_chars: 3000,
+        }
     }
 
     pub fn sentence() -> Self {
-        Self { boundary: SemanticBoundary::Sentence, min_chars: 20, max_chars: 500 }
+        Self {
+            boundary: SemanticBoundary::Sentence,
+            min_chars: 20,
+            max_chars: 500,
+        }
     }
 
     pub fn with_limits(mut self, min_chars: usize, max_chars: usize) -> Self {
@@ -114,7 +132,9 @@ fn split_markdown_headers(text: &str) -> Vec<String> {
             chunks.push(current.trim().to_owned());
             current = String::new();
         }
-        if !current.is_empty() { current.push('\n'); }
+        if !current.is_empty() {
+            current.push('\n');
+        }
         current.push_str(line);
     }
     if !current.trim().is_empty() {
@@ -149,7 +169,9 @@ fn merge_and_trim(mut chunks: Vec<String>, min_chars: usize, max_chars: usize) -
     let mut carry = String::new();
     for chunk in chunks.drain(..) {
         if carry.len() + chunk.len() < min_chars {
-            if !carry.is_empty() { carry.push(' '); }
+            if !carry.is_empty() {
+                carry.push(' ');
+            }
             carry.push_str(&chunk);
         } else {
             if !carry.is_empty() {
@@ -166,28 +188,34 @@ fn merge_and_trim(mut chunks: Vec<String>, min_chars: usize, max_chars: usize) -
         merged.push(carry.trim().to_owned());
     }
     // Trim over-long chunks to max_chars at word boundaries.
-    merged.into_iter().flat_map(|chunk| {
-        if chunk.len() <= max_chars {
-            vec![chunk]
-        } else {
-            let words: Vec<&str> = chunk.split_whitespace().collect();
-            let mut sub_chunks = Vec::new();
-            let mut current = String::new();
-            for word in words {
-                if current.len() + word.len() + 1 > max_chars && !current.is_empty() {
-                    sub_chunks.push(current.trim().to_owned());
-                    current = word.to_owned();
-                } else {
-                    if !current.is_empty() { current.push(' '); }
-                    current.push_str(word);
+    merged
+        .into_iter()
+        .flat_map(|chunk| {
+            if chunk.len() <= max_chars {
+                vec![chunk]
+            } else {
+                let words: Vec<&str> = chunk.split_whitespace().collect();
+                let mut sub_chunks = Vec::new();
+                let mut current = String::new();
+                for word in words {
+                    if current.len() + word.len() + 1 > max_chars && !current.is_empty() {
+                        sub_chunks.push(current.trim().to_owned());
+                        current = word.to_owned();
+                    } else {
+                        if !current.is_empty() {
+                            current.push(' ');
+                        }
+                        current.push_str(word);
+                    }
                 }
+                if !current.trim().is_empty() {
+                    sub_chunks.push(current.trim().to_owned());
+                }
+                sub_chunks
             }
-            if !current.trim().is_empty() {
-                sub_chunks.push(current.trim().to_owned());
-            }
-            sub_chunks
-        }
-    }).filter(|s| !s.is_empty()).collect()
+        })
+        .filter(|s| !s.is_empty())
+        .collect()
 }
 
 // ---- tests ---------------------------------------------------------------
@@ -210,7 +238,7 @@ mod chunker_tests {
     #[test]
     fn fixed_splits_into_multiple_chunks() {
         let c = FixedSizeChunker::new(3, 0);
-        let text = "a b c d e f g";  // 7 words
+        let text = "a b c d e f g"; // 7 words
         let chunks = c.chunk(text);
         assert!(chunks.len() > 1, "chunks: {chunks:?}");
     }
@@ -288,7 +316,10 @@ mod chunker_tests {
         let text = "One.\n\n\n\nTwo.\n\nThree.";
         let c = SemanticChunker::paragraph().with_limits(1, 9999);
         let chunks = c.chunk(text);
-        assert!(chunks.iter().all(|s| !s.is_empty()), "empty chunk found in: {chunks:?}");
+        assert!(
+            chunks.iter().all(|s| !s.is_empty()),
+            "empty chunk found in: {chunks:?}"
+        );
     }
 
     #[test]

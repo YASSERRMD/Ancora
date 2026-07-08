@@ -1,8 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
+use ancora_ffi::error_code::AncorErrorCode;
 use ancora_ffi::runtime::{ancora_free_runtime, ancora_runtime_new};
 use ancora_ffi::version::ancora_version;
-use ancora_ffi::error_code::AncorErrorCode;
 
 fn bench_version_call(c: &mut Criterion) {
     c.bench_function("ffi_ancora_version", |b| {

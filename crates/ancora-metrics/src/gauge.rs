@@ -30,9 +30,17 @@ impl WorkerUtilizationGauge {
     }
 
     pub fn utilization(&self) -> f64 {
-        if self.total == 0 { 0.0 } else { self.busy as f64 / self.total as f64 }
+        if self.total == 0 {
+            0.0
+        } else {
+            self.busy as f64 / self.total as f64
+        }
     }
 
-    pub fn busy(&self) -> u32 { self.busy }
-    pub fn total(&self) -> u32 { self.total }
+    pub fn busy(&self) -> u32 {
+        self.busy
+    }
+    pub fn total(&self) -> u32 {
+        self.total
+    }
 }

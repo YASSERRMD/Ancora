@@ -13,10 +13,21 @@ fn coordination_parity_score_canonical() {
 #[test]
 fn coordination_parity_contract_net_winner() {
     let bids = vec![
-        Bid { agent_id: "a".into(), task_id: "t".into(), score: 0.6 },
-        Bid { agent_id: "b".into(), task_id: "t".into(), score: 0.9 },
+        Bid {
+            agent_id: "a".into(),
+            task_id: "t".into(),
+            score: 0.6,
+        },
+        Bid {
+            agent_id: "b".into(),
+            task_id: "t".into(),
+            score: 0.9,
+        },
     ];
-    assert_eq!(ContractNet::assign(&bids).map(|b| b.agent_id.as_str()), Some("b"));
+    assert_eq!(
+        ContractNet::assign(&bids).map(|b| b.agent_id.as_str()),
+        Some("b")
+    );
 }
 
 #[test]

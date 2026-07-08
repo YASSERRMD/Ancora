@@ -32,10 +32,7 @@ impl VectorStoreKit {
     }
 
     pub fn run<V: VectorStore>(&self, store: &mut V) -> Vec<CheckResult> {
-        vec![
-            self.check_name(store),
-            self.check_upsert_and_search(store),
-        ]
+        vec![self.check_name(store), self.check_upsert_and_search(store)]
     }
 
     fn check_name<V: VectorStore>(&self, store: &V) -> CheckResult {

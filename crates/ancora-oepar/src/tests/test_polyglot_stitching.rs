@@ -1,6 +1,6 @@
 use crate::polyglot::{
-    reference_polyglot_trace, shared_eval_case_ids, SHARED_EVAL_DATASET_ID, stitch_polyglot_trace,
-    A2AContext,
+    reference_polyglot_trace, shared_eval_case_ids, stitch_polyglot_trace, A2AContext,
+    SHARED_EVAL_DATASET_ID,
 };
 use crate::trace_parity::{Language, Span};
 
@@ -48,8 +48,8 @@ fn test_shared_eval_case_ids_count() {
 fn test_stitch_from_manual_contributions() {
     let tid = "trace-manual-001";
     let rust_span = Span::new(tid, "span-r1", "rust.root", Language::Rust);
-    let py_span = Span::new(tid, "span-p1", "python.child", Language::Python)
-        .with_parent("span-r1");
+    let py_span =
+        Span::new(tid, "span-p1", "python.child", Language::Python).with_parent("span-r1");
     let trace = stitch_polyglot_trace(
         tid,
         &[
@@ -59,7 +59,11 @@ fn test_stitch_from_manual_contributions() {
     );
     assert_eq!(trace.span_count(), 2);
     let errors = trace.validate_parent_links();
-    assert!(errors.is_empty(), "unexpected parent link errors: {:?}", errors);
+    assert!(
+        errors.is_empty(),
+        "unexpected parent link errors: {:?}",
+        errors
+    );
 }
 
 #[test]

@@ -1,21 +1,24 @@
 /// Example: Observability helpers for each language SDK.
 ///
 /// Run with: cargo run --example observability_per_lang -p ancora-obssdk
-
 use ancora_obssdk::context::{CostRecord, Span, Trace};
-use ancora_obssdk::eval_helpers::{EvalCriteria, EvalRunner, run_multilang_eval};
-use ancora_obssdk::go_helpers::{GoCostAccessor, GoTraceAccessor};
-use ancora_obssdk::py_helpers::{PyCostAccessor, PyTraceAccessor};
-use ancora_obssdk::ts_helpers::{TsCostAccessor, TsTraceAccessor};
 use ancora_obssdk::dotnet_helpers::{DotnetCostAccessor, DotnetTraceAccessor};
+use ancora_obssdk::eval_helpers::{run_multilang_eval, EvalCriteria, EvalRunner};
+use ancora_obssdk::go_helpers::{GoCostAccessor, GoTraceAccessor};
 use ancora_obssdk::java_helpers::{JavaCostAccessor, JavaTraceAccessor};
-use ancora_obssdk::rs_helpers::{RsCostAccessor, RsTraceAccessor};
 use ancora_obssdk::notebook::NotebookTraceRenderer;
+use ancora_obssdk::py_helpers::{PyCostAccessor, PyTraceAccessor};
+use ancora_obssdk::rs_helpers::{RsCostAccessor, RsTraceAccessor};
+use ancora_obssdk::ts_helpers::{TsCostAccessor, TsTraceAccessor};
 
 fn make_trace(id: &str) -> Trace {
     let mut t = Trace::new(id);
     t.add_span(Span::new("s1", "agent.run", 0).finish(10_000));
-    t.add_span(Span::new("s2", "llm.call", 100).with_parent("s1").finish(9_000));
+    t.add_span(
+        Span::new("s2", "llm.call", 100)
+            .with_parent("s1")
+            .finish(9_000),
+    );
     t
 }
 
@@ -29,7 +32,11 @@ fn main() {
         acc.record_child_span("s2", "s1", "db.query", 100, 4000);
         let mut cost = GoCostAccessor::new();
         cost.record(CostRecord::new("go-trace-001", 200, 100, "claude-3-haiku"));
-        println!("[Go] spans={} total_tokens={}", acc.span_count(), cost.total_tokens());
+        println!(
+            "[Go] spans={} total_tokens={}",
+            acc.span_count(),
+            cost.total_tokens()
+        );
     }
 
     // Python
@@ -38,7 +45,11 @@ fn main() {
         acc.record_span("s1", "fastapi.route", 0, 3000);
         let mut cost = PyCostAccessor::new();
         cost.record(CostRecord::new("py-trace-001", 300, 150, "claude-3-sonnet"));
-        println!("[Python] spans={} summary={}", acc.span_count(), cost.summarize());
+        println!(
+            "[Python] spans={} summary={}",
+            acc.span_count(),
+            cost.summarize()
+        );
     }
 
     // TypeScript
@@ -48,7 +59,12 @@ fn main() {
         let json = acc.to_json_strings();
         let mut cost = TsCostAccessor::new();
         cost.record(CostRecord::new("ts-trace-001", 150, 75, "claude-3-haiku"));
-        println!("[TypeScript] spans={} json_ok={} total_tokens={}", acc.span_count(), !json.is_empty(), cost.total_tokens());
+        println!(
+            "[TypeScript] spans={} json_ok={} total_tokens={}",
+            acc.span_count(),
+            !json.is_empty(),
+            cost.total_tokens()
+        );
     }
 
     // .NET
@@ -56,8 +72,17 @@ fn main() {
         let mut acc = DotnetTraceAccessor::new("dotnet-trace-001");
         acc.start_activity("s1", "MVC.Action", 0, 4000);
         let mut cost = DotnetCostAccessor::new();
-        cost.record(CostRecord::new("dotnet-trace-001", 400, 200, "claude-3-opus"));
-        println!("[.NET] traceparent_prefix=00- spans={} total_tokens={}", acc.span_count(), cost.total_tokens());
+        cost.record(CostRecord::new(
+            "dotnet-trace-001",
+            400,
+            200,
+            "claude-3-opus",
+        ));
+        println!(
+            "[.NET] traceparent_prefix=00- spans={} total_tokens={}",
+            acc.span_count(),
+            cost.total_tokens()
+        );
     }
 
     // Java
@@ -66,8 +91,17 @@ fn main() {
         acc.start_span("s1", "Servlet.doGet", 0, 6000);
         acc.start_child_span("s2", "s1", "JDBC.query", 100, 5000);
         let mut cost = JavaCostAccessor::new();
-        cost.record(CostRecord::new("java-trace-001", 500, 250, "claude-3-sonnet"));
-        println!("[Java] spans={} cost_summary={}", acc.span_count(), cost.to_string());
+        cost.record(CostRecord::new(
+            "java-trace-001",
+            500,
+            250,
+            "claude-3-sonnet",
+        ));
+        println!(
+            "[Java] spans={} cost_summary={}",
+            acc.span_count(),
+            cost.to_string()
+        );
     }
 
     // Rust
@@ -77,7 +111,11 @@ fn main() {
         let mut cost = RsCostAccessor::new();
         cost.record(CostRecord::new("rs-trace-001", 100, 50, "claude-3-haiku"));
         let models: Vec<&str> = cost.iter_models().collect();
-        println!("[Rust] root_dur={:?}ns models={:?}", acc.root_duration_ns(), models);
+        println!(
+            "[Rust] root_dur={:?}ns models={:?}",
+            acc.root_duration_ns(),
+            models
+        );
     }
 
     // Notebook render
@@ -86,7 +124,11 @@ fn main() {
         let renderer = NotebookTraceRenderer::new();
         let plain = renderer.render_plain(&trace);
         let html = renderer.render_html(&trace);
-        println!("\n[Notebook] plain_len={} html_has_table={}", plain.content.len(), html.content.contains("<table>"));
+        println!(
+            "\n[Notebook] plain_len={} html_has_table={}",
+            plain.content.len(),
+            html.content.contains("<table>")
+        );
     }
 
     // Multilang eval
@@ -116,14 +158,20 @@ fn main() {
 
         println!("\n[Eval] results:");
         for lr in &results {
-            println!("  lang={} passed={} score={:.1}", lr.language, lr.result.passed, lr.result.score);
+            println!(
+                "  lang={} passed={} score={:.1}",
+                lr.language, lr.result.passed, lr.result.score
+            );
         }
 
         // Single eval
         let trace = make_trace("single-eval");
         let single_criteria = EvalCriteria::new("single").with_min_spans(1);
         let result = EvalRunner::new().evaluate(&trace, &single_criteria);
-        println!("\n[Single eval] passed={} notes={}", result.passed, result.notes);
+        println!(
+            "\n[Single eval] passed={} notes={}",
+            result.passed, result.notes
+        );
     }
 
     println!("\n=== done ===");

@@ -9,7 +9,11 @@ pub struct ConversationTurn {
 
 impl ConversationTurn {
     pub fn new(role: &str, content: &str, token_count: u32) -> Self {
-        Self { role: role.to_string(), content: content.to_string(), token_count }
+        Self {
+            role: role.to_string(),
+            content: content.to_string(),
+            token_count,
+        }
     }
 }
 
@@ -19,12 +23,19 @@ pub struct ConversationCompressor {
 
 impl ConversationCompressor {
     pub fn new(summary_token_budget: u32) -> Self {
-        Self { summary_token_budget }
+        Self {
+            summary_token_budget,
+        }
     }
 
     /// Compress old turns by dropping middle turns until total fits the budget.
     /// Always keeps the first and last N turns.
-    pub fn compress(&self, turns: Vec<ConversationTurn>, budget: u32, keep_last: usize) -> Vec<ConversationTurn> {
+    pub fn compress(
+        &self,
+        turns: Vec<ConversationTurn>,
+        budget: u32,
+        keep_last: usize,
+    ) -> Vec<ConversationTurn> {
         let total: u32 = turns.iter().map(|t| t.token_count).sum();
         if total <= budget {
             return turns;

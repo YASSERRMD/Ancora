@@ -1,5 +1,5 @@
-use crate::presets::{security_runbook, critical_escalation_policy};
 use crate::incident::Severity;
+use crate::presets::{critical_escalation_policy, security_runbook};
 
 #[test]
 fn security_runbook_has_steps() {

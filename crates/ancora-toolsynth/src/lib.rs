@@ -1,22 +1,22 @@
-pub mod spec;
-pub mod schema_validator;
-pub mod sandbox;
-pub mod permission;
 pub mod approval;
-pub mod registry;
 pub mod audit;
 pub mod cache;
 pub mod error;
+pub mod permission;
+pub mod registry;
+pub mod sandbox;
+pub mod schema_validator;
+pub mod spec;
 
 #[cfg(test)]
 mod tests;
 
-pub use spec::{ToolSpec, EffectClass, spec_from_goal};
-pub use schema_validator::SchemaValidator;
-pub use sandbox::SandboxRunner;
-pub use permission::PermissionScope;
 pub use approval::ApprovalGate;
-pub use registry::SynthRegistry;
-pub use audit::{SynthAudit, AuditEvent, AuditEntry};
+pub use audit::{AuditEntry, AuditEvent, SynthAudit};
 pub use cache::SynthCache;
 pub use error::SynthError;
+pub use permission::PermissionScope;
+pub use registry::SynthRegistry;
+pub use sandbox::SandboxRunner;
+pub use schema_validator::SchemaValidator;
+pub use spec::{spec_from_goal, EffectClass, ToolSpec};

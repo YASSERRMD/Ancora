@@ -3,7 +3,6 @@
 /// .NET / C# extensions reach Ancora through a thin C ABI shim compiled from
 /// a .NET NativeAOT binary.  This module documents and validates that contract
 /// from the Rust side.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
@@ -106,8 +105,7 @@ pub fn canonical_dotnet_interface() -> DotNetInterfaceDescriptor {
 /// Adapter that wraps a .NET extension.
 pub struct DotNetExtensionAdapter {
     meta: ToolMeta,
-    execute_fn:
-        Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
+    execute_fn: Box<dyn Fn(HashMap<String, Value>) -> Result<Value, ExtensionError> + Send + Sync>,
 }
 
 impl DotNetExtensionAdapter {

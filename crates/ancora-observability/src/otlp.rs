@@ -90,7 +90,10 @@ pub fn spans_to_otlp(spans: &[Span]) -> OtlpExportRequest {
             attributes: s
                 .attributes
                 .iter()
-                .map(|(k, v)| OtlpKeyValue { key: k.clone(), value: span_value_to_otlp(v) })
+                .map(|(k, v)| OtlpKeyValue {
+                    key: k.clone(),
+                    value: span_value_to_otlp(v),
+                })
                 .collect(),
         })
         .collect();
@@ -119,13 +122,11 @@ mod tests {
     #[test]
     fn spans_to_otlp_serializes_all_value_types() {
         use std::collections::HashMap;
-        let spans = vec![
-            Span::new("multi")
-                .set("s", "text")
-                .set("i", 42_i64)
-                .set("f", 1.5_f64)
-                .set("b", true),
-        ];
+        let spans = vec![Span::new("multi")
+            .set("s", "text")
+            .set("i", 42_i64)
+            .set("f", 1.5_f64)
+            .set("b", true)];
         let req = spans_to_otlp(&spans);
         let attrs: HashMap<String, _> = req.resource_spans[0].scope_spans[0].spans[0]
             .attributes

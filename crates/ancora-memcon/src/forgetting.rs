@@ -8,7 +8,10 @@ pub struct ForgettingPolicy {
 
 impl ForgettingPolicy {
     pub fn new(min_salience: f64, max_age_secs: u64) -> Self {
-        Self { min_salience, max_age_secs }
+        Self {
+            min_salience,
+            max_age_secs,
+        }
     }
 
     pub fn should_forget(&self, item: &SalienceItem, scorer: &SalienceScorer) -> bool {
@@ -19,6 +22,9 @@ impl ForgettingPolicy {
     }
 
     pub fn prune(&self, items: Vec<SalienceItem>, scorer: &SalienceScorer) -> Vec<SalienceItem> {
-        items.into_iter().filter(|i| !self.should_forget(i, scorer)).collect()
+        items
+            .into_iter()
+            .filter(|i| !self.should_forget(i, scorer))
+            .collect()
     }
 }

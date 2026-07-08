@@ -50,9 +50,16 @@ impl DataRecordBuilder {
 
     pub fn build(self) -> DataRecord {
         let mut r = DataRecord::new(
-            self.id, self.tenant_id, self.name, self.level, self.category, self.created_tick,
+            self.id,
+            self.tenant_id,
+            self.name,
+            self.level,
+            self.category,
+            self.created_tick,
         );
-        for t in self.tags { r = r.with_tag(t); }
+        for t in self.tags {
+            r = r.with_tag(t);
+        }
         r
     }
 }

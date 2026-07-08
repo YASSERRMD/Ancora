@@ -44,11 +44,7 @@ impl GoApp {
         }
     }
 
-    pub fn create_message(
-        &self,
-        role: &str,
-        content: &str,
-    ) -> Result<GoMessage, GoAppError> {
+    pub fn create_message(&self, role: &str, content: &str) -> Result<GoMessage, GoAppError> {
         if content.is_empty() {
             return Err(GoAppError::EmptyContent);
         }

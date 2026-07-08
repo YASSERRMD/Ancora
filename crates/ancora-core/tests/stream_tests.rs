@@ -3,9 +3,17 @@ use ancora_core::stream::{emit_tokens, open_stream, StreamEvent};
 #[test]
 fn open_stream_creates_working_channel() {
     let (tx, rx) = open_stream();
-    tx.send(StreamEvent::RunCompleted { output: "done".into() }).unwrap();
+    tx.send(StreamEvent::RunCompleted {
+        output: "done".into(),
+    })
+    .unwrap();
     let ev = rx.recv().unwrap();
-    assert_eq!(ev, StreamEvent::RunCompleted { output: "done".into() });
+    assert_eq!(
+        ev,
+        StreamEvent::RunCompleted {
+            output: "done".into()
+        }
+    );
 }
 
 #[test]
@@ -59,10 +67,17 @@ fn emit_tokens_on_disconnected_receiver_does_not_panic() {
 fn event_ordering_preserved_in_channel() {
     let (tx, rx) = open_stream();
     let events = vec![
-        StreamEvent::NodeEntered { node_id: "n1".into(), node_kind: "agent".into() },
+        StreamEvent::NodeEntered {
+            node_id: "n1".into(),
+            node_kind: "agent".into(),
+        },
         StreamEvent::Token { text: "tok".into() },
-        StreamEvent::NodeExited { node_id: "n1".into() },
-        StreamEvent::RunCompleted { output: "result".into() },
+        StreamEvent::NodeExited {
+            node_id: "n1".into(),
+        },
+        StreamEvent::RunCompleted {
+            output: "result".into(),
+        },
     ];
     for ev in &events {
         tx.send(ev.clone()).unwrap();
@@ -79,5 +94,10 @@ fn emit_tokens_handles_unicode_multibyte_chars() {
     drop(tx);
     let received: Vec<_> = rx.into_iter().collect();
     assert_eq!(received.len(), 3, "3 chars: 'H', 'i', emoji");
-    assert_eq!(received[2], StreamEvent::Token { text: "\u{1F600}".into() });
+    assert_eq!(
+        received[2],
+        StreamEvent::Token {
+            text: "\u{1F600}".into()
+        }
+    );
 }

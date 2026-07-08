@@ -6,10 +6,22 @@ mod tests {
     fn make_sbom_with_components() -> Sbom {
         let mut sbom = Sbom::new("sbom-find", "tenant-2", SbomFormat::Spdx, 200);
         sbom.add_component(Component::new(
-            "id-alpha", "alpha-lib", "1.0.0", ComponentKind::Library, License::Mit, "vendor-a", "sha256:aa",
+            "id-alpha",
+            "alpha-lib",
+            "1.0.0",
+            ComponentKind::Library,
+            License::Mit,
+            "vendor-a",
+            "sha256:aa",
         ));
         sbom.add_component(Component::new(
-            "id-beta", "beta-lib", "2.0.0", ComponentKind::Framework, License::Apache2, "vendor-b", "sha256:bb",
+            "id-beta",
+            "beta-lib",
+            "2.0.0",
+            ComponentKind::Framework,
+            License::Apache2,
+            "vendor-b",
+            "sha256:bb",
         ));
         sbom
     }

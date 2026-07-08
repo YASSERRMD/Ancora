@@ -1,5 +1,5 @@
-use ancora_examples::RunJournal;
 use ancora_core::journal::{JournalStore, MemoryStore};
+use ancora_examples::RunJournal;
 use ancora_proto::ancora::{
     journal_event::Event, JournalEvent, RunCompletedEvent, RunStartedEvent,
 };

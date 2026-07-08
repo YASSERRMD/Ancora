@@ -6,23 +6,23 @@
 
 #[cfg(test)]
 mod tests {
-    mod planner_determinism;
-    mod reflection_determinism;
-    mod routing_determinism;
-    mod opt_artifact;
-    mod memory_determinism;
-    mod toolsynth_replay;
-    mod skills_replay;
-    mod lh_wakeup_replay;
     mod coord_replay;
-    mod guard_replay;
-    mod reason_replay;
-    mod restart_replay;
-    mod lang_parity;
-    mod no_network;
-    mod divergence;
     mod cost_replay;
-    mod rand_seed;
+    mod divergence;
+    mod guard_replay;
+    mod lang_parity;
+    mod lh_wakeup_replay;
+    mod memory_determinism;
+    mod no_network;
+    mod opt_artifact;
     mod otel_replay;
     mod perf_replay;
+    mod planner_determinism;
+    mod rand_seed;
+    mod reason_replay;
+    mod reflection_determinism;
+    mod restart_replay;
+    mod routing_determinism;
+    mod skills_replay;
+    mod toolsynth_replay;
 }

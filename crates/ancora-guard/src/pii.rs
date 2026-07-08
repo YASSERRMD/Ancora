@@ -1,4 +1,4 @@
-use crate::guardrail::{InputGuardrail, GuardrailOutcome};
+use crate::guardrail::{GuardrailOutcome, InputGuardrail};
 
 const PII_PATTERNS: &[&str] = &["@", "ssn:", "dob:", "credit_card:", "phone:"];
 

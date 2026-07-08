@@ -4,7 +4,6 @@
 /// sequence point.  It surfaces the current state string, the most recent
 /// LLM exchange, and the most recent tool invocation without requiring
 /// callers to walk the journal themselves.
-
 use std::collections::HashMap;
 
 use crate::loader::{EntryKind, Journal, JournalEntry, Seq};
@@ -54,7 +53,10 @@ impl<'j> Inspector<'j> {
         for i in (0..=limit).rev() {
             if let Some(entry) = self.journal.entry_at(Seq(i)) {
                 if let EntryKind::StateChange { to, .. } = &entry.kind {
-                    return Some(StateSnapshot { seq: Seq(i), state: to.clone() });
+                    return Some(StateSnapshot {
+                        seq: Seq(i),
+                        state: to.clone(),
+                    });
                 }
             }
         }
@@ -83,7 +85,12 @@ impl<'j> Inspector<'j> {
         let limit = seq.0.min(self.journal.len() as u64 - 1);
         for i in (0..=limit).rev() {
             if let Some(entry) = self.journal.entry_at(Seq(i)) {
-                if let EntryKind::ToolCall { tool_name, args, output } = &entry.kind {
+                if let EntryKind::ToolCall {
+                    tool_name,
+                    args,
+                    output,
+                } = &entry.kind
+                {
                     return Some(ToolSnapshot {
                         seq: Seq(i),
                         tool_name: tool_name.clone(),
@@ -102,7 +109,10 @@ impl<'j> Inspector<'j> {
         F: Fn(&JournalEntry) -> bool,
     {
         let limit = (seq.0 as usize + 1).min(self.journal.len());
-        self.journal.entries()[..limit].iter().filter(|e| predicate(e)).collect()
+        self.journal.entries()[..limit]
+            .iter()
+            .filter(|e| predicate(e))
+            .collect()
     }
 
     /// Return all LLM exchanges in the journal up to `seq`.
@@ -130,7 +140,12 @@ impl<'j> Inspector<'j> {
         self.journal.entries()[..limit]
             .iter()
             .filter_map(|e| {
-                if let EntryKind::ToolCall { tool_name, args, output } = &e.kind {
+                if let EntryKind::ToolCall {
+                    tool_name,
+                    args,
+                    output,
+                } = &e.kind
+                {
                     Some(ToolSnapshot {
                         seq: e.seq,
                         tool_name: tool_name.clone(),
@@ -158,7 +173,10 @@ mod tests {
             JournalEntry::new(
                 RunId::new("r1"),
                 0,
-                EntryKind::StateChange { from: "init".into(), to: "planning".into() },
+                EntryKind::StateChange {
+                    from: "init".into(),
+                    to: "planning".into(),
+                },
             ),
             JournalEntry::new(
                 RunId::new("r1"),
@@ -180,7 +198,10 @@ mod tests {
             JournalEntry::new(
                 RunId::new("r1"),
                 3,
-                EntryKind::StateChange { from: "planning".into(), to: "executing".into() },
+                EntryKind::StateChange {
+                    from: "planning".into(),
+                    to: "executing".into(),
+                },
             ),
         ];
         load_journal(entries).unwrap()

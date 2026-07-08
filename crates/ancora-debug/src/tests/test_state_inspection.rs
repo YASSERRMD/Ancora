@@ -1,5 +1,4 @@
 /// test_state_inspection.rs - Verify that the inspector returns accurate state.
-
 use std::collections::HashMap;
 
 use crate::inspector::Inspector;
@@ -13,7 +12,10 @@ fn make_journal() -> crate::loader::Journal {
         JournalEntry::new(
             RunId::new("r-insp"),
             0,
-            EntryKind::StateChange { from: "boot".into(), to: "idle".into() },
+            EntryKind::StateChange {
+                from: "boot".into(),
+                to: "idle".into(),
+            },
         ),
         JournalEntry::new(
             RunId::new("r-insp"),
@@ -35,7 +37,10 @@ fn make_journal() -> crate::loader::Journal {
         JournalEntry::new(
             RunId::new("r-insp"),
             3,
-            EntryKind::StateChange { from: "idle".into(), to: "working".into() },
+            EntryKind::StateChange {
+                from: "idle".into(),
+                to: "working".into(),
+            },
         ),
         JournalEntry::new(
             RunId::new("r-insp"),
@@ -48,7 +53,10 @@ fn make_journal() -> crate::loader::Journal {
         JournalEntry::new(
             RunId::new("r-insp"),
             5,
-            EntryKind::StateChange { from: "working".into(), to: "done".into() },
+            EntryKind::StateChange {
+                from: "working".into(),
+                to: "done".into(),
+            },
         ),
     ];
     load_journal(entries).unwrap()

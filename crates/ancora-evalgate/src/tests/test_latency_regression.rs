@@ -31,5 +31,8 @@ fn latency_within_threshold_does_not_block() {
     let results = check_latency(&[200.0], &[220.0], &config);
     assert_eq!(results.len(), 1);
     assert!(!results[0].is_blocking());
-    assert!(matches!(results[0].regression, RegressionResult::WithinThreshold { .. }));
+    assert!(matches!(
+        results[0].regression,
+        RegressionResult::WithinThreshold { .. }
+    ));
 }

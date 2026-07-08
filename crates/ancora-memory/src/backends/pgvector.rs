@@ -19,10 +19,14 @@ pub struct PgConfig {
 
 impl PgConfig {
     pub fn new(url: impl Into<String>) -> Self {
-        Self { url: url.into(), pool_size: 5 }
+        Self {
+            url: url.into(),
+            pool_size: 5,
+        }
     }
     pub fn with_pool_size(mut self, n: u32) -> Self {
-        self.pool_size = n; self
+        self.pool_size = n;
+        self
     }
 }
 
@@ -57,14 +61,21 @@ impl HnswParams {
             return Err(format!("m={m} out of range [2, 100]"));
         }
         if !(4..=1000).contains(&ef_construct) {
-            return Err(format!("ef_construct={ef_construct} out of range [4, 1000]"));
+            return Err(format!(
+                "ef_construct={ef_construct} out of range [4, 1000]"
+            ));
         }
         Ok(Self { m, ef_construct })
     }
 }
 
 impl Default for HnswParams {
-    fn default() -> Self { Self { m: 16, ef_construct: 100 } }
+    fn default() -> Self {
+        Self {
+            m: 16,
+            ef_construct: 100,
+        }
+    }
 }
 
 /// Generate an HNSW index creation statement for cosine similarity.
@@ -82,7 +93,8 @@ pub fn create_hnsw_index_with_ops_sql(table: &str, params: &HnswParams, ops: &st
         "CREATE INDEX IF NOT EXISTS {table}_embedding_idx \
          ON {table} USING hnsw (embedding {ops}) \
          WITH (m = {m}, ef_construction = {ef_construct});",
-        m = params.m, ef_construct = params.ef_construct
+        m = params.m,
+        ef_construct = params.ef_construct
     )
 }
 
@@ -97,9 +109,15 @@ pub struct IvfFlatParams {
 
 impl IvfFlatParams {
     pub fn new(lists: u32, probes: u32) -> Result<Self, String> {
-        if lists == 0 { return Err("lists must be >= 1".to_owned()); }
-        if probes == 0 { return Err("probes must be >= 1".to_owned()); }
-        if probes > lists { return Err(format!("probes({probes}) > lists({lists}) is wasteful")); }
+        if lists == 0 {
+            return Err("lists must be >= 1".to_owned());
+        }
+        if probes == 0 {
+            return Err("probes must be >= 1".to_owned());
+        }
+        if probes > lists {
+            return Err(format!("probes({probes}) > lists({lists}) is wasteful"));
+        }
         Ok(Self { lists, probes })
     }
 
@@ -112,7 +130,12 @@ impl IvfFlatParams {
 }
 
 impl Default for IvfFlatParams {
-    fn default() -> Self { Self { lists: 100, probes: 10 } }
+    fn default() -> Self {
+        Self {
+            lists: 100,
+            probes: 10,
+        }
+    }
 }
 
 /// Generate an IVF-Flat index creation statement.
@@ -159,7 +182,9 @@ pub fn sanitize_identifier(name: &str) -> Result<&str, String> {
     if name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
         Ok(name)
     } else {
-        Err(format!("invalid identifier `{name}`: only [a-zA-Z0-9_] allowed"))
+        Err(format!(
+            "invalid identifier `{name}`: only [a-zA-Z0-9_] allowed"
+        ))
     }
 }
 
@@ -346,7 +371,9 @@ pub fn metric_query_sql(metric: &str, table: &str, limit: usize, offset: usize) 
 /// After the COPY completes, a MERGE or INSERT ON CONFLICT must reconcile
 /// the staging table with the main table.
 pub fn copy_into_staging_sql(staging: &str) -> String {
-    format!("COPY {staging} (id, embedding, payload) FROM STDIN WITH (FORMAT text, DELIMITER E'\\t');")
+    format!(
+        "COPY {staging} (id, embedding, payload) FROM STDIN WITH (FORMAT text, DELIMITER E'\\t');"
+    )
 }
 
 /// Generate the staging table DDL that mirrors a collection's schema.
@@ -373,7 +400,9 @@ pub fn encode_copy_row(id: i64, embedding: &[f32], payload_json: &str) -> String
 
 /// Split a large upsert payload into batches of at most `batch_size` points.
 pub fn split_into_batches<T: Clone>(items: Vec<T>, batch_size: usize) -> Vec<Vec<T>> {
-    if batch_size == 0 { return vec![items]; }
+    if batch_size == 0 {
+        return vec![items];
+    }
     items.chunks(batch_size).map(|c| c.to_vec()).collect()
 }
 
@@ -387,10 +416,7 @@ pub fn delete_by_ids_sql(table: &str, count: usize) -> String {
 ///
 /// Returns the SQL and the bound params from the filter. The RETURNING clause
 /// lets the caller count deleted rows without an extra SELECT.
-pub fn delete_by_filter_sql(
-    table: &str,
-    filter: &Filter,
-) -> (String, Vec<FilterParam>) {
+pub fn delete_by_filter_sql(table: &str, filter: &Filter) -> (String, Vec<FilterParam>) {
     let (where_fragment, params) = filter_to_sql(filter, 0);
     let sql = if where_fragment.is_empty() {
         format!("DELETE FROM {table} RETURNING id;")
@@ -484,16 +510,12 @@ pub fn insert_journal_sql(journal: &str) -> String {
 
 /// Generate the SQL that checks if an idempotency key has already been processed.
 pub fn check_journal_sql(journal: &str) -> String {
-    format!(
-        "SELECT row_count FROM {journal} WHERE idempotency_key = $1;"
-    )
+    format!("SELECT row_count FROM {journal} WHERE idempotency_key = $1;")
 }
 
 /// Generate a cleanup statement that removes journal entries older than an interval.
 pub fn purge_journal_sql(journal: &str) -> String {
-    format!(
-        "DELETE FROM {journal} WHERE committed_at < NOW() - $1::interval;"
-    )
+    format!("DELETE FROM {journal} WHERE committed_at < NOW() - $1::interval;")
 }
 
 // ---- filter-to-SQL mapping -----------------------------------------------
@@ -506,7 +528,9 @@ use crate::vector_store::{Filter, PayloadValue};
 /// for any realistic agent memory query.
 pub fn validate_filter_depth(filter: &Filter) -> Result<(), String> {
     fn depth(f: &Filter, n: u8) -> Result<u8, String> {
-        if n > 16 { return Err("filter exceeds maximum nesting depth (16)".to_owned()); }
+        if n > 16 {
+            return Err("filter exceeds maximum nesting depth (16)".to_owned());
+        }
         match f {
             Filter::And(a, b) | Filter::Or(a, b) => {
                 let da = depth(a, n + 1)?;
@@ -582,7 +606,12 @@ fn filter_to_sql_inner(filter: &Filter, offset: usize) -> (String, Vec<FilterPar
     }
 }
 
-fn payload_op(key: &str, op: &str, val: &PayloadValue, offset: usize) -> (String, Vec<FilterParam>) {
+fn payload_op(
+    key: &str,
+    op: &str,
+    val: &PayloadValue,
+    offset: usize,
+) -> (String, Vec<FilterParam>) {
     let idx = offset + 1;
     match val {
         PayloadValue::String(s) => (
@@ -605,7 +634,12 @@ fn payload_op(key: &str, op: &str, val: &PayloadValue, offset: usize) -> (String
     }
 }
 
-fn payload_numeric_op(key: &str, op: &str, val: &PayloadValue, offset: usize) -> (String, Vec<FilterParam>) {
+fn payload_numeric_op(
+    key: &str,
+    op: &str,
+    val: &PayloadValue,
+    offset: usize,
+) -> (String, Vec<FilterParam>) {
     payload_op(key, op, val, offset)
 }
 
@@ -684,20 +718,26 @@ pub struct ThresholdValidator;
 
 impl ThresholdValidator {
     pub fn validate_cosine(threshold: f32) -> Result<(), String> {
-        if (-1.0..=1.0).contains(&threshold) { Ok(()) } else {
+        if (-1.0..=1.0).contains(&threshold) {
+            Ok(())
+        } else {
             Err(format!("cosine threshold={threshold} outside [-1.0, 1.0]"))
         }
     }
 
     pub fn validate_dot(threshold: f32) -> Result<(), String> {
         // dot product is theoretically unbounded, but in practice [0,1] for normalized vecs
-        if threshold.is_finite() { Ok(()) } else {
+        if threshold.is_finite() {
+            Ok(())
+        } else {
             Err("dot threshold must be finite".to_owned())
         }
     }
 
     pub fn validate_l2(threshold: f32) -> Result<(), String> {
-        if (0.0..=1.0).contains(&threshold) { Ok(()) } else {
+        if (0.0..=1.0).contains(&threshold) {
+            Ok(())
+        } else {
             Err(format!("l2 threshold={threshold} outside [0.0, 1.0]"))
         }
     }
@@ -716,7 +756,10 @@ impl ThresholdValidator {
 /// Used when the backend cannot push threshold into SQL (e.g. for the
 /// dot/L2 metrics where the WHERE expression is verbose).
 pub fn apply_threshold(results: Vec<(i64, f32)>, threshold: f32) -> Vec<(i64, f32)> {
-    results.into_iter().filter(|(_, score)| *score >= threshold).collect()
+    results
+        .into_iter()
+        .filter(|(_, score)| *score >= threshold)
+        .collect()
 }
 
 // ---- tests (all offline) ------------------------------------------------
@@ -748,8 +791,14 @@ mod tests {
 
     #[test]
     fn hnsw_params_validation_rejects_out_of_range_ef() {
-        assert!(HnswParams::new(16, 3).is_err(), "ef_construct=3 should fail");
-        assert!(HnswParams::new(16, 1001).is_err(), "ef_construct=1001 should fail");
+        assert!(
+            HnswParams::new(16, 3).is_err(),
+            "ef_construct=3 should fail"
+        );
+        assert!(
+            HnswParams::new(16, 1001).is_err(),
+            "ef_construct=1001 should fail"
+        );
         assert!(HnswParams::new(16, 200).is_ok());
     }
 
@@ -824,7 +873,10 @@ mod tests {
         p.insert("flag".to_owned(), PayloadValue::Bool(true));
         let json = serialize_payload(&p).unwrap();
         let back = deserialize_payload(&json).unwrap();
-        assert_eq!(back.get("name"), Some(&PayloadValue::String("test".to_owned())));
+        assert_eq!(
+            back.get("name"),
+            Some(&PayloadValue::String("test".to_owned()))
+        );
         assert_eq!(back.get("count"), Some(&PayloadValue::Integer(42)));
         assert_eq!(back.get("flag"), Some(&PayloadValue::Bool(true)));
     }
@@ -860,7 +912,10 @@ mod tests {
     #[test]
     fn delete_by_ids_sql_placeholders() {
         let sql = delete_by_ids_sql("docs", 3);
-        assert!(sql.contains("$1") && sql.contains("$2") && sql.contains("$3"), "SQL: {sql}");
+        assert!(
+            sql.contains("$1") && sql.contains("$2") && sql.contains("$3"),
+            "SQL: {sql}"
+        );
     }
 
     #[test]
@@ -1035,7 +1090,10 @@ mod tests {
     #[test]
     fn create_journal_table_has_idempotency_key_primary_key() {
         let sql = create_journal_table_sql("upsert_journal");
-        assert!(sql.contains("idempotency_key TEXT PRIMARY KEY"), "SQL: {sql}");
+        assert!(
+            sql.contains("idempotency_key TEXT PRIMARY KEY"),
+            "SQL: {sql}"
+        );
         assert!(sql.contains("committed_at TIMESTAMPTZ"), "SQL: {sql}");
     }
 
@@ -1071,8 +1129,9 @@ mod tests {
 
     #[test]
     fn filter_to_sql_or_compound() {
-        let f = Filter::Eq("tag".to_owned(), PayloadValue::String("news".to_owned()))
-            .or(Filter::Eq("tag".to_owned(), PayloadValue::String("blog".to_owned())));
+        let f = Filter::Eq("tag".to_owned(), PayloadValue::String("news".to_owned())).or(
+            Filter::Eq("tag".to_owned(), PayloadValue::String("blog".to_owned())),
+        );
         let (sql, params) = filter_to_sql(&f, 0);
         assert!(sql.contains("OR"), "SQL: {sql}");
         assert_eq!(params.len(), 2);

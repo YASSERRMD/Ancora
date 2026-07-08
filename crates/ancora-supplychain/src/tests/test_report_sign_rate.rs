@@ -1,18 +1,32 @@
 #[cfg(test)]
 mod tests {
     use crate::component::{Component, ComponentKind, License};
+    use crate::policy::SupplyChainPolicy;
+    use crate::provenance::ProvenanceStore;
+    use crate::report::SupplyChainReport;
     use crate::sbom::{Sbom, SbomFormat};
     use crate::signature::{ComponentSignature, SignatureAlgorithm, SignatureStore};
-    use crate::provenance::ProvenanceStore;
-    use crate::policy::SupplyChainPolicy;
-    use crate::report::SupplyChainReport;
 
     fn make_component(id: &str) -> Component {
-        Component::new(id, "lib", "1.0.0", ComponentKind::Library, License::Mit, "vendor", "sha256:00")
+        Component::new(
+            id,
+            "lib",
+            "1.0.0",
+            ComponentKind::Library,
+            License::Mit,
+            "vendor",
+            "sha256:00",
+        )
     }
 
     fn make_sig(component_id: &str) -> ComponentSignature {
-        ComponentSignature::new(component_id, SignatureAlgorithm::Ed25519, "signer", "sig", 1000)
+        ComponentSignature::new(
+            component_id,
+            SignatureAlgorithm::Ed25519,
+            "signer",
+            "sig",
+            1000,
+        )
     }
 
     #[test]

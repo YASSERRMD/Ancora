@@ -39,7 +39,13 @@ fn filter_by_severity_works() {
 #[test]
 fn incident_json_contains_required_fields() {
     let mut log = IncidentLog::new(100);
-    log.log(IncidentSeverity::Critical, "policy", "Breach detected", "secret data", None);
+    log.log(
+        IncidentSeverity::Critical,
+        "policy",
+        "Breach detected",
+        "secret data",
+        None,
+    );
     let json = log.to_json();
     assert!(json.contains("CRITICAL"));
     assert!(json.contains("policy"));

@@ -53,7 +53,9 @@ mod tests {
             min_api_version: SemVer::new(1, 0, 0),
             max_api_version: SemVer::new(1, 5, 0),
         };
-        let core = CoreApiVersion { version: SemVer::new(1, 3, 0) };
+        let core = CoreApiVersion {
+            version: SemVer::new(1, 3, 0),
+        };
         assert_eq!(negotiate(&manifest, &core), NegotiationResult::Compatible);
     }
 
@@ -63,7 +65,12 @@ mod tests {
             min_api_version: SemVer::new(1, 0, 0),
             max_api_version: SemVer::new(1, 9, 0),
         };
-        let core = CoreApiVersion { version: SemVer::new(2, 0, 0) };
-        assert_eq!(negotiate(&manifest, &core), NegotiationResult::MajorMismatch);
+        let core = CoreApiVersion {
+            version: SemVer::new(2, 0, 0),
+        };
+        assert_eq!(
+            negotiate(&manifest, &core),
+            NegotiationResult::MajorMismatch
+        );
     }
 }

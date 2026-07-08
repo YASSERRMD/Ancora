@@ -17,7 +17,12 @@ pub struct PublishEntry {
 
 impl PublishEntry {
     /// Construct a minimal unsigned publish entry.
-    pub fn new(name: impl Into<String>, version: Version, payload: Vec<u8>, publisher: impl Into<String>) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        version: Version,
+        payload: Vec<u8>,
+        publisher: impl Into<String>,
+    ) -> Self {
         Self {
             name: name.into(),
             version,

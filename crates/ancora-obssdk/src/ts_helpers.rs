@@ -72,7 +72,9 @@ pub struct TsCostAccessor {
 
 impl TsCostAccessor {
     pub fn new() -> Self {
-        TsCostAccessor { records: Vec::new() }
+        TsCostAccessor {
+            records: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, cost: CostRecord) {

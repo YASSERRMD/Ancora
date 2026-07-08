@@ -1,4 +1,4 @@
-use crate::residency::{Region, ResidencyDeclaration, ResidencyError, enforce_residency};
+use crate::residency::{enforce_residency, Region, ResidencyDeclaration, ResidencyError};
 
 #[test]
 fn eea_extension_allowed_under_eea_policy() {

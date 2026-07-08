@@ -52,23 +52,38 @@ pub struct EvidenceStore {
 }
 
 impl EvidenceStore {
-    pub fn new() -> Self { Self { items: HashMap::new() } }
+    pub fn new() -> Self {
+        Self {
+            items: HashMap::new(),
+        }
+    }
 
     pub fn insert(&mut self, item: EvidenceItem) {
         self.items.insert(item.id.clone(), item);
     }
 
-    pub fn get(&self, id: &str) -> Option<&EvidenceItem> { self.items.get(id) }
-
-    pub fn for_tenant(&self, tenant_id: &str) -> Vec<&EvidenceItem> {
-        self.items.values().filter(|e| e.tenant_id == tenant_id).collect()
+    pub fn get(&self, id: &str) -> Option<&EvidenceItem> {
+        self.items.get(id)
     }
 
-    pub fn count(&self) -> usize { self.items.len() }
+    pub fn for_tenant(&self, tenant_id: &str) -> Vec<&EvidenceItem> {
+        self.items
+            .values()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
+    }
 
-    pub fn all(&self) -> impl Iterator<Item = &EvidenceItem> { self.items.values() }
+    pub fn count(&self) -> usize {
+        self.items.len()
+    }
+
+    pub fn all(&self) -> impl Iterator<Item = &EvidenceItem> {
+        self.items.values()
+    }
 }
 
 impl Default for EvidenceStore {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

@@ -108,7 +108,9 @@ pub struct K8sTemplate {
 impl K8sTemplate {
     pub fn render(config: K8sConfig) -> Result<Self, K8sError> {
         if config.product_name.is_empty() {
-            return Err(K8sError::InvalidConfig("product_name is required".to_string()));
+            return Err(K8sError::InvalidConfig(
+                "product_name is required".to_string(),
+            ));
         }
         if config.image.is_empty() {
             return Err(K8sError::InvalidConfig("image is required".to_string()));

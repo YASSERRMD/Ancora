@@ -1,5 +1,4 @@
 /// HTML and JSON report generation for eval runs.
-
 use crate::aggregate::AggregateMetrics;
 use crate::breakdown::CaseBreakdown;
 use crate::executor::RunId;

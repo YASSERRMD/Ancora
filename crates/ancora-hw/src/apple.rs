@@ -83,10 +83,7 @@ pub fn apple_silicon_tuning(hw: &HardwareProfile) -> Option<AppleSiliconTuning> 
 }
 
 /// Build an Apple Silicon specific `HardwareProfile` for testing or overrides.
-pub fn build_apple_silicon_profile(
-    cpu_cores: u32,
-    total_ram_mib: u64,
-) -> HardwareProfile {
+pub fn build_apple_silicon_profile(cpu_cores: u32, total_ram_mib: u64) -> HardwareProfile {
     HardwareProfile {
         cpu_arch: CpuArch::Aarch64,
         cpu_logical_cores: cpu_cores,

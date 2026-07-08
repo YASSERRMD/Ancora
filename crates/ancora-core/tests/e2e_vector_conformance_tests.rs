@@ -51,7 +51,13 @@ fn fixture_chunks(store: StoreKind) -> Vec<(String, f32)> {
 fn retrieval_json(chunks: &[(String, f32)]) -> String {
     let items: Vec<String> = chunks
         .iter()
-        .map(|(t, s)| format!(r#"{{"text":{},"score":{}}}"#, serde_json::to_string(t).unwrap(), s))
+        .map(|(t, s)| {
+            format!(
+                r#"{{"text":{},"score":{}}}"#,
+                serde_json::to_string(t).unwrap(),
+                s
+            )
+        })
         .collect();
     format!("[{}]", items.join(","))
 }
@@ -172,13 +178,22 @@ fn retrieval_json_parses_to_array_of_length_two() {
     for kind in [StoreKind::LanceDb, StoreKind::PgVector, StoreKind::Qdrant] {
         let json = retrieval_json(&fixture_chunks(kind));
         let v: serde_json::Value = serde_json::from_str(&json).unwrap();
-        assert_eq!(v.as_array().unwrap().len(), 2, "{} JSON array must have 2 elements", kind.label());
+        assert_eq!(
+            v.as_array().unwrap().len(),
+            2,
+            "{} JSON array must have 2 elements",
+            kind.label()
+        );
     }
 }
 
 #[test]
 fn store_labels_are_distinct() {
-    let labels = [StoreKind::LanceDb.label(), StoreKind::PgVector.label(), StoreKind::Qdrant.label()];
+    let labels = [
+        StoreKind::LanceDb.label(),
+        StoreKind::PgVector.label(),
+        StoreKind::Qdrant.label(),
+    ];
     let unique: std::collections::HashSet<&str> = labels.iter().copied().collect();
     assert_eq!(unique.len(), 3);
 }
@@ -191,6 +206,11 @@ fn retrieval_activity_kind_is_retrieval_for_all_stores() {
             .iter()
             .filter(|e| matches!(&e.event, Some(Event::ActivityRecorded(a)) if a.activity_kind == "retrieval"))
             .collect();
-        assert_eq!(retrieval.len(), 1, "{} must have exactly one retrieval activity", kind.label());
+        assert_eq!(
+            retrieval.len(),
+            1,
+            "{} must have exactly one retrieval activity",
+            kind.label()
+        );
     }
 }

@@ -1,8 +1,8 @@
 /// Integration test: runs all per-language observability accessors end-to-end.
 ///
 /// Run with: cargo run --example test_observability_examples -p ancora-obssdk
-
 use ancora_obssdk::context::{CostRecord, Span, Trace};
+use ancora_obssdk::dotnet_helpers::DotnetTraceAccessor;
 use ancora_obssdk::eval_helpers::{EvalCriteria, EvalRunner};
 use ancora_obssdk::go_helpers::GoTraceAccessor;
 use ancora_obssdk::java_helpers::JavaTraceAccessor;
@@ -10,7 +10,6 @@ use ancora_obssdk::notebook::NotebookTraceRenderer;
 use ancora_obssdk::py_helpers::PyTraceAccessor;
 use ancora_obssdk::rs_helpers::RsTraceAccessor;
 use ancora_obssdk::ts_helpers::TsTraceAccessor;
-use ancora_obssdk::dotnet_helpers::DotnetTraceAccessor;
 
 fn check(label: &str, ok: bool) {
     if ok {
@@ -54,7 +53,10 @@ fn main() {
     {
         let mut acc = DotnetTraceAccessor::new("dotnet-ex-t1");
         acc.start_activity("s1", "Controller.Action", 0, 2000);
-        check("dotnet: traceparent prefix", acc.traceparent().starts_with("00-"));
+        check(
+            "dotnet: traceparent prefix",
+            acc.traceparent().starts_with("00-"),
+        );
         check("dotnet: span count == 1", acc.span_count() == 1);
     }
 
@@ -90,7 +92,9 @@ fn main() {
     {
         let mut trace = Trace::new("eval-ex-t1");
         trace.add_span(Span::new("s1", "agent.run", 0).finish(500));
-        let criteria = EvalCriteria::new("basic").with_min_spans(1).with_required_span("agent.run");
+        let criteria = EvalCriteria::new("basic")
+            .with_min_spans(1)
+            .with_required_span("agent.run");
         let result = EvalRunner::new().evaluate(&trace, &criteria);
         check("eval: passed", result.passed);
         check("eval: score 1.0", (result.score - 1.0).abs() < f64::EPSILON);

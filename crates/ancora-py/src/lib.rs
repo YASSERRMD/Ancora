@@ -15,5 +15,4 @@ fn _ancora(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_version, m)?)?;
     m.add("AncorError", m.py().get_type_bound::<AncorError>())?;
     Ok(())
-
 }

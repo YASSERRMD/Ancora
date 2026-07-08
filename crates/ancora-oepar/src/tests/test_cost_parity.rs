@@ -1,9 +1,13 @@
-use crate::cost_parity::{reference_cost_record, check_cost_parity, REQUIRED_COST_ATTRS};
+use crate::cost_parity::{check_cost_parity, reference_cost_record, REQUIRED_COST_ATTRS};
 
 #[test]
 fn test_reference_cost_record_is_complete() {
     let record = reference_cost_record("rust");
-    assert!(record.is_complete(), "cost record missing: {:?}", record.missing_attributes());
+    assert!(
+        record.is_complete(),
+        "cost record missing: {:?}",
+        record.missing_attributes()
+    );
 }
 
 #[test]
@@ -35,6 +39,8 @@ fn test_total_cost_equals_sum_of_parts() {
     assert!(
         (input + output - total).abs() < 1e-9,
         "total cost should equal input+output: {} + {} != {}",
-        input, output, total
+        input,
+        output,
+        total
     );
 }

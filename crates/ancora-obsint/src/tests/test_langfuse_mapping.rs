@@ -1,6 +1,4 @@
-use crate::langfuse::{
-    extract_trace_id, map_span_to_observation, LangfuseConfig, ObservationKind,
-};
+use crate::langfuse::{extract_trace_id, map_span_to_observation, LangfuseConfig, ObservationKind};
 use crate::otlp::OtlpSpan;
 
 #[test]
@@ -42,7 +40,8 @@ fn test_span_to_observation_duration_some() {
 #[test]
 fn test_extract_trace_id_from_attribute() {
     let mut span = OtlpSpan::new("s", [0u8; 16], [0u8; 8]);
-    span.attributes.push(("langfuse.trace_id".to_string(), "custom-id".to_string()));
+    span.attributes
+        .push(("langfuse.trace_id".to_string(), "custom-id".to_string()));
     assert_eq!(extract_trace_id(&span), "custom-id");
 }
 

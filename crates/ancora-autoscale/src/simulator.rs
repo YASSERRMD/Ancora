@@ -21,12 +21,14 @@ impl Simulator {
     }
 
     /// Feed one metrics snapshot and record the decision.
-    pub fn tick(&mut self, queue_depth: usize, active_runs: usize, concurrency: usize) -> &ScaleDecision {
-        let utilization = AutoscaleMetrics::compute_utilization(
-            active_runs,
-            self.current_workers,
-            concurrency,
-        );
+    pub fn tick(
+        &mut self,
+        queue_depth: usize,
+        active_runs: usize,
+        concurrency: usize,
+    ) -> &ScaleDecision {
+        let utilization =
+            AutoscaleMetrics::compute_utilization(active_runs, self.current_workers, concurrency);
         let m = AutoscaleMetrics {
             queue_depth,
             worker_count: self.current_workers,

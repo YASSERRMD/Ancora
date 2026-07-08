@@ -7,7 +7,11 @@ pub struct ContextBudget {
 
 impl ContextBudget {
     pub fn new(max_tokens: u32, system_tokens: u32) -> Self {
-        Self { max_tokens, system_tokens, used_tokens: system_tokens }
+        Self {
+            max_tokens,
+            system_tokens,
+            used_tokens: system_tokens,
+        }
     }
 
     pub fn remaining(&self) -> u32 {

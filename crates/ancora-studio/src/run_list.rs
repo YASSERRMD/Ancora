@@ -108,7 +108,10 @@ mod tests {
     #[test]
     fn test_filter_by_query() {
         let list = sample_runs();
-        let f = RunListFilter { query: "alpha".into(), ..Default::default() };
+        let f = RunListFilter {
+            query: "alpha".into(),
+            ..Default::default()
+        };
         let results = list.filter(&f);
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].id, "r1");
@@ -117,7 +120,10 @@ mod tests {
     #[test]
     fn test_filter_by_status() {
         let list = sample_runs();
-        let f = RunListFilter { status: Some(RunStatus::Failed), ..Default::default() };
+        let f = RunListFilter {
+            status: Some(RunStatus::Failed),
+            ..Default::default()
+        };
         let results = list.filter(&f);
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].id, "r2");

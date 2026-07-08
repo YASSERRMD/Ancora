@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::signature::{ComponentSignature, SignatureAlgorithm, SignatureStore, VerificationResult};
+    use crate::signature::{
+        ComponentSignature, SignatureAlgorithm, SignatureStore, VerificationResult,
+    };
 
     fn make_sig(component_id: &str, signature: &str) -> ComponentSignature {
         ComponentSignature::new(

@@ -1,6 +1,4 @@
-use crate::descriptor::{
-    AirGapPolicy, Capability, PresetDescriptor, ResidencyConstraint,
-};
+use crate::descriptor::{AirGapPolicy, Capability, PresetDescriptor, ResidencyConstraint};
 
 /// Research-assistant preset.
 ///

@@ -33,7 +33,10 @@ impl SuiteStatus {
     pub fn summary(&self) -> String {
         match &self.result {
             SuiteResult::Green => format!("{}: GREEN", self.name),
-            SuiteResult::Failed { failed_count, total } => {
+            SuiteResult::Failed {
+                failed_count,
+                total,
+            } => {
                 format!("{}: FAILED ({}/{})", self.name, failed_count, total)
             }
         }
@@ -58,7 +61,13 @@ mod tests {
 
     #[test]
     fn failed_status_not_green() {
-        let s = SuiteStatus::new("eval-suite", SuiteResult::Failed { failed_count: 2, total: 20 });
+        let s = SuiteStatus::new(
+            "eval-suite",
+            SuiteResult::Failed {
+                failed_count: 2,
+                total: 20,
+            },
+        );
         assert!(!s.is_green());
         assert!(s.summary().contains("FAILED"));
     }
@@ -76,7 +85,13 @@ mod tests {
     fn milestone_not_green_if_any_fail() {
         let statuses = vec![
             SuiteStatus::new("a", SuiteResult::Green),
-            SuiteStatus::new("b", SuiteResult::Failed { failed_count: 1, total: 5 }),
+            SuiteStatus::new(
+                "b",
+                SuiteResult::Failed {
+                    failed_count: 1,
+                    total: 5,
+                },
+            ),
         ];
         assert!(!milestone_green(&statuses));
     }

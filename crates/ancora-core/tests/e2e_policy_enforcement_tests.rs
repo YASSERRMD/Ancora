@@ -26,14 +26,22 @@ fn ev(seq: u64, run_id: &str, event: Event) -> JournalEvent {
 
 fn policy_blocked_journal(run_id: &str, reason: &str) -> Vec<JournalEvent> {
     vec![
-        ev(0, run_id, Event::RunStarted(RunStartedEvent {
-            run_id: run_id.to_owned(),
-            spec_bytes: vec![],
-            spec_type: "AgentSpec".into(),
-        })),
-        ev(1, run_id, Event::RunCancelled(RunCancelledEvent {
-            reason: reason.to_owned(),
-        })),
+        ev(
+            0,
+            run_id,
+            Event::RunStarted(RunStartedEvent {
+                run_id: run_id.to_owned(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".into(),
+            }),
+        ),
+        ev(
+            1,
+            run_id,
+            Event::RunCancelled(RunCancelledEvent {
+                reason: reason.to_owned(),
+            }),
+        ),
     ]
 }
 
@@ -111,7 +119,11 @@ fn policy_blocked_journal_replays_without_completed_status() {
     let run_id = "policy-blocked";
     let events = policy_blocked_journal(run_id, "eu-residency violation");
     let state = replay_events(run_id, &events).unwrap();
-    assert_ne!(state.run.status, RunStatus::Completed, "blocked run must not show Completed");
+    assert_ne!(
+        state.run.status,
+        RunStatus::Completed,
+        "blocked run must not show Completed"
+    );
 }
 
 #[test]
@@ -129,7 +141,11 @@ fn policy_blocked_journal_stores_without_error() {
 
 #[test]
 fn nondeterminism_is_terminal_error_class() {
-    let err = AncoraError::Nondeterminism { seq: 3, expected: "a".into(), got: "b".into() };
+    let err = AncoraError::Nondeterminism {
+        seq: 3,
+        expected: "a".into(),
+        got: "b".into(),
+    };
     assert_eq!(classify(&err), ErrorClass::Terminal);
 }
 
@@ -139,7 +155,10 @@ fn policy_error_message_preserved_in_cancelled_event() {
     let events = policy_blocked_journal("policy-msg", reason);
 
     if let Some(Event::RunCancelled(c)) = &events[1].event {
-        assert_eq!(c.reason, reason, "cancelled event must preserve policy reason");
+        assert_eq!(
+            c.reason, reason,
+            "cancelled event must preserve policy reason"
+        );
     } else {
         panic!("second event must be RunCancelled");
     }

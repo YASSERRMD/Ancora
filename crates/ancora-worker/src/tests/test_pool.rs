@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
+    use crate::lifecycle::run_to_idle;
+    use crate::pool::WorkerPool;
     use ancora_controlplane::model::RunPriority;
     use ancora_controlplane::store::ControlPlaneStore;
-    use crate::pool::WorkerPool;
-    use crate::lifecycle::run_to_idle;
 
     fn make_pool(worker_count: usize) -> WorkerPool {
         let mut store = ControlPlaneStore::new();
@@ -31,7 +31,10 @@ mod tests {
         }
         let results = pool.tick();
         let claimed: usize = results.iter().filter(|r| matches!(r, Ok(Some(_)))).count();
-        assert!(claimed <= 1, "at most one worker should execute a single run");
+        assert!(
+            claimed <= 1,
+            "at most one worker should execute a single run"
+        );
     }
 
     #[test]
@@ -47,7 +50,11 @@ mod tests {
         store.workers.get_mut(&worker.id).unwrap().lease_expires_at =
             Some(Utc::now() - Duration::seconds(1));
         store.expire_leases();
-        assert_eq!(store.queue_depth(), 1, "expired lease should requeue the run");
+        assert_eq!(
+            store.queue_depth(),
+            1,
+            "expired lease should requeue the run"
+        );
         drop(run);
     }
 }

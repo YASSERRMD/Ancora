@@ -1,5 +1,4 @@
 /// Adapter end-to-end: framework adapter that imports tools from plugins.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]

@@ -1,9 +1,7 @@
 /// Tests for the ONNX Runtime integration.
-
 use crate::model::{CompletionRequest, EngineKind};
 use crate::onnx::{
-    ExecutionProvider, MockOnnxSession, OnnxEngine, OnnxError, OnnxSession,
-    OnnxSessionConfig,
+    ExecutionProvider, MockOnnxSession, OnnxEngine, OnnxError, OnnxSession, OnnxSessionConfig,
 };
 
 struct AlwaysFailSession;
@@ -61,10 +59,8 @@ fn onnx_engine_fail_session() {
 
 #[test]
 fn onnx_session_config_providers() {
-    let sc = OnnxSessionConfig::new("/model.onnx").with_providers(vec![
-        ExecutionProvider::Cuda,
-        ExecutionProvider::Cpu,
-    ]);
+    let sc = OnnxSessionConfig::new("/model.onnx")
+        .with_providers(vec![ExecutionProvider::Cuda, ExecutionProvider::Cpu]);
     assert_eq!(sc.providers[0], ExecutionProvider::Cuda);
     assert_eq!(sc.providers[1], ExecutionProvider::Cpu);
 }

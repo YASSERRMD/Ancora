@@ -29,8 +29,14 @@ fn make_backend_journal(run_id: &str, backend: &str) -> Vec<JournalEvent> {
             event: Some(Event::ActivityRecorded(ActivityRecordedEvent {
                 activity_key: format!("retrieve-{}", backend),
                 activity_kind: "retrieval".into(),
-                input_json: format!(r#"{{"query":"backend select","top_k":1,"backend":"{}","selected_by":"config"}}"#, backend),
-                result_json: format!(r#"[{{"text":"{} result","score":0.90,"backend":"{}"}}]"#, backend, backend),
+                input_json: format!(
+                    r#"{{"query":"backend select","top_k":1,"backend":"{}","selected_by":"config"}}"#,
+                    backend
+                ),
+                result_json: format!(
+                    r#"[{{"text":"{} result","score":0.90,"backend":"{}"}}]"#,
+                    backend, backend
+                ),
                 replayed: false,
             })),
         },
@@ -56,9 +62,16 @@ fn all_backends_replay_to_completed() {
         let run_id = format!("bs-{}", backend);
         let events = make_backend_journal(&run_id, backend);
         let store = MemoryStore::new();
-        for ev in &events { store.append(&run_id, ev.clone()).unwrap(); }
+        for ev in &events {
+            store.append(&run_id, ev.clone()).unwrap();
+        }
         let state = replay_events(&run_id, &store.read(&run_id).unwrap()).unwrap();
-        assert_eq!(state.run.status, RunStatus::Completed, "failed for backend {}", backend);
+        assert_eq!(
+            state.run.status,
+            RunStatus::Completed,
+            "failed for backend {}",
+            backend
+        );
     }
 }
 
@@ -68,8 +81,16 @@ fn all_backends_selected_by_config() {
         let run_id = format!("bs2-{}", backend);
         let events = make_backend_journal(&run_id, backend);
         if let Some(Event::ActivityRecorded(a)) = &events[1].event {
-            assert!(a.input_json.contains("selected_by"), "no selected_by for {}", backend);
-            assert!(a.input_json.contains("config"), "not config for {}", backend);
+            assert!(
+                a.input_json.contains("selected_by"),
+                "no selected_by for {}",
+                backend
+            );
+            assert!(
+                a.input_json.contains("config"),
+                "not config for {}",
+                backend
+            );
         }
     }
 }
@@ -80,7 +101,12 @@ fn all_backends_activity_key_matches_backend() {
         let run_id = format!("bs3-{}", backend);
         let events = make_backend_journal(&run_id, backend);
         if let Some(Event::ActivityRecorded(a)) = &events[1].event {
-            assert!(a.activity_key.contains(backend), "key {} does not contain {}", a.activity_key, backend);
+            assert!(
+                a.activity_key.contains(backend),
+                "key {} does not contain {}",
+                a.activity_key,
+                backend
+            );
         }
     }
 }
@@ -91,7 +117,11 @@ fn all_backends_result_carries_backend_field() {
         let run_id = format!("bs4-{}", backend);
         let events = make_backend_journal(&run_id, backend);
         if let Some(Event::ActivityRecorded(a)) = &events[1].event {
-            assert!(a.result_json.contains(*backend), "result does not mention {}", backend);
+            assert!(
+                a.result_json.contains(*backend),
+                "result does not mention {}",
+                backend
+            );
         }
     }
 }

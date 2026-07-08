@@ -1,5 +1,4 @@
 /// Conformance kit for plugin extensions.
-
 use std::collections::HashMap;
 
 /// Lifecycle events a plugin must handle.

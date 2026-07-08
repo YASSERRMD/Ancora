@@ -14,11 +14,7 @@ pub mod field {
 ///
 /// Fields: `run.id`, `run.agent`.
 pub fn run_span(run_id: &str, agent_name: &str) -> Span {
-    tracing::info_span!(
-        "ancora.run",
-        run.id = run_id,
-        run.agent = agent_name,
-    )
+    tracing::info_span!("ancora.run", run.id = run_id, run.agent = agent_name,)
 }
 
 /// Opens a span for a single graph node execution within a run.
@@ -75,9 +71,7 @@ mod tests {
     }
 
     fn setup_subscriber() {
-        let _ = tracing_subscriber::fmt()
-            .with_test_writer()
-            .try_init();
+        let _ = tracing_subscriber::fmt().with_test_writer().try_init();
     }
 
     #[test]
@@ -85,8 +79,14 @@ mod tests {
         setup_subscriber();
         let span = run_span("run-abc", "my-agent");
         let fields = field_names(&span);
-        assert!(fields.contains(&field::RUN_ID.to_string()), "missing run.id");
-        assert!(fields.contains(&field::RUN_AGENT.to_string()), "missing run.agent");
+        assert!(
+            fields.contains(&field::RUN_ID.to_string()),
+            "missing run.id"
+        );
+        assert!(
+            fields.contains(&field::RUN_AGENT.to_string()),
+            "missing run.agent"
+        );
     }
 
     #[test]
@@ -94,9 +94,18 @@ mod tests {
         setup_subscriber();
         let span = node_span("run-abc", "plan", 3);
         let fields = field_names(&span);
-        assert!(fields.contains(&field::RUN_ID.to_string()), "missing run.id");
-        assert!(fields.contains(&field::NODE_NAME.to_string()), "missing node.name");
-        assert!(fields.contains(&field::NODE_SEQ.to_string()), "missing node.seq");
+        assert!(
+            fields.contains(&field::RUN_ID.to_string()),
+            "missing run.id"
+        );
+        assert!(
+            fields.contains(&field::NODE_NAME.to_string()),
+            "missing node.name"
+        );
+        assert!(
+            fields.contains(&field::NODE_SEQ.to_string()),
+            "missing node.seq"
+        );
     }
 
     #[test]
@@ -104,16 +113,31 @@ mod tests {
         setup_subscriber();
         let span = activity_span("run-abc", "model_call", 5);
         let fields = field_names(&span);
-        assert!(fields.contains(&field::RUN_ID.to_string()), "missing run.id");
-        assert!(fields.contains(&field::ACTIVITY_KIND.to_string()), "missing activity.kind");
-        assert!(fields.contains(&field::ACTIVITY_SEQ.to_string()), "missing activity.seq");
+        assert!(
+            fields.contains(&field::RUN_ID.to_string()),
+            "missing run.id"
+        );
+        assert!(
+            fields.contains(&field::ACTIVITY_KIND.to_string()),
+            "missing activity.kind"
+        );
+        assert!(
+            fields.contains(&field::ACTIVITY_SEQ.to_string()),
+            "missing activity.seq"
+        );
     }
 
     #[test]
     fn span_names_are_stable() {
         setup_subscriber();
-        assert_eq!(run_span("x", "y").metadata().map(|m| m.name()), Some("ancora.run"));
-        assert_eq!(node_span("x", "y", 0).metadata().map(|m| m.name()), Some("ancora.node"));
+        assert_eq!(
+            run_span("x", "y").metadata().map(|m| m.name()),
+            Some("ancora.run")
+        );
+        assert_eq!(
+            node_span("x", "y", 0).metadata().map(|m| m.name()),
+            Some("ancora.node")
+        );
         assert_eq!(
             activity_span("x", "y", 0).metadata().map(|m| m.name()),
             Some("ancora.activity")

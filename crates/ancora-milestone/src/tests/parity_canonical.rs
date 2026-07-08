@@ -7,7 +7,14 @@ const EPS: f64 = 1e-9;
 
 #[test]
 fn all_seven_canonical_values() {
-    assert!((PlanningMetric::score(&["a".into(), "b".into(), "c".into(), "d".into()], &["a".into(), "b".into(), "c".into()]) - 0.75).abs() < EPS);
+    assert!(
+        (PlanningMetric::score(
+            &["a".into(), "b".into(), "c".into(), "d".into()],
+            &["a".into(), "b".into(), "c".into()]
+        ) - 0.75)
+            .abs()
+            < EPS
+    );
     assert!((ReflectionMetric::score("short", "longer answer") - 1.0).abs() < EPS);
     assert!((ReflectionMetric::score("longer text here", "short") - 0.5).abs() < EPS);
     assert!((ReflectionMetric::score("x", "x") - 0.0).abs() < EPS);

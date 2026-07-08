@@ -6,7 +6,6 @@
 ///
 /// This module provides a lightweight `CitationRecord` and helpers to attach
 /// and recover citations from assembled context.
-
 use serde_json::{json, Value};
 
 // ---- citation record ---------------------------------------------------
@@ -30,7 +29,12 @@ pub struct CitationRecord {
 }
 
 impl CitationRecord {
-    pub fn new(number: usize, source: impl Into<String>, chunk_text: impl Into<String>, score: f32) -> Self {
+    pub fn new(
+        number: usize,
+        source: impl Into<String>,
+        chunk_text: impl Into<String>,
+        score: f32,
+    ) -> Self {
         Self {
             number,
             source: source.into(),
@@ -43,15 +47,18 @@ impl CitationRecord {
     }
 
     pub fn with_title(mut self, title: impl Into<String>) -> Self {
-        self.title = Some(title.into()); self
+        self.title = Some(title.into());
+        self
     }
 
     pub fn with_location(mut self, loc: impl Into<String>) -> Self {
-        self.location = Some(loc.into()); self
+        self.location = Some(loc.into());
+        self
     }
 
     pub fn with_metadata(mut self, meta: Value) -> Self {
-        self.metadata = meta; self
+        self.metadata = meta;
+        self
     }
 
     /// Format as an inline citation marker, e.g. `[1]`.
@@ -62,7 +69,9 @@ impl CitationRecord {
     /// Format as a footnote entry for appending to the response.
     pub fn footnote(&self) -> String {
         let title = self.title.as_deref().unwrap_or(&self.source);
-        let loc = self.location.as_deref()
+        let loc = self
+            .location
+            .as_deref()
             .map(|l| format!(", {l}"))
             .unwrap_or_default();
         format!("[{}] {}{}", self.number, title, loc)
@@ -84,14 +93,20 @@ impl CitationRecord {
 
 /// Build a citation list from (source, score, chunk_text) triples.
 pub fn build_citations(triples: &[(&str, f32, &str)]) -> Vec<CitationRecord> {
-    triples.iter().enumerate().map(|(i, (source, score, text))| {
-        CitationRecord::new(i + 1, *source, *text, *score)
-    }).collect()
+    triples
+        .iter()
+        .enumerate()
+        .map(|(i, (source, score, text))| CitationRecord::new(i + 1, *source, *text, *score))
+        .collect()
 }
 
 /// Format a list of citations as a Markdown footnote block.
 pub fn format_footnote_block(citations: &[CitationRecord]) -> String {
-    citations.iter().map(|c| c.footnote()).collect::<Vec<_>>().join("\n")
+    citations
+        .iter()
+        .map(|c| c.footnote())
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 /// Format citations as a JSON array for programmatic use.
@@ -101,12 +116,19 @@ pub fn citations_to_json(citations: &[CitationRecord]) -> Value {
 
 /// Filter citations by minimum score threshold.
 pub fn filter_by_score(citations: Vec<CitationRecord>, min_score: f32) -> Vec<CitationRecord> {
-    citations.into_iter().filter(|c| c.score >= min_score).collect()
+    citations
+        .into_iter()
+        .filter(|c| c.score >= min_score)
+        .collect()
 }
 
 /// Deduplicate citations by source (keep the highest-scoring occurrence).
 pub fn dedup_by_source(mut citations: Vec<CitationRecord>) -> Vec<CitationRecord> {
-    citations.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    citations.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     let mut seen = std::collections::HashSet::new();
     citations.retain(|c| seen.insert(c.source.clone()));
     citations
@@ -126,8 +148,8 @@ mod citation_tests {
 
     #[test]
     fn footnote_includes_number_and_source() {
-        let c = CitationRecord::new(1, "https://example.com", "chunk", 0.8)
-            .with_title("Example Page");
+        let c =
+            CitationRecord::new(1, "https://example.com", "chunk", 0.8).with_title("Example Page");
         let fn_text = c.footnote();
         assert!(fn_text.contains("[1]"), "footnote: {fn_text}");
         assert!(fn_text.contains("Example Page"), "footnote: {fn_text}");

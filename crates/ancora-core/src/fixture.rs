@@ -32,7 +32,8 @@ impl Fixture {
     }
 
     pub fn add(&mut self, entry: FixtureEntry) {
-        self.index.insert(entry.activity_key.clone(), entry.result_json.clone());
+        self.index
+            .insert(entry.activity_key.clone(), entry.result_json.clone());
         self.entries.push(entry);
     }
 
@@ -56,8 +57,13 @@ impl Fixture {
     /// Merge another fixture into this one, overwriting on key collision.
     pub fn merge(&mut self, other: Fixture) {
         for entry in other.entries {
-            self.index.insert(entry.activity_key.clone(), entry.result_json.clone());
-            if let Some(existing) = self.entries.iter_mut().find(|e| e.activity_key == entry.activity_key) {
+            self.index
+                .insert(entry.activity_key.clone(), entry.result_json.clone());
+            if let Some(existing) = self
+                .entries
+                .iter_mut()
+                .find(|e| e.activity_key == entry.activity_key)
+            {
                 *existing = entry;
             } else {
                 self.entries.push(entry);
@@ -68,21 +74,17 @@ impl Fixture {
 
 /// Write fixture entries to a JSONL file (one JSON object per line).
 pub fn record_fixture_to_file(fixture: &Fixture, path: &Path) -> Result<(), AncoraError> {
-    let mut file = std::fs::File::create(path)
-        .map_err(|e| AncoraError::Storage(e.to_string()))?;
+    let mut file = std::fs::File::create(path).map_err(|e| AncoraError::Storage(e.to_string()))?;
     for entry in fixture.entries() {
-        let line = serde_json::to_string(entry)
-            .map_err(|e| AncoraError::Storage(e.to_string()))?;
-        writeln!(file, "{}", line)
-            .map_err(|e| AncoraError::Storage(e.to_string()))?;
+        let line = serde_json::to_string(entry).map_err(|e| AncoraError::Storage(e.to_string()))?;
+        writeln!(file, "{}", line).map_err(|e| AncoraError::Storage(e.to_string()))?;
     }
     Ok(())
 }
 
 /// Load fixture entries from a JSONL file.
 pub fn load_fixture_from_file(path: &Path) -> Result<Fixture, AncoraError> {
-    let file = std::fs::File::open(path)
-        .map_err(|e| AncoraError::Storage(e.to_string()))?;
+    let file = std::fs::File::open(path).map_err(|e| AncoraError::Storage(e.to_string()))?;
     let reader = BufReader::new(file);
     let mut fixture = Fixture::new();
     for line in reader.lines() {
@@ -91,8 +93,8 @@ pub fn load_fixture_from_file(path: &Path) -> Result<Fixture, AncoraError> {
         if trimmed.is_empty() {
             continue;
         }
-        let entry: FixtureEntry = serde_json::from_str(trimmed)
-            .map_err(|e| AncoraError::Storage(e.to_string()))?;
+        let entry: FixtureEntry =
+            serde_json::from_str(trimmed).map_err(|e| AncoraError::Storage(e.to_string()))?;
         fixture.add(entry);
     }
     Ok(fixture)
@@ -105,7 +107,9 @@ pub struct FixtureRecorder {
 
 impl FixtureRecorder {
     pub fn new() -> Self {
-        Self { fixture: std::sync::Mutex::new(Fixture::new()) }
+        Self {
+            fixture: std::sync::Mutex::new(Fixture::new()),
+        }
     }
 
     pub fn record(&self, key: &str, kind: &str, input: &str, result: &str) {
@@ -128,7 +132,9 @@ impl FixtureRecorder {
 }
 
 impl Default for FixtureRecorder {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// A read-only journal store backed by a fixture.
@@ -145,7 +151,9 @@ impl FixtureJournalStore {
 
 impl JournalStore for FixtureJournalStore {
     fn append(&self, _run_id: &str, _event: JournalEvent) -> Result<u64, AncoraError> {
-        Err(AncoraError::Storage("FixtureJournalStore is read-only".into()))
+        Err(AncoraError::Storage(
+            "FixtureJournalStore is read-only".into(),
+        ))
     }
 
     fn read(&self, run_id: &str) -> Result<Vec<JournalEvent>, AncoraError> {
@@ -204,12 +212,10 @@ pub fn replay_fixture(fixture: &Fixture, activity_key: &str) -> Result<String, A
     fixture
         .get_result(activity_key)
         .map(|s| s.to_string())
-        .ok_or_else(|| {
-            AncoraError::Nondeterminism {
-                seq: 0,
-                expected: activity_key.to_string(),
-                got: "<not in fixture>".to_string(),
-            }
+        .ok_or_else(|| AncoraError::Nondeterminism {
+            seq: 0,
+            expected: activity_key.to_string(),
+            got: "<not in fixture>".to_string(),
         })
 }
 
@@ -228,10 +234,7 @@ mod tests {
 
     #[test]
     fn replay_fixture_sequence_replays_in_order() {
-        let f = build_fixture(&[
-            ("a", "m", "{}", r#""r-a""#),
-            ("b", "m", "{}", r#""r-b""#),
-        ]);
+        let f = build_fixture(&[("a", "m", "{}", r#""r-a""#), ("b", "m", "{}", r#""r-b""#)]);
         let results = replay_fixture_sequence(&f, &["a", "b"]).unwrap();
         assert_eq!(results, vec![r#""r-a""#, r#""r-b""#]);
     }

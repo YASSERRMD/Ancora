@@ -39,8 +39,20 @@ pub struct ThreatIntelAuditEntry {
 }
 
 impl ThreatIntelAuditEntry {
-    pub fn new(tick: u64, tenant_id: impl Into<String>, action: ThreatIntelAction, subject: impl Into<String>, detail: impl Into<String>) -> Self {
-        Self { tick, tenant_id: tenant_id.into(), action, subject: subject.into(), detail: detail.into() }
+    pub fn new(
+        tick: u64,
+        tenant_id: impl Into<String>,
+        action: ThreatIntelAction,
+        subject: impl Into<String>,
+        detail: impl Into<String>,
+    ) -> Self {
+        Self {
+            tick,
+            tenant_id: tenant_id.into(),
+            action,
+            subject: subject.into(),
+            detail: detail.into(),
+        }
     }
 }
 
@@ -49,14 +61,30 @@ pub struct ThreatIntelAuditLog {
 }
 
 impl ThreatIntelAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: ThreatIntelAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: ThreatIntelAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a ThreatIntelAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
     pub fn by_action<'a>(&'a self, action: &ThreatIntelAction) -> Vec<&'a ThreatIntelAuditEntry> {
-        self.entries.iter().filter(|e| &e.action == action).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.action == action)
+            .collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &ThreatIntelAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &ThreatIntelAuditEntry> {
+        self.entries.iter()
+    }
 }

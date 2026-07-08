@@ -72,7 +72,9 @@ mod tests {
     #[test]
     fn retry_after_provided_on_hard_limit() {
         let mut rl = RateLimiter::new("acme", tight_schema(), 0);
-        for _ in 0..3 { let _ = rl.check_and_record(1, 0.0, 0); }
+        for _ in 0..3 {
+            let _ = rl.check_and_record(1, 0.0, 0);
+        }
         let err = rl.check_and_record(1, 0.0, 0).unwrap_err();
         assert!(err.retry_after_secs().unwrap_or(0) > 0);
     }

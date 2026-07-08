@@ -20,9 +20,11 @@ pub struct SqliteStore {
 impl SqliteStore {
     /// Open (or create) a store at the given path and run migrations.
     pub fn open(path: impl AsRef<Path>) -> Result<Self, AncoraError> {
-        let conn = Connection::open(path)
-            .map_err(|e| AncoraError::Storage(format!("open: {e}")))?;
-        let store = Self { conn: Mutex::new(conn) };
+        let conn =
+            Connection::open(path).map_err(|e| AncoraError::Storage(format!("open: {e}")))?;
+        let store = Self {
+            conn: Mutex::new(conn),
+        };
         store.migrate()?;
         Ok(store)
     }
@@ -31,7 +33,9 @@ impl SqliteStore {
     pub fn open_in_memory() -> Result<Self, AncoraError> {
         let conn = Connection::open_in_memory()
             .map_err(|e| AncoraError::Storage(format!("open_in_memory: {e}")))?;
-        let store = Self { conn: Mutex::new(conn) };
+        let store = Self {
+            conn: Mutex::new(conn),
+        };
         store.migrate()?;
         Ok(store)
     }

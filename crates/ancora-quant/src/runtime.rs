@@ -43,7 +43,11 @@ impl std::fmt::Display for LoadError {
         match self {
             LoadError::NotFound(id) => write!(f, "model not found: {}", id),
             LoadError::OutOfMemory { needed, available } => {
-                write!(f, "out of memory: need {} bytes, have {}", needed, available)
+                write!(
+                    f,
+                    "out of memory: need {} bytes, have {}",
+                    needed, available
+                )
             }
             LoadError::FileNotFound(p) => write!(f, "file not found: {}", p),
             LoadError::Other(msg) => write!(f, "load error: {}", msg),

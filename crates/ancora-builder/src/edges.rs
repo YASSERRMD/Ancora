@@ -1,5 +1,4 @@
 /// edges - Typed edge connections between canvas nodes.
-
 use crate::scaffold::Id;
 use std::collections::HashMap;
 
@@ -99,7 +98,11 @@ impl EdgeStore {
     }
 
     /// Register an allowed connection: source_kind -> target_kind.
-    pub fn allow_connection(&mut self, source_kind: impl Into<String>, target_kind: impl Into<String>) {
+    pub fn allow_connection(
+        &mut self,
+        source_kind: impl Into<String>,
+        target_kind: impl Into<String>,
+    ) {
         self.allowed_connections
             .entry(source_kind.into())
             .or_default()
@@ -164,12 +167,18 @@ impl EdgeStore {
 
     /// Return all edges that originate from a given node.
     pub fn edges_from(&self, source: &Id) -> Vec<&Edge> {
-        self.edges.values().filter(|e| &e.source == source).collect()
+        self.edges
+            .values()
+            .filter(|e| &e.source == source)
+            .collect()
     }
 
     /// Return all edges that terminate at a given node.
     pub fn edges_to(&self, target: &Id) -> Vec<&Edge> {
-        self.edges.values().filter(|e| &e.target == target).collect()
+        self.edges
+            .values()
+            .filter(|e| &e.target == target)
+            .collect()
     }
 
     /// Remove all edges connected to a node (call when removing a node).
@@ -182,7 +191,10 @@ impl EdgeStore {
 #[derive(Debug, Clone, PartialEq)]
 pub enum EdgeError {
     SelfLoop(String),
-    InvalidConnection { source_kind: String, target_kind: String },
+    InvalidConnection {
+        source_kind: String,
+        target_kind: String,
+    },
     DuplicateEdge,
 }
 
@@ -190,8 +202,15 @@ impl std::fmt::Display for EdgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             EdgeError::SelfLoop(id) => write!(f, "self-loop on node {}", id),
-            EdgeError::InvalidConnection { source_kind, target_kind } => {
-                write!(f, "connection from '{}' to '{}' is not allowed", source_kind, target_kind)
+            EdgeError::InvalidConnection {
+                source_kind,
+                target_kind,
+            } => {
+                write!(
+                    f,
+                    "connection from '{}' to '{}' is not allowed",
+                    source_kind, target_kind
+                )
             }
             EdgeError::DuplicateEdge => write!(f, "duplicate edge"),
         }
@@ -221,7 +240,13 @@ mod unit {
     fn self_loop_rejected() {
         let mut store = EdgeStore::new();
         let err = store
-            .add_edge(Id::new("a"), "agent.llm", Id::new("a"), "agent.llm", EdgeType::DataFlow)
+            .add_edge(
+                Id::new("a"),
+                "agent.llm",
+                Id::new("a"),
+                "agent.llm",
+                EdgeType::DataFlow,
+            )
             .unwrap_err();
         assert!(matches!(err, EdgeError::SelfLoop(_)));
     }
@@ -247,10 +272,22 @@ mod unit {
     fn duplicate_edge_rejected() {
         let mut store = EdgeStore::new();
         store
-            .add_edge(Id::new("a"), "agent.llm", Id::new("b"), "tool.web_search", EdgeType::DataFlow)
+            .add_edge(
+                Id::new("a"),
+                "agent.llm",
+                Id::new("b"),
+                "tool.web_search",
+                EdgeType::DataFlow,
+            )
             .unwrap();
         let err = store
-            .add_edge(Id::new("a"), "agent.llm", Id::new("b"), "tool.web_search", EdgeType::DataFlow)
+            .add_edge(
+                Id::new("a"),
+                "agent.llm",
+                Id::new("b"),
+                "tool.web_search",
+                EdgeType::DataFlow,
+            )
             .unwrap_err();
         assert_eq!(err, EdgeError::DuplicateEdge);
     }

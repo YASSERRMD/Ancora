@@ -20,7 +20,15 @@ mod tests {
     #[test]
     fn cost_dashboard_json_valid() {
         let mut a = CostAttributor::default();
-        a.record(CostRecord { tenant_id: "t1".into(), run_id: "r1".into(), model: "gpt-4o".into(), provider: "openai".into(), tool: None, tokens: 100, cost_usd: 0.01 });
+        a.record(CostRecord {
+            tenant_id: "t1".into(),
+            run_id: "r1".into(),
+            model: "gpt-4o".into(),
+            provider: "openai".into(),
+            tool: None,
+            tokens: 100,
+            cost_usd: 0.01,
+        });
         let d = cost_dashboard(&a);
         assert_eq!(d["title"], "Ancora Cost Dashboard");
         assert_eq!(d["record_count"], 1);

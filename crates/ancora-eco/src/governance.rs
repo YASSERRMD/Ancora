@@ -42,7 +42,9 @@ pub struct GovernanceCouncil {
 
 impl GovernanceCouncil {
     pub fn new() -> Self {
-        GovernanceCouncil { decisions: Vec::new() }
+        GovernanceCouncil {
+            decisions: Vec::new(),
+        }
     }
 
     /// Record a decision.

@@ -6,7 +6,9 @@ fn query_by_severity() {
     let i1 = Incident::new("i1", "t1", "A", Severity::High, 1);
     let i2 = Incident::new("i2", "t1", "B", Severity::Low, 1);
     let all = vec![i1, i2];
-    let result = IncidentQuery::new().severity(Severity::High).run(all.iter());
+    let result = IncidentQuery::new()
+        .severity(Severity::High)
+        .run(all.iter());
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].id, "i1");
 }
@@ -17,7 +19,9 @@ fn query_by_status() {
     i1.triage();
     let i2 = Incident::new("i2", "t1", "B", Severity::Low, 1);
     let all = vec![i1, i2];
-    let result = IncidentQuery::new().status(IncidentStatus::Triaged).run(all.iter());
+    let result = IncidentQuery::new()
+        .status(IncidentStatus::Triaged)
+        .run(all.iter());
     assert_eq!(result.len(), 1);
 }
 

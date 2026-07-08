@@ -13,7 +13,10 @@ struct Checkpoint {
 
 impl Checkpoint {
     fn new(n: usize) -> Self {
-        Self { steps: vec![StepState::Pending; n], killed_at: None }
+        Self {
+            steps: vec![StepState::Pending; n],
+            killed_at: None,
+        }
     }
 
     fn run_step(&mut self, idx: usize, kill_at: Option<usize>) -> bool {
@@ -47,7 +50,9 @@ fn test_full_run_completes_all_steps() {
     let mut cp = Checkpoint::new(5);
     let done = cp.resume(None);
     assert_eq!(done, 5);
-    for s in &cp.steps { assert!(matches!(s, StepState::Done(_))); }
+    for s in &cp.steps {
+        assert!(matches!(s, StepState::Done(_)));
+    }
 }
 
 #[test]

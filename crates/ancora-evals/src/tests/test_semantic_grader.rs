@@ -19,7 +19,11 @@ fn test_completely_different_strings_score_low() {
 fn test_partial_overlap_scores_between_zero_and_one() {
     let g = SemanticGrader::new();
     let score = g.grade("the quick fox", "the slow fox");
-    assert!(score.value > 0.0 && score.value < 1.0, "score was {}", score.value);
+    assert!(
+        score.value > 0.0 && score.value < 1.0,
+        "score was {}",
+        score.value
+    );
 }
 
 #[test]

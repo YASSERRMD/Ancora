@@ -32,7 +32,9 @@ mod tests {
             soft_limit_fraction: 0.8,
         };
         engine.register_tenant("acme", schema, 0);
-        for _ in 0..50 { engine.check("acme", 10, 0.05, 0).ok(); }
+        for _ in 0..50 {
+            engine.check("acme", 10, 0.05, 0).ok();
+        }
         let usage = engine.usage("acme", 0).unwrap();
         assert!((usage.request_pct() - 50.0).abs() < 1.0);
         assert!((usage.token_pct() - 50.0).abs() < 1.0);

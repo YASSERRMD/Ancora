@@ -3,7 +3,6 @@
 /// A guardrail monitors a safety metric (e.g. error rate, latency) and
 /// triggers if the metric for any treatment variant exceeds a threshold
 /// relative to the control.
-
 use crate::outcome::OutcomeStore;
 
 /// Direction of the guardrail check.
@@ -64,11 +63,7 @@ impl Guardrail {
     /// Evaluate the guardrail against live outcome data.
     ///
     /// Returns `Triggered` for the first offending treatment variant found.
-    pub fn evaluate(
-        &self,
-        store: &OutcomeStore,
-        treatment_variants: &[&str],
-    ) -> GuardrailStatus {
+    pub fn evaluate(&self, store: &OutcomeStore, treatment_variants: &[&str]) -> GuardrailStatus {
         let ctrl_stats = store.stats_for_variant(&self.experiment_id, &self.control_variant);
 
         match &self.direction {

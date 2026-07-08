@@ -15,7 +15,9 @@ const README_SECTIONS: &[&str] = &[
     "license",
 ];
 
-fn section_present(section: &str) -> bool { !section.is_empty() }
+fn section_present(section: &str) -> bool {
+    !section.is_empty()
+}
 
 #[test]
 fn test_twelve_readme_sections() {
@@ -24,7 +26,9 @@ fn test_twelve_readme_sections() {
 
 #[test]
 fn test_all_sections_present() {
-    for s in README_SECTIONS { assert!(section_present(s), "README missing section: {s}"); }
+    for s in README_SECTIONS {
+        assert!(section_present(s), "README missing section: {s}");
+    }
 }
 
 #[test]
@@ -45,6 +49,10 @@ fn test_language_sdks_in_readme() {
 #[test]
 fn test_all_section_names_snake_case() {
     for s in README_SECTIONS {
-        assert!(s.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'), "not snake_case: {s}");
+        assert!(
+            s.chars()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'),
+            "not snake_case: {s}"
+        );
     }
 }

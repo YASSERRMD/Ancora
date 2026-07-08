@@ -4,10 +4,10 @@ use ancora_memcon::TokenBudget;
 fn cost_parity_token_estimate_formula() {
     // Formula: (len + 3) / 4 (integer division)
     assert_eq!(TokenBudget::estimate_tokens(""), 0);
-    assert_eq!(TokenBudget::estimate_tokens("abcd"), 1);       // 4 chars -> 1
-    assert_eq!(TokenBudget::estimate_tokens("abcde"), 2);      // 5 chars -> 2
-    assert_eq!(TokenBudget::estimate_tokens("abcdefgh"), 2);   // 8 chars -> 2
-    assert_eq!(TokenBudget::estimate_tokens("abcdefghi"), 3);  // 9 chars -> 3
+    assert_eq!(TokenBudget::estimate_tokens("abcd"), 1); // 4 chars -> 1
+    assert_eq!(TokenBudget::estimate_tokens("abcde"), 2); // 5 chars -> 2
+    assert_eq!(TokenBudget::estimate_tokens("abcdefgh"), 2); // 8 chars -> 2
+    assert_eq!(TokenBudget::estimate_tokens("abcdefghi"), 3); // 9 chars -> 3
 }
 
 #[test]

@@ -18,7 +18,10 @@ fn one_result_per_capability() {
     let report = run_all();
     for name in CAP_NAMES {
         let found = report.results.iter().filter(|r| r.name == *name).count();
-        assert_eq!(found, 1, "expected exactly 1 result for '{name}', got {found}");
+        assert_eq!(
+            found, 1,
+            "expected exactly 1 result for '{name}', got {found}"
+        );
     }
 }
 

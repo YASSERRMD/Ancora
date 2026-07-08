@@ -13,22 +13,31 @@ fn test_k8s_security_context() {
     let config = K8sConfig::new("sec-agent", "default", "ancora/agent:latest");
     let tmpl = K8sTemplate::render(config).expect("should render");
     assert!(tmpl.deployment_yaml.contains("runAsNonRoot: true"));
-    assert!(tmpl.deployment_yaml.contains("allowPrivilegeEscalation: false"));
-    assert!(tmpl.deployment_yaml.contains("readOnlyRootFilesystem: true"));
+    assert!(tmpl
+        .deployment_yaml
+        .contains("allowPrivilegeEscalation: false"));
+    assert!(tmpl
+        .deployment_yaml
+        .contains("readOnlyRootFilesystem: true"));
 }
 
 #[test]
 fn test_k8s_run_as_non_root_uid() {
     let config = K8sConfig::new("uid-agent", "ns", "img:v1");
     let tmpl = K8sTemplate::render(config).expect("should render");
-    assert!(tmpl.deployment_yaml.contains("runAsUser: 65534"), "must run as nobody (65534)");
+    assert!(
+        tmpl.deployment_yaml.contains("runAsUser: 65534"),
+        "must run as nobody (65534)"
+    );
 }
 
 #[test]
 fn test_k8s_network_policy_generated() {
     let config = K8sConfig::new("netpol-agent", "ns", "img:v1");
     let tmpl = K8sTemplate::render(config).expect("should render");
-    let np = tmpl.network_policy_yaml.expect("network policy should be present");
+    let np = tmpl
+        .network_policy_yaml
+        .expect("network policy should be present");
     assert!(np.contains("NetworkPolicy"));
     assert!(np.contains("netpol-agent-netpol"));
 }
@@ -37,7 +46,9 @@ fn test_k8s_network_policy_generated() {
 fn test_k8s_operator_cr_generated() {
     let config = K8sConfig::new("op-agent", "ns", "img:v1");
     let tmpl = K8sTemplate::render(config).expect("should render");
-    let cr = tmpl.operator_cr_yaml.expect("operator CR should be present");
+    let cr = tmpl
+        .operator_cr_yaml
+        .expect("operator CR should be present");
     assert!(cr.contains("AncoraAgent"));
     assert!(cr.contains("secureDefaults: true"));
 }

@@ -50,7 +50,11 @@ pub fn analyse_trend(
         den += x * x;
     }
 
-    let slope = if den.abs() < f64::EPSILON { 0.0 } else { num / den };
+    let slope = if den.abs() < f64::EPSILON {
+        0.0
+    } else {
+        num / den
+    };
 
     let direction = if slope <= -degradation_threshold.abs() {
         TrendDirection::Degrading
@@ -106,7 +110,11 @@ impl TrendDetector {
         self.history.push(score);
         let start = self.history.len().saturating_sub(self.window);
         let slice = &self.history[start..];
-        analyse_trend(slice, self.degradation_threshold, self.improvement_threshold)
+        analyse_trend(
+            slice,
+            self.degradation_threshold,
+            self.improvement_threshold,
+        )
     }
 
     /// Number of observations recorded.

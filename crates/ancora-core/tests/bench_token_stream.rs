@@ -29,7 +29,9 @@ impl TokenStream {
             None
         }
     }
-    fn remaining(&self) -> usize { self.tokens.len() - self.pos }
+    fn remaining(&self) -> usize {
+        self.tokens.len() - self.pos
+    }
 }
 
 #[test]
@@ -41,7 +43,12 @@ fn test_bench_1m_token_stream_under_200ms() {
         sum = sum.wrapping_add(t as u64);
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < TOKEN_BENCH_MS, "took {}ms budget {}ms", elapsed, TOKEN_BENCH_MS);
+    assert!(
+        elapsed < TOKEN_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        TOKEN_BENCH_MS
+    );
     assert!(sum > 0);
     assert_eq!(stream.remaining(), 0);
 }
@@ -50,7 +57,9 @@ fn test_bench_1m_token_stream_under_200ms() {
 fn test_stream_produces_correct_count() {
     let mut s = TokenStream::new(100);
     let mut count = 0;
-    while s.next_token().is_some() { count += 1; }
+    while s.next_token().is_some() {
+        count += 1;
+    }
     assert_eq!(count, 100);
 }
 

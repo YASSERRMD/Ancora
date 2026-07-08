@@ -3,7 +3,11 @@ use crate::model::{ModelHandle, ModelMeta, ModelVersion};
 fn make_handle(name: &str) -> ModelHandle {
     let v = ModelVersion::next();
     ModelHandle::new(
-        ModelMeta { name: name.to_string(), version: "0.1.0".to_string(), memory_bytes: 512 },
+        ModelMeta {
+            name: name.to_string(),
+            version: "0.1.0".to_string(),
+            memory_bytes: 512,
+        },
         v,
     )
 }

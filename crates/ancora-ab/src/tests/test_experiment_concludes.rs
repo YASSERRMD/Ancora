@@ -8,10 +8,7 @@ fn experiment_concludes_with_winner() {
     let experiment = Experiment::new(
         "conclude-test",
         "Conclude with winner",
-        vec![
-            Variant::new("control", 0.5),
-            Variant::new("treatment", 0.5),
-        ],
+        vec![Variant::new("control", 0.5), Variant::new("treatment", 0.5)],
         Metric::new("success_rate", MetricKind::Maximize),
     )
     .unwrap();
@@ -23,12 +20,24 @@ fn experiment_concludes_with_winner() {
     // Populate clearly distinct data.
     let mut store = OutcomeStore::new();
     for i in 0..50 {
-        store.record(Observation::new("conclude-test", format!("c{i}"), "control", 0.5));
-        store.record(Observation::new("conclude-test", format!("t{i}"), "treatment", 0.9));
+        store.record(Observation::new(
+            "conclude-test",
+            format!("c{i}"),
+            "control",
+            0.5,
+        ));
+        store.record(Observation::new(
+            "conclude-test",
+            format!("t{i}"),
+            "treatment",
+            0.9,
+        ));
     }
 
     let ctrl = store.stats_for_variant("conclude-test", "control").unwrap();
-    let trt = store.stats_for_variant("conclude-test", "treatment").unwrap();
+    let trt = store
+        .stats_for_variant("conclude-test", "treatment")
+        .unwrap();
     let sig = welch_t_test(&ctrl, &trt, 0.05).unwrap();
 
     let winner = if sig.is_significant && sig.mean_difference > 0.0 {

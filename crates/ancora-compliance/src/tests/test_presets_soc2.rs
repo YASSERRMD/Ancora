@@ -1,4 +1,4 @@
-use crate::{Framework, presets};
+use crate::{presets, Framework};
 #[test]
 fn soc2_preset_returns_five_controls() {
     let controls = presets::soc2_controls();

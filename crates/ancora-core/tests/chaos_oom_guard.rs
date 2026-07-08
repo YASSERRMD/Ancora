@@ -6,17 +6,27 @@ struct MemBudget {
 }
 
 impl MemBudget {
-    fn new(limit: usize) -> Self { Self { used: 0, limit } }
+    fn new(limit: usize) -> Self {
+        Self { used: 0, limit }
+    }
     fn try_alloc(&mut self, bytes: usize) -> Result<(), String> {
         if self.used + bytes > self.limit {
-            Err(format!("oom: need {} have {}", bytes, self.limit - self.used))
+            Err(format!(
+                "oom: need {} have {}",
+                bytes,
+                self.limit - self.used
+            ))
         } else {
             self.used += bytes;
             Ok(())
         }
     }
-    fn free(&mut self, bytes: usize) { self.used = self.used.saturating_sub(bytes); }
-    fn used_pct(&self) -> f64 { self.used as f64 / self.limit as f64 * 100.0 }
+    fn free(&mut self, bytes: usize) {
+        self.used = self.used.saturating_sub(bytes);
+    }
+    fn used_pct(&self) -> f64 {
+        self.used as f64 / self.limit as f64 * 100.0
+    }
 }
 
 #[test]

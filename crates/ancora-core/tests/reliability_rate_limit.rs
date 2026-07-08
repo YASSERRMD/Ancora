@@ -8,7 +8,11 @@ struct TokenBucket {
 
 impl TokenBucket {
     fn new(capacity: f64, refill_per_tick: f64) -> Self {
-        Self { tokens: capacity, capacity, refill_per_tick }
+        Self {
+            tokens: capacity,
+            capacity,
+            refill_per_tick,
+        }
     }
 
     fn tick(&mut self) {

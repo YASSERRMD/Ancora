@@ -10,7 +10,11 @@ pub struct Throttle {
 
 impl Throttle {
     pub fn new(max_ops_per_tick: u32) -> Self {
-        Self { max_ops_per_tick, ops_this_tick: 0, current_tick: 0 }
+        Self {
+            max_ops_per_tick,
+            ops_this_tick: 0,
+            current_tick: 0,
+        }
     }
 
     pub fn try_op(&mut self, now: u64) -> Result<(), LhError> {
@@ -19,7 +23,10 @@ impl Throttle {
             self.ops_this_tick = 0;
         }
         if self.ops_this_tick >= self.max_ops_per_tick {
-            return Err(LhError::Throttled { ops_this_tick: self.ops_this_tick, max: self.max_ops_per_tick });
+            return Err(LhError::Throttled {
+                ops_this_tick: self.ops_this_tick,
+                max: self.max_ops_per_tick,
+            });
         }
         self.ops_this_tick += 1;
         Ok(())

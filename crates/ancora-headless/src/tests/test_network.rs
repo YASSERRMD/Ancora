@@ -1,6 +1,4 @@
-use crate::network::{
-    evaluate_access, EgressPolicy, NetworkAuditLog, NetworkConfig, Protocol,
-};
+use crate::network::{evaluate_access, EgressPolicy, NetworkAuditLog, NetworkConfig, Protocol};
 
 #[test]
 fn test_no_external_egress_by_default() {

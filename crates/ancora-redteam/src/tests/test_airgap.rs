@@ -1,8 +1,10 @@
 // Air-gap test: all red-team operations run in-memory without any network I/O.
-use ancora_guard::{AllowDenyGuardrail, GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail};
 use crate::{
     exfiltration_scenarios, injection_scenarios, jailbreak_scenarios, known_attack_regression_set,
     privilege_scenarios, tool_misuse_scenarios, GuardrailScorer, ScenarioBuilder,
+};
+use ancora_guard::{
+    AllowDenyGuardrail, GuardrailJournal, GuardrailPolicy, InjectionInputGuardrail,
 };
 
 #[test]
@@ -22,7 +24,10 @@ fn airgap_scorer_runs_in_process() {
         let mut pol = GuardrailPolicy::new();
         pol.add_input(InjectionInputGuardrail);
         let mut j = GuardrailJournal::default();
-        !matches!(pol.check_input(p, &mut j, 1), ancora_guard::GuardrailOutcome::Pass)
+        !matches!(
+            pol.check_input(p, &mut j, 1),
+            ancora_guard::GuardrailOutcome::Pass
+        )
     });
     // All scoring done in-memory
     assert!(report.effectiveness() >= 0.0);

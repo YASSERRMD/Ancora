@@ -100,10 +100,13 @@ impl EvalRunSummary {
 /// Shared eval dataset used across all languages.
 pub fn shared_eval_dataset() -> Vec<EvalCase> {
     vec![
-        EvalCase::new("case-001", "What is 2+2?", "4")
-            .with_metadata("category", "math"),
-        EvalCase::new("case-002", "Summarize: The sky is blue.", "The sky is blue.")
-            .with_metadata("category", "summarization"),
+        EvalCase::new("case-001", "What is 2+2?", "4").with_metadata("category", "math"),
+        EvalCase::new(
+            "case-002",
+            "Summarize: The sky is blue.",
+            "The sky is blue.",
+        )
+        .with_metadata("category", "summarization"),
         EvalCase::new("case-003", "Translate 'hello' to Spanish.", "hola")
             .with_metadata("category", "translation"),
     ]

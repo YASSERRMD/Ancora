@@ -14,7 +14,12 @@ fn regression_detected_against_baseline() {
     store.set("planning", 0.9);
     let result = store.check("planning", 0.7);
     assert!(matches!(result, BaselineResult::Regressed { .. }));
-    if let BaselineResult::Regressed { expected, actual, delta } = result {
+    if let BaselineResult::Regressed {
+        expected,
+        actual,
+        delta,
+    } = result
+    {
         assert!((expected - 0.9).abs() < 1e-10);
         assert!((actual - 0.7).abs() < 1e-10);
         assert!((delta - (-0.2)).abs() < 1e-10);

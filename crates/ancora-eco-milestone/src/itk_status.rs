@@ -15,7 +15,11 @@ pub struct ItkTest {
 
 impl ItkTest {
     pub fn pass(name: impl Into<String>, category: impl Into<String>) -> Self {
-        Self { name: name.into(), category: category.into(), result: ItkTestResult::Pass }
+        Self {
+            name: name.into(),
+            category: category.into(),
+            result: ItkTestResult::Pass,
+        }
     }
 
     pub fn is_pass(&self) -> bool {

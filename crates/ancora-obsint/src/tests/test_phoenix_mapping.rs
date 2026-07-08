@@ -28,7 +28,8 @@ fn test_map_span_to_phoenix_unknown_kind() {
 #[test]
 fn test_map_span_to_phoenix_llm_kind() {
     let mut span = OtlpSpan::new("llm-call", [3u8; 16], [4u8; 8]);
-    span.attributes.push(("openinference.span.kind".to_string(), "LLM".to_string()));
+    span.attributes
+        .push(("openinference.span.kind".to_string(), "LLM".to_string()));
     let ps = map_span_to_phoenix(&span);
     assert_eq!(ps.kind, SpanKind::Llm);
 }

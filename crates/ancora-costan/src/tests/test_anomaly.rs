@@ -9,7 +9,10 @@ fn spike_detected_as_anomaly() {
     }
     let alert = d.check(99999, 10.0);
     assert!(alert.is_some(), "spike of 10.0 should be detected");
-    assert!(alert.unwrap().z_score > 2.0, "z-score should exceed threshold 2.0");
+    assert!(
+        alert.unwrap().z_score > 2.0,
+        "z-score should exceed threshold 2.0"
+    );
 }
 
 #[test]

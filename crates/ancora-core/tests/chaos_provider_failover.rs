@@ -32,8 +32,14 @@ fn call_with_failover<'a>(providers: &'a [Provider], prompt: &str) -> Result<Str
 #[test]
 fn test_primary_serves_when_healthy() {
     let providers = vec![
-        Provider { name: "primary", state: ProviderState::Healthy },
-        Provider { name: "secondary", state: ProviderState::Healthy },
+        Provider {
+            name: "primary",
+            state: ProviderState::Healthy,
+        },
+        Provider {
+            name: "secondary",
+            state: ProviderState::Healthy,
+        },
     ];
     let r = call_with_failover(&providers, "hello");
     assert!(r.unwrap().starts_with("primary:"));
@@ -42,8 +48,14 @@ fn test_primary_serves_when_healthy() {
 #[test]
 fn test_secondary_serves_when_primary_down() {
     let providers = vec![
-        Provider { name: "primary", state: ProviderState::Down },
-        Provider { name: "secondary", state: ProviderState::Healthy },
+        Provider {
+            name: "primary",
+            state: ProviderState::Down,
+        },
+        Provider {
+            name: "secondary",
+            state: ProviderState::Healthy,
+        },
     ];
     let r = call_with_failover(&providers, "hello");
     assert!(r.unwrap().starts_with("secondary:"));
@@ -52,8 +64,14 @@ fn test_secondary_serves_when_primary_down() {
 #[test]
 fn test_all_down_returns_error() {
     let providers = vec![
-        Provider { name: "primary", state: ProviderState::Down },
-        Provider { name: "secondary", state: ProviderState::Down },
+        Provider {
+            name: "primary",
+            state: ProviderState::Down,
+        },
+        Provider {
+            name: "secondary",
+            state: ProviderState::Down,
+        },
     ];
     let r = call_with_failover(&providers, "hello");
     assert!(r.is_err());
@@ -63,9 +81,18 @@ fn test_all_down_returns_error() {
 #[test]
 fn test_tertiary_serves_when_first_two_down() {
     let providers = vec![
-        Provider { name: "p1", state: ProviderState::Down },
-        Provider { name: "p2", state: ProviderState::Down },
-        Provider { name: "p3", state: ProviderState::Healthy },
+        Provider {
+            name: "p1",
+            state: ProviderState::Down,
+        },
+        Provider {
+            name: "p2",
+            state: ProviderState::Down,
+        },
+        Provider {
+            name: "p3",
+            state: ProviderState::Healthy,
+        },
     ];
     let r = call_with_failover(&providers, "q");
     assert!(r.unwrap().starts_with("p3:"));
@@ -73,7 +100,10 @@ fn test_tertiary_serves_when_first_two_down() {
 
 #[test]
 fn test_response_contains_prompt() {
-    let providers = vec![Provider { name: "x", state: ProviderState::Healthy }];
+    let providers = vec![Provider {
+        name: "x",
+        state: ProviderState::Healthy,
+    }];
     let r = call_with_failover(&providers, "my-prompt");
     assert!(r.unwrap().contains("my-prompt"));
 }

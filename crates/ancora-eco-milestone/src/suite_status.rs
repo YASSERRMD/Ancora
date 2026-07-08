@@ -17,8 +17,18 @@ pub struct SuiteResult {
 
 impl SuiteResult {
     pub fn new(name: impl Into<String>, passed: usize, failed: usize, skipped: usize) -> Self {
-        let status = if failed == 0 { Status::Green } else { Status::Red };
-        Self { name: name.into(), status, passed, failed, skipped }
+        let status = if failed == 0 {
+            Status::Green
+        } else {
+            Status::Red
+        };
+        Self {
+            name: name.into(),
+            status,
+            passed,
+            failed,
+            skipped,
+        }
     }
 
     pub fn is_green(&self) -> bool {

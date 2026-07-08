@@ -71,7 +71,10 @@ impl TroubleshootingKb {
     }
 
     pub fn search_by_category(&self, category: &IssueCategory) -> Vec<&KnownIssue> {
-        self.issues.iter().filter(|i| &i.category == category).collect()
+        self.issues
+            .iter()
+            .filter(|i| &i.category == category)
+            .collect()
     }
 
     pub fn find_by_id(&self, id: &str) -> Option<&KnownIssue> {

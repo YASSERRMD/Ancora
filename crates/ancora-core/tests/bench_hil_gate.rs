@@ -6,29 +6,50 @@ const HIL_BENCH_N: usize = 2_000_000;
 const HIL_BENCH_MS: u128 = 5000;
 
 #[derive(Clone, Copy, PartialEq)]
-enum HilDecision { Approve, Reject, Pending }
+enum HilDecision {
+    Approve,
+    Reject,
+    Pending,
+}
 
 struct HilGate {
     decision: HilDecision,
 }
 
 impl HilGate {
-    fn open_with(decision: HilDecision) -> Self { HilGate { decision } }
-    fn is_allowed(&self) -> bool { matches!(self.decision, HilDecision::Approve) }
-    fn is_pending(&self) -> bool { matches!(self.decision, HilDecision::Pending) }
+    fn open_with(decision: HilDecision) -> Self {
+        HilGate { decision }
+    }
+    fn is_allowed(&self) -> bool {
+        matches!(self.decision, HilDecision::Approve)
+    }
+    fn is_pending(&self) -> bool {
+        matches!(self.decision, HilDecision::Pending)
+    }
 }
 
 #[test]
 fn test_bench_2m_hil_gate_evaluations_under_300ms() {
-    let decisions = [HilDecision::Approve, HilDecision::Reject, HilDecision::Pending];
+    let decisions = [
+        HilDecision::Approve,
+        HilDecision::Reject,
+        HilDecision::Pending,
+    ];
     let t0 = Instant::now();
     let mut allowed = 0u64;
     for i in 0..HIL_BENCH_N {
         let gate = HilGate::open_with(decisions[i % 3]);
-        if gate.is_allowed() { allowed += 1; }
+        if gate.is_allowed() {
+            allowed += 1;
+        }
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < HIL_BENCH_MS, "took {}ms budget {}ms", elapsed, HIL_BENCH_MS);
+    assert!(
+        elapsed < HIL_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        HIL_BENCH_MS
+    );
     assert_eq!(allowed, ((HIL_BENCH_N + 2) / 3) as u64);
 }
 

@@ -81,10 +81,7 @@ mod backend_selector_ext_tests {
     fn no_non_lancedb_backend_is_embedded() {
         for name in known_backends().iter().filter(|&&n| n != "lancedb") {
             let info = select_backend(name).unwrap();
-            assert!(
-                !info.kind.is_embedded(),
-                "{name} should not be embedded"
-            );
+            assert!(!info.kind.is_embedded(), "{name} should not be embedded");
         }
     }
 
@@ -103,10 +100,21 @@ mod backend_selector_ext_tests {
 
     #[test]
     fn server_backed_backends_have_ports() {
-        let server_backends = ["pgvector", "qdrant", "weaviate", "milvus", "chroma", "vespa", "redis-vector"];
+        let server_backends = [
+            "pgvector",
+            "qdrant",
+            "weaviate",
+            "milvus",
+            "chroma",
+            "vespa",
+            "redis-vector",
+        ];
         for name in &server_backends {
             let info = select_backend(name).unwrap();
-            assert!(info.default_port.is_some(), "{name} should have a default port");
+            assert!(
+                info.default_port.is_some(),
+                "{name} should have a default port"
+            );
         }
     }
 
@@ -114,7 +122,10 @@ mod backend_selector_ext_tests {
     fn portless_backends() {
         for name in &["lancedb", "pinecone"] {
             let info = select_backend(name).unwrap();
-            assert!(info.default_port.is_none(), "{name} should have no default port");
+            assert!(
+                info.default_port.is_none(),
+                "{name} should have no default port"
+            );
         }
     }
 
@@ -124,7 +135,10 @@ mod backend_selector_ext_tests {
     fn all_backends_have_display_name() {
         for name in known_backends() {
             let info = select_backend(name).unwrap();
-            assert!(!info.display_name.is_empty(), "{name} has empty display_name");
+            assert!(
+                !info.display_name.is_empty(),
+                "{name} has empty display_name"
+            );
         }
     }
 

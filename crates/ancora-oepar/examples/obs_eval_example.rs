@@ -3,10 +3,10 @@
 //! This example runs fully offline and requires no network calls.
 //! Run with: cargo run --example obs_eval_example -p ancora-oepar
 
-use ancora_oepar::trace_parity::{Language, reference_trace, compare_traces};
-use ancora_oepar::cost_parity::{reference_cost_record, check_cost_parity};
-use ancora_oepar::eval_parity::{shared_eval_dataset, run_eval, EvalRunSummary, check_eval_parity};
+use ancora_oepar::cost_parity::{check_cost_parity, reference_cost_record};
+use ancora_oepar::eval_parity::{check_eval_parity, run_eval, shared_eval_dataset, EvalRunSummary};
 use ancora_oepar::polyglot::reference_polyglot_trace;
+use ancora_oepar::trace_parity::{compare_traces, reference_trace, Language};
 
 fn main() {
     println!("=== Ancora Observability and Eval Parity Example ===\n");
@@ -28,7 +28,10 @@ fn main() {
     // --- Cost parity ---
     println!("\n--- Cost Parity ---");
     let lang_names = &["rust", "python", "typescript", "go", "java", "csharp"];
-    let cost_records: Vec<_> = lang_names.iter().map(|l| reference_cost_record(*l)).collect();
+    let cost_records: Vec<_> = lang_names
+        .iter()
+        .map(|l| reference_cost_record(*l))
+        .collect();
     let cost_issues = check_cost_parity(&cost_records);
     if cost_issues.is_empty() {
         println!("  All languages: EQUAL cost attributes");
@@ -74,7 +77,11 @@ fn main() {
     let link_errors = poly.validate_parent_links();
     println!(
         "  parent links: {}",
-        if link_errors.is_empty() { "OK" } else { "ERRORS" }
+        if link_errors.is_empty() {
+            "OK"
+        } else {
+            "ERRORS"
+        }
     );
 
     println!("\n=== Done ===");

@@ -208,9 +208,7 @@ impl BaseModel {
 
     /// Get adapter by id.
     pub fn get_adapter(&self, id: &AdapterId) -> Option<&LoadedAdapter> {
-        self.loaded_adapters
-            .iter()
-            .find(|a| &a.descriptor.id == id)
+        self.loaded_adapters.iter().find(|a| &a.descriptor.id == id)
     }
 }
 
@@ -241,8 +239,7 @@ mod tests {
 
     #[test]
     fn base_model_load_adapter() {
-        let mut model =
-            BaseModel::new("llama-3.1-8b", PathBuf::from("/tmp/model"), 8.0);
+        let mut model = BaseModel::new("llama-3.1-8b", PathBuf::from("/tmp/model"), 8.0);
         let desc = AdapterDescriptor::new(
             "a1",
             "Test",

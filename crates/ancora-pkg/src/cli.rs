@@ -134,9 +134,14 @@ impl PackagingCli {
     }
 
     fn scaffold_saas(args: ScaffoldArgs) -> Result<ScaffoldOutput, CliError> {
-        let region = args.extra.get("region").cloned().unwrap_or_else(|| "us-east-1".to_string());
+        let region = args
+            .extra
+            .get("region")
+            .cloned()
+            .unwrap_or_else(|| "us-east-1".to_string());
         let config = SaasConfig::new(args.product_name.clone(), SaasTier::Production, region);
-        let template = SaasTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let template =
+            SaasTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::Saas,
             files: vec![ScaffoldFile {
@@ -148,9 +153,14 @@ impl PackagingCli {
     }
 
     fn scaffold_onprem(args: ScaffoldArgs) -> Result<ScaffoldOutput, CliError> {
-        let hostname = args.extra.get("hostname").cloned().unwrap_or_else(|| "ancora.local".to_string());
+        let hostname = args
+            .extra
+            .get("hostname")
+            .cloned()
+            .unwrap_or_else(|| "ancora.local".to_string());
         let config = OnPremConfig::new(args.product_name.clone(), hostname, 3);
-        let template = OnPremTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let template =
+            OnPremTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::OnPrem,
             files: vec![ScaffoldFile {
@@ -162,14 +172,19 @@ impl PackagingCli {
     }
 
     fn scaffold_airgap(args: ScaffoldArgs) -> Result<ScaffoldOutput, CliError> {
-        let registry = args.extra.get("registry").cloned().unwrap_or_else(|| "registry.local:5000".to_string());
+        let registry = args
+            .extra
+            .get("registry")
+            .cloned()
+            .unwrap_or_else(|| "registry.local:5000".to_string());
         let config = AirgapConfig::new(
             args.product_name.clone(),
             "1.0.0",
             ArtifactSource::LocalRegistry(registry),
             "/etc/ancora/license.key",
         );
-        let template = AirgapTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let template =
+            AirgapTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::Airgap,
             files: vec![ScaffoldFile {
@@ -184,7 +199,8 @@ impl PackagingCli {
         let svc = ComposeService::new(args.product_name.clone(), "ancora/agent:latest")
             .with_port(8080, 8080);
         let config = ComposeConfig::new(args.product_name.clone()).add_service(svc);
-        let template = ComposeTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let template =
+            ComposeTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::Compose,
             files: vec![ScaffoldFile {
@@ -196,10 +212,19 @@ impl PackagingCli {
     }
 
     fn scaffold_k8s(args: ScaffoldArgs) -> Result<ScaffoldOutput, CliError> {
-        let namespace = args.extra.get("namespace").cloned().unwrap_or_else(|| "ancora".to_string());
-        let image = args.extra.get("image").cloned().unwrap_or_else(|| "ancora/agent:latest".to_string());
+        let namespace = args
+            .extra
+            .get("namespace")
+            .cloned()
+            .unwrap_or_else(|| "ancora".to_string());
+        let image = args
+            .extra
+            .get("image")
+            .cloned()
+            .unwrap_or_else(|| "ancora/agent:latest".to_string());
         let config = K8sConfig::new(args.product_name.clone(), namespace, image);
-        let template = K8sTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let template =
+            K8sTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::Kubernetes,
             files: vec![ScaffoldFile {
@@ -212,7 +237,8 @@ impl PackagingCli {
 
     fn scaffold_edge(args: ScaffoldArgs) -> Result<ScaffoldOutput, CliError> {
         let config = EdgeConfig::new(args.product_name.clone(), "1.0.0", EdgeArch::X86_64);
-        let template = EdgeTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let template =
+            EdgeTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::Edge,
             files: vec![
@@ -230,10 +256,15 @@ impl PackagingCli {
     }
 
     fn scaffold_whitelabel(args: ScaffoldArgs) -> Result<ScaffoldOutput, CliError> {
-        let domain = args.extra.get("domain").cloned().unwrap_or_else(|| "partner.example.com".to_string());
+        let domain = args
+            .extra
+            .get("domain")
+            .cloned()
+            .unwrap_or_else(|| "partner.example.com".to_string());
         let brand = BrandIdentity::new(args.product_name.clone());
         let config = WhitelabelConfig::new(brand, domain);
-        let template = WhitelabelTemplate::apply(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let template = WhitelabelTemplate::apply(config)
+            .map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::Whitelabel,
             files: vec![ScaffoldFile {
@@ -245,10 +276,20 @@ impl PackagingCli {
     }
 
     fn scaffold_tenant(args: ScaffoldArgs) -> Result<ScaffoldOutput, CliError> {
-        let email = args.extra.get("admin_email").cloned().unwrap_or_else(|| "admin@example.com".to_string());
+        let email = args
+            .extra
+            .get("admin_email")
+            .cloned()
+            .unwrap_or_else(|| "admin@example.com".to_string());
         let tenant_id = args.product_name.to_lowercase().replace(' ', "-");
-        let config = TenantOnboardConfig::new(tenant_id, args.product_name.clone(), TenantTier::Business, email);
-        let template = TenantOnboardTemplate::render(config).map_err(|e| CliError::TemplateError(e.to_string()))?;
+        let config = TenantOnboardConfig::new(
+            tenant_id,
+            args.product_name.clone(),
+            TenantTier::Business,
+            email,
+        );
+        let template = TenantOnboardTemplate::render(config)
+            .map_err(|e| CliError::TemplateError(e.to_string()))?;
         Ok(ScaffoldOutput {
             kind: ScaffoldKind::TenantOnboard,
             files: vec![ScaffoldFile {

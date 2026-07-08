@@ -11,30 +11,32 @@
 //! - Few-shot injection
 //! - Deterministic replay support
 
+pub mod constrained;
+pub mod decompose;
+pub mod escalate;
+pub mod fewshot;
 pub mod model;
 pub mod prompt;
 pub mod repair;
-pub mod constrained;
-pub mod schema;
-pub mod decompose;
-pub mod verifier;
-pub mod escalate;
-pub mod fewshot;
 pub mod replay;
+pub mod schema;
+pub mod verifier;
 
 #[cfg(test)]
 mod tests;
 
+pub use constrained::{run_constrained, validate_json_output, ConstrainedConfig, ConstrainedError};
+pub use decompose::{execute_plan, DecompositionPlan, OutputFormat, Step, StepResult};
+pub use escalate::{can_escalate_to, run_with_escalation, EscalationPolicy, EscalationReason};
+pub use fewshot::{inject_few_shots, FewShotExample, FewShotLibrary};
 pub use model::{CompletionRequest, CompletionResponse, Message, ModelSpec, ModelTier, Role};
 pub use prompt::{format_prompt, slm_system_prompt, PromptOptions, PromptStyle};
 pub use repair::{repair_tool_call, RepairError, ToolCall};
-pub use constrained::{run_constrained, validate_json_output, ConstrainedConfig, ConstrainedError};
-pub use schema::{augment_prompt_with_schema, validate as validate_schema, Schema, ValidationError};
-pub use decompose::{execute_plan, DecompositionPlan, OutputFormat, Step, StepResult};
+pub use replay::{make_replay_fn, ReplayModelFn, ReplayStore};
+pub use schema::{
+    augment_prompt_with_schema, validate as validate_schema, Schema, ValidationError,
+};
 pub use verifier::{
     run_verifiers, ContainsKeywordsVerifier, FnVerifier, LengthVerifier, NonEmptyVerifier,
     RequiredKeysVerifier, ValidJsonVerifier, Verdict, VerificationReport, Verifier,
 };
-pub use escalate::{can_escalate_to, run_with_escalation, EscalationPolicy, EscalationReason};
-pub use fewshot::{inject_few_shots, FewShotExample, FewShotLibrary};
-pub use replay::{make_replay_fn, ReplayModelFn, ReplayStore};

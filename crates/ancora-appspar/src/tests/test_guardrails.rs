@@ -1,5 +1,7 @@
-use crate::{go_app::GoApp, python_app::PythonApp, ts_app::TsApp,
-            dotnet_app::DotnetApp, java_app::JavaApp, rust_app::RustApp};
+use crate::{
+    dotnet_app::DotnetApp, go_app::GoApp, java_app::JavaApp, python_app::PythonApp,
+    rust_app::RustApp, ts_app::TsApp,
+};
 
 /// All apps must reject empty input rather than panicking or returning garbage.
 #[test]

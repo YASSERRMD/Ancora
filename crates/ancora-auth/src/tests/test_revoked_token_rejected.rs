@@ -1,4 +1,4 @@
-use crate::{IntrospectStatus, Token, TokenIntrospector, TokenKind, RevocationStore};
+use crate::{IntrospectStatus, RevocationStore, Token, TokenIntrospector, TokenKind};
 
 #[test]
 fn revoked_token_introspects_as_revoked() {

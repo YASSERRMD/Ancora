@@ -33,7 +33,11 @@ fn test_joined_tokens_match_streaming_text() {
 fn test_all_six_langs_produce_same_text() {
     for lang in ["rust", "go", "python", "ts", "dotnet", "java"] {
         let tokens = make_streaming_tokens(lang);
-        assert_eq!(join_tokens(&tokens), STREAMING_TEXT, "lang {lang} joined text differs");
+        assert_eq!(
+            join_tokens(&tokens),
+            STREAMING_TEXT,
+            "lang {lang} joined text differs"
+        );
     }
 }
 

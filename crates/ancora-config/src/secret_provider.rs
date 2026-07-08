@@ -20,6 +20,9 @@ pub struct SecretRef {
 
 impl SecretRef {
     pub fn new(provider: impl Into<String>, key: impl Into<String>) -> Self {
-        Self { provider: provider.into(), key: key.into() }
+        Self {
+            provider: provider.into(),
+            key: key.into(),
+        }
     }
 }

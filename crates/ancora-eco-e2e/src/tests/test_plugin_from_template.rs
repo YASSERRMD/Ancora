@@ -2,12 +2,7 @@ use crate::plugin_e2e::{Plugin, PluginState, PluginTemplate};
 
 #[test]
 fn test_author_plugin_from_template() {
-    let template = PluginTemplate::new(
-        "my-plugin",
-        "0.1.0",
-        "A test plugin",
-        "src/lib.rs",
-    );
+    let template = PluginTemplate::new("my-plugin", "0.1.0", "A test plugin", "src/lib.rs");
     assert!(template.is_valid());
     let plugin = Plugin::from_template(template.clone(), 1).expect("plugin must be created");
     assert_eq!(plugin.template.name, "my-plugin");

@@ -1,7 +1,12 @@
 use ancora_ageval::PlanningMetric;
 
 fn steps() -> (Vec<String>, Vec<String>) {
-    let expected = vec!["search".into(), "summarize".into(), "respond".into(), "review".into()];
+    let expected = vec![
+        "search".into(),
+        "summarize".into(),
+        "respond".into(),
+        "review".into(),
+    ];
     let actual = vec!["search".into(), "summarize".into(), "respond".into()];
     (expected, actual)
 }

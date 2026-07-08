@@ -4,7 +4,10 @@ pub type RequestTransformFn = Box<dyn Fn(&mut serde_json::Value) + Send + Sync>;
 /// Return a `RequestTransformFn` that sets a fixed top-level field in the request body.
 ///
 /// Useful for provider-specific fields such as `"stream_options"` or `"safe_mode"`.
-pub fn set_field(key: &'static str, value: serde_json::Value) -> impl Fn(&mut serde_json::Value) + Send + Sync + 'static {
+pub fn set_field(
+    key: &'static str,
+    value: serde_json::Value,
+) -> impl Fn(&mut serde_json::Value) + Send + Sync + 'static {
     move |body| {
         body[key] = value.clone();
     }

@@ -3,7 +3,13 @@ mod tests {
     use crate::{BackupEngine, Journal, JournalEntry};
 
     fn entry() -> JournalEntry {
-        JournalEntry { seq: 1, run_id: "r1".into(), tenant_id: "t".into(), kind: "step".into(), payload: "secret".into() }
+        JournalEntry {
+            seq: 1,
+            run_id: "r1".into(),
+            tenant_id: "t".into(),
+            kind: "step".into(),
+            payload: "secret".into(),
+        }
     }
 
     #[test]
@@ -44,7 +50,9 @@ mod tests {
         let mut j = Journal::new();
         j.append(entry());
 
-        let archive = BackupEngine::new(key1).snapshot(&j, vec![], vec![], 0).unwrap();
+        let archive = BackupEngine::new(key1)
+            .snapshot(&j, vec![], vec![], 0)
+            .unwrap();
         let mut dst = Journal::new();
         let result = BackupEngine::new(key2).restore_snapshot(&archive, &mut dst);
         // Decrypted bytes won't match the stored checksum

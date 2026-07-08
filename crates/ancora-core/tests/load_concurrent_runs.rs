@@ -11,17 +11,33 @@ struct RunSim {
 
 impl RunSim {
     fn new(id: usize, steps: usize) -> Self {
-        Self { run_id: format!("run-{id:04}"), steps, completed: 0 }
+        Self {
+            run_id: format!("run-{id:04}"),
+            steps,
+            completed: 0,
+        }
     }
-    fn tick(&mut self) { if self.completed < self.steps { self.completed += 1; } }
-    fn is_done(&self) -> bool { self.completed >= self.steps }
+    fn tick(&mut self) {
+        if self.completed < self.steps {
+            self.completed += 1;
+        }
+    }
+    fn is_done(&self) -> bool {
+        self.completed >= self.steps
+    }
 }
 
 fn run_all(runs: &mut Vec<RunSim>) -> usize {
     loop {
         let pending: Vec<bool> = runs.iter().map(|r| !r.is_done()).collect();
-        if !pending.iter().any(|&p| p) { break; }
-        for r in runs.iter_mut() { if !r.is_done() { r.tick(); } }
+        if !pending.iter().any(|&p| p) {
+            break;
+        }
+        for r in runs.iter_mut() {
+            if !r.is_done() {
+                r.tick();
+            }
+        }
     }
     runs.iter().filter(|r| r.is_done()).count()
 }
@@ -49,12 +65,18 @@ fn test_run_with_more_steps_takes_longer() {
     let mut short_ticks = 0;
     let mut long_ticks = 0;
     loop {
-        if short[0].is_done() { break; }
-        short[0].tick(); short_ticks += 1;
+        if short[0].is_done() {
+            break;
+        }
+        short[0].tick();
+        short_ticks += 1;
     }
     loop {
-        if long[0].is_done() { break; }
-        long[0].tick(); long_ticks += 1;
+        if long[0].is_done() {
+            break;
+        }
+        long[0].tick();
+        long_ticks += 1;
     }
     assert!(long_ticks > short_ticks);
 }
@@ -68,6 +90,8 @@ fn test_zero_step_run_is_immediately_done() {
 #[test]
 fn test_tick_does_not_exceed_steps() {
     let mut r = RunSim::new(0, 3);
-    for _ in 0..10 { r.tick(); }
+    for _ in 0..10 {
+        r.tick();
+    }
     assert_eq!(r.completed, 3);
 }

@@ -63,9 +63,9 @@ pub fn run_command(svc: &mut RegistryService, cmd: CliCommand) -> CliOutput {
         }
         CliCommand::Fetch { name, version } => match svc.fetch(&name, &version) {
             FetchResult::Found(data) => CliOutput::Payload(data),
-            FetchResult::NotFound => CliOutput::Err(format!(
-                "entry '{name}' version '{version}' not found"
-            )),
+            FetchResult::NotFound => {
+                CliOutput::Err(format!("entry '{name}' version '{version}' not found"))
+            }
         },
         CliCommand::Search { term } => {
             let query = SearchQuery::new(term);
@@ -77,7 +77,10 @@ pub fn run_command(svc: &mut RegistryService, cmd: CliCommand) -> CliOutput {
                         .latest
                         .map(|v| v.to_string())
                         .unwrap_or_else(|| "-".to_string());
-                    format!("{} (latest: {}, versions: {})", h.name, latest, h.version_count)
+                    format!(
+                        "{} (latest: {}, versions: {})",
+                        h.name, latest, h.version_count
+                    )
                 })
                 .collect();
             CliOutput::Lines(lines)
@@ -105,8 +108,7 @@ pub fn parse_command(input: &str) -> Result<CliCommand, String> {
     let parts: Vec<&str> = input.split_whitespace().collect();
     match parts.as_slice() {
         ["publish", name, version_str, publisher] => {
-            let version = Version::parse(version_str)
-                .map_err(|e| e.to_string())?;
+            let version = Version::parse(version_str).map_err(|e| e.to_string())?;
             Ok(CliCommand::Publish {
                 name: name.to_string(),
                 version,
@@ -116,8 +118,7 @@ pub fn parse_command(input: &str) -> Result<CliCommand, String> {
             })
         }
         ["fetch", name, version_str] => {
-            let version = Version::parse(version_str)
-                .map_err(|e| e.to_string())?;
+            let version = Version::parse(version_str).map_err(|e| e.to_string())?;
             Ok(CliCommand::Fetch {
                 name: name.to_string(),
                 version,

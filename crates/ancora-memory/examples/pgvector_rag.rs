@@ -9,11 +9,9 @@
 /// Set TEST_DATABASE_URL to point at a running pgvector-enabled Postgres.
 /// If the env var is absent this example prints the SQL it would execute
 /// and exits cleanly -- no database required.
-
 use ancora_memory::backends::pgvector::{
-    create_table_sql, create_hnsw_index_sql, upsert_sql,
-    cosine_query_with_threshold_sql, hybrid_query_sql,
-    serialize_payload, encode_vector,
+    cosine_query_with_threshold_sql, create_hnsw_index_sql, create_table_sql, encode_vector,
+    hybrid_query_sql, serialize_payload, upsert_sql,
 };
 use ancora_memory::backends::pgvector_migration::full_setup_sql;
 use ancora_memory::vector_store::{Payload, PayloadValue};
@@ -25,8 +23,7 @@ fn main() {
     println!("=== pgvector RAG example ===\n");
 
     // 1. Setup SQL
-    let setup = full_setup_sql(COLLECTION, DIMS, 16, 100)
-        .expect("valid collection name");
+    let setup = full_setup_sql(COLLECTION, DIMS, 16, 100).expect("valid collection name");
     println!("-- Setup SQL --");
     println!("{setup}\n");
 
@@ -37,8 +34,14 @@ fn main() {
 
     // 3. Encode a document payload
     let mut payload = Payload::new();
-    payload.insert("title".to_owned(), PayloadValue::String("Introduction to RAG".to_owned()));
-    payload.insert("source".to_owned(), PayloadValue::String("arxiv".to_owned()));
+    payload.insert(
+        "title".to_owned(),
+        PayloadValue::String("Introduction to RAG".to_owned()),
+    );
+    payload.insert(
+        "source".to_owned(),
+        PayloadValue::String("arxiv".to_owned()),
+    );
     payload.insert("year".to_owned(), PayloadValue::Integer(2024));
     let payload_json = serialize_payload(&payload).expect("serializable");
     println!("-- Payload JSON --");

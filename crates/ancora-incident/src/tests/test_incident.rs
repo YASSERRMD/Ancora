@@ -1,4 +1,4 @@
-use crate::incident::{Incident, Severity, IncidentStatus};
+use crate::incident::{Incident, IncidentStatus, Severity};
 
 #[test]
 fn new_incident_detected() {
@@ -55,7 +55,6 @@ fn assign_incident() {
 
 #[test]
 fn with_metadata() {
-    let i = Incident::new("i1", "t1", "Test", Severity::Low, 1)
-        .with_metadata("env", "prod");
+    let i = Incident::new("i1", "t1", "Test", Severity::Low, 1).with_metadata("env", "prod");
     assert_eq!(i.metadata.get("env").map(|s| s.as_str()), Some("prod"));
 }

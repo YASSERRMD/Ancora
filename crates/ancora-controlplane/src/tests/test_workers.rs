@@ -77,10 +77,7 @@ mod assignment_tests {
         let w2 = store.register_worker(5);
         let c1 = store.claim_run(&w1.id).unwrap();
         let c2 = store.claim_run(&w2.id).unwrap();
-        let total_claimed = [c1.is_some(), c2.is_some()]
-            .iter()
-            .filter(|&&x| x)
-            .count();
+        let total_claimed = [c1.is_some(), c2.is_some()].iter().filter(|&&x| x).count();
         assert_eq!(total_claimed, 1, "exactly one worker should claim the run");
     }
 }

@@ -1,5 +1,4 @@
 /// Enumeration of all stable extension points in the Ancora plugin SDK.
-
 use crate::manifest::PluginKind;
 
 /// Metadata about a single extension point.

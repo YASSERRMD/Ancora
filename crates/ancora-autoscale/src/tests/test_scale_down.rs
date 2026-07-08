@@ -41,6 +41,9 @@ mod tests {
         // utilization == scale_down threshold (0.2) but queue=0
         let d = p.evaluate(&m);
         // This is borderline; just confirm the decision was computed
-        assert!(matches!(d, ScaleDecision::ScaleDown { .. } | ScaleDecision::NoOp { .. }));
+        assert!(matches!(
+            d,
+            ScaleDecision::ScaleDown { .. } | ScaleDecision::NoOp { .. }
+        ));
     }
 }

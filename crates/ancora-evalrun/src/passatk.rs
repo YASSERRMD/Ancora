@@ -2,7 +2,6 @@
 ///
 /// pass@k:  probability that at least 1 of k sampled rollouts passes.
 /// pass^k:  probability that ALL k rollouts pass (consistency metric).
-
 use crate::rollout::RolloutResult;
 
 /// Pass-at-k estimate using the unbiased estimator:
@@ -38,18 +37,14 @@ fn log_comb(n: usize, k: usize) -> f64 {
         return 0.0;
     }
     let k = k.min(n - k); // use symmetry
-    (0..k).fold(0.0_f64, |acc, i| {
-        acc + (n - i) as f64 / (i + 1) as f64
-    })
-    .ln()
+    (0..k)
+        .fold(0.0_f64, |acc, i| acc + (n - i) as f64 / (i + 1) as f64)
+        .ln()
 }
 
 /// Aggregate pass@k across a suite of rollouts (mean over cases).
 pub fn suite_pass_at_k(rollouts: &[RolloutResult], k: usize) -> Option<f64> {
-    let vals: Vec<f64> = rollouts
-        .iter()
-        .filter_map(|r| pass_at_k(r, k))
-        .collect();
+    let vals: Vec<f64> = rollouts.iter().filter_map(|r| pass_at_k(r, k)).collect();
     if vals.is_empty() {
         return None;
     }

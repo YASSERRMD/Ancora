@@ -45,10 +45,7 @@ impl InteropSuite {
 
     /// Run all checks and return a list of failures.
     pub fn run_all(&self) -> Vec<InteropError> {
-        self.checks
-            .iter()
-            .filter_map(|c| (c.run)().err())
-            .collect()
+        self.checks.iter().filter_map(|c| (c.run)().err()).collect()
     }
 
     /// Returns `true` if all checks pass.

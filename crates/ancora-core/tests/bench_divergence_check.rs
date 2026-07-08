@@ -7,7 +7,11 @@ const DIV_BENCH_MS: u128 = 5000;
 
 fn detect_divergence(expected: &[&str], observed: &[&str]) -> Result<(), String> {
     if expected.len() != observed.len() {
-        return Err(format!("length mismatch: {} vs {}", expected.len(), observed.len()));
+        return Err(format!(
+            "length mismatch: {} vs {}",
+            expected.len(),
+            observed.len()
+        ));
     }
     for (i, (e, o)) in expected.iter().zip(observed.iter()).enumerate() {
         if e != o {
@@ -24,10 +28,17 @@ fn test_bench_100k_divergence_checks_under_500ms() {
     let t0 = Instant::now();
     let mut ok = 0u64;
     for _ in 0..DIV_BENCH_N {
-        if detect_divergence(&expected, &observed).is_ok() { ok += 1; }
+        if detect_divergence(&expected, &observed).is_ok() {
+            ok += 1;
+        }
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < DIV_BENCH_MS, "took {}ms budget {}ms", elapsed, DIV_BENCH_MS);
+    assert!(
+        elapsed < DIV_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        DIV_BENCH_MS
+    );
     assert_eq!(ok, DIV_BENCH_N as u64);
 }
 

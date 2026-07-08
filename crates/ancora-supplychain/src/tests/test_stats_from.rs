@@ -8,7 +8,11 @@ fn make_component(id: &str, kind: ComponentKind, license: License) -> Component 
 fn stats_total_components() {
     let mut sbom = Sbom::new("s1", "t1", SbomFormat::CycloneDx, 0);
     sbom.add_component(make_component("c1", ComponentKind::Library, License::Mit));
-    sbom.add_component(make_component("c2", ComponentKind::Binary, License::Apache2));
+    sbom.add_component(make_component(
+        "c2",
+        ComponentKind::Binary,
+        License::Apache2,
+    ));
     let stats = SbomStats::from(&sbom);
     assert_eq!(stats.total_components, 2);
 }
@@ -16,7 +20,11 @@ fn stats_total_components() {
 fn stats_open_source_count() {
     let mut sbom = Sbom::new("s2", "t1", SbomFormat::CycloneDx, 0);
     sbom.add_component(make_component("c1", ComponentKind::Library, License::Mit));
-    sbom.add_component(make_component("c2", ComponentKind::Library, License::Proprietary));
+    sbom.add_component(make_component(
+        "c2",
+        ComponentKind::Library,
+        License::Proprietary,
+    ));
     let stats = SbomStats::from(&sbom);
     assert_eq!(stats.open_source_count, 1);
 }
@@ -24,7 +32,11 @@ fn stats_open_source_count() {
 fn stats_by_kind_uses_string_keys() {
     let mut sbom = Sbom::new("s3", "t1", SbomFormat::CycloneDx, 0);
     sbom.add_component(make_component("c1", ComponentKind::Library, License::Mit));
-    sbom.add_component(make_component("c2", ComponentKind::Library, License::Apache2));
+    sbom.add_component(make_component(
+        "c2",
+        ComponentKind::Library,
+        License::Apache2,
+    ));
     let stats = SbomStats::from(&sbom);
     assert_eq!(*stats.by_kind.get("LIBRARY").unwrap_or(&0), 2);
 }

@@ -54,8 +54,16 @@ mod tests {
         use ancora_controlplane::scheduler::FairScheduler;
         let mut sched = FairScheduler::new();
         let candidates = vec![
-            ("t1".to_string(), "run-normal".to_string(), RunPriority::Normal),
-            ("t1".to_string(), "run-critical".to_string(), RunPriority::Critical),
+            (
+                "t1".to_string(),
+                "run-normal".to_string(),
+                RunPriority::Normal,
+            ),
+            (
+                "t1".to_string(),
+                "run-critical".to_string(),
+                RunPriority::Critical,
+            ),
         ];
         let picked = sched.pick(&candidates).unwrap();
         assert_eq!(picked, "run-critical");

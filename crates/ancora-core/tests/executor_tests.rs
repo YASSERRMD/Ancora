@@ -26,7 +26,11 @@ fn agent_node(id: &str) -> Node {
 }
 
 fn edge(from: &str, to: &str) -> Edge {
-    Edge { from: from.to_string(), to: to.to_string(), condition: None }
+    Edge {
+        from: from.to_string(),
+        to: to.to_string(),
+        condition: None,
+    }
 }
 
 struct EchoExecutor;
@@ -117,7 +121,10 @@ fn cancelled_before_first_node_returns_cancelled_error() {
 
     let mut exec = GraphExecutor::new(graph, "run-4", store).with_cancel(token);
     let err = exec.run("input", &EchoExecutor).unwrap_err();
-    assert!(matches!(err, AncoraError::Cancelled(_)), "must return Cancelled error");
+    assert!(
+        matches!(err, AncoraError::Cancelled(_)),
+        "must return Cancelled error"
+    );
 }
 
 #[test]
@@ -140,7 +147,10 @@ fn compensation_called_on_cancel() {
         *flag.lock().unwrap() = true;
     });
     let _ = exec.run("input", &EchoExecutor);
-    assert!(*compensated.lock().unwrap(), "compensation must be called on cancel");
+    assert!(
+        *compensated.lock().unwrap(),
+        "compensation must be called on cancel"
+    );
 }
 
 #[test]
@@ -160,7 +170,9 @@ fn cost_summary_starts_at_zero() {
 #[test]
 fn three_node_chain_executes_all_nodes_in_order() {
     let count = Arc::new(Mutex::new(0usize));
-    let executor = StepCountingExecutor { count: Arc::clone(&count) };
+    let executor = StepCountingExecutor {
+        count: Arc::clone(&count),
+    };
 
     let graph = Graph {
         id: "g".into(),

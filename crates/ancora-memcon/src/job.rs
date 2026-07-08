@@ -1,9 +1,9 @@
-use crate::summarizer::{ConversationSummarizer, Turn, SummaryResult};
-use crate::salience::{SalienceItem, SalienceScorer};
-use crate::episodic::{EpisodicEntry, EpisodicToSemanticPromoter, SemanticEntry};
 use crate::dedup::Deduplicator;
+use crate::episodic::{EpisodicEntry, EpisodicToSemanticPromoter, SemanticEntry};
 use crate::forgetting::ForgettingPolicy;
 use crate::journal::{ConsolidationEvent, ConsolidationJournal};
+use crate::salience::{SalienceItem, SalienceScorer};
+use crate::summarizer::{ConversationSummarizer, SummaryResult, Turn};
 
 /// Runs a full consolidation pass and journals every step.
 pub struct ConsolidationJob {
@@ -29,10 +29,13 @@ impl ConsolidationJob {
         journal: &mut ConsolidationJournal,
     ) -> ConsolidationOutput {
         let summary = self.summarizer.summarize(turns);
-        journal.record(tick, ConsolidationEvent::Summarized {
-            dropped_count: summary.dropped_count,
-            summary_len: summary.summary.len(),
-        });
+        journal.record(
+            tick,
+            ConsolidationEvent::Summarized {
+                dropped_count: summary.dropped_count,
+                summary_len: summary.summary.len(),
+            },
+        );
 
         let promoted = self.promoter.promote(episodic);
         for p in &promoted {
@@ -40,13 +43,18 @@ impl ConsolidationJob {
         }
 
         let before_dedup_len = salience_items.len();
-        let deduped_items: Vec<SalienceItem> = Deduplicator::dedup_by_key(salience_items, |i| i.key.clone());
+        let deduped_items: Vec<SalienceItem> =
+            Deduplicator::dedup_by_key(salience_items, |i| i.key.clone());
         let removed_count = before_dedup_len.saturating_sub(deduped_items.len());
         if removed_count > 0 {
             journal.record(tick, ConsolidationEvent::Deduped { removed_count });
         }
 
         let retained = self.forgetting.prune(deduped_items, &self.scorer);
-        ConsolidationOutput { summary, promoted, retained }
+        ConsolidationOutput {
+            summary,
+            promoted,
+            retained,
+        }
     }
 }

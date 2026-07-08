@@ -5,7 +5,11 @@ use crate::run_all;
 #[test]
 fn all_benches_complete_in_process() {
     let report = run_all();
-    assert_eq!(report.results.len(), 10, "all 10 benches should complete offline");
+    assert_eq!(
+        report.results.len(),
+        10,
+        "all 10 benches should complete offline"
+    );
 }
 
 #[test]

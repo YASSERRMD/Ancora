@@ -2,13 +2,13 @@
 /// Tests that a gateway can route to multiple providers and fallback correctly.
 use ancora_core::routing::ModelRouter;
 
-const GPT4O: &str            = "gpt-4o";
-const CLAUDE_SONNET: &str    = "claude-sonnet-4-6";
-const GEMINI_25_PRO: &str    = "gemini-2-5-pro";
-const DEEPSEEK_CHAT: &str    = "deepseek-chat";
-const QWEN3_MAX: &str        = "qwen3-max";
-const GLM5: &str             = "glm-5";
-const LLAMA3: &str           = "llama3";
+const GPT4O: &str = "gpt-4o";
+const CLAUDE_SONNET: &str = "claude-sonnet-4-6";
+const GEMINI_25_PRO: &str = "gemini-2-5-pro";
+const DEEPSEEK_CHAT: &str = "deepseek-chat";
+const QWEN3_MAX: &str = "qwen3-max";
+const GLM5: &str = "glm-5";
+const LLAMA3: &str = "llama3";
 
 fn gateway_router() -> ModelRouter {
     let mut r = ModelRouter::new(GPT4O);
@@ -63,12 +63,18 @@ fn gateway_unbound_falls_back_to_gpt4o() {
 
 #[test]
 fn gateway_node_override_used_when_no_binding() {
-    assert_eq!(gateway_router().resolve("no-binding", Some(DEEPSEEK_CHAT)), DEEPSEEK_CHAT);
+    assert_eq!(
+        gateway_router().resolve("no-binding", Some(DEEPSEEK_CHAT)),
+        DEEPSEEK_CHAT
+    );
 }
 
 #[test]
 fn gateway_binding_beats_node_override() {
-    assert_eq!(gateway_router().resolve("claude-gw", Some(LLAMA3)), CLAUDE_SONNET);
+    assert_eq!(
+        gateway_router().resolve("claude-gw", Some(LLAMA3)),
+        CLAUDE_SONNET
+    );
 }
 
 #[test]

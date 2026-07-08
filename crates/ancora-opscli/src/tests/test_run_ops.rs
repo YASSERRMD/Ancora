@@ -3,7 +3,13 @@ mod tests {
     use crate::run_store::{RunEntry, RunStatus, RunStore};
 
     fn entry(id: &str, status: RunStatus) -> RunEntry {
-        RunEntry { run_id: id.into(), tenant_id: "t1".into(), status, worker_id: None, created_at_secs: 0 }
+        RunEntry {
+            run_id: id.into(),
+            tenant_id: "t1".into(),
+            status,
+            worker_id: None,
+            created_at_secs: 0,
+        }
     }
 
     #[test]

@@ -194,7 +194,14 @@ impl ModelRegistry {
                     count += 1;
                 } else if ext == "onnx" {
                     use crate::onnx::{OnnxDescriptor, OnnxPrecision};
-                    let desc = OnnxDescriptor::new(stem.clone(), path, 17, OnnxPrecision::Float32, size, 0.0);
+                    let desc = OnnxDescriptor::new(
+                        stem.clone(),
+                        path,
+                        17,
+                        OnnxPrecision::Float32,
+                        size,
+                        0.0,
+                    );
                     self.register_onnx(stem, desc);
                     count += 1;
                 }

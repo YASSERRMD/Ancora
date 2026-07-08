@@ -2,8 +2,7 @@
 ///
 /// Generates SQL for adding columns, resizing vector dimensions, and
 /// managing schema version tracking -- all offline verifiable.
-
-use crate::backends::pgvector::{sanitize_identifier, create_table_sql};
+use crate::backends::pgvector::{create_table_sql, sanitize_identifier};
 
 /// A schema version record stored in the `_ancora_schema_version` table.
 pub struct SchemaVersion {
@@ -17,7 +16,8 @@ pub fn create_schema_version_table_sql() -> String {
      table_name TEXT PRIMARY KEY, \
      version INT NOT NULL DEFAULT 0, \
      applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()\
-     );".to_owned()
+     );"
+    .to_owned()
 }
 
 /// Generate SQL to read the current version for a table.
@@ -28,7 +28,8 @@ pub fn read_version_sql() -> String {
 /// Generate SQL to insert or bump the version.
 pub fn upsert_version_sql() -> String {
     "INSERT INTO _ancora_schema_version (table_name, version) VALUES ($1, $2) \
-     ON CONFLICT (table_name) DO UPDATE SET version = EXCLUDED.version, applied_at = NOW();".to_owned()
+     ON CONFLICT (table_name) DO UPDATE SET version = EXCLUDED.version, applied_at = NOW();"
+        .to_owned()
 }
 
 /// Generate SQL to add a JSONB metadata column to an existing table.
@@ -54,7 +55,12 @@ pub fn resize_embedding_column_sql(table: &str, new_dims: usize) -> Result<Strin
 }
 
 /// Generate a full migration script: create table + HNSW index + journal table.
-pub fn full_setup_sql(collection: &str, dimensions: usize, m: u16, ef_construct: u16) -> Result<String, String> {
+pub fn full_setup_sql(
+    collection: &str,
+    dimensions: usize,
+    m: u16,
+    ef_construct: u16,
+) -> Result<String, String> {
     sanitize_identifier(collection)?;
     let table = create_table_sql(collection, dimensions);
     let idx = crate::backends::pgvector::create_hnsw_index_sql(collection, m, ef_construct);

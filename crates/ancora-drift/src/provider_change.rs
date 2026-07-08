@@ -90,19 +90,20 @@ impl ProviderChangeDetector {
                     .get(prov.as_str())
                     .cloned()
                     .unwrap_or(0.0);
-                let (cur_freq, latency_z, latency_changed) = if let Some(snap) =
-                    snapshot_map.get(prov.as_str())
-                {
-                    let z = if ref_latency_std > 0.0 {
-                        Some((snap.mean_latency_ms - ref_latency_mean) / ref_latency_std)
+                let (cur_freq, latency_z, latency_changed) =
+                    if let Some(snap) = snapshot_map.get(prov.as_str()) {
+                        let z = if ref_latency_std > 0.0 {
+                            Some((snap.mean_latency_ms - ref_latency_mean) / ref_latency_std)
+                        } else {
+                            None
+                        };
+                        let changed = z
+                            .map(|z| z.abs() > self.latency_threshold_z)
+                            .unwrap_or(false);
+                        (snap.frequency, z, changed)
                     } else {
-                        None
+                        (0.0, None, false)
                     };
-                    let changed = z.map(|z| z.abs() > self.latency_threshold_z).unwrap_or(false);
-                    (snap.frequency, z, changed)
-                } else {
-                    (0.0, None, false)
-                };
                 let freq_diff = (cur_freq - ref_freq).abs();
                 ProviderChangeEntry {
                     provider: prov,
@@ -116,8 +117,13 @@ impl ProviderChangeDetector {
             .collect();
 
         entries.sort_by(|a, b| a.provider.cmp(&b.provider));
-        let any_changed = entries.iter().any(|e| e.frequency_changed || e.latency_changed);
-        ProviderChangeResult { entries, any_changed }
+        let any_changed = entries
+            .iter()
+            .any(|e| e.frequency_changed || e.latency_changed);
+        ProviderChangeResult {
+            entries,
+            any_changed,
+        }
     }
 }
 

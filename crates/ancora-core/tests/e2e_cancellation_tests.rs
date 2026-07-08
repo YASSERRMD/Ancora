@@ -30,14 +30,22 @@ fn ev(seq: u64, run_id: &str, event: Event) -> JournalEvent {
 
 fn cancelled_journal(run_id: &str, reason: &str) -> Vec<JournalEvent> {
     vec![
-        ev(0, run_id, Event::RunStarted(RunStartedEvent {
-            run_id: run_id.to_owned(),
-            spec_bytes: vec![],
-            spec_type: "AgentSpec".into(),
-        })),
-        ev(1, run_id, Event::RunCancelled(RunCancelledEvent {
-            reason: reason.to_owned(),
-        })),
+        ev(
+            0,
+            run_id,
+            Event::RunStarted(RunStartedEvent {
+                run_id: run_id.to_owned(),
+                spec_bytes: vec![],
+                spec_type: "AgentSpec".into(),
+            }),
+        ),
+        ev(
+            1,
+            run_id,
+            Event::RunCancelled(RunCancelledEvent {
+                reason: reason.to_owned(),
+            }),
+        ),
     ]
 }
 
@@ -91,7 +99,10 @@ fn multiple_cancellations_on_same_handle_are_idempotent() {
     handle.cancel();
     handle.cancel();
     handle.cancel();
-    assert!(token.is_cancelled(), "token must be cancelled after multiple cancel calls");
+    assert!(
+        token.is_cancelled(),
+        "token must be cancelled after multiple cancel calls"
+    );
 }
 
 #[test]
@@ -100,7 +111,10 @@ fn token_clone_shares_cancellation_state() {
     let token2 = token.clone();
     assert!(!token2.is_cancelled());
     handle.cancel();
-    assert!(token2.is_cancelled(), "cloned token must see the cancellation");
+    assert!(
+        token2.is_cancelled(),
+        "cloned token must see the cancellation"
+    );
 }
 
 #[test]
@@ -138,5 +152,8 @@ fn ten_concurrent_cancel_checks_are_all_consistent() {
     handle.cancel();
 
     let results: Vec<bool> = (0..10).map(|_| token.is_cancelled()).collect();
-    assert!(results.iter().all(|&r| r), "all checks must agree the token is cancelled");
+    assert!(
+        results.iter().all(|&r| r),
+        "all checks must agree the token is cancelled"
+    );
 }

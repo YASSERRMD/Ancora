@@ -1,6 +1,6 @@
+use crate::index::entry_count;
 use crate::readiness::{readiness_checklist, readiness_percent};
 use crate::trust_summary::{governance_score, trust_dimensions};
-use crate::index::entry_count;
 
 #[test]
 fn test_readiness_is_100_percent() {
@@ -19,5 +19,9 @@ fn test_governance_score_is_100() {
 #[test]
 fn test_ecosystem_index_has_all_modules() {
     let count = entry_count();
-    assert!(count >= 13, "ecosystem index should have at least 13 entries, got {}", count);
+    assert!(
+        count >= 13,
+        "ecosystem index should have at least 13 entries, got {}",
+        count
+    );
 }

@@ -126,7 +126,10 @@ pub struct MyExporter {
 
 impl MyExporter {
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), exported: std::sync::Mutex::new(Vec::new()) }
+        Self {
+            name: name.into(),
+            exported: std::sync::Mutex::new(Vec::new()),
+        }
     }
 
     /// Return a snapshot of all exported spans (for tests).

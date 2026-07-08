@@ -31,8 +31,20 @@ fn main() {
     let sessions = SessionManager::new();
 
     let mut audit = HsmAuditLog::new();
-    audit.record(HsmAuditEntry::new(1, 0, HsmOperation::GenerateKey, true, "aes256"));
-    audit.record(HsmAuditEntry::new(2, 0, HsmOperation::GenerateKey, true, "ed25519"));
+    audit.record(HsmAuditEntry::new(
+        1,
+        0,
+        HsmOperation::GenerateKey,
+        true,
+        "aes256",
+    ));
+    audit.record(HsmAuditEntry::new(
+        2,
+        0,
+        HsmOperation::GenerateKey,
+        true,
+        "ed25519",
+    ));
     audit.record(HsmAuditEntry::new(3, 0, HsmOperation::Sign, true, "signed"));
 
     let report = HsmReport::generate(&hsm, &slots, &sessions, &audit, 100);

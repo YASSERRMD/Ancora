@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use crate::label::SensitivityLevel;
 use crate::record::DataRecord;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct DataClassStats {
@@ -21,7 +21,11 @@ impl DataClassStats {
                 highest = Some(r.level.clone());
             }
         }
-        Self { total, by_level, highest_level: highest }
+        Self {
+            total,
+            by_level,
+            highest_level: highest,
+        }
     }
 
     pub fn count_at_level(&self, level: &SensitivityLevel) -> usize {

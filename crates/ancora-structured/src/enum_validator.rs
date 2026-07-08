@@ -1,5 +1,5 @@
-use serde_json::Value;
 use crate::error::StructuredError;
+use serde_json::Value;
 
 /// Validates that a string field value is one of an allowed set.
 pub struct EnumValidator {
@@ -16,11 +16,13 @@ impl EnumValidator {
     }
 
     pub fn validate(&self, value: &Value) -> Result<(), StructuredError> {
-        let s = value.as_str().ok_or_else(|| StructuredError::TypeMismatch {
-            field: self.field_name.clone(),
-            expected: "string enum".to_string(),
-            got: "non-string".to_string(),
-        })?;
+        let s = value
+            .as_str()
+            .ok_or_else(|| StructuredError::TypeMismatch {
+                field: self.field_name.clone(),
+                expected: "string enum".to_string(),
+                got: "non-string".to_string(),
+            })?;
         if self.allowed.iter().any(|a| a == s) {
             Ok(())
         } else {

@@ -77,7 +77,10 @@ impl GraphExecutor {
         if let Some(router) = &self.model_router {
             return router.resolve(&node.id, node_override).to_owned();
         }
-        node_override.filter(|s| !s.is_empty()).unwrap_or("default").to_owned()
+        node_override
+            .filter(|s| !s.is_empty())
+            .unwrap_or("default")
+            .to_owned()
     }
 
     /// Return the aggregated cost summary for all activity recorded so far.
@@ -127,15 +130,20 @@ impl GraphExecutor {
     fn journal_cancellation(&mut self) -> Result<(), AncoraError> {
         self.journal_seq += 1;
         let seq = self.journal_seq;
-        self.store.append(&self.run_id.clone(), JournalEvent {
-            event_id: uuid::Uuid::new_v4().to_string(),
-            run_id: self.run_id.clone(),
-            seq,
-            recorded_at_ns: 0,
-            event: Some(JournalEventVariant::RunCancelled(RunCancelledEvent {
-                reason: "run was cancelled".to_string(),
-            })),
-        }).map(|_| ())
+        self.store
+            .append(
+                &self.run_id.clone(),
+                JournalEvent {
+                    event_id: uuid::Uuid::new_v4().to_string(),
+                    run_id: self.run_id.clone(),
+                    seq,
+                    recorded_at_ns: 0,
+                    event: Some(JournalEventVariant::RunCancelled(RunCancelledEvent {
+                        reason: "run was cancelled".to_string(),
+                    })),
+                },
+            )
+            .map(|_| ())
     }
 
     fn stream_event(&self, event: StreamEvent) {
@@ -155,7 +163,10 @@ impl GraphExecutor {
             self.check_cancel()?;
 
             let node_kind = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == current_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
                 node.kind.to_str()
@@ -168,21 +179,28 @@ impl GraphExecutor {
             });
 
             let output = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == current_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
                 executor.execute(node, &current_output)?
             };
 
             self.journal_node_exited(&current_id, true)?;
-            self.stream_event(StreamEvent::NodeExited { node_id: current_id.clone() });
+            self.stream_event(StreamEvent::NodeExited {
+                node_id: current_id.clone(),
+            });
 
             current_output = output;
 
             match self.next_node(&current_id, &current_output)? {
                 Some(next_id) => current_id = next_id,
                 None => {
-                    self.stream_event(StreamEvent::RunCompleted { output: current_output.clone() });
+                    self.stream_event(StreamEvent::RunCompleted {
+                        output: current_output.clone(),
+                    });
                     return Ok(current_output);
                 }
             }
@@ -204,7 +222,10 @@ impl GraphExecutor {
 
         loop {
             let node_kind = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == current_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
                 node.kind
@@ -214,19 +235,24 @@ impl GraphExecutor {
                 self.journal_node_entered(&current_id, node_kind.to_str())?;
                 self.journal_seq += 1;
                 let seq = self.journal_seq;
-                self.store.append(&self.run_id.clone(), JournalEvent {
-                    event_id: uuid::Uuid::new_v4().to_string(),
-                    run_id: self.run_id.clone(),
-                    seq,
-                    recorded_at_ns: 0,
-                    event: Some(JournalEventVariant::HumanDecisionRequested(
-                        HumanDecisionRequestedEvent {
-                            prompt: current_output.clone(),
-                            options: vec![],
-                            timeout_at_ns: 0,
+                self.store
+                    .append(
+                        &self.run_id.clone(),
+                        JournalEvent {
+                            event_id: uuid::Uuid::new_v4().to_string(),
+                            run_id: self.run_id.clone(),
+                            seq,
+                            recorded_at_ns: 0,
+                            event: Some(JournalEventVariant::HumanDecisionRequested(
+                                HumanDecisionRequestedEvent {
+                                    prompt: current_output.clone(),
+                                    options: vec![],
+                                    timeout_at_ns: 0,
+                                },
+                            )),
                         },
-                    )),
-                }).map(|_| ())?;
+                    )
+                    .map(|_| ())?;
                 return Ok(RunOutcome::Suspended(SuspendedRun {
                     run_id: self.run_id.clone(),
                     node_id: current_id,
@@ -238,7 +264,10 @@ impl GraphExecutor {
             self.journal_node_entered(&current_id, node_kind.to_str())?;
 
             let output = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == current_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
                 executor.execute(node, &current_output)?
@@ -270,22 +299,29 @@ impl GraphExecutor {
     ) -> Result<RunOutcome, AncoraError> {
         if let Some(deadline) = suspended.deadline_ms {
             if now_ms > deadline {
-                return Err(AncoraError::Timeout { timeout_ms: deadline });
+                return Err(AncoraError::Timeout {
+                    timeout_ms: deadline,
+                });
             }
         }
         self.journal_seq += 1;
         let seq = self.journal_seq;
-        self.store.append(&suspended.run_id.clone(), JournalEvent {
-            event_id: uuid::Uuid::new_v4().to_string(),
-            run_id: suspended.run_id.clone(),
-            seq,
-            recorded_at_ns: 0,
-            event: Some(JournalEventVariant::HumanDecisionReceived(
-                ancora_proto::ancora::HumanDecisionReceivedEvent {
-                    decision: decision.to_string(),
+        self.store
+            .append(
+                &suspended.run_id.clone(),
+                JournalEvent {
+                    event_id: uuid::Uuid::new_v4().to_string(),
+                    run_id: suspended.run_id.clone(),
+                    seq,
+                    recorded_at_ns: 0,
+                    event: Some(JournalEventVariant::HumanDecisionReceived(
+                        ancora_proto::ancora::HumanDecisionReceivedEvent {
+                            decision: decision.to_string(),
+                        },
+                    )),
                 },
-            )),
-        }).map(|_| ())?;
+            )
+            .map(|_| ())?;
 
         self.journal_node_exited(&suspended.node_id, true)?;
 
@@ -298,7 +334,10 @@ impl GraphExecutor {
 
                 loop {
                     let node_kind = {
-                        let node = self.graph.nodes.iter()
+                        let node = self
+                            .graph
+                            .nodes
+                            .iter()
                             .find(|n| n.id == current_id)
                             .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
                         node.kind
@@ -308,19 +347,24 @@ impl GraphExecutor {
                         self.journal_node_entered(&current_id, node_kind.to_str())?;
                         self.journal_seq += 1;
                         let seq2 = self.journal_seq;
-                        self.store.append(&self.run_id.clone(), JournalEvent {
-                            event_id: uuid::Uuid::new_v4().to_string(),
-                            run_id: self.run_id.clone(),
-                            seq: seq2,
-                            recorded_at_ns: 0,
-                            event: Some(JournalEventVariant::HumanDecisionRequested(
-                                HumanDecisionRequestedEvent {
-                                    prompt: current_output.clone(),
-                                    options: vec![],
-                                    timeout_at_ns: 0,
+                        self.store
+                            .append(
+                                &self.run_id.clone(),
+                                JournalEvent {
+                                    event_id: uuid::Uuid::new_v4().to_string(),
+                                    run_id: self.run_id.clone(),
+                                    seq: seq2,
+                                    recorded_at_ns: 0,
+                                    event: Some(JournalEventVariant::HumanDecisionRequested(
+                                        HumanDecisionRequestedEvent {
+                                            prompt: current_output.clone(),
+                                            options: vec![],
+                                            timeout_at_ns: 0,
+                                        },
+                                    )),
                                 },
-                            )),
-                        }).map(|_| ())?;
+                            )
+                            .map(|_| ())?;
                         return Ok(RunOutcome::Suspended(SuspendedRun {
                             run_id: self.run_id.clone(),
                             node_id: current_id,
@@ -332,7 +376,10 @@ impl GraphExecutor {
                     self.journal_node_entered(&current_id, node_kind.to_str())?;
 
                     let output = {
-                        let node = self.graph.nodes.iter()
+                        let node = self
+                            .graph
+                            .nodes
+                            .iter()
                             .find(|n| n.id == current_id)
                             .ok_or_else(|| AncoraError::NodeNotFound(current_id.clone()))?;
                         executor.execute(node, &current_output)?
@@ -369,13 +416,19 @@ impl GraphExecutor {
 
         for attempt in 1..=attempts {
             let candidate = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == worker_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(worker_id.to_string()))?;
                 executor.execute(node, input)?
             };
 
-            let v_node = self.graph.nodes.iter()
+            let v_node = self
+                .graph
+                .nodes
+                .iter()
                 .find(|n| n.id == verifier_id)
                 .ok_or_else(|| AncoraError::NodeNotFound(verifier_id.to_string()))?;
 
@@ -383,7 +436,10 @@ impl GraphExecutor {
                 VerifierResult::Approved { output } => return Ok(output),
                 VerifierResult::Rejected { reason } => {
                     if attempt >= attempts {
-                        return Err(AncoraError::OutputValidation { attempts: attempt, reason });
+                        return Err(AncoraError::OutputValidation {
+                            attempts: attempt,
+                            reason,
+                        });
                     }
                 }
             }
@@ -403,14 +459,20 @@ impl GraphExecutor {
         executor: &dyn NodeExecutor,
     ) -> Result<String, AncoraError> {
         if voter_ids.is_empty() {
-            return Err(AncoraError::Internal("consensus requires at least one voter".to_string()));
+            return Err(AncoraError::Internal(
+                "consensus requires at least one voter".to_string(),
+            ));
         }
 
-        let mut tallies: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+        let mut tallies: std::collections::HashMap<String, usize> =
+            std::collections::HashMap::new();
 
         for voter_id in voter_ids {
             let output = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == *voter_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(voter_id.clone()))?;
                 executor.execute(node, input)?
@@ -419,7 +481,8 @@ impl GraphExecutor {
         }
 
         let max_votes = tallies.values().copied().max().unwrap_or(0);
-        let mut tied: Vec<String> = tallies.into_iter()
+        let mut tied: Vec<String> = tallies
+            .into_iter()
             .filter(|(_, v)| *v == max_votes)
             .map(|(k, _)| k)
             .collect();
@@ -431,7 +494,10 @@ impl GraphExecutor {
 
         // Call arbiter to break the tie.
         let arbiter_input = tied.join("\n");
-        let arbiter_node = self.graph.nodes.iter()
+        let arbiter_node = self
+            .graph
+            .nodes
+            .iter()
             .find(|n| n.id == arbiter_id)
             .ok_or_else(|| AncoraError::NodeNotFound(arbiter_id.to_string()))?;
         executor.execute(arbiter_node, &arbiter_input)
@@ -449,14 +515,20 @@ impl GraphExecutor {
         executor: &dyn NodeExecutor,
     ) -> Result<String, AncoraError> {
         if voter_ids.is_empty() {
-            return Err(AncoraError::Internal("consensus requires at least one voter".to_string()));
+            return Err(AncoraError::Internal(
+                "consensus requires at least one voter".to_string(),
+            ));
         }
 
-        let mut tallies: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+        let mut tallies: std::collections::HashMap<String, usize> =
+            std::collections::HashMap::new();
 
         for voter_id in voter_ids {
             let output = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == *voter_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(voter_id.clone()))?;
                 executor.execute(node, input)?
@@ -465,7 +537,8 @@ impl GraphExecutor {
         }
 
         // Pick the output with the most votes; break ties lexicographically.
-        let winner = tallies.into_iter()
+        let winner = tallies
+            .into_iter()
             .max_by(|(a_out, a_votes), (b_out, b_votes)| {
                 a_votes.cmp(b_votes).then_with(|| b_out.cmp(a_out))
             })
@@ -489,7 +562,10 @@ impl GraphExecutor {
         let mut current = input.to_string();
         for agent_id in agent_ids {
             let output = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == *agent_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(agent_id.clone()))?;
                 executor.execute(node, &current)?
@@ -518,7 +594,10 @@ impl GraphExecutor {
         for _round in 0..rounds {
             for agent_id in agent_ids {
                 let output = {
-                    let node = self.graph.nodes.iter()
+                    let node = self
+                        .graph
+                        .nodes
+                        .iter()
                         .find(|n| n.id == *agent_id)
                         .ok_or_else(|| AncoraError::NodeNotFound(agent_id.clone()))?;
                     executor.execute(node, &current)?
@@ -534,37 +613,41 @@ impl GraphExecutor {
     fn journal_node_entered(&mut self, node_id: &str, node_kind: &str) -> Result<(), AncoraError> {
         let seq = self.journal_seq;
         self.journal_seq += 1;
-        self.store.append(
-            &self.run_id,
-            JournalEvent {
-                event_id: format!("enter:{node_id}:{seq}"),
-                run_id: self.run_id.clone(),
-                seq,
-                recorded_at_ns: 0,
-                event: Some(JournalEventVariant::NodeEntered(NodeEnteredEvent {
-                    node_id: node_id.to_string(),
-                    node_kind: node_kind.to_string(),
-                })),
-            },
-        ).map(|_| ())
+        self.store
+            .append(
+                &self.run_id,
+                JournalEvent {
+                    event_id: format!("enter:{node_id}:{seq}"),
+                    run_id: self.run_id.clone(),
+                    seq,
+                    recorded_at_ns: 0,
+                    event: Some(JournalEventVariant::NodeEntered(NodeEnteredEvent {
+                        node_id: node_id.to_string(),
+                        node_kind: node_kind.to_string(),
+                    })),
+                },
+            )
+            .map(|_| ())
     }
 
     fn journal_node_exited(&mut self, node_id: &str, success: bool) -> Result<(), AncoraError> {
         let seq = self.journal_seq;
         self.journal_seq += 1;
-        self.store.append(
-            &self.run_id,
-            JournalEvent {
-                event_id: format!("exit:{node_id}:{seq}"),
-                run_id: self.run_id.clone(),
-                seq,
-                recorded_at_ns: 0,
-                event: Some(JournalEventVariant::NodeExited(NodeExitedEvent {
-                    node_id: node_id.to_string(),
-                    success,
-                })),
-            },
-        ).map(|_| ())
+        self.store
+            .append(
+                &self.run_id,
+                JournalEvent {
+                    event_id: format!("exit:{node_id}:{seq}"),
+                    run_id: self.run_id.clone(),
+                    seq,
+                    recorded_at_ns: 0,
+                    event: Some(JournalEventVariant::NodeExited(NodeExitedEvent {
+                        node_id: node_id.to_string(),
+                        success,
+                    })),
+                },
+            )
+            .map(|_| ())
     }
 
     /// Run `node_id` repeatedly, feeding each output as the next input, until the
@@ -585,11 +668,16 @@ impl GraphExecutor {
 
         loop {
             if max_iterations > 0 && iteration >= max_iterations {
-                return Err(AncoraError::MaxSteps { max_steps: max_iterations });
+                return Err(AncoraError::MaxSteps {
+                    max_steps: max_iterations,
+                });
             }
 
             let output = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == node_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(node_id.to_string()))?;
                 executor.execute(node, &current_input)?
@@ -609,7 +697,10 @@ impl GraphExecutor {
     /// Sorting by node id ensures the join order is stable regardless of the order
     /// in which edges were defined or branches complete.
     pub fn fan_out_ids(&self, from: &str) -> Vec<String> {
-        let mut ids: Vec<String> = self.graph.edges.iter()
+        let mut ids: Vec<String> = self
+            .graph
+            .edges
+            .iter()
             .filter(|e| e.from == from && e.condition.is_none())
             .map(|e| e.to.clone())
             .collect();
@@ -631,7 +722,10 @@ impl GraphExecutor {
         let mut results = Vec::with_capacity(ids.len());
 
         for node_id in &ids {
-            let node_kind = self.graph.nodes.iter()
+            let node_kind = self
+                .graph
+                .nodes
+                .iter()
                 .find(|n| n.id == *node_id)
                 .map(|n| n.kind.to_str())
                 .ok_or_else(|| AncoraError::NodeNotFound(node_id.clone()))?;
@@ -639,7 +733,10 @@ impl GraphExecutor {
             self.journal_node_entered(node_id, node_kind)?;
 
             let output = {
-                let node = self.graph.nodes.iter()
+                let node = self
+                    .graph
+                    .nodes
+                    .iter()
                     .find(|n| n.id == *node_id)
                     .ok_or_else(|| AncoraError::NodeNotFound(node_id.clone()))?;
                 executor.execute(node, input)?
@@ -654,9 +751,7 @@ impl GraphExecutor {
     }
 
     fn next_node(&self, from: &str, output: &str) -> Result<Option<String>, AncoraError> {
-        let outgoing: Vec<_> = self.graph.edges.iter()
-            .filter(|e| e.from == from)
-            .collect();
+        let outgoing: Vec<_> = self.graph.edges.iter().filter(|e| e.from == from).collect();
 
         // Conditional edges take priority: pick the first whose condition matches.
         for edge in &outgoing {
@@ -691,7 +786,9 @@ mod tests {
             id: id.to_string(),
             kind: NodeKind::Function,
             model_id: None,
-            spec: NodeSpec::Function { name: id.to_string() },
+            spec: NodeSpec::Function {
+                name: id.to_string(),
+            },
         }
     }
 
@@ -728,7 +825,11 @@ mod tests {
         // Graph: start -> left (if output contains "go-left") or right (unconditional fallback)
         let graph = Graph {
             id: "g-cond".to_string(),
-            nodes: vec![function_node("start"), function_node("left"), function_node("right")],
+            nodes: vec![
+                function_node("start"),
+                function_node("left"),
+                function_node("right"),
+            ],
             edges: vec![
                 edge("start", "left", Some("go-left")),
                 edge("start", "right", None),
@@ -752,7 +853,11 @@ mod tests {
         // A graph where the start node outputs "go-left" -> takes conditional edge to "left"
         let graph2 = Graph {
             id: "g-cond2".to_string(),
-            nodes: vec![function_node("start"), function_node("left"), function_node("right")],
+            nodes: vec![
+                function_node("start"),
+                function_node("left"),
+                function_node("right"),
+            ],
             edges: vec![
                 edge("start", "left", Some("go-left")),
                 edge("start", "right", None),
@@ -799,16 +904,24 @@ mod tests {
         let store = Arc::new(MemoryStore::new());
         let store_ref = Arc::clone(&store);
         let mut exec = GraphExecutor::new(graph, "run-par-1", store);
-        let results = exec.run_parallel_branches("root", "input", &PrefixExecutor).unwrap();
+        let results = exec
+            .run_parallel_branches("root", "input", &PrefixExecutor)
+            .unwrap();
 
         let ids: Vec<&str> = results.iter().map(|(id, _)| id.as_str()).collect();
-        assert_eq!(ids, vec!["a-node", "b-node", "c-node"], "branches must join in sorted order");
+        assert_eq!(
+            ids,
+            vec!["a-node", "b-node", "c-node"],
+            "branches must join in sorted order"
+        );
 
         // Verify journal entries are in the same sorted order.
         let events = store_ref.read("run-par-1").unwrap();
-        let node_entered_ids: Vec<String> = events.iter()
+        let node_entered_ids: Vec<String> = events
+            .iter()
             .filter_map(|e| {
-                if let Some(ancora_proto::ancora::journal_event::Event::NodeEntered(ev)) = &e.event {
+                if let Some(ancora_proto::ancora::journal_event::Event::NodeEntered(ev)) = &e.event
+                {
                     Some(ev.node_id.clone())
                 } else {
                     None
@@ -844,8 +957,13 @@ mod tests {
 
         // Case 1: exits on condition after 3 iterations
         let mut exec = GraphExecutor::new(graph, "run-loop-c1", Arc::new(MemoryStore::new()));
-        let result = exec.run_loop_node("counter", "0", "done", 10, &CounterExecutor { target: 3 }).unwrap();
-        assert!(result.contains("done"), "loop must exit when condition is met");
+        let result = exec
+            .run_loop_node("counter", "0", "done", 10, &CounterExecutor { target: 3 })
+            .unwrap();
+        assert!(
+            result.contains("done"),
+            "loop must exit when condition is met"
+        );
 
         // Case 2: exits on cap (condition never met because target > cap)
         let graph2 = Graph {
@@ -855,7 +973,9 @@ mod tests {
             entry_node: "counter".to_string(),
         };
         let mut exec2 = GraphExecutor::new(graph2, "run-loop-c2", Arc::new(MemoryStore::new()));
-        let err = exec2.run_loop_node("counter", "0", "done", 2, &CounterExecutor { target: 99 }).unwrap_err();
+        let err = exec2
+            .run_loop_node("counter", "0", "done", 2, &CounterExecutor { target: 99 })
+            .unwrap_err();
         assert!(matches!(err, AncoraError::MaxSteps { max_steps: 2 }));
     }
 
@@ -890,7 +1010,9 @@ mod tests {
         };
 
         let mut exec = GraphExecutor::new(graph, "run-chat-1", Arc::new(MemoryStore::new()));
-        let results = exec.run_group_chat(&agents, "hello", 2, &PrefixExecutor).unwrap();
+        let results = exec
+            .run_group_chat(&agents, "hello", 2, &PrefixExecutor)
+            .unwrap();
 
         // 2 agents * 2 rounds = 4 total turns; turns alternate x, y, x, y
         assert_eq!(results.len(), 4, "turn count must equal agents * rounds");
@@ -907,8 +1029,14 @@ mod tests {
             entry_node: "x".to_string(),
         };
         let mut exec2 = GraphExecutor::new(graph2, "run-chat-2", Arc::new(MemoryStore::new()));
-        let one_round = exec2.run_group_chat(&agents, "hello", 1, &PrefixExecutor).unwrap();
-        assert_eq!(one_round.len(), 2, "one round with 2 agents must produce exactly 2 turns");
+        let one_round = exec2
+            .run_group_chat(&agents, "hello", 1, &PrefixExecutor)
+            .unwrap();
+        assert_eq!(
+            one_round.len(),
+            2,
+            "one round with 2 agents must produce exactly 2 turns"
+        );
     }
 
     #[test]
@@ -937,17 +1065,33 @@ mod tests {
         struct AlwaysReject;
         impl VerifierNode for AlwaysReject {
             fn verify(&self, _node: &Node, candidate: &str) -> Result<VerifierResult, AncoraError> {
-                Ok(VerifierResult::Rejected { reason: format!("rejected {candidate}") })
+                Ok(VerifierResult::Rejected {
+                    reason: format!("rejected {candidate}"),
+                })
             }
         }
 
         let mut exec = GraphExecutor::new(graph, "run-verify-1", Arc::new(MemoryStore::new()));
-        let err = exec.run_with_verifier(
-            "worker", "verifier", "in", 2, &CountingWorker(cc), &AlwaysReject,
-        ).unwrap_err();
+        let err = exec
+            .run_with_verifier(
+                "worker",
+                "verifier",
+                "in",
+                2,
+                &CountingWorker(cc),
+                &AlwaysReject,
+            )
+            .unwrap_err();
 
-        assert!(matches!(err, AncoraError::OutputValidation { attempts: 3, .. }));
-        assert_eq!(call_count.load(Ordering::SeqCst), 3, "worker must be called 1 + max_rework times");
+        assert!(matches!(
+            err,
+            AncoraError::OutputValidation { attempts: 3, .. }
+        ));
+        assert_eq!(
+            call_count.load(Ordering::SeqCst),
+            3,
+            "worker must be called 1 + max_rework times"
+        );
     }
 
     #[test]
@@ -977,7 +1121,9 @@ mod tests {
         }
 
         let voters: Vec<String> = vec!["v1", "v2", "v3", "v4", "v5"]
-            .into_iter().map(|s| s.to_string()).collect();
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect();
         let mut exec = GraphExecutor::new(graph, "run-consensus-1", Arc::new(MemoryStore::new()));
         let result = exec.run_consensus(&voters, "in", &MajorityVoter).unwrap();
         assert_eq!(result, "A", "majority vote must select A (3 votes vs 2)");
@@ -994,14 +1140,13 @@ mod tests {
                     id: "await".to_string(),
                     kind: NodeKind::AwaitHuman,
                     model_id: None,
-                    spec: NodeSpec::Function { name: "await".to_string() },
+                    spec: NodeSpec::Function {
+                        name: "await".to_string(),
+                    },
                 },
                 function_node("post"),
             ],
-            edges: vec![
-                edge("pre", "await", None),
-                edge("await", "post", None),
-            ],
+            edges: vec![edge("pre", "await", None), edge("await", "post", None)],
             entry_node: "pre".to_string(),
         };
 
@@ -1023,7 +1168,9 @@ mod tests {
         assert_eq!(restored.node_id, "await");
 
         // Phase 2: resume with a human decision.
-        let outcome2 = exec.resume(&restored, "human-ok", 0, &PrefixExecutor).unwrap();
+        let outcome2 = exec
+            .resume(&restored, "human-ok", 0, &PrefixExecutor)
+            .unwrap();
         match outcome2 {
             RunOutcome::Completed(out) => assert_eq!(out, "[post]human-ok"),
             RunOutcome::Suspended(_) => panic!("expected Completed after resume"),
@@ -1034,14 +1181,14 @@ mod tests {
     fn timeout_fires_when_no_decision_arrives() {
         let graph = Graph {
             id: "g-timeout".to_string(),
-            nodes: vec![
-                Node {
-                    id: "await".to_string(),
-                    kind: NodeKind::AwaitHuman,
-                    model_id: None,
-                    spec: NodeSpec::Function { name: "await".to_string() },
+            nodes: vec![Node {
+                id: "await".to_string(),
+                kind: NodeKind::AwaitHuman,
+                model_id: None,
+                spec: NodeSpec::Function {
+                    name: "await".to_string(),
                 },
-            ],
+            }],
             edges: vec![],
             entry_node: "await".to_string(),
         };
@@ -1055,7 +1202,9 @@ mod tests {
 
         // Set a deadline that has already passed.
         suspended.deadline_ms = Some(1000);
-        let err = exec.resume(&suspended, "too-late", 2000, &PrefixExecutor).unwrap_err();
+        let err = exec
+            .resume(&suspended, "too-late", 2000, &PrefixExecutor)
+            .unwrap_err();
         assert!(matches!(err, AncoraError::Timeout { timeout_ms: 1000 }));
     }
 
@@ -1071,25 +1220,40 @@ mod tests {
         };
 
         let (tx, rx) = open_stream();
-        let mut exec = GraphExecutor::new(graph, "run-stream-1", Arc::new(MemoryStore::new()))
-            .with_stream(tx);
+        let mut exec =
+            GraphExecutor::new(graph, "run-stream-1", Arc::new(MemoryStore::new())).with_stream(tx);
 
         exec.run("in", &PrefixExecutor).unwrap();
 
         let events: Vec<_> = rx.try_iter().collect();
-        assert_eq!(events, vec![
-            crate::stream::StreamEvent::NodeEntered { node_id: "a".to_string(), node_kind: "function".to_string() },
-            crate::stream::StreamEvent::NodeExited { node_id: "a".to_string() },
-            crate::stream::StreamEvent::NodeEntered { node_id: "b".to_string(), node_kind: "function".to_string() },
-            crate::stream::StreamEvent::NodeExited { node_id: "b".to_string() },
-            crate::stream::StreamEvent::RunCompleted { output: "[b][a]in".to_string() },
-        ]);
+        assert_eq!(
+            events,
+            vec![
+                crate::stream::StreamEvent::NodeEntered {
+                    node_id: "a".to_string(),
+                    node_kind: "function".to_string()
+                },
+                crate::stream::StreamEvent::NodeExited {
+                    node_id: "a".to_string()
+                },
+                crate::stream::StreamEvent::NodeEntered {
+                    node_id: "b".to_string(),
+                    node_kind: "function".to_string()
+                },
+                crate::stream::StreamEvent::NodeExited {
+                    node_id: "b".to_string()
+                },
+                crate::stream::StreamEvent::RunCompleted {
+                    output: "[b][a]in".to_string()
+                },
+            ]
+        );
     }
 
     #[test]
     fn cancel_stops_execution_and_compensates() {
-        use std::sync::{Arc, Mutex};
         use crate::cancel::cancellation_pair;
+        use std::sync::{Arc, Mutex};
 
         let graph = Graph {
             id: "g-cancel".to_string(),
@@ -1131,8 +1295,15 @@ mod tests {
         };
 
         let err = exec.run("in", &exec_impl).unwrap_err();
-        assert!(matches!(err, AncoraError::Cancelled(_)), "expected Cancelled");
-        assert_eq!(*log.lock().unwrap(), vec!["compensate-a"], "compensation must fire");
+        assert!(
+            matches!(err, AncoraError::Cancelled(_)),
+            "expected Cancelled"
+        );
+        assert_eq!(
+            *log.lock().unwrap(),
+            vec!["compensate-a"],
+            "compensation must fire"
+        );
     }
 
     #[test]
@@ -1147,8 +1318,7 @@ mod tests {
         let store: Arc<dyn crate::journal::JournalStore> = Arc::new(MemoryStore::new());
         let mut router = ModelRouter::new("large");
         router.bind("n1", "small");
-        let exec = GraphExecutor::new(graph, "run-routing-1", store)
-            .with_model_router(router);
+        let exec = GraphExecutor::new(graph, "run-routing-1", store).with_model_router(router);
         let node = &exec.graph.nodes[0];
         assert_eq!(exec.resolve_model_for_node(node), "small");
     }

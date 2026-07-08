@@ -97,7 +97,9 @@ async fn handoff_without_identity_requirement_accepts_unsigned_card() {
         require_signed_identity: false,
     };
 
-    let result = perform_handoff(req).await.expect("unsigned handoff should succeed");
+    let result = perform_handoff(req)
+        .await
+        .expect("unsigned handoff should succeed");
     assert_eq!(result.remote_card.name, "unsigned-agent");
     assert!(result.remote_card.identity_key.is_none());
 
@@ -106,7 +108,11 @@ async fn handoff_without_identity_requirement_accepts_unsigned_card() {
 
 #[tokio::test]
 async fn handoff_with_identity_requirement_rejects_unsigned_card() {
-    let card = AgentCard::new("unsigned-go-agent", "No signature", "grpc://localhost:50051");
+    let card = AgentCard::new(
+        "unsigned-go-agent",
+        "No signature",
+        "grpc://localhost:50051",
+    );
     let (bound, tx) = spawn_agent(card).await;
 
     let req = HandoffRequest {

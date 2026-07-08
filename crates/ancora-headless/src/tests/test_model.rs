@@ -6,7 +6,11 @@ use crate::model::{
 #[test]
 fn test_model_preloads() {
     let mut registry = ModelRegistry::new();
-    let desc = ModelDescriptor::new("agent-q4", "/opt/models/agent-q4.gguf", 4 * 1024 * 1024 * 1024);
+    let desc = ModelDescriptor::new(
+        "agent-q4",
+        "/opt/models/agent-q4.gguf",
+        4 * 1024 * 1024 * 1024,
+    );
     registry.register(desc);
     let records = registry.preload_all();
     assert_eq!(records.len(), 1);
@@ -42,15 +46,13 @@ fn test_model_loaded_count() {
 
 #[test]
 fn test_validate_checksum_match() {
-    let desc = ModelDescriptor::new("m", "/m.gguf", 0)
-        .with_sha256("abc123");
+    let desc = ModelDescriptor::new("m", "/m.gguf", 0).with_sha256("abc123");
     assert!(validate_checksum(&desc, "abc123"));
 }
 
 #[test]
 fn test_validate_checksum_mismatch() {
-    let desc = ModelDescriptor::new("m", "/m.gguf", 0)
-        .with_sha256("abc123");
+    let desc = ModelDescriptor::new("m", "/m.gguf", 0).with_sha256("abc123");
     assert!(!validate_checksum(&desc, "wrong"));
 }
 

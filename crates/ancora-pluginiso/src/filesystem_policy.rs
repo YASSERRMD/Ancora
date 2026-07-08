@@ -17,15 +17,27 @@ pub struct PathRule {
 
 impl PathRule {
     pub fn read_only(prefix: impl Into<String>) -> Self {
-        Self { prefix: prefix.into(), read: true, write: false }
+        Self {
+            prefix: prefix.into(),
+            read: true,
+            write: false,
+        }
     }
 
     pub fn read_write(prefix: impl Into<String>) -> Self {
-        Self { prefix: prefix.into(), read: true, write: true }
+        Self {
+            prefix: prefix.into(),
+            read: true,
+            write: true,
+        }
     }
 
     pub fn write_only(prefix: impl Into<String>) -> Self {
-        Self { prefix: prefix.into(), read: false, write: true }
+        Self {
+            prefix: prefix.into(),
+            read: false,
+            write: true,
+        }
     }
 }
 
@@ -48,12 +60,18 @@ pub struct FilesystemPolicy {
 impl FilesystemPolicy {
     /// Deny all filesystem access.
     pub fn deny_all() -> Self {
-        Self { rules: vec![], default_deny: true }
+        Self {
+            rules: vec![],
+            default_deny: true,
+        }
     }
 
     /// Allow unrestricted filesystem access (not recommended for plugins).
     pub fn allow_all() -> Self {
-        Self { rules: vec![], default_deny: false }
+        Self {
+            rules: vec![],
+            default_deny: false,
+        }
     }
 
     /// Add a path rule at the end of the rule list.

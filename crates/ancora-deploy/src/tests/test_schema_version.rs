@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::{Version, assert_compatible};
+    use crate::{assert_compatible, Version};
 
     #[test]
     fn same_major_version_is_compatible() {
@@ -14,6 +14,9 @@ mod tests {
         let a = Version::new(1, 0, 0);
         let b = Version::new(2, 0, 0);
         let err = assert_compatible(&a, &b).unwrap_err();
-        assert!(matches!(err, crate::DeployError::IncompatibleVersion { .. }));
+        assert!(matches!(
+            err,
+            crate::DeployError::IncompatibleVersion { .. }
+        ));
     }
 }

@@ -60,17 +60,33 @@ pub struct SupplyChainAuditLog {
 }
 
 impl SupplyChainAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: SupplyChainAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: SupplyChainAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a SupplyChainAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
     pub fn for_component<'a>(&'a self, component_id: &str) -> Vec<&'a SupplyChainAuditEntry> {
-        self.entries.iter().filter(|e| e.component_id == component_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.component_id == component_id)
+            .collect()
     }
     pub fn failures<'a>(&'a self) -> Vec<&'a SupplyChainAuditEntry> {
         self.entries.iter().filter(|e| !e.success).collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &SupplyChainAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &SupplyChainAuditEntry> {
+        self.entries.iter()
+    }
 }

@@ -4,7 +4,6 @@
 /// Implementations may wrap HTTP clients (feature-gated) or pure-Rust local
 /// models.  All trait method signatures must remain `Send + Sync` so they can
 /// be stored behind `Arc<dyn Embedder>`.
-
 use serde_json::Value;
 
 // ---- primary types -------------------------------------------------------
@@ -33,7 +32,14 @@ pub enum EmbedError {
 
 impl EmbedError {
     pub fn is_transient(&self) -> bool {
-        matches!(self, Self::Transient(_) | Self::HttpError { status: 429 | 500..=599, .. })
+        matches!(
+            self,
+            Self::Transient(_)
+                | Self::HttpError {
+                    status: 429 | 500..=599,
+                    ..
+                }
+        )
     }
 }
 
@@ -90,7 +96,11 @@ pub trait Reranker: Send + Sync {
 pub fn parse_openai_embedding(body: &Value) -> EmbedResult<Embedding> {
     body["data"][0]["embedding"]
         .as_array()
-        .map(|arr| arr.iter().map(|v| v.as_f64().unwrap_or(0.0) as f32).collect())
+        .map(|arr| {
+            arr.iter()
+                .map(|v| v.as_f64().unwrap_or(0.0) as f32)
+                .collect()
+        })
         .ok_or_else(|| EmbedError::ParseError("missing data[0].embedding".to_owned()))
 }
 
@@ -146,8 +156,12 @@ mod embedder_trait_tests {
         fn embed(&self, _text: &str) -> EmbedResult<Embedding> {
             Ok(vec![0.5f32; self.dim])
         }
-        fn model_name(&self) -> &str { "constant-v1" }
-        fn dims(&self) -> usize { self.dim }
+        fn model_name(&self) -> &str {
+            "constant-v1"
+        }
+        fn dims(&self) -> usize {
+            self.dim
+        }
     }
 
     #[test]
@@ -199,25 +213,37 @@ mod embedder_trait_tests {
 
     #[test]
     fn embed_error_http_5xx_is_transient() {
-        let e = EmbedError::HttpError { status: 503, body: "unavailable".to_owned() };
+        let e = EmbedError::HttpError {
+            status: 503,
+            body: "unavailable".to_owned(),
+        };
         assert!(e.is_transient());
     }
 
     #[test]
     fn embed_error_http_4xx_not_transient_except_429() {
-        let e = EmbedError::HttpError { status: 404, body: "not found".to_owned() };
+        let e = EmbedError::HttpError {
+            status: 404,
+            body: "not found".to_owned(),
+        };
         assert!(!e.is_transient());
     }
 
     #[test]
     fn embed_error_429_is_transient() {
-        let e = EmbedError::HttpError { status: 429, body: "rate limited".to_owned() };
+        let e = EmbedError::HttpError {
+            status: 429,
+            body: "rate limited".to_owned(),
+        };
         assert!(e.is_transient());
     }
 
     #[test]
     fn embed_error_input_too_long_not_transient() {
-        let e = EmbedError::InputTooLong { max_tokens: 8192, got: 9000 };
+        let e = EmbedError::InputTooLong {
+            max_tokens: 8192,
+            got: 9000,
+        };
         assert!(!e.is_transient());
     }
 

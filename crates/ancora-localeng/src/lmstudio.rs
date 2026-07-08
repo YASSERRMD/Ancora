@@ -2,7 +2,6 @@
 ///
 /// LM Studio runs a local OpenAI-compatible server on port 1234.
 /// This module provides a typed client with pluggable transport.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Default LM Studio endpoint.
@@ -63,10 +62,7 @@ impl<T: LmStudioTransport> LmStudioClient<T> {
         self.transport.list_models(self.endpoint())
     }
 
-    pub fn complete(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, LmStudioError> {
+    pub fn complete(&self, request: &CompletionRequest) -> Result<CompletionResult, LmStudioError> {
         self.transport.complete(self.endpoint(), request)
     }
 

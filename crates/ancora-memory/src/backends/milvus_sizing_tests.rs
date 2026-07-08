@@ -56,6 +56,9 @@ mod milvus_sizing_tests {
     fn ivf_collection_uses_recommended_nlist() {
         let nlist = recommended_nlist(10_000_000);
         let body = create_collection_ivf_body("docs", 128, metric_type::L2, nlist);
-        assert_eq!(body["indexParams"][0]["params"]["nlist"].as_u64().unwrap(), nlist as u64);
+        assert_eq!(
+            body["indexParams"][0]["params"]["nlist"].as_u64().unwrap(),
+            nlist as u64
+        );
     }
 }

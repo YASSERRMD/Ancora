@@ -1,5 +1,4 @@
 /// test_trace_overlay - Test that the trace overlay renders correctly from run results.
-
 use crate::import::{GraphSpec, SpecEdge, SpecNode};
 use crate::runner::{run_spec, LocalBackendConfig, RunResult, RunStatus, RunStep, StepStatus};
 use crate::trace_overlay::{LiveTraceOverlay, OverlayStatus, TraceOverlay};
@@ -110,7 +109,11 @@ fn overlay_error_message_on_failed_node() {
     let overlay = TraceOverlay::from_run_result(&result);
     let y = overlay.node_overlay("y").unwrap();
     assert!(y.error_message.is_some());
-    assert!(y.error_message.as_ref().unwrap().contains("schema mismatch"));
+    assert!(y
+        .error_message
+        .as_ref()
+        .unwrap()
+        .contains("schema mismatch"));
 }
 
 #[test]
@@ -124,9 +127,29 @@ fn overlay_clear_resets_state() {
 #[test]
 fn overlay_from_run_result_via_runner() {
     let mut spec = GraphSpec::new("live_overlay");
-    spec.nodes.push(SpecNode { id: "a".into(), kind: "agent.llm".into(), label: "A".into(), x: 0.0, y: 0.0, config: HashMap::new() });
-    spec.nodes.push(SpecNode { id: "b".into(), kind: "verifier.toxicity".into(), label: "B".into(), x: 100.0, y: 0.0, config: HashMap::new() });
-    spec.edges.push(SpecEdge { id: "e1".into(), source: "a".into(), target: "b".into(), edge_type: "data_flow".into(), label: None });
+    spec.nodes.push(SpecNode {
+        id: "a".into(),
+        kind: "agent.llm".into(),
+        label: "A".into(),
+        x: 0.0,
+        y: 0.0,
+        config: HashMap::new(),
+    });
+    spec.nodes.push(SpecNode {
+        id: "b".into(),
+        kind: "verifier.toxicity".into(),
+        label: "B".into(),
+        x: 100.0,
+        y: 0.0,
+        config: HashMap::new(),
+    });
+    spec.edges.push(SpecEdge {
+        id: "e1".into(),
+        source: "a".into(),
+        target: "b".into(),
+        edge_type: "data_flow".into(),
+        label: None,
+    });
 
     let config = LocalBackendConfig::default();
     let result = run_spec(&spec, &config).unwrap();

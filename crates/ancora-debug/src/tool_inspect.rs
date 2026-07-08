@@ -3,7 +3,6 @@
 /// This module provides thin wrappers around [`Inspector`] that surface only
 /// tool call data (name, arguments, output), making it convenient for UIs
 /// that display tool invocation details without needing the full inspector.
-
 use crate::inspector::{Inspector, ToolSnapshot};
 use crate::loader::{Journal, Seq};
 
@@ -32,8 +31,8 @@ pub fn all_tool_calls(journal: &Journal, seq: Seq) -> Vec<ToolSnapshot> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
     use crate::loader::{load_journal, EntryKind, JournalEntry, RunId};
+    use std::collections::HashMap;
 
     fn make_journal() -> Journal {
         let mut args1 = HashMap::new();
@@ -45,7 +44,10 @@ mod tests {
             JournalEntry::new(
                 RunId::new("r-tool"),
                 0,
-                EntryKind::StateChange { from: "init".into(), to: "ready".into() },
+                EntryKind::StateChange {
+                    from: "init".into(),
+                    to: "ready".into(),
+                },
             ),
             JournalEntry::new(
                 RunId::new("r-tool"),

@@ -1,15 +1,20 @@
-use crate::registry_e2e::{LocalRegistry, RegistryEntry};
 use crate::plugin_e2e::{Plugin, PluginState, PluginTemplate};
+use crate::registry_e2e::{LocalRegistry, RegistryEntry};
 
 fn populate_registry() -> LocalRegistry {
     let mut reg = LocalRegistry::new();
-    reg.publish(RegistryEntry::new("tool-alpha", "1.0.0", "trusted-org")).unwrap();
-    reg.publish(RegistryEntry::new("tool-beta", "2.0.0", "trusted-org")).unwrap();
+    reg.publish(RegistryEntry::new("tool-alpha", "1.0.0", "trusted-org"))
+        .unwrap();
+    reg.publish(RegistryEntry::new("tool-beta", "2.0.0", "trusted-org"))
+        .unwrap();
     reg
 }
 
 fn install_from_registry(registry: &LocalRegistry, name: &str, version: &str) -> Option<Plugin> {
-    let entry = registry.all_versions(name).into_iter().find(|e| e.version == version)?;
+    let entry = registry
+        .all_versions(name)
+        .into_iter()
+        .find(|e| e.version == version)?;
     let template = PluginTemplate::new(&entry.name, &entry.version, "from registry", "main.rs");
     let mut plugin = Plugin::from_template(template, 100)?;
     plugin.compile().ok()?;

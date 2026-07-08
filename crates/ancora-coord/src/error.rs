@@ -1,8 +1,13 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CoordError {
-    MaxRoundsExceeded { rounds: u32 },
+    MaxRoundsExceeded {
+        rounds: u32,
+    },
     NoCycleFound,
-    ContractViolation { contract_id: String, obligation: String },
+    ContractViolation {
+        contract_id: String,
+        obligation: String,
+    },
 }
 
 impl std::fmt::Display for CoordError {
@@ -10,8 +15,14 @@ impl std::fmt::Display for CoordError {
         match self {
             CoordError::MaxRoundsExceeded { rounds } => write!(f, "max rounds exceeded: {rounds}"),
             CoordError::NoCycleFound => write!(f, "no cycle found to break"),
-            CoordError::ContractViolation { contract_id, obligation } => {
-                write!(f, "contract {contract_id} violation: obligation '{obligation}' not fulfilled")
+            CoordError::ContractViolation {
+                contract_id,
+                obligation,
+            } => {
+                write!(
+                    f,
+                    "contract {contract_id} violation: obligation '{obligation}' not fulfilled"
+                )
             }
         }
     }

@@ -1,6 +1,4 @@
-use crate::decompose::{
-    execute_plan, validate_step_output, DecompositionPlan, OutputFormat, Step,
-};
+use crate::decompose::{execute_plan, validate_step_output, DecompositionPlan, OutputFormat, Step};
 
 fn make_json_step(id: &str) -> Step {
     Step {
@@ -84,7 +82,10 @@ fn test_execute_plan_stops_on_required_failure() {
     let results = execute_plan(&plan, model_fn);
     // Should stop after the failing required step — step3 should not be executed.
     assert!(results.len() < 3, "should stop before step3");
-    assert!(!results.last().unwrap().valid, "last result should be invalid");
+    assert!(
+        !results.last().unwrap().valid,
+        "last result should be invalid"
+    );
 }
 
 #[test]
@@ -104,7 +105,11 @@ fn test_execute_plan_continues_past_optional_failure() {
     // Model always returns plain text — first step fails but is optional.
     let model_fn = |_: &str| "plain text".to_string();
     let results = execute_plan(&plan, model_fn);
-    assert_eq!(results.len(), 2, "should execute both steps including optional");
+    assert_eq!(
+        results.len(),
+        2,
+        "should execute both steps including optional"
+    );
     assert!(!results[0].valid);
     assert!(results[1].valid);
 }

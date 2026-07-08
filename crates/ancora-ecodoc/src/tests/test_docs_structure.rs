@@ -1,10 +1,9 @@
 //! Tests verifying that the docs module structure is consistent.
 
 use crate::{
-    catalog_format, cli_plugins, contrib_templates, examples_index,
-    extensibility_overview, fw_adapters, governance, graph_builder,
-    interop_kit, market_trust, packaging, plugin_safety, plugin_sdk,
-    quickstart, readiness, recipes, registry, sdk_extensions, security,
+    catalog_format, cli_plugins, contrib_templates, examples_index, extensibility_overview,
+    fw_adapters, governance, graph_builder, interop_kit, market_trust, packaging, plugin_safety,
+    plugin_sdk, quickstart, readiness, recipes, registry, sdk_extensions, security,
     troubleshooting,
 };
 

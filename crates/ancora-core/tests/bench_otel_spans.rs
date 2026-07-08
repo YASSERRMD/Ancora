@@ -25,7 +25,9 @@ impl Span {
             status: (idx % 3) as u8,
         }
     }
-    fn is_ok(&self) -> bool { self.status == 0 }
+    fn is_ok(&self) -> bool {
+        self.status == 0
+    }
 }
 
 #[test]
@@ -34,10 +36,17 @@ fn test_bench_200k_otel_spans_under_1s() {
     let mut ok_count = 0u64;
     for i in 0..OTEL_BENCH_N {
         let span = Span::new(i as u64);
-        if span.is_ok() { ok_count += 1; }
+        if span.is_ok() {
+            ok_count += 1;
+        }
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < OTEL_BENCH_MS, "took {}ms budget {}ms", elapsed, OTEL_BENCH_MS);
+    assert!(
+        elapsed < OTEL_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        OTEL_BENCH_MS
+    );
     let expected = OTEL_BENCH_N as u64 / 3 + 1;
     assert!(ok_count <= expected);
 }
@@ -56,7 +65,10 @@ fn test_span_span_id_length() {
 
 #[test]
 fn test_span_status_cycles() {
-    let s0 = Span::new(0); assert!(s0.is_ok());
-    let s1 = Span::new(1); assert!(!s1.is_ok());
-    let s3 = Span::new(3); assert!(s3.is_ok());
+    let s0 = Span::new(0);
+    assert!(s0.is_ok());
+    let s1 = Span::new(1);
+    assert!(!s1.is_ok());
+    let s3 = Span::new(3);
+    assert!(s3.is_ok());
 }

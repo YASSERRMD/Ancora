@@ -1,5 +1,5 @@
-use crate::classification::{DataClass, classify_attr};
-use crate::span_policy::{SpanPolicy, apply_span_policy};
+use crate::classification::{classify_attr, DataClass};
+use crate::span_policy::{apply_span_policy, SpanPolicy};
 
 #[test]
 fn sensitive_data_class_not_raw_in_telemetry() {

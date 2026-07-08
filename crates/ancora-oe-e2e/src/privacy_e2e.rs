@@ -1,6 +1,5 @@
 /// Privacy and telemetry redaction module.
 /// Ensures sensitive data (PII, secrets) is scrubbed before export.
-
 use std::collections::HashMap;
 
 /// A pattern to redact from strings.
@@ -13,7 +12,11 @@ pub struct RedactionPattern {
 }
 
 impl RedactionPattern {
-    pub fn new(label: impl Into<String>, find: impl Into<String>, placeholder: impl Into<String>) -> Self {
+    pub fn new(
+        label: impl Into<String>,
+        find: impl Into<String>,
+        placeholder: impl Into<String>,
+    ) -> Self {
         Self {
             label: label.into(),
             placeholder: placeholder.into(),
@@ -68,10 +71,26 @@ impl Redactor {
 /// Build a default redactor for testing.
 pub fn default_redactor() -> Redactor {
     let mut r = Redactor::new();
-    r.add_pattern(RedactionPattern::new("email", "user@example.com", "[REDACTED_EMAIL]"));
-    r.add_pattern(RedactionPattern::new("phone", "+1-555-0100", "[REDACTED_PHONE]"));
-    r.add_pattern(RedactionPattern::new("api_key", "sk-secret-12345", "[REDACTED_KEY]"));
-    r.add_pattern(RedactionPattern::new("ssn", "123-45-6789", "[REDACTED_SSN]"));
+    r.add_pattern(RedactionPattern::new(
+        "email",
+        "user@example.com",
+        "[REDACTED_EMAIL]",
+    ));
+    r.add_pattern(RedactionPattern::new(
+        "phone",
+        "+1-555-0100",
+        "[REDACTED_PHONE]",
+    ));
+    r.add_pattern(RedactionPattern::new(
+        "api_key",
+        "sk-secret-12345",
+        "[REDACTED_KEY]",
+    ));
+    r.add_pattern(RedactionPattern::new(
+        "ssn",
+        "123-45-6789",
+        "[REDACTED_SSN]",
+    ));
     r
 }
 

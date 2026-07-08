@@ -4,7 +4,6 @@
 /// against llama.cpp as a C library via FFI. For portability this module
 /// provides a pure-Rust simulation layer (mock backend) so tests can run
 /// without the native library present.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Errors from the embedded engine.
@@ -61,10 +60,7 @@ impl EmbeddedParams {
 /// Abstract backend so tests can inject a mock.
 pub trait EmbeddedBackend {
     fn load_model(&mut self, path: &str, params: &EmbeddedParams) -> Result<(), EmbeddedError>;
-    fn infer(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, EmbeddedError>;
+    fn infer(&self, request: &CompletionRequest) -> Result<CompletionResult, EmbeddedError>;
     fn is_loaded(&self) -> bool;
 }
 
@@ -102,7 +98,9 @@ impl EmbeddedBackend for MockEmbeddedBackend {
 
     fn infer(&self, request: &CompletionRequest) -> Result<CompletionResult, EmbeddedError> {
         if !self.loaded {
-            return Err(EmbeddedError::InferenceFailed("model not loaded".to_string()));
+            return Err(EmbeddedError::InferenceFailed(
+                "model not loaded".to_string(),
+            ));
         }
         Ok(CompletionResult {
             text: format!("{} -> {}", request.prompt, self.fixed_response),
@@ -134,16 +132,15 @@ impl<B: EmbeddedBackend> EmbeddedEngine<B> {
     }
 
     pub fn load(&mut self) -> Result<(), EmbeddedError> {
-        let path = self.config.model_path.clone().ok_or_else(|| {
-            EmbeddedError::InvalidConfig("model_path not set".to_string())
-        })?;
+        let path = self
+            .config
+            .model_path
+            .clone()
+            .ok_or_else(|| EmbeddedError::InvalidConfig("model_path not set".to_string()))?;
         self.backend.load_model(&path, &self.params)
     }
 
-    pub fn complete(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, EmbeddedError> {
+    pub fn complete(&self, request: &CompletionRequest) -> Result<CompletionResult, EmbeddedError> {
         self.backend.infer(request)
     }
 

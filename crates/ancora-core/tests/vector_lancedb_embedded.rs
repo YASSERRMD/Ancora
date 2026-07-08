@@ -63,7 +63,9 @@ fn lancedb_embedded_mode_field_is_embedded() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         let v: serde_json::Value = serde_json::from_str(&a.input_json).unwrap();
         assert_eq!(v["mode"], "embedded");
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -73,7 +75,9 @@ fn lancedb_embedded_uri_is_local_path() {
         let v: serde_json::Value = serde_json::from_str(&a.input_json).unwrap();
         let uri = v["uri"].as_str().unwrap();
         assert!(uri.starts_with('/'), "expected local path, got {}", uri);
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -81,7 +85,9 @@ fn lancedb_embedded_result_source_is_local() {
     let events = build_lancedb_embedded_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("\"source\":\"local\""));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -89,7 +95,9 @@ fn lancedb_embedded_no_network_uri_in_input() {
     let events = build_lancedb_embedded_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(!a.input_json.contains("http"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

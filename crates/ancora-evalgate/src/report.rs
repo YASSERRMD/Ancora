@@ -2,7 +2,6 @@
 ///
 /// Renders the results of a gate evaluation as a Markdown string suitable
 /// for posting as a PR comment.
-
 use crate::gate::{GateDecision, MetricVerdict};
 use crate::regression::RegressionResult;
 
@@ -15,7 +14,11 @@ pub struct GateReport {
 }
 
 impl GateReport {
-    pub fn new(dataset: impl Into<String>, decision: GateDecision, verdicts: Vec<MetricVerdict>) -> Self {
+    pub fn new(
+        dataset: impl Into<String>,
+        decision: GateDecision,
+        verdicts: Vec<MetricVerdict>,
+    ) -> Self {
         Self {
             dataset: dataset.into(),
             decision,
@@ -51,7 +54,11 @@ impl GateReport {
                 }
             };
             let sig = if v.significant { "yes" } else { "no" };
-            let blocks = if v.blocks { ":x: yes" } else { ":white_check_mark: no" };
+            let blocks = if v.blocks {
+                ":x: yes"
+            } else {
+                ":white_check_mark: no"
+            };
             lines.push(format!(
                 "| {} | {:.4} | {} | {} | {} |",
                 v.metric, delta, threshold, sig, blocks

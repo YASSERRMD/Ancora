@@ -99,13 +99,19 @@ pub struct OnPremTemplate {
 impl OnPremTemplate {
     pub fn render(config: OnPremConfig) -> Result<Self, OnPremError> {
         if config.product_name.is_empty() {
-            return Err(OnPremError::InvalidConfig("product_name is required".to_string()));
+            return Err(OnPremError::InvalidConfig(
+                "product_name is required".to_string(),
+            ));
         }
         if config.hostname.is_empty() {
-            return Err(OnPremError::InvalidConfig("hostname is required".to_string()));
+            return Err(OnPremError::InvalidConfig(
+                "hostname is required".to_string(),
+            ));
         }
         if config.node_count == 0 {
-            return Err(OnPremError::InvalidConfig("node_count must be >= 1".to_string()));
+            return Err(OnPremError::InvalidConfig(
+                "node_count must be >= 1".to_string(),
+            ));
         }
 
         let rendered = format!(

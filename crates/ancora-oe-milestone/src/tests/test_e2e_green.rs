@@ -1,4 +1,4 @@
-use crate::suite_status::{SuiteResult, SuiteStatus, milestone_green};
+use crate::suite_status::{milestone_green, SuiteResult, SuiteStatus};
 
 #[test]
 fn e2e_suite_green() {

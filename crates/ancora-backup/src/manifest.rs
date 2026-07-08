@@ -1,5 +1,5 @@
-use sha2::{Digest, Sha256};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 /// Backup manifest records what's in the archive and a checksum for integrity.
 #[derive(Clone, Debug, Serialize, Deserialize)]

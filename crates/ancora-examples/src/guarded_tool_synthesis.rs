@@ -1,6 +1,6 @@
 use ancora_toolsynth::{
-    spec_from_goal, SchemaValidator, SandboxRunner, PermissionScope,
-    ApprovalGate, SynthRegistry, SynthAudit, AuditEvent, SynthCache,
+    spec_from_goal, ApprovalGate, AuditEvent, PermissionScope, SandboxRunner, SchemaValidator,
+    SynthAudit, SynthCache, SynthRegistry,
 };
 
 pub fn run_guarded_tool_synthesis_example() {
@@ -10,7 +10,9 @@ pub fn run_guarded_tool_synthesis_example() {
     SchemaValidator::validate(&spec.input_schema).expect("schema must be valid");
 
     let scope = PermissionScope::read_only();
-    scope.check(&spec.effect_class).expect("effect must be in scope");
+    scope
+        .check(&spec.effect_class)
+        .expect("effect must be in scope");
 
     let result = SandboxRunner::execute(&spec, &serde_json::json!({}))
         .expect("sandbox execution must succeed");
@@ -18,7 +20,8 @@ pub fn run_guarded_tool_synthesis_example() {
 
     let mut gate = ApprovalGate::default();
     gate.approve(&spec.name);
-    gate.check(&spec.name).expect("tool must be approved before use");
+    gate.check(&spec.name)
+        .expect("tool must be approved before use");
 
     let mut registry = SynthRegistry::default();
     registry.register(spec.clone());
@@ -27,9 +30,26 @@ pub fn run_guarded_tool_synthesis_example() {
     cache.insert(goal, spec.clone());
 
     let mut audit = SynthAudit::default();
-    audit.record(1, AuditEvent::Synthesized { tool_name: spec.name.clone(), goal: goal.into() });
-    audit.record(2, AuditEvent::Approved { tool_name: spec.name.clone(), approver: "operator".into() });
-    audit.record(3, AuditEvent::Cached { tool_name: spec.name.clone() });
+    audit.record(
+        1,
+        AuditEvent::Synthesized {
+            tool_name: spec.name.clone(),
+            goal: goal.into(),
+        },
+    );
+    audit.record(
+        2,
+        AuditEvent::Approved {
+            tool_name: spec.name.clone(),
+            approver: "operator".into(),
+        },
+    );
+    audit.record(
+        3,
+        AuditEvent::Cached {
+            tool_name: spec.name.clone(),
+        },
+    );
 
     assert_eq!(audit.events_for_tool(&spec.name).len(), 3);
     assert!(cache.get(goal).is_some());

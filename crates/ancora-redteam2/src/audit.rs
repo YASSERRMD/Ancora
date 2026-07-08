@@ -64,17 +64,36 @@ pub struct RedTeamAuditLog {
 }
 
 impl RedTeamAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: RedTeamAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: RedTeamAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a RedTeamAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
     pub fn for_scenario<'a>(&'a self, scenario_id: &str) -> Vec<&'a RedTeamAuditEntry> {
-        self.entries.iter().filter(|e| e.scenario_id == scenario_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.scenario_id == scenario_id)
+            .collect()
     }
     pub fn by_action<'a>(&'a self, action: &RedTeamAction) -> Vec<&'a RedTeamAuditEntry> {
-        self.entries.iter().filter(|e| &e.action == action).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.action == action)
+            .collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &RedTeamAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &RedTeamAuditEntry> {
+        self.entries.iter()
+    }
 }

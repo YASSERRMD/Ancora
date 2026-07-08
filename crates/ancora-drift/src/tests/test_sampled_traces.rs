@@ -1,6 +1,6 @@
 //! Integration tests: sampled traces feed the eval pipeline.
 
-use crate::sampling::{SamplingConfig, Sampler, Trace};
+use crate::sampling::{Sampler, SamplingConfig, Trace};
 
 fn make_trace(id: u32) -> Trace {
     Trace {
@@ -17,7 +17,11 @@ fn make_trace(id: u32) -> Trace {
 #[test]
 fn sampled_traces_become_eval_cases() {
     // Use rate=1.0 so all traces are captured.
-    let cfg = SamplingConfig { rate: 1.0, buffer_size: 100, seed: 7 };
+    let cfg = SamplingConfig {
+        rate: 1.0,
+        buffer_size: 100,
+        seed: 7,
+    };
     let mut sampler = Sampler::new(cfg);
 
     for i in 0..20 {
@@ -37,7 +41,11 @@ fn sampled_traces_become_eval_cases() {
 
 #[test]
 fn sampler_respects_buffer_limit() {
-    let cfg = SamplingConfig { rate: 1.0, buffer_size: 5, seed: 0 };
+    let cfg = SamplingConfig {
+        rate: 1.0,
+        buffer_size: 5,
+        seed: 0,
+    };
     let mut sampler = Sampler::new(cfg);
     for i in 0..10 {
         sampler.offer(make_trace(i));
@@ -48,7 +56,11 @@ fn sampler_respects_buffer_limit() {
 
 #[test]
 fn partial_sampling_gives_subset() {
-    let cfg = SamplingConfig { rate: 0.5, buffer_size: 1_000, seed: 99 };
+    let cfg = SamplingConfig {
+        rate: 0.5,
+        buffer_size: 1_000,
+        seed: 99,
+    };
     let mut sampler = Sampler::new(cfg);
     for i in 0..1_000 {
         sampler.offer(make_trace(i));

@@ -62,7 +62,9 @@ fn qdrant_hybrid_activity_kind_is_hybrid_retrieval() {
     let events = build_qdrant_hybrid_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert_eq!(a.activity_kind, "hybrid-retrieval");
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -70,7 +72,9 @@ fn qdrant_hybrid_result_has_sparse_score() {
     let events = build_qdrant_hybrid_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("sparse_score"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -78,7 +82,9 @@ fn qdrant_hybrid_result_has_rrf() {
     let events = build_qdrant_hybrid_journal("r");
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.result_json.contains("rrf"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]
@@ -87,7 +93,9 @@ fn qdrant_hybrid_input_has_vector_names() {
     if let Some(Event::ActivityRecorded(a)) = &events[1].event {
         assert!(a.input_json.contains("sparse_vector_name"));
         assert!(a.input_json.contains("dense_vector_name"));
-    } else { panic!("Expected ActivityRecorded"); }
+    } else {
+        panic!("Expected ActivityRecorded");
+    }
 }
 
 #[test]

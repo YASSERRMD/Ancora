@@ -10,11 +10,17 @@ use ancora_core::{
 };
 
 fn rate_limit_err() -> AncoraError {
-    AncoraError::ModelHttp { status: 429, body: "rate limited".into() }
+    AncoraError::ModelHttp {
+        status: 429,
+        body: "rate limited".into(),
+    }
 }
 
 fn overload_err() -> AncoraError {
-    AncoraError::ModelHttp { status: 503, body: "service overloaded".into() }
+    AncoraError::ModelHttp {
+        status: 503,
+        body: "service overloaded".into(),
+    }
 }
 
 fn aggressive_policy(max: u32) -> RetryPolicy {
@@ -63,13 +69,12 @@ fn storm_of_three_429s_then_success_completes_on_fourth_attempt() {
 fn storm_exhausts_budget_when_never_recovering() {
     let policy = aggressive_policy(4);
 
-    let outcome = run_with_retry(
-        &policy,
-        |_| Err::<(), _>(rate_limit_err()),
-        |_| {},
-    );
+    let outcome = run_with_retry(&policy, |_| Err::<(), _>(rate_limit_err()), |_| {});
 
-    assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 4, .. }));
+    assert!(matches!(
+        outcome,
+        RetryOutcome::Exhausted { attempts: 4, .. }
+    ));
 }
 
 #[test]
@@ -77,11 +82,7 @@ fn sleep_called_between_each_retry_in_a_storm() {
     let policy = aggressive_policy(4);
     let mut sleeps = 0u32;
 
-    run_with_retry(
-        &policy,
-        |_| Err::<(), _>(rate_limit_err()),
-        |_| sleeps += 1,
-    );
+    run_with_retry(&policy, |_| Err::<(), _>(rate_limit_err()), |_| sleeps += 1);
 
     assert_eq!(sleeps, 3, "sleep between attempts 1-2, 2-3, and 3-4");
 }
@@ -133,13 +134,12 @@ fn terminal_error_interrupts_storm_immediately() {
 fn max_attempts_one_means_no_retry_on_429() {
     let policy = aggressive_policy(1);
 
-    let outcome = run_with_retry(
-        &policy,
-        |_| Err::<(), _>(rate_limit_err()),
-        |_| {},
-    );
+    let outcome = run_with_retry(&policy, |_| Err::<(), _>(rate_limit_err()), |_| {});
 
-    assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 1, .. }));
+    assert!(matches!(
+        outcome,
+        RetryOutcome::Exhausted { attempts: 1, .. }
+    ));
 }
 
 #[test]
@@ -149,10 +149,16 @@ fn storm_of_ten_429s_exhausts_budget_of_ten() {
 
     let outcome = run_with_retry(
         &policy,
-        |_| { count += 1; Err::<(), _>(rate_limit_err()) },
+        |_| {
+            count += 1;
+            Err::<(), _>(rate_limit_err())
+        },
         |_| {},
     );
 
-    assert!(matches!(outcome, RetryOutcome::Exhausted { attempts: 10, .. }));
+    assert!(matches!(
+        outcome,
+        RetryOutcome::Exhausted { attempts: 10, .. }
+    ));
     assert_eq!(count, 10);
 }

@@ -1,5 +1,4 @@
 /// Aggregate metrics with confidence intervals across a full eval run.
-
 use crate::rollout::RolloutResult;
 
 /// Wilson score interval for a proportion.
@@ -12,8 +11,7 @@ pub fn wilson_interval(successes: usize, trials: usize, z: f64) -> (f64, f64) {
     let p_hat = successes as f64 / n;
     let z2 = z * z;
     let center = (p_hat + z2 / (2.0 * n)) / (1.0 + z2 / n);
-    let margin = (z / (1.0 + z2 / n))
-        * ((p_hat * (1.0 - p_hat) / n + z2 / (4.0 * n * n)).sqrt());
+    let margin = (z / (1.0 + z2 / n)) * ((p_hat * (1.0 - p_hat) / n + z2 / (4.0 * n * n)).sqrt());
     ((center - margin).max(0.0), (center + margin).min(1.0))
 }
 

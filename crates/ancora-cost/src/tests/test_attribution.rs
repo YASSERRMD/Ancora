@@ -2,7 +2,14 @@
 mod tests {
     use crate::attribution::{CostAttributor, CostRecord};
 
-    fn rec(model: &str, provider: &str, tool: Option<&str>, tokens: u64, cost: f64, tenant: &str) -> CostRecord {
+    fn rec(
+        model: &str,
+        provider: &str,
+        tool: Option<&str>,
+        tokens: u64,
+        cost: f64,
+        tenant: &str,
+    ) -> CostRecord {
         CostRecord {
             tenant_id: tenant.into(),
             run_id: "run-1".into(),

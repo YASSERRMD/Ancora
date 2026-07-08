@@ -14,7 +14,11 @@ pub struct E2eScenario {
 
 impl E2eScenario {
     pub fn pass(name: impl Into<String>, duration_ms: u64) -> Self {
-        Self { name: name.into(), result: E2eResult::Pass, duration_ms }
+        Self {
+            name: name.into(),
+            result: E2eResult::Pass,
+            duration_ms,
+        }
     }
 
     pub fn is_passing(&self) -> bool {

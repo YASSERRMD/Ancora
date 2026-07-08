@@ -1,7 +1,13 @@
 use crate::summarizer::{ConversationSummarizer, SummarizationPolicy, Turn};
 
 fn make_turns(n: usize) -> Vec<Turn> {
-    (0..n).map(|i| Turn { index: i, role: "user".into(), content: format!("fact-{i}") }).collect()
+    (0..n)
+        .map(|i| Turn {
+            index: i,
+            role: "user".into(),
+            content: format!("fact-{i}"),
+        })
+        .collect()
 }
 
 #[test]
@@ -26,9 +32,21 @@ fn summary_preserves_key_facts() {
     let pol = SummarizationPolicy::new(3, 1);
     let s = ConversationSummarizer::new(pol);
     let turns = vec![
-        Turn { index: 0, role: "user".into(), content: "important-fact".into() },
-        Turn { index: 1, role: "user".into(), content: "noise".into() },
-        Turn { index: 2, role: "user".into(), content: "keep-this".into() },
+        Turn {
+            index: 0,
+            role: "user".into(),
+            content: "important-fact".into(),
+        },
+        Turn {
+            index: 1,
+            role: "user".into(),
+            content: "noise".into(),
+        },
+        Turn {
+            index: 2,
+            role: "user".into(),
+            content: "keep-this".into(),
+        },
     ];
     let res = s.summarize(&turns);
     assert!(res.summary.contains("important-fact"));

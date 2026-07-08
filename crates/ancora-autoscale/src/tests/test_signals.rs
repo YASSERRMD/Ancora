@@ -20,7 +20,9 @@ mod tests {
     #[test]
     fn noop_signal_desired_equals_current() {
         let s = ScaleSignal::from_decision(
-            ScaleDecision::NoOp { reason: "ok".to_string() },
+            ScaleDecision::NoOp {
+                reason: "ok".to_string(),
+            },
             4,
             2,
             0.5,

@@ -4,7 +4,6 @@
 /// `GoExtensionAdapter`.  In a real deployment these would be backed by a
 /// compiled Go shared library; here the closures simulate the behaviour so
 /// integration tests can run without a Go toolchain.
-
 use std::collections::HashMap;
 
 use crate::rs_traits::{ExtensionError, ToolExtension, ToolMeta, Value};
@@ -25,11 +24,7 @@ pub struct GoEchoToolAdapter {
 impl GoEchoToolAdapter {
     pub fn new() -> Self {
         GoEchoToolAdapter {
-            meta: ToolMeta::new(
-                "go_echo",
-                "Go implementation of the echo tool.",
-                "1.0.0",
-            ),
+            meta: ToolMeta::new("go_echo", "Go implementation of the echo tool.", "1.0.0"),
         }
     }
 }
@@ -51,9 +46,7 @@ impl ToolExtension for GoEchoToolAdapter {
             .get("message")
             .and_then(|v| v.as_str())
             .ok_or_else(|| {
-                ExtensionError::InvalidArgument(
-                    "'message' argument is required".to_string(),
-                )
+                ExtensionError::InvalidArgument("'message' argument is required".to_string())
             })?;
         Ok(Value::string(format!("[go] {msg}")))
     }
@@ -92,12 +85,9 @@ impl ToolExtension for GoWordCountAdapter {
     }
 
     fn execute(&self, args: HashMap<String, Value>) -> Result<Value, ExtensionError> {
-        let text = args
-            .get("text")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| {
-                ExtensionError::InvalidArgument("'text' argument is required".to_string())
-            })?;
+        let text = args.get("text").and_then(|v| v.as_str()).ok_or_else(|| {
+            ExtensionError::InvalidArgument("'text' argument is required".to_string())
+        })?;
         let count = text.split_whitespace().count() as i64;
         Ok(Value::Int(count))
     }

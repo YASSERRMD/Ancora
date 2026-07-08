@@ -8,7 +8,9 @@ pub struct CallGraph {
 
 impl CallGraph {
     pub fn new() -> Self {
-        Self { edges: HashMap::new() }
+        Self {
+            edges: HashMap::new(),
+        }
     }
 
     pub fn add_dependency(&mut self, call_id: &str, depends_on: &str) {
@@ -41,7 +43,12 @@ impl CallGraph {
         false
     }
 
-    fn is_reachable(&self, start: &str, target: &str, visited: &mut std::collections::HashSet<String>) -> bool {
+    fn is_reachable(
+        &self,
+        start: &str,
+        target: &str,
+        visited: &mut std::collections::HashSet<String>,
+    ) -> bool {
         if let Some(deps) = self.edges.get(start) {
             for dep in deps {
                 if dep == target {

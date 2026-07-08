@@ -5,7 +5,9 @@ pub struct RetentionPolicy {
 }
 
 impl RetentionPolicy {
-    pub fn new(max_age_ticks: u64) -> Self { Self { max_age_ticks } }
+    pub fn new(max_age_ticks: u64) -> Self {
+        Self { max_age_ticks }
+    }
 
     pub fn evict(&self, log: &ImmutableAuditLog, current_tick: u64) -> Vec<u64> {
         let cutoff = current_tick.saturating_sub(self.max_age_ticks);

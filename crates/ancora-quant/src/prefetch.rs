@@ -174,7 +174,11 @@ impl PrefetchCache {
                 .entries
                 .iter()
                 .filter(|(_, e)| e.state == CacheState::Cached)
-                .max_by_key(|(_, e)| e.last_accessed.map(|i| i.elapsed()).unwrap_or(std::time::Duration::MAX))
+                .max_by_key(|(_, e)| {
+                    e.last_accessed
+                        .map(|i| i.elapsed())
+                        .unwrap_or(std::time::Duration::MAX)
+                })
                 .map(|(id, _)| id.clone()),
             EvictionPolicy::Lfu => self
                 .entries

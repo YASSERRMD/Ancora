@@ -1,5 +1,4 @@
 /// test_spec_roundtrip - Test that a spec can be exported to text and re-imported identically.
-
 use crate::edges::{EdgeStore, EdgeType};
 use crate::export::{export_spec, spec_to_text, ExportOptions};
 use crate::import::{import_spec, parse_simple_spec};
@@ -13,10 +12,30 @@ fn build_graph() -> (Canvas, EdgeStore) {
 
     let a = canvas.place_node("agent.llm", "LLM Agent", Position::new(0.0, 0.0));
     let b = canvas.place_node("tool.web_search", "Search", Position::new(200.0, 0.0));
-    let c = canvas.place_node("verifier.hallucination", "Halluc Checker", Position::new(400.0, 0.0));
+    let c = canvas.place_node(
+        "verifier.hallucination",
+        "Halluc Checker",
+        Position::new(400.0, 0.0),
+    );
 
-    edges.add_edge(a.clone(), "agent.llm", b.clone(), "tool.web_search", EdgeType::DataFlow).unwrap();
-    edges.add_edge(b.clone(), "tool.web_search", c.clone(), "verifier.hallucination", EdgeType::DataFlow).unwrap();
+    edges
+        .add_edge(
+            a.clone(),
+            "agent.llm",
+            b.clone(),
+            "tool.web_search",
+            EdgeType::DataFlow,
+        )
+        .unwrap();
+    edges
+        .add_edge(
+            b.clone(),
+            "tool.web_search",
+            c.clone(),
+            "verifier.hallucination",
+            EdgeType::DataFlow,
+        )
+        .unwrap();
 
     (canvas, edges)
 }
@@ -33,8 +52,16 @@ fn exported_spec_round_trips_via_text() {
     let spec2 = parse_simple_spec(&text).unwrap();
 
     assert_eq!(spec2.name, spec.name);
-    assert_eq!(spec2.nodes.len(), spec.nodes.len(), "node count mismatch after round-trip");
-    assert_eq!(spec2.edges.len(), spec.edges.len(), "edge count mismatch after round-trip");
+    assert_eq!(
+        spec2.nodes.len(),
+        spec.nodes.len(),
+        "node count mismatch after round-trip"
+    );
+    assert_eq!(
+        spec2.edges.len(),
+        spec.edges.len(),
+        "edge count mismatch after round-trip"
+    );
 }
 
 #[test]
@@ -44,7 +71,11 @@ fn round_tripped_spec_is_valid() {
     let text = spec_to_text(&spec);
     let spec2 = parse_simple_spec(&text).unwrap();
     let report = validate_spec(&spec2);
-    assert!(report.is_valid(), "round-tripped spec should be valid: {:?}", report.diagnostics);
+    assert!(
+        report.is_valid(),
+        "round-tripped spec should be valid: {:?}",
+        report.diagnostics
+    );
 }
 
 #[test]
@@ -66,8 +97,10 @@ fn node_kinds_preserved_in_round_trip() {
     let text = spec_to_text(&spec);
     let spec2 = parse_simple_spec(&text).unwrap();
 
-    let kinds: std::collections::HashSet<String> = spec.nodes.iter().map(|n| n.kind.clone()).collect();
-    let kinds2: std::collections::HashSet<String> = spec2.nodes.iter().map(|n| n.kind.clone()).collect();
+    let kinds: std::collections::HashSet<String> =
+        spec.nodes.iter().map(|n| n.kind.clone()).collect();
+    let kinds2: std::collections::HashSet<String> =
+        spec2.nodes.iter().map(|n| n.kind.clone()).collect();
     assert_eq!(kinds, kinds2, "node kinds should survive round-trip");
 }
 

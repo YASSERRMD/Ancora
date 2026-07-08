@@ -24,7 +24,8 @@ impl PolicyValidator {
             issues.push(ValidationIssue {
                 rule_id: String::new(),
                 kind: IssueKind::NoRules,
-                description: "policy has no rules, default posture applies to all traffic".to_string(),
+                description: "policy has no rules, default posture applies to all traffic"
+                    .to_string(),
             });
             return issues;
         }

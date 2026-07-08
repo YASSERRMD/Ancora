@@ -1,10 +1,9 @@
-/// Local backend - offline data access layer for the studio.
-
-use crate::run_list::{RunList, RunSummary, RunStatus};
-use crate::timeline::{Timeline, TimelineStep, StepKind};
-use crate::eval_view::{EvalView, EvalResult, EvalOutcome};
 use crate::cost_view::{CostBreakdown, StepCost};
-use crate::feedback_view::{FeedbackView, FeedbackEntry, FeedbackRating};
+use crate::eval_view::{EvalOutcome, EvalResult, EvalView};
+use crate::feedback_view::{FeedbackEntry, FeedbackRating, FeedbackView};
+/// Local backend - offline data access layer for the studio.
+use crate::run_list::{RunList, RunStatus, RunSummary};
+use crate::timeline::{StepKind, Timeline, TimelineStep};
 
 #[derive(Debug)]
 pub enum BackendError {
@@ -83,11 +82,7 @@ impl StudioBackend for InMemoryBackend {
     }
 
     fn get_timeline(&self, run_id: &str) -> Result<Timeline, BackendError> {
-        let steps = self
-            .timelines
-            .get(run_id)
-            .cloned()
-            .unwrap_or_default();
+        let steps = self.timelines.get(run_id).cloned().unwrap_or_default();
         Ok(Timeline::new(run_id, steps))
     }
 

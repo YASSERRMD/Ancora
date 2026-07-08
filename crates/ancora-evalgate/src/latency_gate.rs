@@ -1,10 +1,9 @@
+use crate::regression::{detect, RegressionResult};
 /// Latency regression gate.
 ///
 /// Checks whether the p50/p95/p99 latency (in milliseconds) for a PR run
 /// regresses beyond the baseline latency by more than the allowed threshold.
-
 use crate::threshold::{MetricDirection, ThresholdKind, ThresholdPolicy};
-use crate::regression::{detect, RegressionResult};
 
 /// Which latency percentile to evaluate.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -83,11 +82,7 @@ pub fn check_latency(
 }
 
 /// Convenience wrapper: returns `true` when any configured percentile blocks.
-pub fn any_blocks(
-    baseline_ms: &[f64],
-    candidate_ms: &[f64],
-    config: &LatencyGateConfig,
-) -> bool {
+pub fn any_blocks(baseline_ms: &[f64], candidate_ms: &[f64], config: &LatencyGateConfig) -> bool {
     check_latency(baseline_ms, candidate_ms, config)
         .iter()
         .any(|r| r.is_blocking())

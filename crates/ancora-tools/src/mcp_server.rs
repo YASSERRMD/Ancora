@@ -54,10 +54,7 @@ impl McpServer {
     }
 }
 
-async fn handle_connection(
-    mut stream: tokio::net::TcpStream,
-    server: Arc<McpServer>,
-) {
+async fn handle_connection(mut stream: tokio::net::TcpStream, server: Arc<McpServer>) {
     let mut buf = [0u8; 16384];
     let n = match stream.read(&mut buf).await {
         Ok(n) if n > 0 => n,
@@ -66,7 +63,9 @@ async fn handle_connection(
     let raw = &buf[..n];
 
     // Split HTTP headers from body.
-    let Some(header_end) = find_header_end(raw) else { return };
+    let Some(header_end) = find_header_end(raw) else {
+        return;
+    };
     let headers = String::from_utf8_lossy(&raw[..header_end]);
     let body = &raw[header_end..];
 
@@ -91,7 +90,10 @@ async fn handle_connection(
     };
 
     let method = request["method"].as_str().unwrap_or("");
-    let id = request.get("id").cloned().unwrap_or(serde_json::Value::Null);
+    let id = request
+        .get("id")
+        .cloned()
+        .unwrap_or(serde_json::Value::Null);
 
     let result = match method {
         "tools/list" => handle_list(&server.registry),
@@ -130,14 +132,15 @@ fn handle_list(registry: &ToolRegistry) -> Result<serde_json::Value, String> {
     Ok(serde_json::json!({ "tools": tools }))
 }
 
-fn handle_call(registry: &ToolRegistry, params: &serde_json::Value) -> Result<serde_json::Value, String> {
+fn handle_call(
+    registry: &ToolRegistry,
+    params: &serde_json::Value,
+) -> Result<serde_json::Value, String> {
     let name = params["name"]
         .as_str()
         .ok_or_else(|| "missing tool name".to_owned())?;
     let args = &params["arguments"];
-    registry
-        .call(name, args)
-        .map_err(|e| e.to_string())
+    registry.call(name, args).map_err(|e| e.to_string())
 }
 
 /// Return `true` when the HTTP headers contain `Authorization: Bearer <token>`.
@@ -153,9 +156,7 @@ pub(crate) fn bearer_matches(headers: &str, token: &str) -> bool {
 }
 
 fn find_header_end(buf: &[u8]) -> Option<usize> {
-    buf.windows(4)
-        .position(|w| w == b"\r\n\r\n")
-        .map(|p| p + 4)
+    buf.windows(4).position(|w| w == b"\r\n\r\n").map(|p| p + 4)
 }
 
 async fn not_found(stream: &mut tokio::net::TcpStream) {
@@ -182,18 +183,24 @@ async fn rpc_error(stream: &mut tokio::net::TcpStream, code: i32, msg: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tool::{Tool, ToolEffect};
     use crate::error::ToolError;
+    use crate::tool::{Tool, ToolEffect};
 
     struct AddTool;
 
     impl Tool for AddTool {
-        fn name(&self) -> &str { "add" }
-        fn description(&self) -> &str { "adds two numbers" }
+        fn name(&self) -> &str {
+            "add"
+        }
+        fn description(&self) -> &str {
+            "adds two numbers"
+        }
         fn input_schema(&self) -> serde_json::Value {
             serde_json::json!({ "type": "object", "required": ["a", "b"] })
         }
-        fn effect(&self) -> ToolEffect { ToolEffect::ReadOnly }
+        fn effect(&self) -> ToolEffect {
+            ToolEffect::ReadOnly
+        }
         fn call(&self, input: &serde_json::Value) -> Result<serde_json::Value, ToolError> {
             let a = input["a"].as_f64().unwrap_or(0.0);
             let b = input["b"].as_f64().unwrap_or(0.0);

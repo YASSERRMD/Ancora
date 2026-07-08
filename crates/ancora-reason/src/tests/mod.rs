@@ -1,9 +1,9 @@
-mod test_decompose;
-mod test_verify;
-mod test_factcheck;
-mod test_contradiction;
-mod test_evidence;
-mod test_confidence;
 mod test_abstain;
-mod test_journal;
 mod test_citation;
+mod test_confidence;
+mod test_contradiction;
+mod test_decompose;
+mod test_evidence;
+mod test_factcheck;
+mod test_journal;
+mod test_verify;

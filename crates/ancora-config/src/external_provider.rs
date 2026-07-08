@@ -16,7 +16,10 @@ where
     F: Fn(&str) -> Result<String, String> + Send + Sync,
 {
     pub fn new(provider_name: impl Into<String>, fetch: F) -> Self {
-        Self { provider_name: provider_name.into(), fetch }
+        Self {
+            provider_name: provider_name.into(),
+            fetch,
+        }
     }
 }
 

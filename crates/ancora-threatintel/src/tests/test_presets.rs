@@ -1,5 +1,5 @@
-use crate::presets::{internal_feed, known_bad_ip, known_malware_hash, phishing_domain};
 use crate::indicator::{IndicatorKind, ThreatLevel};
+use crate::presets::{internal_feed, known_bad_ip, known_malware_hash, phishing_domain};
 
 #[test]
 fn known_bad_ip_preset() {

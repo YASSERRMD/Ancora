@@ -33,7 +33,10 @@ fn missing_scopes_error_lists_missing_names() {
     let required = vec!["tool:execute".to_string()];
     let err = enforce_required_scopes("my-plugin", &required, &grant).unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("tool:execute"), "error should name the missing scope: {msg}");
+    assert!(
+        msg.contains("tool:execute"),
+        "error should name the missing scope: {msg}"
+    );
 }
 
 #[test]

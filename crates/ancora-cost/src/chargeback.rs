@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::attribution::CostAttributor;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChargebackLine {
@@ -37,7 +37,11 @@ impl ChargebackReport {
             })
             .collect();
         lines.sort_by(|a, b| a.tenant_id.cmp(&b.tenant_id));
-        Self { period_start_secs, period_end_secs, lines }
+        Self {
+            period_start_secs,
+            period_end_secs,
+            lines,
+        }
     }
 
     pub fn total_cost_usd(&self) -> f64 {

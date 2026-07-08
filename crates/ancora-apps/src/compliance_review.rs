@@ -139,10 +139,7 @@ impl ComplianceReviewer {
                     findings.push(Finding {
                         rule_id: rule.id.clone(),
                         severity: rule.severity.clone(),
-                        message: format!(
-                            "Rule {}: required keyword '{}' missing.",
-                            rule.id, kw
-                        ),
+                        message: format!("Rule {}: required keyword '{}' missing.", rule.id, kw),
                     });
                 }
             }
@@ -151,10 +148,7 @@ impl ComplianceReviewer {
                     findings.push(Finding {
                         rule_id: rule.id.clone(),
                         severity: rule.severity.clone(),
-                        message: format!(
-                            "Rule {}: forbidden keyword '{}' present.",
-                            rule.id, kw
-                        ),
+                        message: format!("Rule {}: forbidden keyword '{}' present.", rule.id, kw),
                     });
                 }
             }

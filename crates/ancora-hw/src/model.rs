@@ -145,7 +145,12 @@ impl ModelRequirements {
     }
 
     /// Create requirements for a GPU-preferred model.
-    pub fn gpu_preferred(name: &str, min_ram_mib: u64, min_vram_mib: u64, params_millions: u32) -> Self {
+    pub fn gpu_preferred(
+        name: &str,
+        min_ram_mib: u64,
+        min_vram_mib: u64,
+        params_millions: u32,
+    ) -> Self {
         ModelRequirements {
             name: name.to_owned(),
             min_ram_mib,

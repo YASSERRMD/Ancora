@@ -67,19 +67,35 @@ pub struct AirGapAuditLog {
 }
 
 impl AirGapAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
 
-    pub fn record(&mut self, entry: AirGapAuditEntry) { self.entries.push_back(entry); }
+    pub fn record(&mut self, entry: AirGapAuditEntry) {
+        self.entries.push_back(entry);
+    }
 
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
 
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a AirGapAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
 
     pub fn by_action<'a>(&'a self, action: &AirGapAction) -> Vec<&'a AirGapAuditEntry> {
-        self.entries.iter().filter(|e| &e.action == action).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.action == action)
+            .collect()
     }
 
-    pub fn all(&self) -> impl Iterator<Item = &AirGapAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &AirGapAuditEntry> {
+        self.entries.iter()
+    }
 }

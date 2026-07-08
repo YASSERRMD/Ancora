@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::tests::test_reconcile::tests::make_cluster;
     use crate::crd::cluster::ObjectMeta;
     use crate::crd::tenant::{AncoraTenant, AncoraTenantSpec, AncoraTenantStatus};
     use crate::reconciler::Reconciler;
+    use crate::tests::test_reconcile::tests::make_cluster;
     use std::collections::HashMap;
 
     #[test]
@@ -15,7 +15,10 @@ mod tests {
 
         r.delete_cluster(&mut cluster).unwrap();
         assert!(!r.k8s().exists("Deployment", "del-cluster-control-plane"));
-        assert!(cluster.metadata.finalizers.is_empty(), "finalizer should be removed");
+        assert!(
+            cluster.metadata.finalizers.is_empty(),
+            "finalizer should be removed"
+        );
     }
 
     #[test]

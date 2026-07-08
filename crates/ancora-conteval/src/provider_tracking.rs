@@ -2,7 +2,6 @@
 ///
 /// Aggregates quality scores across all models served by each provider,
 /// enabling cross-provider comparison and alerting.
-
 use crate::rolling_metric::RollingMetric;
 use std::collections::HashMap;
 

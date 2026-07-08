@@ -40,6 +40,10 @@ impl JournalStore {
     }
 
     pub fn entries_since(&self, seq: u64) -> Vec<JournalEntry> {
-        self.entries.iter().filter(|e| e.seq > seq).cloned().collect()
+        self.entries
+            .iter()
+            .filter(|e| e.seq > seq)
+            .cloned()
+            .collect()
     }
 }

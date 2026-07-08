@@ -7,6 +7,9 @@ pub struct Scope {
 
 impl Scope {
     pub fn new(resource_id: impl Into<String>, thread_id: impl Into<String>) -> Self {
-        Self { resource_id: resource_id.into(), thread_id: thread_id.into() }
+        Self {
+            resource_id: resource_id.into(),
+            thread_id: thread_id.into(),
+        }
     }
 }

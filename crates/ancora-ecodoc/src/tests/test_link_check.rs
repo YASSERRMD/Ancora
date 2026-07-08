@@ -64,5 +64,8 @@ fn security_url_points_to_ancora_dev() {
         .find(|&&u| u.contains("security"))
         .copied()
         .unwrap_or("");
-    assert!(security.contains("ancora.dev"), "security URL should use ancora.dev domain");
+    assert!(
+        security.contains("ancora.dev"),
+        "security URL should use ancora.dev domain"
+    );
 }

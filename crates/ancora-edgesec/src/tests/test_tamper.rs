@@ -3,7 +3,12 @@ use crate::tamper::{TamperEvent, TamperEventKind, TamperMonitor};
 #[test]
 fn test_tamper_detected() {
     let mut monitor = TamperMonitor::new(100);
-    let event = TamperEvent::new("device-001", TamperEventKind::HashMismatch, "boot hash mismatch", 1);
+    let event = TamperEvent::new(
+        "device-001",
+        TamperEventKind::HashMismatch,
+        "boot hash mismatch",
+        1,
+    );
     monitor.record(event);
     assert!(monitor.is_tampered("device-001"));
 }
@@ -36,8 +41,18 @@ fn test_tamper_check_hash_match() {
 #[test]
 fn test_tamper_events_for_device() {
     let mut monitor = TamperMonitor::new(100);
-    monitor.record(TamperEvent::new("dev-A", TamperEventKind::UnexpectedReboot, "reboot", 1));
-    monitor.record(TamperEvent::new("dev-B", TamperEventKind::ClockSkew, "clock", 2));
+    monitor.record(TamperEvent::new(
+        "dev-A",
+        TamperEventKind::UnexpectedReboot,
+        "reboot",
+        1,
+    ));
+    monitor.record(TamperEvent::new(
+        "dev-B",
+        TamperEventKind::ClockSkew,
+        "clock",
+        2,
+    ));
     let events = monitor.events_for("dev-A");
     assert_eq!(events.len(), 1);
     assert_eq!(events[0].kind, TamperEventKind::UnexpectedReboot);

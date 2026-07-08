@@ -2,15 +2,48 @@ use std::collections::VecDeque;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AuthEvent {
-    OidcLoginSuccess { subject: String, tenant_id: String, tick: u64 },
-    OidcLoginFailure { tenant_id: String, reason: String, tick: u64 },
-    SamlLoginSuccess { subject: String, tenant_id: String, tick: u64 },
-    SamlLoginFailure { tenant_id: String, reason: String, tick: u64 },
-    ServiceAccountAuth { account_id: String, tenant_id: String, tick: u64 },
-    TokenRevoked { token_prefix: String, tick: u64 },
-    SessionLogout { session_id: String, tick: u64 },
-    MfaVerified { subject: String, method: String, tick: u64 },
-    MfaFailed { subject: String, tick: u64 },
+    OidcLoginSuccess {
+        subject: String,
+        tenant_id: String,
+        tick: u64,
+    },
+    OidcLoginFailure {
+        tenant_id: String,
+        reason: String,
+        tick: u64,
+    },
+    SamlLoginSuccess {
+        subject: String,
+        tenant_id: String,
+        tick: u64,
+    },
+    SamlLoginFailure {
+        tenant_id: String,
+        reason: String,
+        tick: u64,
+    },
+    ServiceAccountAuth {
+        account_id: String,
+        tenant_id: String,
+        tick: u64,
+    },
+    TokenRevoked {
+        token_prefix: String,
+        tick: u64,
+    },
+    SessionLogout {
+        session_id: String,
+        tick: u64,
+    },
+    MfaVerified {
+        subject: String,
+        method: String,
+        tick: u64,
+    },
+    MfaFailed {
+        subject: String,
+        tick: u64,
+    },
 }
 
 #[derive(Debug, Default)]

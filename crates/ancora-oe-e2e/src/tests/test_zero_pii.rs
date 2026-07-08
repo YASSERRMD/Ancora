@@ -1,5 +1,4 @@
 /// Tests that telemetry exported after redaction contains zero sensitive data.
-
 use crate::privacy_e2e::{assert_no_sensitive_data, default_redactor};
 use crate::trace_e2e::{build_run_trace, MockCollector, TraceExporter};
 
@@ -22,8 +21,10 @@ fn zero_sensitive_data_in_telemetry_after_redaction() {
 
     // Inject PII into a span attribute to simulate a leak.
     if let Some(span) = trace.spans.first_mut() {
-        span.attributes.insert("user.email".to_string(), "user@example.com".to_string());
-        span.attributes.insert("api.key".to_string(), "sk-secret-12345".to_string());
+        span.attributes
+            .insert("user.email".to_string(), "user@example.com".to_string());
+        span.attributes
+            .insert("api.key".to_string(), "sk-secret-12345".to_string());
     }
 
     let mut collector = MockCollector::new();

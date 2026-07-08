@@ -1,14 +1,15 @@
+use crate::a2a_interop::{build_message, A2ADispatcher, A2AError, A2AMessage, A2AResponse};
+use crate::ancora_to_langchain::{expose_as_langchain_tool, AncoraAgentSpec};
+use crate::crewai::{map_crewai_to_ancora, CrewAIAgent, CrewAIDefinition, CrewAITask};
 /// Migration examples demonstrating how to move from each external framework
 /// to Ancora. Each function returns a structured migration result that
 /// integration tests can assert against.
-
 use crate::langchain_tools::{import_langchain_tools, LangchainToolDef};
-use crate::langgraph::{map_langgraph_to_stages, LangGraphDefinition, LangGraphEdge, LangGraphNode};
-use crate::crewai::{map_crewai_to_ancora, CrewAIAgent, CrewAIDefinition, CrewAITask};
+use crate::langgraph::{
+    map_langgraph_to_stages, LangGraphDefinition, LangGraphEdge, LangGraphNode,
+};
 use crate::mcp_native::{McpParamDef, McpParamType, McpToolDef, McpToolRegistry};
-use crate::ancora_to_langchain::{expose_as_langchain_tool, AncoraAgentSpec};
-use crate::a2a_interop::{build_message, A2ADispatcher, A2AMessage, A2AResponse, A2AError};
-use crate::openai_agents::{build_handoff, HandoffBridge, OpenAIAgentResult, HandoffError};
+use crate::openai_agents::{build_handoff, HandoffBridge, HandoffError, OpenAIAgentResult};
 use crate::semantic_kernel::{import_sk_plugin, SKFunctionDef, SKFunctionParam, SKPluginDef};
 
 pub struct MigrationResult {
@@ -33,7 +34,14 @@ pub fn example_langchain_migration() -> MigrationResult {
     MigrationResult {
         framework: "langchain".into(),
         items_migrated: tools.len(),
-        notes: format!("Migrated tools: {}", tools.iter().map(|t| t.tool_name.as_str()).collect::<Vec<_>>().join(", ")),
+        notes: format!(
+            "Migrated tools: {}",
+            tools
+                .iter()
+                .map(|t| t.tool_name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
     }
 }
 
@@ -41,10 +49,19 @@ pub fn example_langchain_migration() -> MigrationResult {
 pub fn example_langgraph_migration() -> MigrationResult {
     let graph = LangGraphDefinition {
         nodes: vec![
-            LangGraphNode { id: "ingest".into(), label: "Ingest".into() },
-            LangGraphNode { id: "process".into(), label: "Process".into() },
+            LangGraphNode {
+                id: "ingest".into(),
+                label: "Ingest".into(),
+            },
+            LangGraphNode {
+                id: "process".into(),
+                label: "Process".into(),
+            },
         ],
-        edges: vec![LangGraphEdge { from: "ingest".into(), to: "process".into() }],
+        edges: vec![LangGraphEdge {
+            from: "ingest".into(),
+            to: "process".into(),
+        }],
         entry: "ingest".into(),
     };
     let stages = map_langgraph_to_stages(&graph).unwrap();
@@ -74,41 +91,55 @@ pub fn example_crewai_migration() -> MigrationResult {
             },
         ],
         tasks: vec![
-            CrewAITask { description: "Plan sprint".into(), assigned_to: "ops-lead".into() },
-            CrewAITask { description: "Analyse data".into(), assigned_to: "analyst".into() },
+            CrewAITask {
+                description: "Plan sprint".into(),
+                assigned_to: "ops-lead".into(),
+            },
+            CrewAITask {
+                description: "Analyse data".into(),
+                assigned_to: "analyst".into(),
+            },
         ],
     };
     let plan = map_crewai_to_ancora(def).unwrap();
     MigrationResult {
         framework: "crewai".into(),
         items_migrated: plan.members.len(),
-        notes: format!("Crew: {}, tasks: {}", plan.name, plan.task_assignments.len()),
+        notes: format!(
+            "Crew: {}, tasks: {}",
+            plan.name,
+            plan.task_assignments.len()
+        ),
     }
 }
 
 /// Example: register MCP tools natively in Ancora.
 pub fn example_mcp_migration() -> MigrationResult {
     let mut registry = McpToolRegistry::new();
-    registry.register(McpToolDef {
-        name: "read_file".into(),
-        description: "Read file contents".into(),
-        params: vec![McpParamDef {
-            name: "path".into(),
-            param_type: McpParamType::String,
-            required: true,
-            description: "File path".into(),
-        }],
-    }).unwrap();
-    registry.register(McpToolDef {
-        name: "list_dir".into(),
-        description: "List directory".into(),
-        params: vec![McpParamDef {
-            name: "dir".into(),
-            param_type: McpParamType::String,
-            required: true,
-            description: "Directory path".into(),
-        }],
-    }).unwrap();
+    registry
+        .register(McpToolDef {
+            name: "read_file".into(),
+            description: "Read file contents".into(),
+            params: vec![McpParamDef {
+                name: "path".into(),
+                param_type: McpParamType::String,
+                required: true,
+                description: "File path".into(),
+            }],
+        })
+        .unwrap();
+    registry
+        .register(McpToolDef {
+            name: "list_dir".into(),
+            description: "List directory".into(),
+            params: vec![McpParamDef {
+                name: "dir".into(),
+                param_type: McpParamType::String,
+                required: true,
+                description: "Directory path".into(),
+            }],
+        })
+        .unwrap();
     let count = registry.tool_names().len();
     MigrationResult {
         framework: "mcp".into(),
@@ -136,13 +167,16 @@ pub fn example_expose_to_langchain() -> MigrationResult {
 /// Example: A2A interop with a mock external agent.
 pub fn example_a2a_migration() -> MigrationResult {
     let mut dispatcher = A2ADispatcher::new();
-    dispatcher.register("ext-llm", |msg: &A2AMessage| -> Result<A2AResponse, A2AError> {
-        Ok(A2AResponse {
-            responder_id: "ext-llm".into(),
-            content: format!("processed: {}", msg.content),
-            correlation_id: msg.correlation_id.clone(),
-        })
-    });
+    dispatcher.register(
+        "ext-llm",
+        |msg: &A2AMessage| -> Result<A2AResponse, A2AError> {
+            Ok(A2AResponse {
+                responder_id: "ext-llm".into(),
+                content: format!("processed: {}", msg.content),
+                correlation_id: msg.correlation_id.clone(),
+            })
+        },
+    );
     let msg = build_message("ancora-agent", "ext-llm", "What is the weather?");
     let resp = dispatcher.dispatch(&msg).unwrap();
     MigrationResult {
@@ -155,13 +189,16 @@ pub fn example_a2a_migration() -> MigrationResult {
 /// Example: OpenAI Agents SDK handoff bridge.
 pub fn example_openai_agents_migration() -> MigrationResult {
     let mut bridge = HandoffBridge::new();
-    bridge.register_agent("classifier", |ctx: &str| -> Result<OpenAIAgentResult, HandoffError> {
-        Ok(OpenAIAgentResult {
-            agent_id: "classifier".into(),
-            output: format!("classified: {}", ctx),
-            finished: true,
-        })
-    });
+    bridge.register_agent(
+        "classifier",
+        |ctx: &str| -> Result<OpenAIAgentResult, HandoffError> {
+            Ok(OpenAIAgentResult {
+                agent_id: "classifier".into(),
+                output: format!("classified: {}", ctx),
+                finished: true,
+            })
+        },
+    );
     let handoff = build_handoff("classifier", "needs classification", "raw user input");
     let result = bridge.execute_handoff(&handoff).unwrap();
     MigrationResult {
@@ -196,7 +233,14 @@ pub fn example_sk_migration() -> MigrationResult {
     MigrationResult {
         framework: "semantic-kernel".into(),
         items_migrated: specs.len(),
-        notes: format!("Imported SK functions: {}", specs.iter().map(|s| s.qualified_name.as_str()).collect::<Vec<_>>().join(", ")),
+        notes: format!(
+            "Imported SK functions: {}",
+            specs
+                .iter()
+                .map(|s| s.qualified_name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
     }
 }
 

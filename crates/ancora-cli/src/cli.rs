@@ -13,10 +13,7 @@ pub fn run() {
             }
         }
         Some("serve") => {
-            let port: u16 = args
-                .get(2)
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(7700);
+            let port: u16 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(7700);
             if let Err(e) = crate::studio::serve(port) {
                 eprintln!("error: {e}");
                 std::process::exit(1);

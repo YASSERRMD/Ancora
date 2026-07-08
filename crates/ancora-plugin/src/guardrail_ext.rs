@@ -66,7 +66,10 @@ pub struct BannedWordGuardrail {
 
 impl BannedWordGuardrail {
     pub fn new(id: impl Into<String>, banned: Vec<String>) -> Self {
-        Self { id: id.into(), banned }
+        Self {
+            id: id.into(),
+            banned,
+        }
     }
 }
 

@@ -1,5 +1,4 @@
 /// Datadog exporter: maps spans and metrics to Datadog APM and metrics API payloads.
-
 use crate::otlp::{OtlpMetricPoint, OtlpSpan};
 
 #[derive(Debug, Clone)]

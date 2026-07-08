@@ -1,7 +1,7 @@
 // Configuration push to edge devices
 
-use std::collections::HashMap;
 use crate::registration::DeviceId;
+use std::collections::HashMap;
 
 /// A configuration payload to be pushed to devices
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -78,9 +78,7 @@ impl ConfigPushService {
     }
 
     pub fn applied_version(&self, device_id: &DeviceId) -> Option<u64> {
-        self.device_configs
-            .get(device_id)
-            .map(|(ver, _)| *ver)
+        self.device_configs.get(device_id).map(|(ver, _)| *ver)
     }
 
     pub fn status(&self, device_id: &DeviceId) -> Option<&PushStatus> {

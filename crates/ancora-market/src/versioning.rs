@@ -19,7 +19,11 @@ impl SemVer {
         let major = parts[0].parse().ok()?;
         let minor = parts[1].parse().ok()?;
         let patch = parts[2].parse().ok()?;
-        Some(SemVer { major, minor, patch })
+        Some(SemVer {
+            major,
+            minor,
+            patch,
+        })
     }
 }
 
@@ -64,7 +68,9 @@ impl std::fmt::Display for VersioningError {
 
 impl VersionHistory {
     pub fn new() -> Self {
-        VersionHistory { entries: Vec::new() }
+        VersionHistory {
+            entries: Vec::new(),
+        }
     }
 
     /// Add a changelog entry.
@@ -89,7 +95,10 @@ impl VersionHistory {
 
     /// Return the latest non-yanked version, if any.
     pub fn latest(&self) -> Option<&ChangelogEntry> {
-        self.entries.iter().filter(|e| !e.yanked).max_by(|a, b| a.version.cmp(&b.version))
+        self.entries
+            .iter()
+            .filter(|e| !e.yanked)
+            .max_by(|a, b| a.version.cmp(&b.version))
     }
 
     pub fn all(&self) -> &[ChangelogEntry] {
@@ -104,7 +113,14 @@ mod tests {
     #[test]
     fn semver_parses() {
         let v = SemVer::parse("1.2.3").unwrap();
-        assert_eq!(v, SemVer { major: 1, minor: 2, patch: 3 });
+        assert_eq!(
+            v,
+            SemVer {
+                major: 1,
+                minor: 2,
+                patch: 3
+            }
+        );
     }
 
     #[test]

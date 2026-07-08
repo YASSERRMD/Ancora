@@ -30,8 +30,8 @@ pub struct HandoffResult {
 /// Returns `Err(description)` if the card fetch, identity check, or task
 /// submission fails.
 pub async fn perform_handoff(req: HandoffRequest) -> Result<HandoffResult, String> {
-    let client = A2aClient::from_url(&req.agent_url)
-        .map_err(|e| format!("invalid agent URL: {}", e))?;
+    let client =
+        A2aClient::from_url(&req.agent_url).map_err(|e| format!("invalid agent URL: {}", e))?;
 
     let remote_card = if req.require_signed_identity {
         client

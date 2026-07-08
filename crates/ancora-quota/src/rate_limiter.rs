@@ -35,7 +35,12 @@ impl RateLimiter {
     /// Check and record one request consuming `token_count` tokens and `cost_usd` cost.
     /// Returns `Err(HardLimitExceeded)` if any hard limit would be breached.
     /// Returns `Err(SoftLimitWarning)` if a soft limit is crossed (non-blocking).
-    pub fn check_and_record(&mut self, token_count: u64, cost_usd: f64, now: u64) -> Result<(), QuotaError> {
+    pub fn check_and_record(
+        &mut self,
+        token_count: u64,
+        cost_usd: f64,
+        now: u64,
+    ) -> Result<(), QuotaError> {
         self.reset_cost_if_needed(now);
 
         let new_reqs = self.requests.value(now) + 1;

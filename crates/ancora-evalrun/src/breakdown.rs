@@ -1,5 +1,4 @@
 /// Per-case breakdown of eval run results.
-
 use crate::rollout::RolloutResult;
 
 /// Detailed breakdown for a single eval case.
@@ -65,10 +64,7 @@ pub fn sort_by_pass_rate_desc(breakdowns: &mut Vec<CaseBreakdown>) {
 }
 
 /// Filter breakdowns to only include cases with pass_rate below a threshold.
-pub fn filter_below_pass_rate(
-    breakdowns: &[CaseBreakdown],
-    threshold: f64,
-) -> Vec<&CaseBreakdown> {
+pub fn filter_below_pass_rate(breakdowns: &[CaseBreakdown], threshold: f64) -> Vec<&CaseBreakdown> {
     breakdowns
         .iter()
         .filter(|b| b.pass_rate < threshold)

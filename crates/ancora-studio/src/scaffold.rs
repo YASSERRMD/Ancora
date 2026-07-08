@@ -56,7 +56,9 @@ mod tests {
     fn test_navigate() {
         let mut state = StudioState::new();
         assert_eq!(state.current_view, StudioView::RunList);
-        state.navigate(StudioView::Timeline { run_id: "r1".into() });
+        state.navigate(StudioView::Timeline {
+            run_id: "r1".into(),
+        });
         assert!(matches!(state.current_view, StudioView::Timeline { .. }));
     }
 

@@ -19,11 +19,14 @@ use ancora_slm::{
 fn main() {
     // ── 1. SLM-friendly prompt formatting ────────────────────────────────────
     println!("=== 1. Prompt Formatting ===");
-    let sys = slm_system_prompt("Extract named entities", &[
-        "Read the input sentence",
-        "Identify all named entities",
-        "Return a JSON object with an 'entities' array",
-    ]);
+    let sys = slm_system_prompt(
+        "Extract named entities",
+        &[
+            "Read the input sentence",
+            "Identify all named entities",
+            "Return a JSON object with an 'entities' array",
+        ],
+    );
     let messages = vec![
         Message::system(&sys),
         Message::user("Alice works at Anthropic in San Francisco."),
@@ -34,40 +37,61 @@ fn main() {
         max_chars: None,
     };
     let formatted = format_prompt(&messages, &opts);
-    println!("Formatted prompt (first 200 chars):\n{}\n", &formatted[..formatted.len().min(200)]);
+    println!(
+        "Formatted prompt (first 200 chars):\n{}\n",
+        &formatted[..formatted.len().min(200)]
+    );
 
     // ── 2. Tool-call repair ───────────────────────────────────────────────────
     println!("=== 2. Tool-call Repair ===");
-    let malformed = r#"Sure thing! Here: {"function_name": "get_weather", "args": {"city": "Paris",}}"#;
+    let malformed =
+        r#"Sure thing! Here: {"function_name": "get_weather", "args": {"city": "Paris",}}"#;
     match repair_tool_call(malformed) {
-        Ok(tc) => println!("Repaired tool call: name={}, args={}", tc.name, tc.arguments),
+        Ok(tc) => println!(
+            "Repaired tool call: name={}, args={}",
+            tc.name, tc.arguments
+        ),
         Err(e) => println!("Repair failed: {}", e),
     }
     println!();
 
     // ── 3. Constrained decoding ───────────────────────────────────────────────
     println!("=== 3. Constrained Decoding ===");
-    let config = ConstrainedConfig { max_retries: 2, add_json_fence_instruction: true };
+    let config = ConstrainedConfig {
+        max_retries: 2,
+        add_json_fence_instruction: true,
+    };
     // Simulated model that initially returns prose, then valid JSON.
     let attempt = std::cell::Cell::new(0usize);
-    let result = run_constrained("Extract entities from: 'Bob is in London.'", &config, |_| {
-        let n = attempt.get() + 1;
-        attempt.set(n);
-        if n == 1 {
-            "I cannot provide JSON right now.".to_string()
-        } else {
-            r#"{"entities": ["Bob", "London"]}"#.to_string()
-        }
-    });
-    println!("Constrained result (attempt {}): {:?}\n", attempt.get(), result);
+    let result = run_constrained(
+        "Extract entities from: 'Bob is in London.'",
+        &config,
+        |_| {
+            let n = attempt.get() + 1;
+            attempt.set(n);
+            if n == 1 {
+                "I cannot provide JSON right now.".to_string()
+            } else {
+                r#"{"entities": ["Bob", "London"]}"#.to_string()
+            }
+        },
+    );
+    println!(
+        "Constrained result (attempt {}): {:?}\n",
+        attempt.get(),
+        result
+    );
 
     // ── 4. Schema-guided generation ───────────────────────────────────────────
     println!("=== 4. Schema-guided Generation ===");
     let schema = Schema::Object {
         required: vec!["entities".into()],
-        properties: vec![
-            ("entities".into(), Schema::Array { item_schema: Box::new(Schema::String) }),
-        ],
+        properties: vec![(
+            "entities".into(),
+            Schema::Array {
+                item_schema: Box::new(Schema::String),
+            },
+        )],
     };
     let augmented = augment_prompt_with_schema("Extract entities.", &schema);
     println!("Schema-augmented prompt:\n{}\n", augmented);
@@ -106,8 +130,14 @@ fn main() {
     let verifiers: Vec<Box<dyn Verifier>> = vec![Box::new(ValidJsonVerifier)];
     let good_output = r#"{"answer": 42}"#;
     let bad_output = "forty-two";
-    println!("Good output passes: {}", run_verifiers(good_output, &verifiers).passed());
-    println!("Bad output passes:  {}\n", run_verifiers(bad_output, &verifiers).passed());
+    println!(
+        "Good output passes: {}",
+        run_verifiers(good_output, &verifiers).passed()
+    );
+    println!(
+        "Bad output passes:  {}\n",
+        run_verifiers(bad_output, &verifiers).passed()
+    );
 
     // ── 7. Escalation ─────────────────────────────────────────────────────────
     println!("=== 7. Escalation ===");
@@ -131,11 +161,24 @@ fn main() {
     // ── 8. Few-shot injection ─────────────────────────────────────────────────
     println!("=== 8. Few-shot Injection ===");
     let mut lib = FewShotLibrary::new();
-    lib.add(FewShotExample::new("ner", "Input: 'Alice at Acme'", r#"{"entities":["Alice","Acme"]}"#, 1.0));
-    lib.add(FewShotExample::new("ner", "Input: 'Bob in Paris'", r#"{"entities":["Bob","Paris"]}"#, 0.9));
+    lib.add(FewShotExample::new(
+        "ner",
+        "Input: 'Alice at Acme'",
+        r#"{"entities":["Alice","Acme"]}"#,
+        1.0,
+    ));
+    lib.add(FewShotExample::new(
+        "ner",
+        "Input: 'Bob in Paris'",
+        r#"{"entities":["Bob","Paris"]}"#,
+        0.9,
+    ));
     let prompt = "Input: 'Carol runs StartupX'";
     let injected = inject_few_shots(prompt, &lib, "ner", 2);
-    println!("Few-shot injected (first 300 chars):\n{}\n", &injected[..injected.len().min(300)]);
+    println!(
+        "Few-shot injected (first 300 chars):\n{}\n",
+        &injected[..injected.len().min(300)]
+    );
 
     // ── 9. Replay ─────────────────────────────────────────────────────────────
     println!("=== 9. Deterministic Replay ===");

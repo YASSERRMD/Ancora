@@ -70,7 +70,11 @@ async fn a2a_client_fetches_agent_card_over_http() {
     let bound = listener.local_addr().unwrap();
     drop(listener);
 
-    let card = AgentCard::new("http-agent", "Served over HTTP", format!("grpc://{}", bound));
+    let card = AgentCard::new(
+        "http-agent",
+        "Served over HTTP",
+        format!("grpc://{}", bound),
+    );
     let id = AgentIdentity::generate();
     let signed = id.attach_to(card);
 
@@ -94,7 +98,11 @@ async fn a2a_client_fetches_agent_card_over_http() {
     stream.read_to_end(&mut buf).await.unwrap();
     let response = String::from_utf8(buf).unwrap();
 
-    assert!(response.starts_with("HTTP/1.1 200 OK"), "expected 200, got: {}", &response[..50.min(response.len())]);
+    assert!(
+        response.starts_with("HTTP/1.1 200 OK"),
+        "expected 200, got: {}",
+        &response[..50.min(response.len())]
+    );
     assert!(response.contains("http-agent"));
     assert!(response.contains("identity_key"));
     assert!(response.contains("signature"));
@@ -121,13 +129,20 @@ async fn a2a_unknown_path_returns_404() {
     let stream = tokio::net::TcpStream::connect(bound).await.unwrap();
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     let mut stream = stream;
-    let req = format!("GET /unknown HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n", bound);
+    let req = format!(
+        "GET /unknown HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n",
+        bound
+    );
     stream.write_all(req.as_bytes()).await.unwrap();
 
     let mut buf = Vec::new();
     stream.read_to_end(&mut buf).await.unwrap();
     let response = String::from_utf8(buf).unwrap();
-    assert!(response.starts_with("HTTP/1.1 404"), "expected 404, got: {}", &response[..50.min(response.len())]);
+    assert!(
+        response.starts_with("HTTP/1.1 404"),
+        "expected 404, got: {}",
+        &response[..50.min(response.len())]
+    );
 
     let _ = tx.send(());
     let _ = server.await;

@@ -1,9 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::{
-        hot_reload::HotReloadState,
-        schema::AncoraCfg,
-    };
+    use crate::{hot_reload::HotReloadState, schema::AncoraCfg};
 
     #[test]
     fn hot_reload_applies_log_level() {

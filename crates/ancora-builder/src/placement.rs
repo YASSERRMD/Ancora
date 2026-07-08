@@ -1,5 +1,4 @@
 /// placement - Drag-and-drop node placement on the canvas.
-
 use crate::scaffold::{Id, Position};
 use std::collections::HashMap;
 
@@ -17,7 +16,12 @@ pub struct CanvasNode {
 }
 
 impl CanvasNode {
-    pub fn new(id: Id, kind: impl Into<String>, label: impl Into<String>, position: Position) -> Self {
+    pub fn new(
+        id: Id,
+        kind: impl Into<String>,
+        label: impl Into<String>,
+        position: Position,
+    ) -> Self {
         CanvasNode {
             id,
             kind: kind.into(),
@@ -43,7 +47,10 @@ pub struct NodeSize {
 
 impl Default for NodeSize {
     fn default() -> Self {
-        NodeSize { width: 160.0, height: 48.0 }
+        NodeSize {
+            width: 160.0,
+            height: 48.0,
+        }
     }
 }
 
@@ -161,7 +168,10 @@ impl Canvas {
 
     /// Commit the drag: move the node to the final position.
     pub fn commit_drag(&mut self) -> Result<Id, PlacementError> {
-        let drag = self.active_drag.take().ok_or(PlacementError::NoDragActive)?;
+        let drag = self
+            .active_drag
+            .take()
+            .ok_or(PlacementError::NoDragActive)?;
         let node = self
             .nodes
             .get_mut(&drag.node_id)
@@ -177,7 +187,10 @@ impl Canvas {
 
     /// Move a node directly (e.g. keyboard nudge).
     pub fn move_node(&mut self, id: &Id, new_pos: Position) -> Result<(), PlacementError> {
-        let node = self.nodes.get_mut(id).ok_or_else(|| PlacementError::NodeNotFound(id.0.clone()))?;
+        let node = self
+            .nodes
+            .get_mut(id)
+            .ok_or_else(|| PlacementError::NodeNotFound(id.0.clone()))?;
         node.position = new_pos;
         Ok(())
     }
@@ -187,10 +200,7 @@ impl Canvas {
         if grid <= 0.0 {
             return pos;
         }
-        Position::new(
-            (pos.x / grid).round() * grid,
-            (pos.y / grid).round() * grid,
-        )
+        Position::new((pos.x / grid).round() * grid, (pos.y / grid).round() * grid)
     }
 }
 
@@ -228,7 +238,9 @@ mod unit {
     fn drag_moves_node() {
         let mut canvas = Canvas::new();
         let id = canvas.place_node("tool.web_search", "Search", Position::new(0.0, 0.0));
-        canvas.begin_drag(id.clone(), Position::new(0.0, 0.0)).unwrap();
+        canvas
+            .begin_drag(id.clone(), Position::new(0.0, 0.0))
+            .unwrap();
         canvas.update_drag(Position::new(50.0, 30.0));
         let moved_id = canvas.commit_drag().unwrap();
         assert_eq!(moved_id, id);

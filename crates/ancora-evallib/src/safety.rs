@@ -73,7 +73,9 @@ impl LocalSafetyClassifier {
     /// Returns true when the prompt matches a blocked pattern.
     pub fn is_harmful(&self, prompt: &str) -> bool {
         let lower = prompt.to_lowercase();
-        self.blocklist.iter().any(|term| lower.contains(term.as_str()))
+        self.blocklist
+            .iter()
+            .any(|term| lower.contains(term.as_str()))
     }
 }
 

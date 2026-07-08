@@ -12,19 +12,26 @@ pub struct MigrationTracker {
 
 impl MigrationTracker {
     pub fn new() -> Self {
-        Self { applied: HashMap::new() }
+        Self {
+            applied: HashMap::new(),
+        }
     }
 
     pub fn mark_applied(&mut self, version: u32, at: u64) {
-        self.applied.insert(version, AppliedStatus::Applied { at_secs: at });
+        self.applied
+            .insert(version, AppliedStatus::Applied { at_secs: at });
     }
 
     pub fn mark_rolled_back(&mut self, version: u32, at: u64) {
-        self.applied.insert(version, AppliedStatus::RolledBack { at_secs: at });
+        self.applied
+            .insert(version, AppliedStatus::RolledBack { at_secs: at });
     }
 
     pub fn is_applied(&self, version: u32) -> bool {
-        matches!(self.applied.get(&version), Some(AppliedStatus::Applied { .. }))
+        matches!(
+            self.applied.get(&version),
+            Some(AppliedStatus::Applied { .. })
+        )
     }
 
     pub fn current_version(&self) -> u32 {

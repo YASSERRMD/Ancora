@@ -1,10 +1,10 @@
+use crate::policy::SupplyChainPolicy;
+use crate::provenance::ProvenanceStore;
 use crate::report::SupplyChainReport;
-use crate::stats::SbomStats;
-use crate::validator::{SbomValidator, SbomIssue};
 use crate::sbom::Sbom;
 use crate::signature::SignatureStore;
-use crate::provenance::ProvenanceStore;
-use crate::policy::SupplyChainPolicy;
+use crate::stats::SbomStats;
+use crate::validator::{SbomIssue, SbomValidator};
 
 pub struct SupplyChainSummary {
     pub tenant_id: String,

@@ -1,5 +1,5 @@
-use ancora_controlplane::store::ControlPlaneStore;
 use crate::executor::{StepFn, WorkerExecutor};
+use ancora_controlplane::store::ControlPlaneStore;
 use std::sync::{Arc, Mutex};
 use thiserror::Error;
 
@@ -49,11 +49,7 @@ impl WorkerPool {
             .map(|e| {
                 let wid = e.worker_id().to_string();
                 let sf = Arc::clone(&sf);
-                WorkerExecutor::new(
-                    wid,
-                    Arc::clone(&store),
-                    Box::new(move |run| sf(run)),
-                )
+                WorkerExecutor::new(wid, Arc::clone(&store), Box::new(move |run| sf(run)))
             })
             .collect();
         self

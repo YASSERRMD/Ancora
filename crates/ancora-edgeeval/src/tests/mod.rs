@@ -1,11 +1,11 @@
 //! Tests for ancora-edgeeval -- all offline, no network calls.
 
 mod footprint_tests;
-mod quant_tests;
-mod reliability_tests;
 mod offline_tests;
-mod report_tests;
+mod quant_tests;
 mod recommend_tests;
+mod reliability_tests;
+mod report_tests;
 
 use std::time::Duration;
 
@@ -13,7 +13,9 @@ use crate::model::{CapabilitySample, SmallModel, SmallModelSuite, TaskCategory};
 use crate::offline::{OfflineConfig, OfflineDataset, OfflineEvalRunner};
 use crate::quant::{QuantFormat, QuantMeasurement, QuantTradeoffEval};
 use crate::recommend::{DeviceProfile, DeviceRecommender, ModelCandidate};
-use crate::reliability::{CalibrationEval, ConsistencyChecker, ReliabilityResult, SlmReliabilityEval};
+use crate::reliability::{
+    CalibrationEval, ConsistencyChecker, ReliabilityResult, SlmReliabilityEval,
+};
 use crate::report::EdgeEvalReport;
 use crate::report::ModelEvalSummary;
 use crate::runtime::{LatencyEvaluator, MemoryFootprint, PowerProxy};
@@ -23,8 +25,18 @@ use crate::runtime::{LatencyEvaluator, MemoryFootprint, PowerProxy};
 #[test]
 fn test_small_model_suite_exact_match_pass() {
     let mut suite = SmallModelSuite::new();
-    suite.add(CapabilitySample::new("q1", TaskCategory::Qa, "What is 2+2?", "4"));
-    suite.add(CapabilitySample::new("q2", TaskCategory::Classification, "positive or negative: good", "positive"));
+    suite.add(CapabilitySample::new(
+        "q1",
+        TaskCategory::Qa,
+        "What is 2+2?",
+        "4",
+    ));
+    suite.add(CapabilitySample::new(
+        "q2",
+        TaskCategory::Classification,
+        "positive or negative: good",
+        "positive",
+    ));
     let outputs = [("q1", "4"), ("q2", "positive")];
     let results = suite.evaluate_exact(&outputs);
     assert_eq!(results.len(), 2);
@@ -35,8 +47,18 @@ fn test_small_model_suite_exact_match_pass() {
 #[test]
 fn test_small_model_suite_partial_failure() {
     let mut suite = SmallModelSuite::new();
-    suite.add(CapabilitySample::new("a", TaskCategory::Reasoning, "p1", "yes"));
-    suite.add(CapabilitySample::new("b", TaskCategory::Reasoning, "p2", "no"));
+    suite.add(CapabilitySample::new(
+        "a",
+        TaskCategory::Reasoning,
+        "p1",
+        "yes",
+    ));
+    suite.add(CapabilitySample::new(
+        "b",
+        TaskCategory::Reasoning,
+        "p2",
+        "no",
+    ));
     let outputs = [("a", "yes"), ("b", "maybe")];
     let results = suite.evaluate_exact(&outputs);
     let passed = results.iter().filter(|r| r.passed).count();
@@ -175,7 +197,11 @@ fn test_offline_eval_runner_deterministic() {
     let config = OfflineConfig::new().with_seed(42);
     let runner = OfflineEvalRunner::new(config);
     let ds = OfflineDataset::builtin_smoke();
-    let outputs: Vec<(&str, &str)> = ds.samples().iter().map(|s| (s.id.as_str(), s.ground_truth.as_str())).collect();
+    let outputs: Vec<(&str, &str)> = ds
+        .samples()
+        .iter()
+        .map(|s| (s.id.as_str(), s.ground_truth.as_str()))
+        .collect();
     let r1 = runner.run(&ds, &outputs);
     let r2 = runner.run(&ds, &outputs);
     // Results must be deterministic.
@@ -189,7 +215,9 @@ fn test_offline_eval_runner_deterministic() {
 fn test_offline_runs_no_network() {
     // Purely verifies no network calls are made -- the whole module is static.
     let ds = OfflineDataset::builtin_smoke();
-    let config = OfflineConfig::new().with_strict_offline(true).with_max_samples(3);
+    let config = OfflineConfig::new()
+        .with_strict_offline(true)
+        .with_max_samples(3);
     let runner = OfflineEvalRunner::new(config);
     let outputs = [];
     let results = runner.run(&ds, &outputs);
@@ -328,9 +356,11 @@ fn test_memory_budget_headroom() {
 
 #[test]
 fn test_quant_tradeoff_score_positive() {
-    let baseline = crate::quant::QuantMeasurement::new(crate::quant::QuantFormat::Fp32, 1.0, 5.0, 8000.0);
+    let baseline =
+        crate::quant::QuantMeasurement::new(crate::quant::QuantFormat::Fp32, 1.0, 5.0, 8000.0);
     let mut eval = crate::quant::QuantTradeoffEval::new(baseline);
-    let variant = crate::quant::QuantMeasurement::new(crate::quant::QuantFormat::Int8, 0.95, 5.5, 2000.0);
+    let variant =
+        crate::quant::QuantMeasurement::new(crate::quant::QuantFormat::Int8, 0.95, 5.5, 2000.0);
     eval.add_variant(variant.clone());
     let score = eval.tradeoff_score(&variant);
     assert!(score > 0.0, "score={}", score);
@@ -376,10 +406,18 @@ fn test_offline_config_defaults() {
 #[test]
 fn test_results_reproducible_across_seeds() {
     let ds = crate::offline::OfflineDataset::builtin_smoke();
-    let outputs: Vec<(&str, &str)> = ds.samples().iter().map(|s| (s.id.as_str(), s.ground_truth.as_str())).collect();
+    let outputs: Vec<(&str, &str)> = ds
+        .samples()
+        .iter()
+        .map(|s| (s.id.as_str(), s.ground_truth.as_str()))
+        .collect();
     // Same seed must produce same results.
-    let r1 = crate::offline::OfflineEvalRunner::new(crate::offline::OfflineConfig::new().with_seed(7)).run(&ds, &outputs);
-    let r2 = crate::offline::OfflineEvalRunner::new(crate::offline::OfflineConfig::new().with_seed(7)).run(&ds, &outputs);
+    let r1 =
+        crate::offline::OfflineEvalRunner::new(crate::offline::OfflineConfig::new().with_seed(7))
+            .run(&ds, &outputs);
+    let r2 =
+        crate::offline::OfflineEvalRunner::new(crate::offline::OfflineConfig::new().with_seed(7))
+            .run(&ds, &outputs);
     for (a, b) in r1.iter().zip(r2.iter()) {
         assert!((a.1 - b.1).abs() < 1e-15, "non-deterministic at id={}", a.0);
     }
@@ -398,8 +436,14 @@ fn test_thermal_envelope_max_tps() {
 #[test]
 fn test_power_most_efficient() {
     let proxies = vec![
-        ("model-a".to_string(), crate::runtime::PowerProxy::new("a", 2.0)),
-        ("model-b".to_string(), crate::runtime::PowerProxy::new("b", 0.5)),
+        (
+            "model-a".to_string(),
+            crate::runtime::PowerProxy::new("a", 2.0),
+        ),
+        (
+            "model-b".to_string(),
+            crate::runtime::PowerProxy::new("b", 0.5),
+        ),
     ];
     let best = crate::power::most_efficient(&proxies).unwrap();
     assert_eq!(best, "model-b"); // lower mWh/1k = more efficient

@@ -1,17 +1,15 @@
-use crate::PresetDescriptor;
 use crate::Capability;
+use crate::PresetDescriptor;
 
 #[test]
 fn descriptor_name_round_trips() {
-    let p = PresetDescriptor::new("my-preset", "desc")
-        .with_capability(Capability::Planning);
+    let p = PresetDescriptor::new("my-preset", "desc").with_capability(Capability::Planning);
     assert_eq!(p.name, "my-preset");
 }
 
 #[test]
 fn descriptor_description_round_trips() {
-    let p = PresetDescriptor::new("n", "my description")
-        .with_capability(Capability::Planning);
+    let p = PresetDescriptor::new("n", "my description").with_capability(Capability::Planning);
     assert_eq!(p.description, "my description");
 }
 

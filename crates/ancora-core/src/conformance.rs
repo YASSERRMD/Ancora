@@ -71,7 +71,11 @@ mod tests {
     #[test]
     fn all_scenario_descriptions_are_non_empty() {
         for s in all_scenarios() {
-            assert!(!s.description.is_empty(), "empty description for scenario '{}'", s.id);
+            assert!(
+                !s.description.is_empty(),
+                "empty description for scenario '{}'",
+                s.id
+            );
         }
     }
 
@@ -83,8 +87,8 @@ mod tests {
     }
 
     fn make_agent_node(id: &str) -> crate::graph::Node {
-        use ancora_proto::ancora::AgentSpec;
         use crate::graph::{Node, NodeKind, NodeSpec};
+        use ancora_proto::ancora::AgentSpec;
         Node {
             id: id.to_string(),
             kind: NodeKind::Agent,
@@ -132,7 +136,11 @@ mod tests {
         let graph = Graph {
             id: "g-multi".to_string(),
             nodes: vec![make_agent_node("agent"), make_agent_node("verifier")],
-            edges: vec![Edge { from: "agent".into(), to: "verifier".into(), condition: None }],
+            edges: vec![Edge {
+                from: "agent".into(),
+                to: "verifier".into(),
+                condition: None,
+            }],
             entry_node: "agent".to_string(),
         };
         assert!(graph.validate().is_ok());
@@ -144,7 +152,11 @@ mod tests {
         let graph = Graph {
             id: "g-multi".to_string(),
             nodes: vec![make_agent_node("agent"), make_agent_node("verifier")],
-            edges: vec![Edge { from: "agent".into(), to: "verifier".into(), condition: None }],
+            edges: vec![Edge {
+                from: "agent".into(),
+                to: "verifier".into(),
+                condition: None,
+            }],
             entry_node: "agent".to_string(),
         };
         assert_eq!(graph.edges[0].from, "agent");
@@ -211,7 +223,11 @@ mod tests {
         let store2 = store.clone();
         store.append("run-x", make_journal_event("e1")).unwrap();
         let events = store2.read("run-x").unwrap();
-        assert_eq!(events.len(), 1, "cloned store must share the same backing state");
+        assert_eq!(
+            events.len(),
+            1,
+            "cloned store must share the same backing state"
+        );
     }
 
     #[test]

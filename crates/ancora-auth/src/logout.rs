@@ -11,9 +11,7 @@ pub fn logout_session(
     revocations: &mut RevocationStore,
     session_id: &str,
 ) -> LogoutResult {
-    let token_raw = sessions
-        .get(session_id)
-        .map(|s| s.token_raw.clone());
+    let token_raw = sessions.get(session_id).map(|s| s.token_raw.clone());
 
     let session_logged_out = sessions.logout(session_id);
 

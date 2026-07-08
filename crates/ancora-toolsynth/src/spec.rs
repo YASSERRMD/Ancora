@@ -19,7 +19,12 @@ pub enum EffectClass {
 }
 
 impl ToolSpec {
-    pub fn new(name: &str, description: &str, input_schema: Value, effect_class: EffectClass) -> Self {
+    pub fn new(
+        name: &str,
+        description: &str,
+        input_schema: Value,
+        effect_class: EffectClass,
+    ) -> Self {
         Self {
             name: name.to_string(),
             description: description.to_string(),

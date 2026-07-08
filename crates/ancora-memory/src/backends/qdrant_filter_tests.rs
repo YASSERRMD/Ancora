@@ -32,7 +32,10 @@ mod qdrant_filter_tests {
 
     #[test]
     fn filter_ne_uses_must_not() {
-        let f = Filter::Ne("status".to_owned(), PayloadValue::String("deleted".to_owned()));
+        let f = Filter::Ne(
+            "status".to_owned(),
+            PayloadValue::String("deleted".to_owned()),
+        );
         let json = filter_to_qdrant(&f);
         assert!(json["must_not"].is_array(), "json: {json}");
         assert_eq!(json["must_not"][0]["key"], "status");
@@ -68,8 +71,9 @@ mod qdrant_filter_tests {
 
     #[test]
     fn filter_or_uses_should() {
-        let f = Filter::Eq("tag".to_owned(), PayloadValue::String("news".to_owned()))
-            .or(Filter::Eq("tag".to_owned(), PayloadValue::String("blog".to_owned())));
+        let f = Filter::Eq("tag".to_owned(), PayloadValue::String("news".to_owned())).or(
+            Filter::Eq("tag".to_owned(), PayloadValue::String("blog".to_owned())),
+        );
         let json = filter_to_qdrant(&f);
         assert!(json["should"].is_array(), "json: {json}");
         assert_eq!(json["should"].as_array().unwrap().len(), 2);

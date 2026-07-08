@@ -5,18 +5,18 @@
 //! quickstarts, privacy posture, self-hosted summaries, announcements,
 //! readiness checklists, and the metrics/evals catalog index.
 
-pub mod suite_status;
-pub mod parity_status;
+pub mod announcement;
+pub mod catalog_index;
+pub mod changelog;
 pub mod feature_matrix;
 pub mod limitations;
-pub mod upgrade_notes;
-pub mod changelog;
-pub mod quickstarts;
+pub mod parity_status;
 pub mod privacy_summary;
-pub mod self_hosted_summary;
-pub mod announcement;
+pub mod quickstarts;
 pub mod readiness;
-pub mod catalog_index;
+pub mod self_hosted_summary;
+pub mod suite_status;
+pub mod upgrade_notes;
 
 #[cfg(test)]
 mod tests;

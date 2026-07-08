@@ -37,11 +37,7 @@ pub struct CitedPassage {
 }
 
 /// Simulate retrieval from an in-memory corpus (no I/O).
-pub fn retrieve_passages(
-    corpus: &[(&str, &str)],
-    _query: &str,
-    top_k: usize,
-) -> Vec<CitedPassage> {
+pub fn retrieve_passages(corpus: &[(&str, &str)], _query: &str, top_k: usize) -> Vec<CitedPassage> {
     corpus
         .iter()
         .take(top_k)

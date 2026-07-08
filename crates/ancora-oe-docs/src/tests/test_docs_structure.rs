@@ -7,15 +7,15 @@ use crate::{
     drift_mon::{DriftMonitor, ScoreSample},
     eval_library::{EvalCatalog, EvalCatalogEntry, EvalCategory},
     evals_platform::{EvalResult, EvalRunSummary, EvalSpec},
-    examples_index::{ExamplesIndex, build_default_index},
+    examples_index::{build_default_index, ExamplesIndex},
     feedback_review::{FeedbackItem, FeedbackSignal, ReviewQueue},
     obs_integrations::{Backend, SinkConfig, SinkRegistry},
     overview::{ObservabilityOverview, ObservabilityPillars},
-    per_lang::{LangSdkInfo, SdkLanguage, recommended_tracing_package},
+    per_lang::{recommended_tracing_package, LangSdkInfo, SdkLanguage},
     readiness::build_default_checklist,
-    regression_gates::{RegressionGate, run_gates},
+    regression_gates::{run_gates, RegressionGate},
     safety_mon::{SafetyEvent, SafetyMonitor, Severity},
-    semantic_conv::{Attribute, SemanticAttributes, is_known_key},
+    semantic_conv::{is_known_key, Attribute, SemanticAttributes},
     telemetry_priv::{FieldPolicy, PrivacyFilter, PrivacyStrategy},
     trace_model::{Span, SpanId, SpanKind, Trace, TraceId},
     troubleshooting::{IssueCategory, KnownIssue, TroubleshootingKb},
@@ -224,14 +224,29 @@ fn test_sink_registry() {
 #[test]
 fn test_per_lang_guidance() {
     let info = LangSdkInfo::for_language(SdkLanguage::Rust);
-    assert_eq!(info.tracing_package, recommended_tracing_package(&SdkLanguage::Rust));
+    assert_eq!(
+        info.tracing_package,
+        recommended_tracing_package(&SdkLanguage::Rust)
+    );
 }
 
 #[test]
 fn test_eval_catalog() {
     let mut cat = EvalCatalog::default();
-    cat.add(EvalCatalogEntry::new("e1", "Factuality Bench", EvalCategory::Factuality, 100, "exact_match"));
-    cat.add(EvalCatalogEntry::new("e2", "Code Bench", EvalCategory::CodeGen, 50, "exact_match"));
+    cat.add(EvalCatalogEntry::new(
+        "e1",
+        "Factuality Bench",
+        EvalCategory::Factuality,
+        100,
+        "exact_match",
+    ));
+    cat.add(EvalCatalogEntry::new(
+        "e2",
+        "Code Bench",
+        EvalCategory::CodeGen,
+        50,
+        "exact_match",
+    ));
     assert_eq!(cat.total(), 2);
     assert_eq!(cat.by_category(&EvalCategory::Factuality).len(), 1);
 }
@@ -240,8 +255,13 @@ fn test_eval_catalog() {
 fn test_troubleshooting_kb() {
     let mut kb = TroubleshootingKb::default();
     kb.add(
-        KnownIssue::new("t001", IssueCategory::Tracing, "No spans exported", "Check OTLP endpoint config.")
-            .with_step("Verify OTEL_EXPORTER_OTLP_ENDPOINT is set"),
+        KnownIssue::new(
+            "t001",
+            IssueCategory::Tracing,
+            "No spans exported",
+            "Check OTLP endpoint config.",
+        )
+        .with_step("Verify OTEL_EXPORTER_OTLP_ENDPOINT is set"),
     );
     assert_eq!(kb.total_issues(), 1);
     assert!(kb.find_by_id("t001").is_some());

@@ -2,7 +2,9 @@ use crate::{SecretKind, SecretStore};
 #[test]
 fn delete_removes_secret() {
     let mut store = SecretStore::new();
-    store.create("t1", "tmp/key", SecretKind::Opaque, "val", 1).unwrap();
+    store
+        .create("t1", "tmp/key", SecretKind::Opaque, "val", 1)
+        .unwrap();
     store.delete("t1", "tmp/key").unwrap();
     assert!(store.read("t1", "tmp/key").is_err());
 }

@@ -12,7 +12,9 @@ pub fn check_endpoint(policy: &Policy, endpoint: &str) -> Result<(), PolicyError
     if policy.allowed_endpoints.is_empty() {
         return Ok(());
     }
-    let allowed = policy.allowed_endpoints.iter()
+    let allowed = policy
+        .allowed_endpoints
+        .iter()
         .any(|allowed| endpoint.starts_with(allowed.as_str()));
     if !allowed {
         return Err(PolicyError::ResidencyViolation(endpoint.to_owned()));
@@ -26,9 +28,9 @@ pub fn check_tool(policy: &Policy, tool_name: &str) -> Result<(), PolicyError> {
         return Ok(());
     }
     if !policy.allowed_tools.contains(tool_name) {
-        return Err(PolicyError::PermissionDenied(
-            format!("tool '{tool_name}' is not in the allowed list")
-        ));
+        return Err(PolicyError::PermissionDenied(format!(
+            "tool '{tool_name}' is not in the allowed list"
+        )));
     }
     Ok(())
 }

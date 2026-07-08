@@ -1,5 +1,4 @@
 /// Memory extension point - persist and retrieve agent memory.
-
 use std::collections::HashMap;
 
 /// A single memory entry.
@@ -74,7 +73,10 @@ pub struct HashMapMemory {
 
 impl HashMapMemory {
     pub fn new(id: impl Into<String>) -> Self {
-        Self { id: id.into(), store: HashMap::new() }
+        Self {
+            id: id.into(),
+            store: HashMap::new(),
+        }
     }
 }
 

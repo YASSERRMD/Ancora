@@ -114,11 +114,7 @@ impl DeviceRegistry {
             };
         }
 
-        let mut identity = DeviceIdentity::new(
-            req.device_id.clone(),
-            req.name,
-            req.fingerprint,
-        );
+        let mut identity = DeviceIdentity::new(req.device_id.clone(), req.name, req.fingerprint);
         for (k, v) in req.metadata {
             identity.add_tag(k, v);
         }

@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::measurement::Measurement;
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChainStatus {
@@ -27,9 +27,15 @@ impl BootChain {
         self.steps.push(m);
     }
 
-    pub fn len(&self) -> usize { self.steps.len() }
-    pub fn is_empty(&self) -> bool { self.steps.is_empty() }
-    pub fn steps(&self) -> &[Measurement] { &self.steps }
+    pub fn len(&self) -> usize {
+        self.steps.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.steps.is_empty()
+    }
+    pub fn steps(&self) -> &[Measurement] {
+        &self.steps
+    }
 
     pub fn status(&self) -> ChainStatus {
         if self.steps.is_empty() {

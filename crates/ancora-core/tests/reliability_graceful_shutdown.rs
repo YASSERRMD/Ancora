@@ -1,6 +1,9 @@
 // Reliability: graceful shutdown -- in-flight runs complete before exit.
 
-use std::sync::{Arc, atomic::{AtomicBool, AtomicUsize, Ordering}};
+use std::sync::{
+    atomic::{AtomicBool, AtomicUsize, Ordering},
+    Arc,
+};
 
 fn simulate_graceful_shutdown(in_flight: usize) -> (usize, usize) {
     let shutdown = Arc::new(AtomicBool::new(false));
@@ -17,9 +20,14 @@ fn simulate_graceful_shutdown(in_flight: usize) -> (usize, usize) {
 
     // new runs are rejected
     let is_shutting_down = shutdown.load(Ordering::SeqCst);
-    if is_shutting_down { rejected.fetch_add(1, Ordering::SeqCst); }
+    if is_shutting_down {
+        rejected.fetch_add(1, Ordering::SeqCst);
+    }
 
-    (completed.load(Ordering::SeqCst), rejected.load(Ordering::SeqCst))
+    (
+        completed.load(Ordering::SeqCst),
+        rejected.load(Ordering::SeqCst),
+    )
 }
 
 #[test]

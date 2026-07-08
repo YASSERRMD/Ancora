@@ -34,8 +34,14 @@ impl FootprintReport {
         let snap_after = MemorySnapshot::capture();
         let delta = snap_after.rss_bytes as i64 - snap_before.rss_bytes as i64;
         Self {
-            before: SnapRecord { label: label_before.to_string(), rss_bytes: snap_before.rss_bytes },
-            after: SnapRecord { label: label_after.to_string(), rss_bytes: snap_after.rss_bytes },
+            before: SnapRecord {
+                label: label_before.to_string(),
+                rss_bytes: snap_before.rss_bytes,
+            },
+            after: SnapRecord {
+                label: label_after.to_string(),
+                rss_bytes: snap_after.rss_bytes,
+            },
             delta_rss_bytes: delta,
         }
     }
@@ -82,8 +88,14 @@ mod unit {
     #[test]
     fn footprint_report_delta_kib_consistent() {
         let report = FootprintReport {
-            before: SnapRecord { label: "a".to_string(), rss_bytes: 1024 * 1024 },
-            after: SnapRecord { label: "b".to_string(), rss_bytes: 2 * 1024 * 1024 },
+            before: SnapRecord {
+                label: "a".to_string(),
+                rss_bytes: 1024 * 1024,
+            },
+            after: SnapRecord {
+                label: "b".to_string(),
+                rss_bytes: 2 * 1024 * 1024,
+            },
             delta_rss_bytes: 1024 * 1024,
         };
         assert_eq!(report.delta_kib(), 1024);

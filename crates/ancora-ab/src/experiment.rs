@@ -36,7 +36,10 @@ pub struct Metric {
 
 impl Metric {
     pub fn new(name: impl Into<String>, kind: MetricKind) -> Self {
-        Metric { name: name.into(), kind }
+        Metric {
+            name: name.into(),
+            kind,
+        }
     }
 }
 

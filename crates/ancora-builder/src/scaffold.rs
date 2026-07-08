@@ -1,5 +1,4 @@
 /// scaffold - Graph builder frontend scaffold: canvas, viewport, and project state.
-
 use std::collections::HashMap;
 
 /// Unique identifier for nodes and edges in the canvas.

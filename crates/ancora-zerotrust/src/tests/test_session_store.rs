@@ -13,7 +13,13 @@ fn session_store_for_identity() {
 fn session_store_count() {
     let mut store = SessionStore::new();
     for i in 0..4 {
-        store.insert(ZeroTrustSession::new(format!("s{}", i), "t1", "i1", 0, 9999));
+        store.insert(ZeroTrustSession::new(
+            format!("s{}", i),
+            "t1",
+            "i1",
+            0,
+            9999,
+        ));
     }
     assert_eq!(store.count(), 4);
 }

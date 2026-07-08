@@ -4,7 +4,9 @@ use crate::harness::{run_bench, BenchConfig};
 
 #[test]
 fn harness_sample_count_matches_config() {
-    let cfg = BenchConfig::new("reproducible").with_warmup(2).with_iters(8);
+    let cfg = BenchConfig::new("reproducible")
+        .with_warmup(2)
+        .with_iters(8);
     let stats = run_bench(&cfg, || {
         // Trivial, deterministic work.
         let _: u64 = (0u64..100).sum();

@@ -11,7 +11,9 @@ pub fn build_deepseek_profile() -> ProviderProfile {
     ProviderProfile::new(
         "deepseek",
         "https://api.deepseek.com",
-        AuthStrategy::BearerToken { env_var: "DEEPSEEK_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "DEEPSEEK_API_KEY".to_owned(),
+        },
     )
     // DeepSeek V3 (general-purpose chat)
     // Cache-hit pricing: $0.07/M (74% discount vs full $0.27/M input)
@@ -56,7 +58,9 @@ pub fn build_deepseek_self_host_profile(base_url: impl Into<String>) -> Provider
     ProviderProfile::new(
         "deepseek-self-host",
         base_url,
-        AuthStrategy::BearerToken { env_var: "DEEPSEEK_SELF_HOST_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "DEEPSEEK_SELF_HOST_KEY".to_owned(),
+        },
     )
     .add_model(
         ModelMeta::new("deepseek-chat", 64_000)
@@ -116,7 +120,10 @@ mod tests {
 
     #[test]
     fn deepseek_base_url_is_correct() {
-        assert_eq!(build_deepseek_profile().base_url, "https://api.deepseek.com");
+        assert_eq!(
+            build_deepseek_profile().base_url,
+            "https://api.deepseek.com"
+        );
     }
 
     #[test]
@@ -221,7 +228,10 @@ mod tests {
     #[test]
     fn deepseek_tool_call_mapping_request_has_tools() {
         use crate::types::{CompletionRequest, FunctionDefinition, Message, ToolDefinition};
-        let mut req = CompletionRequest::simple("deepseek-chat", vec![Message::text("user", "What is the weather?")]);
+        let mut req = CompletionRequest::simple(
+            "deepseek-chat",
+            vec![Message::text("user", "What is the weather?")],
+        );
         req.tools = vec![ToolDefinition {
             kind: "function".to_owned(),
             function: FunctionDefinition {
@@ -238,7 +248,8 @@ mod tests {
     #[test]
     fn deepseek_streaming_parser_uses_openai_sse() {
         use crate::openai::OpenAiClient;
-        let texts: Vec<String> = DS_STREAM_LINES.iter()
+        let texts: Vec<String> = DS_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -251,13 +262,17 @@ mod tests {
         // DeepSeek R1 adds a `reasoning_content` field to the message object.
         // The OpenAI client ignores unknown fields (serde default behavior),
         // so the standard `content` field is still extracted correctly.
-        let resp = ds_client().parse_response(DS_REASONING_FIXTURE, "deepseek-reasoner").unwrap();
+        let resp = ds_client()
+            .parse_response(DS_REASONING_FIXTURE, "deepseek-reasoner")
+            .unwrap();
         assert_eq!(resp.content, "The answer is 42");
     }
 
     #[test]
     fn deepseek_recorded_fixture_completes() {
-        let resp = ds_client().parse_response(DS_FIXTURE, "deepseek-chat").unwrap();
+        let resp = ds_client()
+            .parse_response(DS_FIXTURE, "deepseek-chat")
+            .unwrap();
         assert_eq!(resp.content, "Hello from DeepSeek");
         assert_eq!(resp.tokens_in, 10);
         assert_eq!(resp.tokens_out, 5);
@@ -265,19 +280,25 @@ mod tests {
 
     #[test]
     fn deepseek_fixture_no_tool_calls() {
-        let resp = ds_client().parse_response(DS_FIXTURE, "deepseek-chat").unwrap();
+        let resp = ds_client()
+            .parse_response(DS_FIXTURE, "deepseek-chat")
+            .unwrap();
         assert!(resp.tool_calls.is_empty());
     }
 
     #[test]
     fn deepseek_fixture_content_non_empty() {
-        let resp = ds_client().parse_response(DS_FIXTURE, "deepseek-chat").unwrap();
+        let resp = ds_client()
+            .parse_response(DS_FIXTURE, "deepseek-chat")
+            .unwrap();
         assert!(!resp.content.is_empty());
     }
 
     #[test]
     fn deepseek_tool_round_trip_works() {
-        let resp = ds_client().parse_response(DS_TOOL_FIXTURE, "deepseek-chat").unwrap();
+        let resp = ds_client()
+            .parse_response(DS_TOOL_FIXTURE, "deepseek-chat")
+            .unwrap();
         assert_eq!(resp.tool_calls.len(), 1);
         assert_eq!(resp.tool_calls[0].function.name, "get_weather");
         let args: serde_json::Value =
@@ -288,7 +309,8 @@ mod tests {
     #[test]
     fn deepseek_streaming_fixture_ordered() {
         use crate::openai::OpenAiClient;
-        let texts: Vec<String> = DS_STREAM_LINES.iter()
+        let texts: Vec<String> = DS_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -325,7 +347,8 @@ mod tests {
     #[test]
     fn deepseek_streaming_combined_text() {
         use crate::openai::OpenAiClient;
-        let combined: String = DS_STREAM_LINES.iter()
+        let combined: String = DS_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text)
@@ -335,7 +358,9 @@ mod tests {
 
     #[test]
     fn deepseek_tool_fixture_token_counts() {
-        let resp = ds_client().parse_response(DS_TOOL_FIXTURE, "deepseek-chat").unwrap();
+        let resp = ds_client()
+            .parse_response(DS_TOOL_FIXTURE, "deepseek-chat")
+            .unwrap();
         assert_eq!(resp.tokens_in, 20);
         assert_eq!(resp.tokens_out, 10);
     }
@@ -396,10 +421,12 @@ mod tests {
     fn deepseek_self_host_fixture_completes_offline() {
         use crate::openai::OpenAiClient;
         use std::sync::Arc;
-        let client = OpenAiClient::new(Arc::new(
-            build_deepseek_self_host_profile("http://localhost:8000"),
-        ));
-        let resp = client.parse_response(DS_SELF_HOST_FIXTURE, "deepseek-chat").unwrap();
+        let client = OpenAiClient::new(Arc::new(build_deepseek_self_host_profile(
+            "http://localhost:8000",
+        )));
+        let resp = client
+            .parse_response(DS_SELF_HOST_FIXTURE, "deepseek-chat")
+            .unwrap();
         assert_eq!(resp.content, "Hello from vLLM");
         assert_eq!(resp.tokens_in, 5);
         assert_eq!(resp.tokens_out, 4);
@@ -409,10 +436,12 @@ mod tests {
     fn deepseek_self_host_fixture_has_zero_cost() {
         use crate::openai::OpenAiClient;
         use std::sync::Arc;
-        let client = OpenAiClient::new(Arc::new(
-            build_deepseek_self_host_profile("http://localhost:8000"),
-        ));
-        let resp = client.parse_response(DS_SELF_HOST_FIXTURE, "deepseek-chat").unwrap();
+        let client = OpenAiClient::new(Arc::new(build_deepseek_self_host_profile(
+            "http://localhost:8000",
+        )));
+        let resp = client
+            .parse_response(DS_SELF_HOST_FIXTURE, "deepseek-chat")
+            .unwrap();
         // Zero pricing configured -- cost should be 0 or None
         let cost = resp.cost_usd.unwrap_or(0.0);
         assert_eq!(cost, 0.0);
@@ -460,7 +489,9 @@ mod tests {
         // Cache-hit accounting is handled by the provider profile's cached_per_million
         // tier; the `compute_cost` method receives cached_in as the third argument.
         let raw: serde_json::Value = serde_json::from_str(DS_FIXTURE).unwrap();
-        let cached = raw["usage"]["prompt_cache_hit_tokens"].as_u64().unwrap_or(0);
+        let cached = raw["usage"]["prompt_cache_hit_tokens"]
+            .as_u64()
+            .unwrap_or(0);
         assert_eq!(cached, 4);
     }
 
@@ -476,7 +507,9 @@ mod tests {
 
     #[test]
     fn deepseek_reasoning_fixture_tokens_correct() {
-        let resp = ds_client().parse_response(DS_REASONING_FIXTURE, "deepseek-reasoner").unwrap();
+        let resp = ds_client()
+            .parse_response(DS_REASONING_FIXTURE, "deepseek-reasoner")
+            .unwrap();
         assert_eq!(resp.tokens_in, 8);
         assert_eq!(resp.tokens_out, 6);
     }

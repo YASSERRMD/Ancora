@@ -1,6 +1,4 @@
-use crate::a2a_interop::{
-    build_message, A2ADispatcher, A2AError, A2AMessage, A2AResponse,
-};
+use crate::a2a_interop::{build_message, A2ADispatcher, A2AError, A2AMessage, A2AResponse};
 
 fn mock_external_agent(msg: &A2AMessage) -> Result<A2AResponse, A2AError> {
     Ok(A2AResponse {
@@ -26,7 +24,10 @@ fn a2a_interop_with_mock_external_agent() {
 fn a2a_unknown_recipient_returns_error() {
     let d = A2ADispatcher::new();
     let msg = build_message("a", "unknown-agent", "hello");
-    assert!(matches!(d.dispatch(&msg), Err(A2AError::UnknownRecipient(_))));
+    assert!(matches!(
+        d.dispatch(&msg),
+        Err(A2AError::UnknownRecipient(_))
+    ));
 }
 
 #[test]

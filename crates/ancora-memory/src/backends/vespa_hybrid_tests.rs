@@ -23,7 +23,10 @@ mod vespa_hybrid_tests {
     fn hybrid_query_yql_contains_userquery() {
         let q = hybrid_query("doc", 8, "emb", "qEmb", "body", 4, 0.5);
         let yql = q["yql"].as_str().unwrap();
-        assert!(yql.contains("userQuery()") || yql.contains("contains"), "yql: {yql}");
+        assert!(
+            yql.contains("userQuery()") || yql.contains("contains"),
+            "yql: {yql}"
+        );
     }
 
     #[test]
@@ -78,7 +81,10 @@ mod vespa_hybrid_tests {
     fn ann_query_target_hits_in_yql() {
         let q = ann_query("doc", 20, "emb", "qEmb");
         let yql = q["yql"].as_str().unwrap();
-        assert!(yql.contains("20") || yql.contains("targetHits"), "yql: {yql}");
+        assert!(
+            yql.contains("20") || yql.contains("targetHits"),
+            "yql: {yql}"
+        );
     }
 
     // ---- bm25_query -------------------------------------------------------

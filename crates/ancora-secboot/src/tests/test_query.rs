@@ -1,5 +1,5 @@
-use crate::{Measurement, MeasurementKind};
 use crate::query::MeasurementQuery;
+use crate::{Measurement, MeasurementKind};
 #[test]
 fn query_by_kind_filters_correctly() {
     let m1 = Measurement::new("m1", MeasurementKind::Kernel, "vmlinuz", "d1", 0);

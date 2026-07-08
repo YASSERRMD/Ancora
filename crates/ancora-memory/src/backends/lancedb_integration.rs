@@ -20,35 +20,56 @@ mod lancedb_integration {
     #[test]
     #[ignore]
     fn integration_local_open_directory() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         println!("Would open LanceDB at {}", cfg.path.uri());
     }
 
     #[test]
     #[ignore]
     fn integration_create_table_with_schema() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let schema = table_schema(128, &[ColumnDef::new("year", column_type::INT64)]);
-        println!("Would create table at {} with schema {schema}", cfg.path.uri());
+        println!(
+            "Would create table at {} with schema {schema}",
+            cfg.path.uri()
+        );
     }
 
     #[test]
     #[ignore]
     fn integration_add_rows_and_search() {
-        let cfg = match cfg() { Some(c) => c, None => return };
-        let data = vec![
-            (1i64, vec![0.1f32; 128], serde_json::json!({"title": "doc 1"})),
-        ];
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
+        let data = vec![(
+            1i64,
+            vec![0.1f32; 128],
+            serde_json::json!({"title": "doc 1"}),
+        )];
         let batch = rows(&data);
         let q = VectorQuery::new("docs", vec![0.1f32; 128], 5);
-        println!("Would add {} rows to {}, then search", batch.len(), cfg.path.uri());
+        println!(
+            "Would add {} rows to {}, then search",
+            batch.len(),
+            cfg.path.uri()
+        );
         println!("query: {}", q.to_json());
     }
 
     #[test]
     #[ignore]
     fn integration_delete_by_predicate() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let pred = delete_predicate("docs", "year < 2020");
         println!("Would delete from {} with {pred}", cfg.path.uri());
     }
@@ -56,9 +77,16 @@ mod lancedb_integration {
     #[test]
     #[ignore]
     fn integration_version_checkout() {
-        let cfg = match cfg() { Some(c) => c, None => return };
+        let cfg = match cfg() {
+            Some(c) => c,
+            None => return,
+        };
         let vc = VersionCheckout::new("docs", 1);
-        println!("Would checkout version {} from {}", vc.version, cfg.path.uri());
+        println!(
+            "Would checkout version {} from {}",
+            vc.version,
+            cfg.path.uri()
+        );
     }
 
     #[test]

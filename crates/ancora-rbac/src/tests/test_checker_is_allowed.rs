@@ -14,6 +14,11 @@ fn require_role_dominates_developer_over_viewer() {
     store.assign(RoleAssignment::new("dev", "t", Role::Developer, 0));
     let policy = RolePolicy::new();
     let checker = PermissionChecker::new(&store, &policy);
-    assert!(checker.require_role_dominates("dev", "t", &Role::Viewer) == crate::AuthzDecision::Allow);
-    assert!(matches!(checker.require_role_dominates("dev", "t", &Role::Admin), crate::AuthzDecision::Deny(_)));
+    assert!(
+        checker.require_role_dominates("dev", "t", &Role::Viewer) == crate::AuthzDecision::Allow
+    );
+    assert!(matches!(
+        checker.require_role_dominates("dev", "t", &Role::Admin),
+        crate::AuthzDecision::Deny(_)
+    ));
 }

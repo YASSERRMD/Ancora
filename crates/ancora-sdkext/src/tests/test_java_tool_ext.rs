@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use crate::java_interfaces::{
-    build_jni_descriptor, canonical_java_interface, rust_value_to_java_type,
-    JavaExtensionAdapter, JavaMethodDescriptor, JavaType,
+    build_jni_descriptor, canonical_java_interface, rust_value_to_java_type, JavaExtensionAdapter,
+    JavaMethodDescriptor, JavaType,
 };
 use crate::rs_traits::{ExtensionError, ToolMeta, Value};
+use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -50,9 +50,10 @@ fn test_build_jni_descriptor_no_params() {
 fn test_build_jni_descriptor_with_params() {
     let method = JavaMethodDescriptor {
         name: "execute".to_string(),
-        params: vec![
-            ("args".to_string(), JavaType::Map(Box::new(JavaType::String), Box::new(JavaType::Object)))
-        ],
+        params: vec![(
+            "args".to_string(),
+            JavaType::Map(Box::new(JavaType::String), Box::new(JavaType::Object)),
+        )],
         return_type: JavaType::Object,
     };
     let desc = build_jni_descriptor(&method);
@@ -70,10 +71,19 @@ fn test_canonical_java_interface() {
 
 #[test]
 fn test_rust_value_to_java_type() {
-    assert_eq!(rust_value_to_java_type(&Value::string("x")), JavaType::String);
+    assert_eq!(
+        rust_value_to_java_type(&Value::string("x")),
+        JavaType::String
+    );
     assert_eq!(rust_value_to_java_type(&Value::Int(1)), JavaType::Long);
-    assert_eq!(rust_value_to_java_type(&Value::Float(1.0)), JavaType::Double);
-    assert_eq!(rust_value_to_java_type(&Value::Bool(false)), JavaType::Boolean);
+    assert_eq!(
+        rust_value_to_java_type(&Value::Float(1.0)),
+        JavaType::Double
+    );
+    assert_eq!(
+        rust_value_to_java_type(&Value::Bool(false)),
+        JavaType::Boolean
+    );
     assert_eq!(rust_value_to_java_type(&Value::Null), JavaType::Object);
 }
 

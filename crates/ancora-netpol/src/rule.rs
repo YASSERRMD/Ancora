@@ -48,7 +48,9 @@ impl NetworkRule {
     }
 
     pub fn matches_host(&self, host: &str) -> bool {
-        if self.host_pattern == "*" { return true; }
+        if self.host_pattern == "*" {
+            return true;
+        }
         if self.host_pattern.starts_with("*.") {
             let suffix = &self.host_pattern[1..];
             return host.ends_with(suffix) || host == &self.host_pattern[2..];

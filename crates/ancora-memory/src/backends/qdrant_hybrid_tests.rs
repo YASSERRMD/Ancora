@@ -79,8 +79,14 @@ mod qdrant_hybrid_tests {
     #[test]
     fn named_vector_search_and_dedup_pipeline() {
         // Simulate results from two named-vector searches before dedup
-        let text_results = vec![(1u64, 0.8f32, serde_json::json!({})), (2, 0.6, serde_json::json!({}))];
-        let image_results = vec![(1u64, 0.7f32, serde_json::json!({})), (3, 0.9, serde_json::json!({}))];
+        let text_results = vec![
+            (1u64, 0.8f32, serde_json::json!({})),
+            (2, 0.6, serde_json::json!({})),
+        ];
+        let image_results = vec![
+            (1u64, 0.7f32, serde_json::json!({})),
+            (3, 0.9, serde_json::json!({})),
+        ];
         let mut combined = text_results;
         combined.extend(image_results);
         let mut deduped = dedup_by_id(combined);

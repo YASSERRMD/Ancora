@@ -1,5 +1,5 @@
-use crate::presets::{permissive_policy, standard_policy, strict_policy};
 use crate::device::TrustLevel;
+use crate::presets::{permissive_policy, standard_policy, strict_policy};
 
 #[test]
 fn strict_policy_requires_device_and_mfa() {

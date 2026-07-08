@@ -1,4 +1,4 @@
-use crate::local_classifier::{LocalClassifier, LocalCategory};
+use crate::local_classifier::{LocalCategory, LocalClassifier};
 
 #[test]
 fn clean_text_is_safe_offline() {

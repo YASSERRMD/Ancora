@@ -2,7 +2,6 @@
 ///
 /// Log records may contain free-form strings that inadvertently include PII.
 /// This module defines rules for scrubbing log messages before export.
-
 use crate::pii_scrub::scrub_pii;
 
 /// Severity of a log record.

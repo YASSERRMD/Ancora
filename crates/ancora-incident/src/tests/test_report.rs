@@ -1,9 +1,9 @@
-use crate::incident::{Incident, Severity};
-use crate::runbook::{Runbook, RunbookStep};
-use crate::timeline::IncidentTimeline;
 use crate::audit::IncidentAuditLog;
 use crate::escalation::{EscalationChannel, EscalationRecord};
+use crate::incident::{Incident, Severity};
 use crate::report::IncidentReport;
+use crate::runbook::{Runbook, RunbookStep};
+use crate::timeline::IncidentTimeline;
 
 #[test]
 fn report_no_runbook() {
@@ -21,12 +21,18 @@ fn report_with_runbook() {
     let mut rb = Runbook::new("rb1", "Runbook", "i1");
     rb.add_step(RunbookStep::new("s1", "A", "D"));
     rb.add_step(RunbookStep::new("s2", "B", "D"));
-    if let Some(s) = rb.get_step_mut("s1") { s.complete(10); }
+    if let Some(s) = rb.get_step_mut("s1") {
+        s.complete(10);
+    }
     let tl = IncidentTimeline::new();
     let audit = IncidentAuditLog::new();
-    let escalations: Vec<EscalationRecord> = vec![
-        EscalationRecord::new("i1", 1, "alice", EscalationChannel::Pager, 1)
-    ];
+    let escalations: Vec<EscalationRecord> = vec![EscalationRecord::new(
+        "i1",
+        1,
+        "alice",
+        EscalationChannel::Pager,
+        1,
+    )];
     let report = IncidentReport::generate(&i, Some(&rb), &tl, &audit, &escalations, 100);
     assert_eq!(report.runbook_steps_total, 2);
     assert_eq!(report.runbook_steps_done, 1);

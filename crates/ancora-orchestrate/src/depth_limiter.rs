@@ -8,12 +8,17 @@ pub struct DepthLimiter {
 
 impl DepthLimiter {
     pub fn new(max_depth: usize) -> Self {
-        Self { max_depth, current: 0 }
+        Self {
+            max_depth,
+            current: 0,
+        }
     }
 
     pub fn enter(&mut self) -> Result<(), OrchestrateError> {
         if self.current >= self.max_depth {
-            return Err(OrchestrateError::MaxDepthExceeded { depth: self.current });
+            return Err(OrchestrateError::MaxDepthExceeded {
+                depth: self.current,
+            });
         }
         self.current += 1;
         Ok(())

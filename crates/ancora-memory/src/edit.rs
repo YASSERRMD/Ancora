@@ -5,7 +5,9 @@ pub struct CoreMemory {
 
 impl CoreMemory {
     pub fn new(initial: impl Into<String>) -> Self {
-        Self { content: initial.into() }
+        Self {
+            content: initial.into(),
+        }
     }
 
     pub fn content(&self) -> &str {
@@ -31,7 +33,9 @@ pub struct ArchivalMemory {
 
 impl ArchivalMemory {
     pub fn new() -> Self {
-        Self { entries: Vec::new() }
+        Self {
+            entries: Vec::new(),
+        }
     }
 
     pub fn insert(&mut self, text: impl Into<String>) {
@@ -39,7 +43,8 @@ impl ArchivalMemory {
     }
 
     pub fn search(&self, query: &str) -> Vec<&str> {
-        self.entries.iter()
+        self.entries
+            .iter()
             .filter(|e| e.contains(query))
             .map(|e| e.as_str())
             .collect()
@@ -78,12 +83,25 @@ impl SelfEditingMemory {
     /// Apply a memory edit tool and return any output (e.g. search results).
     pub fn apply_tool(&mut self, tool: MemoryEditTool) -> Option<Vec<String>> {
         match tool {
-            MemoryEditTool::CoreAppend { text } => { self.core.append(&text); None }
-            MemoryEditTool::CoreReplace { text } => { self.core.replace(text); None }
-            MemoryEditTool::ArchivalInsert { text } => { self.archival.insert(text); None }
-            MemoryEditTool::ArchivalSearch { query } => {
-                Some(self.archival.search(&query).iter().map(|s| s.to_string()).collect())
+            MemoryEditTool::CoreAppend { text } => {
+                self.core.append(&text);
+                None
             }
+            MemoryEditTool::CoreReplace { text } => {
+                self.core.replace(text);
+                None
+            }
+            MemoryEditTool::ArchivalInsert { text } => {
+                self.archival.insert(text);
+                None
+            }
+            MemoryEditTool::ArchivalSearch { query } => Some(
+                self.archival
+                    .search(&query)
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            ),
         }
     }
 }
@@ -95,7 +113,9 @@ mod tests {
     #[test]
     fn agent_appends_to_core_memory() {
         let mut mem = SelfEditingMemory::new("initial");
-        mem.apply_tool(MemoryEditTool::CoreAppend { text: "new fact".to_string() });
+        mem.apply_tool(MemoryEditTool::CoreAppend {
+            text: "new fact".to_string(),
+        });
         assert!(mem.core.content().contains("initial"));
         assert!(mem.core.content().contains("new fact"));
     }
@@ -103,16 +123,26 @@ mod tests {
     #[test]
     fn agent_replaces_core_memory() {
         let mut mem = SelfEditingMemory::new("old");
-        mem.apply_tool(MemoryEditTool::CoreReplace { text: "fresh start".to_string() });
+        mem.apply_tool(MemoryEditTool::CoreReplace {
+            text: "fresh start".to_string(),
+        });
         assert_eq!(mem.core.content(), "fresh start");
     }
 
     #[test]
     fn agent_inserts_and_searches_archival_memory() {
         let mut mem = SelfEditingMemory::new("");
-        mem.apply_tool(MemoryEditTool::ArchivalInsert { text: "Rust is fast".to_string() });
-        mem.apply_tool(MemoryEditTool::ArchivalInsert { text: "Python is dynamic".to_string() });
-        let results = mem.apply_tool(MemoryEditTool::ArchivalSearch { query: "Rust".to_string() }).unwrap();
+        mem.apply_tool(MemoryEditTool::ArchivalInsert {
+            text: "Rust is fast".to_string(),
+        });
+        mem.apply_tool(MemoryEditTool::ArchivalInsert {
+            text: "Python is dynamic".to_string(),
+        });
+        let results = mem
+            .apply_tool(MemoryEditTool::ArchivalSearch {
+                query: "Rust".to_string(),
+            })
+            .unwrap();
         assert_eq!(results, vec!["Rust is fast"]);
     }
 }

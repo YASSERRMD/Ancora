@@ -10,7 +10,8 @@ fn retention_eligible(record: &JournalRecord, now_ns: u64, ttl_ns: u64) -> bool 
 }
 
 fn apply_retention(records: &[JournalRecord], now_ns: u64, ttl_ns: u64) -> Vec<&str> {
-    records.iter()
+    records
+        .iter()
         .filter(|r| retention_eligible(r, now_ns, ttl_ns))
         .map(|r| r.run_id.as_str())
         .collect()
@@ -21,7 +22,10 @@ const NOW_NS: u64 = 100 * ONE_DAY_NS;
 const TTL_NS: u64 = 30 * ONE_DAY_NS;
 
 fn record(id: &str, days_ago: u64) -> JournalRecord {
-    JournalRecord { run_id: id.to_string(), created_at_ns: NOW_NS - days_ago * ONE_DAY_NS }
+    JournalRecord {
+        run_id: id.to_string(),
+        created_at_ns: NOW_NS - days_ago * ONE_DAY_NS,
+    }
 }
 
 #[test]

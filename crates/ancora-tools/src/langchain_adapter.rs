@@ -75,12 +75,10 @@ impl Tool for LangchainToolAdapter {
         let arg = if let Some(s) = input.get("input").and_then(|v| v.as_str()) {
             s.to_owned()
         } else {
-            serde_json::to_string(input)
-                .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?
+            serde_json::to_string(input).map_err(|e| ToolError::ExecutionFailed(e.to_string()))?
         };
 
-        let output = (self.inner.run)(&arg)
-            .map_err(ToolError::ExecutionFailed)?;
+        let output = (self.inner.run)(&arg).map_err(ToolError::ExecutionFailed)?;
 
         Ok(serde_json::json!({ "output": output }))
     }
@@ -160,7 +158,9 @@ mod tests {
             Ok(format!("result: {}", input.len()))
         });
         registry.register(from_langchain(lc));
-        let result = registry.call("calc", &serde_json::json!({ "input": "abc" })).unwrap();
+        let result = registry
+            .call("calc", &serde_json::json!({ "input": "abc" }))
+            .unwrap();
         assert_eq!(result["output"], "result: 3");
     }
 }

@@ -35,7 +35,8 @@ mod milvus_partition_tests {
     #[test]
     fn insert_into_partition_sets_partition_name() {
         let body = insert_into_partition_body(
-            "docs", "region_eu",
+            "docs",
+            "region_eu",
             &[(vec![0.1f32; 4], serde_json::json!({"tag": "x"}))],
         );
         assert_eq!(body["partitionName"], "region_eu");

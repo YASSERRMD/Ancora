@@ -18,7 +18,7 @@ fn timed_out_at_deadline() {
 fn timed_out_calls_list() {
     let mut t = ToolTimeoutTracker::new();
     t.register("c1", "search", 0, 2000); // deadline 2s
-    t.register("c2", "exec", 0, 10000);  // deadline 10s
+    t.register("c2", "exec", 0, 10000); // deadline 10s
     let expired = t.timed_out_calls(3);
     assert_eq!(expired.len(), 1);
     assert_eq!(expired[0].0, "c1");

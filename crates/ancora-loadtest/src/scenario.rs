@@ -1,5 +1,5 @@
-use crate::workload::WorkloadSpec;
 use crate::soak::{SoakHarness, SoakSummary};
+use crate::workload::WorkloadSpec;
 
 pub struct ScenarioResult {
     pub name: String,
@@ -15,7 +15,11 @@ pub struct Scenario {
 
 impl Scenario {
     pub fn new(spec: WorkloadSpec, max_error_rate: f64, max_p99_ms: u64) -> Self {
-        Self { spec, max_error_rate, max_p99_ms }
+        Self {
+            spec,
+            max_error_rate,
+            max_p99_ms,
+        }
     }
 
     /// Run the scenario using the provided tick function.
@@ -38,6 +42,10 @@ impl Scenario {
         harness.finish(self.spec.duration_secs);
         let summary = harness.summary();
         let passed = summary.passes_slo(self.max_error_rate, self.max_p99_ms);
-        ScenarioResult { name: self.spec.name.clone(), passed, summary }
+        ScenarioResult {
+            name: self.spec.name.clone(),
+            passed,
+            summary,
+        }
     }
 }

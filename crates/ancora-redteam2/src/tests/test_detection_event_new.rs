@@ -2,7 +2,14 @@ use crate::detection::{DetectionEvent, DetectionSource};
 
 #[test]
 fn basic_fields() {
-    let ev = DetectionEvent::new("d1", "sc1", DetectionSource::Edr, "Suspicious process", 5, true);
+    let ev = DetectionEvent::new(
+        "d1",
+        "sc1",
+        DetectionSource::Edr,
+        "Suspicious process",
+        5,
+        true,
+    );
     assert_eq!(ev.id, "d1");
     assert_eq!(ev.scenario_id, "sc1");
     assert_eq!(ev.source, DetectionSource::Edr);
@@ -14,7 +21,14 @@ fn basic_fields() {
 
 #[test]
 fn with_step() {
-    let ev = DetectionEvent::new("d1", "sc1", DetectionSource::Ids, "Port scan detected", 2, false)
-        .with_step("step-42");
+    let ev = DetectionEvent::new(
+        "d1",
+        "sc1",
+        DetectionSource::Ids,
+        "Port scan detected",
+        2,
+        false,
+    )
+    .with_step("step-42");
     assert_eq!(ev.step_id.as_deref(), Some("step-42"));
 }

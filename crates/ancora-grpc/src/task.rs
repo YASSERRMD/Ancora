@@ -76,9 +76,7 @@ mod tests {
 
     #[test]
     fn task_lifecycle_transitions() {
-        let t = Task::new("t2", "input")
-            .running()
-            .completed("result");
+        let t = Task::new("t2", "input").running().completed("result");
         assert_eq!(t.status, TaskStatus::Completed);
         assert_eq!(t.output.as_deref(), Some("result"));
         assert!(t.is_terminal());

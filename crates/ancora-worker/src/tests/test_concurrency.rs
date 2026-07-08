@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use crate::concurrency::{total_capacity, worker_has_capacity};
     use ancora_controlplane::model::RunPriority;
     use ancora_controlplane::store::ControlPlaneStore;
-    use crate::concurrency::{total_capacity, worker_has_capacity};
 
     #[test]
     fn worker_has_capacity_when_under_limit() {

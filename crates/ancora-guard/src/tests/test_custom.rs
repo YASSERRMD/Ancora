@@ -1,5 +1,5 @@
 use crate::custom::CustomInputGuardrail;
-use crate::guardrail::{InputGuardrail, GuardrailOutcome};
+use crate::guardrail::{GuardrailOutcome, InputGuardrail};
 
 #[test]
 fn custom_guardrail_runs() {

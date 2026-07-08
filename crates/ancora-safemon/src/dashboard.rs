@@ -2,7 +2,6 @@
 ///
 /// Aggregates incident counts, severity distributions, and recent alerts
 /// for operational visibility.
-
 use crate::incident_log::{IncidentLog, IncidentSeverity};
 
 #[derive(Debug, Clone)]

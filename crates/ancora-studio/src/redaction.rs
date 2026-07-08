@@ -93,10 +93,7 @@ mod tests {
     fn engine() -> RedactionEngine {
         RedactionEngine::new(vec![
             FieldRedactionRule::new("prompt", RedactionPolicy::AlwaysRedact),
-            FieldRedactionRule::new(
-                "response",
-                RedactionPolicy::RequireRole("admin".into()),
-            ),
+            FieldRedactionRule::new("response", RedactionPolicy::RequireRole("admin".into())),
             FieldRedactionRule::new("label", RedactionPolicy::NeverRedact),
         ])
     }

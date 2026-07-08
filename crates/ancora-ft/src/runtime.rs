@@ -1,6 +1,6 @@
 //! Adapter runtime: load, hot-swap, stacking, and tenant selection.
 
-use crate::model::{AdapterId, AdapterDescriptor, BaseModel, LoadedAdapter};
+use crate::model::{AdapterDescriptor, AdapterId, BaseModel, LoadedAdapter};
 use std::collections::HashMap;
 
 /// Error type for runtime operations.

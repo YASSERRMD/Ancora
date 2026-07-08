@@ -28,7 +28,10 @@ mod lancedb_vector_search_tests {
         let q = VectorQuery::new("t", vec![0.1f32], 5);
         let body = q.to_json();
         let sel = body["select"].as_array().unwrap();
-        assert!(sel.iter().any(|s| s == "id"), "default select must include id");
+        assert!(
+            sel.iter().any(|s| s == "id"),
+            "default select must include id"
+        );
     }
 
     #[test]
@@ -47,9 +50,14 @@ mod lancedb_vector_search_tests {
 
     #[test]
     fn parse_results_distance_extracted() {
-        let body = serde_json::json!({ "rows": [{ "id": 1, "_distance": 0.25, "payload": r#"{}"# }] });
+        let body =
+            serde_json::json!({ "rows": [{ "id": 1, "_distance": 0.25, "payload": r#"{}"# }] });
         let results = parse_results(&body);
-        assert!((results[0].1 - 0.25f32).abs() < 1e-5, "score: {}", results[0].1);
+        assert!(
+            (results[0].1 - 0.25f32).abs() < 1e-5,
+            "score: {}",
+            results[0].1
+        );
     }
 
     #[test]

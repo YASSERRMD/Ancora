@@ -1,5 +1,4 @@
 /// Plugin permission scoping.
-
 use std::collections::HashSet;
 
 /// A permission scope token (e.g. "llm:generate", "memory:read").
@@ -64,7 +63,10 @@ pub enum PermissionError {
     /// The plugin requested a scope that was not granted.
     Denied { plugin_id: String, scope: Scope },
     /// The manifest declares required scopes that were never granted.
-    MissingScopes { plugin_id: String, scopes: Vec<Scope> },
+    MissingScopes {
+        plugin_id: String,
+        scopes: Vec<Scope>,
+    },
 }
 
 impl std::fmt::Display for PermissionError {

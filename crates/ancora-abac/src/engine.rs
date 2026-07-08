@@ -13,7 +13,9 @@ pub struct PolicyEngine<'a> {
 }
 
 impl<'a> PolicyEngine<'a> {
-    pub fn new(store: &'a PolicyStore) -> Self { Self { store } }
+    pub fn new(store: &'a PolicyStore) -> Self {
+        Self { store }
+    }
 
     pub fn evaluate(
         &self,

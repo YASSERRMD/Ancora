@@ -20,7 +20,11 @@ fn agent_node(id: &str) -> Node {
 }
 
 fn edge(from: &str, to: &str) -> Edge {
-    Edge { from: from.to_string(), to: to.to_string(), condition: None }
+    Edge {
+        from: from.to_string(),
+        to: to.to_string(),
+        condition: None,
+    }
 }
 
 fn single_node_graph() -> Graph {
@@ -89,7 +93,10 @@ fn missing_entry_node_is_rejected() {
     .validate()
     .unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("missing"), "error must mention missing entry node");
+    assert!(
+        msg.contains("missing"),
+        "error must mention missing entry node"
+    );
 }
 
 #[test]
@@ -103,7 +110,10 @@ fn edge_with_unknown_source_is_rejected() {
     .validate()
     .unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("ghost") || msg.contains("source"), "error must name the bad source");
+    assert!(
+        msg.contains("ghost") || msg.contains("source"),
+        "error must name the bad source"
+    );
 }
 
 #[test]
@@ -117,7 +127,10 @@ fn edge_with_unknown_target_is_rejected() {
     .validate()
     .unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("phantom") || msg.contains("target"), "error must name the bad target");
+    assert!(
+        msg.contains("phantom") || msg.contains("target"),
+        "error must name the bad target"
+    );
 }
 
 #[test]
@@ -136,8 +149,18 @@ fn self_loop_is_accepted_by_validate() {
 fn fan_out_graph_is_valid() {
     Graph {
         id: "g".to_string(),
-        nodes: vec![agent_node("root"), agent_node("a"), agent_node("b"), agent_node("merge")],
-        edges: vec![edge("root", "a"), edge("root", "b"), edge("a", "merge"), edge("b", "merge")],
+        nodes: vec![
+            agent_node("root"),
+            agent_node("a"),
+            agent_node("b"),
+            agent_node("merge"),
+        ],
+        edges: vec![
+            edge("root", "a"),
+            edge("root", "b"),
+            edge("a", "merge"),
+            edge("b", "merge"),
+        ],
         entry_node: "root".to_string(),
     }
     .validate()
@@ -148,7 +171,9 @@ fn fan_out_graph_is_valid() {
 fn large_chain_is_valid() {
     let n = 100usize;
     let nodes: Vec<Node> = (0..n).map(|i| agent_node(&format!("n{}", i))).collect();
-    let edges: Vec<Edge> = (0..n - 1).map(|i| edge(&format!("n{}", i), &format!("n{}", i + 1))).collect();
+    let edges: Vec<Edge> = (0..n - 1)
+        .map(|i| edge(&format!("n{}", i), &format!("n{}", i + 1)))
+        .collect();
     Graph {
         id: "g".to_string(),
         nodes,

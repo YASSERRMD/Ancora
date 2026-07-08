@@ -1,4 +1,4 @@
-use crate::dependency::{DependencyHealth, DepStatus};
+use crate::dependency::{DepStatus, DependencyHealth};
 
 #[test]
 fn all_healthy_initial() {
@@ -9,7 +9,12 @@ fn all_healthy_initial() {
 #[test]
 fn one_degraded_not_all_healthy() {
     let mut h = DependencyHealth::new();
-    h.report("journal", DepStatus::Degraded { reason: "slow".into() });
+    h.report(
+        "journal",
+        DepStatus::Degraded {
+            reason: "slow".into(),
+        },
+    );
     assert!(!h.is_all_healthy());
     assert_eq!(h.degraded_count(), 1);
 }
@@ -17,7 +22,12 @@ fn one_degraded_not_all_healthy() {
 #[test]
 fn down_dep_increments_down_count() {
     let mut h = DependencyHealth::new();
-    h.report("db", DepStatus::Down { reason: "timeout".into() });
+    h.report(
+        "db",
+        DepStatus::Down {
+            reason: "timeout".into(),
+        },
+    );
     assert_eq!(h.down_count(), 1);
 }
 

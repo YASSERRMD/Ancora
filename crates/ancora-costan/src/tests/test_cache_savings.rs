@@ -13,7 +13,11 @@ fn cache_savings_tracked_correctly() {
 
     let savings = t.total_savings();
     // savings = 3 * (2.0 - 0.2) = 5.4
-    assert!((savings - 5.4).abs() < 1e-9, "savings should be 5.4, got {}", savings);
+    assert!(
+        (savings - 5.4).abs() < 1e-9,
+        "savings should be 5.4, got {}",
+        savings
+    );
 }
 
 #[test]
@@ -31,8 +35,8 @@ fn hit_rate_calculated() {
 fn saving_percentage_correct() {
     let mut t = CacheSavingsTracker::new();
     t.record_hit(10.0, 2.0, 1000); // saves 8.0
-    t.record_miss(2.0, 200);       // no savings, full_cost = 2.0
-    // total savings = 8.0, full_cost = 12.0 => 66.67%
+    t.record_miss(2.0, 200); // no savings, full_cost = 2.0
+                             // total savings = 8.0, full_cost = 12.0 => 66.67%
     let pct = t.saving_percentage();
     assert!((pct - (8.0 / 12.0 * 100.0)).abs() < 1e-6);
 }

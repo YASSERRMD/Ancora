@@ -87,7 +87,11 @@ impl DataAnalyzer {
             .column_index(column_name)
             .ok_or_else(|| format!("column '{}' not found", column_name))?;
         let mut rows = dataset.rows.clone();
-        rows.sort_by(|a, b| b[col_idx].partial_cmp(&a[col_idx]).unwrap_or(std::cmp::Ordering::Equal));
+        rows.sort_by(|a, b| {
+            b[col_idx]
+                .partial_cmp(&a[col_idx])
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         Ok(rows.into_iter().take(n).collect())
     }
 }

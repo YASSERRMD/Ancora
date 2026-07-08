@@ -1,4 +1,4 @@
-use ancora_toolsynth::{spec_from_goal, SynthCache, SynthRegistry, SynthAudit, AuditEvent};
+use ancora_toolsynth::{spec_from_goal, AuditEvent, SynthAudit, SynthCache, SynthRegistry};
 use serde_json::json;
 
 fn make_spec() -> ancora_toolsynth::ToolSpec {
@@ -30,12 +30,37 @@ fn toolsynth_audit_replay_stable() {
     let mut audit1 = SynthAudit::default();
     let mut audit2 = SynthAudit::default();
 
-    audit1.record(1, AuditEvent::Synthesized { tool_name: "search_web".into(), goal: "search web".into() });
-    audit1.record(2, AuditEvent::Executed { tool_name: "search_web".into() });
+    audit1.record(
+        1,
+        AuditEvent::Synthesized {
+            tool_name: "search_web".into(),
+            goal: "search web".into(),
+        },
+    );
+    audit1.record(
+        2,
+        AuditEvent::Executed {
+            tool_name: "search_web".into(),
+        },
+    );
 
-    audit2.record(1, AuditEvent::Synthesized { tool_name: "search_web".into(), goal: "search web".into() });
-    audit2.record(2, AuditEvent::Executed { tool_name: "search_web".into() });
+    audit2.record(
+        1,
+        AuditEvent::Synthesized {
+            tool_name: "search_web".into(),
+            goal: "search web".into(),
+        },
+    );
+    audit2.record(
+        2,
+        AuditEvent::Executed {
+            tool_name: "search_web".into(),
+        },
+    );
 
     assert_eq!(audit1.entries().len(), audit2.entries().len());
-    assert_eq!(audit1.events_for_tool("search_web").len(), audit2.events_for_tool("search_web").len());
+    assert_eq!(
+        audit1.events_for_tool("search_web").len(),
+        audit2.events_for_tool("search_web").len()
+    );
 }

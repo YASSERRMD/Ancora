@@ -4,7 +4,15 @@ mod tests {
     use crate::query::ComponentQuery;
 
     fn make_component(id: &str, kind: ComponentKind) -> Component {
-        Component::new(id, "comp", "1.0.0", kind, License::Mit, "vendor", "sha256:00")
+        Component::new(
+            id,
+            "comp",
+            "1.0.0",
+            kind,
+            License::Mit,
+            "vendor",
+            "sha256:00",
+        )
     }
 
     #[test]
@@ -21,7 +29,9 @@ mod tests {
             .run(components.iter());
 
         assert_eq!(results.len(), 2);
-        assert!(results.iter().all(|c| matches!(c.kind, ComponentKind::Library)));
+        assert!(results
+            .iter()
+            .all(|c| matches!(c.kind, ComponentKind::Library)));
     }
 
     #[test]

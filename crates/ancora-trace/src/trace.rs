@@ -2,7 +2,6 @@
 ///
 /// A `Trace` owns the root span and all child spans that together
 /// represent one logical run of an agent or tool pipeline.
-
 use std::collections::HashMap;
 
 use crate::span::{Span, SpanId, TraceId};
@@ -24,7 +23,11 @@ impl Trace {
         let root_id = root.span_id.clone();
         let mut spans = HashMap::new();
         spans.insert(root_id.clone(), root);
-        Trace { trace_id, spans, root_id }
+        Trace {
+            trace_id,
+            spans,
+            root_id,
+        }
     }
 
     /// Insert a child span.  Returns an error if the parent is unknown.
@@ -53,7 +56,8 @@ impl Trace {
 
     /// Direct children of a span.
     pub fn children_of(&self, parent: &SpanId) -> Vec<&Span> {
-        let mut ch: Vec<&Span> = self.spans
+        let mut ch: Vec<&Span> = self
+            .spans
             .values()
             .filter(|s| s.parent_id.as_ref() == Some(parent))
             .collect();

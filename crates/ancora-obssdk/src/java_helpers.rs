@@ -64,7 +64,9 @@ pub struct JavaCostAccessor {
 
 impl JavaCostAccessor {
     pub fn new() -> Self {
-        JavaCostAccessor { records: Vec::new() }
+        JavaCostAccessor {
+            records: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, cost: CostRecord) {

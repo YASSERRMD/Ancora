@@ -1,7 +1,7 @@
 // Remote policy update for edge devices
 
-use std::collections::HashMap;
 use crate::registration::DeviceId;
+use std::collections::HashMap;
 
 /// A policy rule — key/value pairs representing enforcement settings
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

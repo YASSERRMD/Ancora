@@ -1,9 +1,9 @@
-use crate::policy::GuardrailPolicy;
-use crate::pii::PiiInputGuardrail;
-use crate::safety::SafetyOutputGuardrail;
 use crate::allowdeny::AllowDenyGuardrail;
-use crate::journal::GuardrailJournal;
 use crate::guardrail::GuardrailOutcome;
+use crate::journal::GuardrailJournal;
+use crate::pii::PiiInputGuardrail;
+use crate::policy::GuardrailPolicy;
+use crate::safety::SafetyOutputGuardrail;
 
 #[test]
 fn policy_checks_input_guardrails() {
@@ -37,5 +37,8 @@ fn clean_inputs_pass_all_guardrails() {
     let mut policy = GuardrailPolicy::new();
     policy.add_input(PiiInputGuardrail);
     let mut journal = GuardrailJournal::default();
-    assert_eq!(policy.check_input("summarize this text", &mut journal, 1), GuardrailOutcome::Pass);
+    assert_eq!(
+        policy.check_input("summarize this text", &mut journal, 1),
+        GuardrailOutcome::Pass
+    );
 }

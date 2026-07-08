@@ -56,7 +56,10 @@ impl LocalRouter {
         let lower = prompt.to_lowercase();
         if lower.contains("prove") || lower.contains("multi-step") || lower.contains("complex") {
             CapabilityTier::Advanced
-        } else if lower.contains("explain") || lower.contains("summarize") || lower.contains("compare") {
+        } else if lower.contains("explain")
+            || lower.contains("summarize")
+            || lower.contains("compare")
+        {
             CapabilityTier::Standard
         } else {
             CapabilityTier::Light

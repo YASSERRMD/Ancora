@@ -61,9 +61,8 @@ impl A2aClient {
             tokio::io::Error::new(tokio::io::ErrorKind::InvalidData, "no HTTP body found")
         })?;
 
-        serde_json::from_str(body).map_err(|e| {
-            tokio::io::Error::new(tokio::io::ErrorKind::InvalidData, e.to_string())
-        })
+        serde_json::from_str(body)
+            .map_err(|e| tokio::io::Error::new(tokio::io::ErrorKind::InvalidData, e.to_string()))
     }
 
     /// Fetch the agent card and verify its Ed25519 signature.

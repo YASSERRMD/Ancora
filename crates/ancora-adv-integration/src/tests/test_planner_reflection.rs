@@ -1,12 +1,9 @@
-use ancora_orchestrate::fan_out;
 use ancora_ageval::ReflectionMetric;
+use ancora_orchestrate::fan_out;
 
 #[test]
 fn planner_plus_reflection_pipeline() {
-    let inputs = vec![
-        serde_json::json!("step-a"),
-        serde_json::json!("step-b"),
-    ];
+    let inputs = vec![serde_json::json!("step-a"), serde_json::json!("step-b")];
     let tasks = fan_out("orch-1", "planner", inputs, "root");
     assert_eq!(tasks.len(), 2);
 

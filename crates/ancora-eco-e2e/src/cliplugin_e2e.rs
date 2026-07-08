@@ -1,5 +1,4 @@
 /// CLI plugin end-to-end: registration and command dispatch.
-
 use std::collections::HashMap;
 
 pub type CommandFn = fn(&[&str]) -> Result<String, String>;

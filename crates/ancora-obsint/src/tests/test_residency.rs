@@ -1,5 +1,5 @@
-use crate::selfhosted::{is_export_permitted, ResidencyError, ResidencyPolicy};
 use crate::selection::{ExporterBackend, ExporterSelection, SelectionError};
+use crate::selfhosted::{is_export_permitted, ResidencyError, ResidencyPolicy};
 
 #[test]
 fn test_residency_blocks_langfuse_in_self_hosted() {

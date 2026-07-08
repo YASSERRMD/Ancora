@@ -1,4 +1,6 @@
-use crate::interface::{CliPlugin, CommandSpec, ExecContext, ExecOutput, PluginError, PluginMeta, PluginResult};
+use crate::interface::{
+    CliPlugin, CommandSpec, ExecContext, ExecOutput, PluginError, PluginMeta, PluginResult,
+};
 use crate::registration::PluginRegistry;
 
 struct SimplePlugin {
@@ -46,16 +48,23 @@ impl CliPlugin for RegPlugin {
 fn test_plugin_registers_command() {
     let mut registry = PluginRegistry::new();
     let plugin = Box::new(RegPlugin::new("plug.one", "my-cmd"));
-    registry.register(plugin).expect("registration should succeed");
+    registry
+        .register(plugin)
+        .expect("registration should succeed");
 
-    assert!(registry.has_command("my-cmd"), "command should be registered");
+    assert!(
+        registry.has_command("my-cmd"),
+        "command should be registered"
+    );
     assert_eq!(registry.plugin_count(), 1);
 }
 
 #[test]
 fn test_duplicate_command_is_rejected() {
     let mut registry = PluginRegistry::new();
-    registry.register(Box::new(RegPlugin::new("plug.a", "shared-cmd"))).unwrap();
+    registry
+        .register(Box::new(RegPlugin::new("plug.a", "shared-cmd")))
+        .unwrap();
     let result = registry.register(Box::new(RegPlugin::new("plug.b", "shared-cmd")));
 
     assert!(
@@ -67,8 +76,12 @@ fn test_duplicate_command_is_rejected() {
 #[test]
 fn test_multiple_plugins_register_distinct_commands() {
     let mut registry = PluginRegistry::new();
-    registry.register(Box::new(RegPlugin::new("plug.a", "cmd-a"))).unwrap();
-    registry.register(Box::new(RegPlugin::new("plug.b", "cmd-b"))).unwrap();
+    registry
+        .register(Box::new(RegPlugin::new("plug.a", "cmd-a")))
+        .unwrap();
+    registry
+        .register(Box::new(RegPlugin::new("plug.b", "cmd-b")))
+        .unwrap();
 
     assert!(registry.has_command("cmd-a"));
     assert!(registry.has_command("cmd-b"));

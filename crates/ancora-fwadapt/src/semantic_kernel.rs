@@ -3,7 +3,6 @@
 /// Semantic Kernel plugins are collections of functions with metadata (name,
 /// description, parameters). This module converts SK plugin descriptors into
 /// Ancora tool definitions and vice versa.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -49,9 +48,7 @@ impl std::fmt::Display for SKBridgeError {
 }
 
 /// Convert a Semantic Kernel plugin into a list of Ancora tool specs.
-pub fn import_sk_plugin(
-    plugin: SKPluginDef,
-) -> Result<Vec<AncoraSkToolSpec>, SKBridgeError> {
+pub fn import_sk_plugin(plugin: SKPluginDef) -> Result<Vec<AncoraSkToolSpec>, SKBridgeError> {
     if plugin.functions.is_empty() {
         return Err(SKBridgeError::EmptyPlugin);
     }

@@ -1,7 +1,12 @@
 use crate::signal::{ExternalSignal, SignalQueue};
 
 fn make_signal(run_id: &str, kind: &str) -> ExternalSignal {
-    ExternalSignal { run_id: run_id.to_string(), kind: kind.to_string(), payload: "{}".to_string(), tick: 1 }
+    ExternalSignal {
+        run_id: run_id.to_string(),
+        kind: kind.to_string(),
+        payload: "{}".to_string(),
+        tick: 1,
+    }
 }
 
 #[test]

@@ -6,20 +6,11 @@
 ///
 /// Set ANCORA_LANCEDB_DIR to override the default database directory.
 /// Without the env var the example uses `./ancora_lancedb`.
-
 use ancora_memory::backends::lancedb::{
-    LanceDbConfig, LanceDbPath,
-    table_schema, ColumnDef, column_type,
-    row, rows, row_with_columns,
-    VectorQuery, HybridQuery,
-    FullTextIndex, AnnIndex,
-    multimodal_row,
-    delete_predicate,
-    VersionCheckout, checkout_as_of, restore_version,
-    sql_and, sql_gt, sql_eq_str,
-    parse_results, parse_version,
-    detect_storage_type,
-    edge_config, edge_default_dir,
+    checkout_as_of, column_type, delete_predicate, detect_storage_type, edge_config,
+    edge_default_dir, multimodal_row, parse_results, parse_version, restore_version, row,
+    row_with_columns, rows, sql_and, sql_eq_str, sql_gt, table_schema, AnnIndex, ColumnDef,
+    FullTextIndex, HybridQuery, LanceDbConfig, LanceDbPath, VectorQuery, VersionCheckout,
 };
 
 const TABLE: &str = "documents";
@@ -33,24 +24,36 @@ fn main() {
     println!("Edge DB dir: {}\n", cfg.path.uri());
 
     // 2. Table schema
-    let schema = table_schema(DIMS, &[
-        ColumnDef::new("title", column_type::UTF8),
-        ColumnDef::new("year", column_type::INT64).required(),
-    ]);
+    let schema = table_schema(
+        DIMS,
+        &[
+            ColumnDef::new("title", column_type::UTF8),
+            ColumnDef::new("year", column_type::INT64).required(),
+        ],
+    );
     println!("-- Table schema --");
     println!("{}\n", serde_json::to_string_pretty(&schema).unwrap());
 
     // 3. Row insertion
     let doc_rows = rows(&[
-        (1i64, vec![0.1f32; 8], serde_json::json!({"title": "Intro to RAG", "year": 2023})),
-        (2i64, vec![0.2f32; 8], serde_json::json!({"title": "Vector search", "year": 2024})),
+        (
+            1i64,
+            vec![0.1f32; 8],
+            serde_json::json!({"title": "Intro to RAG", "year": 2023}),
+        ),
+        (
+            2i64,
+            vec![0.2f32; 8],
+            serde_json::json!({"title": "Vector search", "year": 2024}),
+        ),
     ]);
     println!("-- Rows to add ({}) --", doc_rows.len());
     println!("{}\n", serde_json::to_string_pretty(&doc_rows[0]).unwrap());
 
     // 4. Row with extra columns
     let rich = row_with_columns(
-        3, vec![0.3f32; 8],
+        3,
+        vec![0.3f32; 8],
         serde_json::json!({"title": "LanceDB guide"}),
         serde_json::json!({"year": 2024, "lang": "en"}),
     );
@@ -67,23 +70,33 @@ fn main() {
     println!("{}\n", serde_json::to_string_pretty(&q.to_json()).unwrap());
 
     // 6. Hybrid vector + FTS query
-    let h = HybridQuery::new(TABLE, vec![0.15f32; 8], "RAG vector search", 5)
-        .filter("year > 2021");
+    let h = HybridQuery::new(TABLE, vec![0.15f32; 8], "RAG vector search", 5).filter("year > 2021");
     println!("-- Hybrid search descriptor --");
     println!("{}\n", serde_json::to_string_pretty(&h.to_json()).unwrap());
 
     // 7. Full-text index
     let fts = FullTextIndex::new("title").with_position();
     println!("-- FTS index config --");
-    println!("{}\n", serde_json::to_string_pretty(&fts.to_json()).unwrap());
+    println!(
+        "{}\n",
+        serde_json::to_string_pretty(&fts.to_json()).unwrap()
+    );
 
     // 8. ANN index
     let ann = AnnIndex::new(256, 16).metric("cosine");
     println!("-- ANN index config --");
-    println!("{}\n", serde_json::to_string_pretty(&ann.to_json()).unwrap());
+    println!(
+        "{}\n",
+        serde_json::to_string_pretty(&ann.to_json()).unwrap()
+    );
 
     // 9. Multimodal row
-    let mm = multimodal_row(10, vec![0.1f32; 8], vec![0.9f32; 8], serde_json::json!({"src": "img.png"}));
+    let mm = multimodal_row(
+        10,
+        vec![0.1f32; 8],
+        vec![0.9f32; 8],
+        serde_json::json!({"src": "img.png"}),
+    );
     println!("-- Multimodal row --");
     println!("{}\n", serde_json::to_string_pretty(&mm).unwrap());
 
@@ -113,7 +126,11 @@ fn main() {
         "version": 5,
     });
     let results = parse_results(&mock);
-    println!("-- Parsed {} result(s), version {} --", results.len(), parse_version(&mock));
+    println!(
+        "-- Parsed {} result(s), version {} --",
+        results.len(),
+        parse_version(&mock)
+    );
 
     // 13. Storage detection
     for path in &["/data/db", "s3://bucket/lancedb", "gs://b/k", "az://c/b"] {

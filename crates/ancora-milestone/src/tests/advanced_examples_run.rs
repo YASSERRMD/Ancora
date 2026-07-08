@@ -1,5 +1,5 @@
-use ancora_preset::{assemble, government_compliant, research_assistant};
 use ancora_ageval::PlanningMetric;
+use ancora_preset::{assemble, government_compliant, research_assistant};
 
 #[test]
 fn research_example_runs_without_panic() {

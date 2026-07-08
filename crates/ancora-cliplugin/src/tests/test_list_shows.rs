@@ -19,12 +19,19 @@ fn test_installed_plugin_appears_in_list() {
     let opts = ListOptions::default();
     let rendered = render_list(&entries, &opts);
 
-    assert!(rendered.contains("plug.one"), "plugin id should appear in list");
+    assert!(
+        rendered.contains("plug.one"),
+        "plugin id should appear in list"
+    );
 }
 
 #[test]
 fn test_multiple_plugins_all_appear() {
-    let entries = build_entries(vec![make_meta("plug.a"), make_meta("plug.b"), make_meta("plug.c")]);
+    let entries = build_entries(vec![
+        make_meta("plug.a"),
+        make_meta("plug.b"),
+        make_meta("plug.c"),
+    ]);
     let opts = ListOptions::default();
     let rendered = render_list(&entries, &opts);
 
@@ -44,7 +51,10 @@ fn test_disabled_plugin_hidden_by_default() {
 
     let rendered = render_list(&entries, &opts);
     assert!(rendered.contains("plug.enabled"));
-    assert!(!rendered.contains("plug.disabled"), "disabled plugin should be hidden by default");
+    assert!(
+        !rendered.contains("plug.disabled"),
+        "disabled plugin should be hidden by default"
+    );
 }
 
 #[test]
@@ -54,7 +64,10 @@ fn test_disabled_plugin_shown_when_option_set() {
     opts.include_disabled = true;
 
     let rendered = render_list(&entries, &opts);
-    assert!(rendered.contains("plug.disabled"), "disabled plugin should show when include_disabled=true");
+    assert!(
+        rendered.contains("plug.disabled"),
+        "disabled plugin should show when include_disabled=true"
+    );
 }
 
 #[test]
@@ -75,19 +88,24 @@ fn test_update_available_shown_in_list() {
     opts.show_updates = true;
 
     let rendered = render_list(&[entry], &opts);
-    assert!(rendered.contains("update available"), "update status should appear in list");
+    assert!(
+        rendered.contains("update available"),
+        "update status should appear in list"
+    );
 }
 
 #[test]
 fn test_up_to_date_status_shown() {
-    let entry = ListEntry::new(make_meta("plug.current")).with_update_status(
-        UpdateStatus::UpToDate {
+    let entry =
+        ListEntry::new(make_meta("plug.current")).with_update_status(UpdateStatus::UpToDate {
             plugin_id: "plug.current".to_string(),
             version: Version::parse("1.0.0").unwrap(),
-        },
-    );
+        });
 
     let opts = ListOptions::default();
     let rendered = render_list(&[entry], &opts);
-    assert!(rendered.contains("up-to-date"), "up-to-date status should appear in list");
+    assert!(
+        rendered.contains("up-to-date"),
+        "up-to-date status should appear in list"
+    );
 }

@@ -10,7 +10,11 @@ pub struct BlueGreenController {
 
 impl BlueGreenController {
     pub fn new(blue: Vec<VersionedWorker>, green: Vec<VersionedWorker>) -> Self {
-        Self { blue, green, green_live: false }
+        Self {
+            blue,
+            green,
+            green_live: false,
+        }
     }
 
     /// Drain the current live pool, then switch.
@@ -21,7 +25,9 @@ impl BlueGreenController {
             self.blue.iter().map(|w| w.active_runs).sum::<u32>()
         };
         if active > 0 {
-            return Err(DeployError::DrainIncomplete { active_runs: active });
+            return Err(DeployError::DrainIncomplete {
+                active_runs: active,
+            });
         }
         self.green_live = !self.green_live;
         Ok(())
@@ -36,7 +42,11 @@ impl BlueGreenController {
     }
 
     pub fn live_workers(&self) -> &[VersionedWorker] {
-        if self.green_live { &self.green } else { &self.blue }
+        if self.green_live {
+            &self.green
+        } else {
+            &self.blue
+        }
     }
 
     pub fn live_version(&self) -> Option<&crate::worker::Version> {

@@ -15,8 +15,7 @@ fn test_pii_sample_is_not_eval_safe() {
 
 #[test]
 fn test_redacted_sample_becomes_eval_safe() {
-    let mut s =
-        ProdSample::new("id3", "gpt-4", "openai", "secret data", "secret", 50).with_pii();
+    let mut s = ProdSample::new("id3", "gpt-4", "openai", "secret data", "secret", 50).with_pii();
     s.redact("[REDACTED]");
     assert!(s.is_eval_safe());
     assert_eq!(s.sensitivity, Sensitivity::Redacted);
@@ -62,9 +61,12 @@ fn test_eval_set_accepts_redacted_sample() {
 #[test]
 fn test_eval_set_filter_by_model() {
     let mut set = ProdEvalSet::new();
-    set.add(ProdSample::new("a", "gpt-4", "openai", "q", "a", 10)).unwrap();
-    set.add(ProdSample::new("b", "claude-3", "anthropic", "q", "a", 10)).unwrap();
-    set.add(ProdSample::new("c", "gpt-4", "openai", "q", "a", 10)).unwrap();
+    set.add(ProdSample::new("a", "gpt-4", "openai", "q", "a", 10))
+        .unwrap();
+    set.add(ProdSample::new("b", "claude-3", "anthropic", "q", "a", 10))
+        .unwrap();
+    set.add(ProdSample::new("c", "gpt-4", "openai", "q", "a", 10))
+        .unwrap();
     let gpt4 = set.by_model("gpt-4");
     assert_eq!(gpt4.len(), 2);
 }
@@ -72,8 +74,10 @@ fn test_eval_set_filter_by_model() {
 #[test]
 fn test_eval_set_filter_by_provider() {
     let mut set = ProdEvalSet::new();
-    set.add(ProdSample::new("a", "gpt-4", "openai", "q", "a", 10)).unwrap();
-    set.add(ProdSample::new("b", "claude-3", "anthropic", "q", "a", 10)).unwrap();
+    set.add(ProdSample::new("a", "gpt-4", "openai", "q", "a", 10))
+        .unwrap();
+    set.add(ProdSample::new("b", "claude-3", "anthropic", "q", "a", 10))
+        .unwrap();
     let anthropic = set.by_provider("anthropic");
     assert_eq!(anthropic.len(), 1);
 }

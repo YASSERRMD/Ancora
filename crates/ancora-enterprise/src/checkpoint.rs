@@ -49,9 +49,15 @@ impl HealthCheck {
         }
     }
 
-    pub fn is_healthy(&self) -> bool { self.status == CheckStatus::Pass }
-    pub fn is_failing(&self) -> bool { self.status == CheckStatus::Fail }
-    pub fn is_warning(&self) -> bool { self.status == CheckStatus::Warn }
+    pub fn is_healthy(&self) -> bool {
+        self.status == CheckStatus::Pass
+    }
+    pub fn is_failing(&self) -> bool {
+        self.status == CheckStatus::Fail
+    }
+    pub fn is_warning(&self) -> bool {
+        self.status == CheckStatus::Warn
+    }
 }
 
 pub struct EnterpriseCheckpoint {
@@ -60,18 +66,37 @@ pub struct EnterpriseCheckpoint {
 }
 
 impl EnterpriseCheckpoint {
-    pub fn new(tick: u64) -> Self { Self { checks: Vec::new(), tick } }
-    pub fn add(&mut self, check: HealthCheck) { self.checks.push(check); }
-    pub fn count(&self) -> usize { self.checks.len() }
-    pub fn passing(&self) -> Vec<&HealthCheck> { self.checks.iter().filter(|c| c.is_healthy()).collect() }
-    pub fn failing(&self) -> Vec<&HealthCheck> { self.checks.iter().filter(|c| c.is_failing()).collect() }
-    pub fn warnings(&self) -> Vec<&HealthCheck> { self.checks.iter().filter(|c| c.is_warning()).collect() }
+    pub fn new(tick: u64) -> Self {
+        Self {
+            checks: Vec::new(),
+            tick,
+        }
+    }
+    pub fn add(&mut self, check: HealthCheck) {
+        self.checks.push(check);
+    }
+    pub fn count(&self) -> usize {
+        self.checks.len()
+    }
+    pub fn passing(&self) -> Vec<&HealthCheck> {
+        self.checks.iter().filter(|c| c.is_healthy()).collect()
+    }
+    pub fn failing(&self) -> Vec<&HealthCheck> {
+        self.checks.iter().filter(|c| c.is_failing()).collect()
+    }
+    pub fn warnings(&self) -> Vec<&HealthCheck> {
+        self.checks.iter().filter(|c| c.is_warning()).collect()
+    }
     pub fn for_domain<'a>(&'a self, domain: &str) -> Vec<&'a HealthCheck> {
         self.checks.iter().filter(|c| c.domain == domain).collect()
     }
-    pub fn all_healthy(&self) -> bool { self.failing().is_empty() }
+    pub fn all_healthy(&self) -> bool {
+        self.failing().is_empty()
+    }
     pub fn pass_rate(&self) -> f64 {
-        if self.checks.is_empty() { return 0.0; }
+        if self.checks.is_empty() {
+            return 0.0;
+        }
         self.passing().len() as f64 / self.checks.len() as f64
     }
 }

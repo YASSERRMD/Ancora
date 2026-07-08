@@ -20,12 +20,23 @@ impl RolePolicy {
         roles.insert("viewer", vec![Permission::Read]);
         roles.insert("operator", vec![Permission::Read, Permission::Execute]);
         roles.insert("editor", vec![Permission::Read, Permission::Write]);
-        roles.insert("admin", vec![Permission::Read, Permission::Write, Permission::Execute, Permission::Admin]);
+        roles.insert(
+            "admin",
+            vec![
+                Permission::Read,
+                Permission::Write,
+                Permission::Execute,
+                Permission::Admin,
+            ],
+        );
         Self { roles }
     }
 
     fn has_permission(&self, role: &str, perm: &Permission) -> bool {
-        self.roles.get(role).map(|perms| perms.contains(perm)).unwrap_or(false)
+        self.roles
+            .get(role)
+            .map(|perms| perms.contains(perm))
+            .unwrap_or(false)
     }
 }
 
@@ -56,7 +67,12 @@ fn test_operator_cannot_write() {
 #[test]
 fn test_admin_has_all_permissions() {
     let p = RolePolicy::new();
-    for perm in &[Permission::Read, Permission::Write, Permission::Execute, Permission::Admin] {
+    for perm in &[
+        Permission::Read,
+        Permission::Write,
+        Permission::Execute,
+        Permission::Admin,
+    ] {
         assert!(p.has_permission("admin", perm));
     }
 }

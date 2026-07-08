@@ -19,7 +19,12 @@ pub struct ZdtMigration {
 
 impl ZdtMigration {
     pub fn new(name: &str, total_rows: usize) -> Self {
-        Self { name: name.to_string(), phase: ZdtPhase::Idle, rows_backfilled: 0, total_rows }
+        Self {
+            name: name.to_string(),
+            phase: ZdtPhase::Idle,
+            rows_backfilled: 0,
+            total_rows,
+        }
     }
 
     pub fn start_expand(&mut self) {

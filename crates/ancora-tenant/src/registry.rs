@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use crate::tenant::{Tenant, TenantStatus};
-use crate::quota::{ResourceQuota, ResourceUsage};
 use crate::namespace::Namespace;
+use crate::quota::{ResourceQuota, ResourceUsage};
+use crate::tenant::{Tenant, TenantStatus};
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum RegistryError {
@@ -49,16 +49,32 @@ impl TenantRegistry {
         Ok(())
     }
 
-    pub fn get(&self, id: &str) -> Option<&Tenant> { self.tenants.get(id) }
-    pub fn get_mut(&mut self, id: &str) -> Option<&mut Tenant> { self.tenants.get_mut(id) }
+    pub fn get(&self, id: &str) -> Option<&Tenant> {
+        self.tenants.get(id)
+    }
+    pub fn get_mut(&mut self, id: &str) -> Option<&mut Tenant> {
+        self.tenants.get_mut(id)
+    }
 
-    pub fn quota(&self, id: &str) -> Option<&ResourceQuota> { self.quotas.get(id) }
-    pub fn usage(&self, id: &str) -> Option<&ResourceUsage> { self.usages.get(id) }
-    pub fn usage_mut(&mut self, id: &str) -> Option<&mut ResourceUsage> { self.usages.get_mut(id) }
-    pub fn namespace(&self, id: &str) -> Option<&Namespace> { self.namespaces.get(id) }
-    pub fn namespace_mut(&mut self, id: &str) -> Option<&mut Namespace> { self.namespaces.get_mut(id) }
+    pub fn quota(&self, id: &str) -> Option<&ResourceQuota> {
+        self.quotas.get(id)
+    }
+    pub fn usage(&self, id: &str) -> Option<&ResourceUsage> {
+        self.usages.get(id)
+    }
+    pub fn usage_mut(&mut self, id: &str) -> Option<&mut ResourceUsage> {
+        self.usages.get_mut(id)
+    }
+    pub fn namespace(&self, id: &str) -> Option<&Namespace> {
+        self.namespaces.get(id)
+    }
+    pub fn namespace_mut(&mut self, id: &str) -> Option<&mut Namespace> {
+        self.namespaces.get_mut(id)
+    }
 
-    pub fn count(&self) -> usize { self.tenants.len() }
+    pub fn count(&self) -> usize {
+        self.tenants.len()
+    }
 
     pub fn active_tenants(&self) -> Vec<&Tenant> {
         self.tenants.values().filter(|t| t.is_active()).collect()
@@ -71,12 +87,16 @@ impl TenantRegistry {
     pub fn require_active(&self, id: &str) -> Result<&Tenant, RegistryError> {
         match self.tenants.get(id) {
             None => Err(RegistryError::TenantNotFound(id.to_string())),
-            Some(t) if t.status != TenantStatus::Active => Err(RegistryError::TenantNotActive(id.to_string())),
+            Some(t) if t.status != TenantStatus::Active => {
+                Err(RegistryError::TenantNotActive(id.to_string()))
+            }
             Some(t) => Ok(t),
         }
     }
 }
 
 impl Default for TenantRegistry {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

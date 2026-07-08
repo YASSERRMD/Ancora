@@ -9,7 +9,12 @@ mod tests {
         ScalePolicy::new(ScaleBounds::new(min, max))
     }
 
-    fn metrics(queue: usize, workers: usize, active: usize, concurrency: usize) -> AutoscaleMetrics {
+    fn metrics(
+        queue: usize,
+        workers: usize,
+        active: usize,
+        concurrency: usize,
+    ) -> AutoscaleMetrics {
         AutoscaleMetrics {
             queue_depth: queue,
             worker_count: workers,
@@ -81,14 +86,9 @@ mod tests {
 
     #[test]
     fn scaling_decisions_logged() {
-        use crate::signals::ScaleSignal;
         use crate::decision::ScaleDecision;
-        let sig = ScaleSignal::from_decision(
-            ScaleDecision::ScaleUp { by: 2 },
-            4,
-            10,
-            0.8,
-        );
+        use crate::signals::ScaleSignal;
+        let sig = ScaleSignal::from_decision(ScaleDecision::ScaleUp { by: 2 }, 4, 10, 0.8);
         assert!(sig.decision.is_scale_up());
         assert_eq!(sig.desired_workers, 6);
     }

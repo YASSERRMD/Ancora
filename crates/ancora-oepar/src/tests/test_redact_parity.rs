@@ -1,6 +1,6 @@
 use crate::redact_parity::{
-    reference_redact_result, check_redact_parity, assert_no_pii, standard_rules, RedactResult,
-    reference_text,
+    assert_no_pii, check_redact_parity, reference_redact_result, reference_text, standard_rules,
+    RedactResult,
 };
 
 #[test]
@@ -46,5 +46,8 @@ fn test_redact_parity_across_languages() {
 fn test_redact_result_captures_rules_applied() {
     let rules = standard_rules();
     let result = RedactResult::new("rust", reference_text(), &rules);
-    assert!(!result.rules_applied.is_empty(), "at least one rule should be applied");
+    assert!(
+        !result.rules_applied.is_empty(),
+        "at least one rule should be applied"
+    );
 }

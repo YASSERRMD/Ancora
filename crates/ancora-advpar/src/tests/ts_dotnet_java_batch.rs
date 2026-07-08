@@ -31,7 +31,10 @@ fn ts_dotnet_java_planning_canonical() {
         &["a".to_string(), "b".into(), "c".into(), "d".into()],
         &["a".to_string(), "b".into(), "c".into()],
     );
-    assert!((got - PLANNING_3_OF_4).abs() < EPS, "Rust: {got}, Expected: {PLANNING_3_OF_4}");
+    assert!(
+        (got - PLANNING_3_OF_4).abs() < EPS,
+        "Rust: {got}, Expected: {PLANNING_3_OF_4}"
+    );
 }
 
 #[test]

@@ -13,12 +13,16 @@ struct Subsystem {
 }
 
 fn aggregate_health(subsystems: &[Subsystem]) -> Health {
-    let down: Vec<&str> = subsystems.iter()
+    let down: Vec<&str> = subsystems
+        .iter()
         .filter(|s| matches!(s.health, Health::Down(_)))
-        .map(|s| s.name).collect();
-    let degraded: Vec<&str> = subsystems.iter()
+        .map(|s| s.name)
+        .collect();
+    let degraded: Vec<&str> = subsystems
+        .iter()
         .filter(|s| matches!(s.health, Health::Degraded(_)))
-        .map(|s| s.name).collect();
+        .map(|s| s.name)
+        .collect();
 
     if !down.is_empty() {
         Health::Down(format!("down: {}", down.join(",")))
@@ -32,8 +36,14 @@ fn aggregate_health(subsystems: &[Subsystem]) -> Health {
 #[test]
 fn test_all_ok_returns_ok() {
     let subs = vec![
-        Subsystem { name: "db", health: Health::Ok },
-        Subsystem { name: "cache", health: Health::Ok },
+        Subsystem {
+            name: "db",
+            health: Health::Ok,
+        },
+        Subsystem {
+            name: "cache",
+            health: Health::Ok,
+        },
     ];
     assert_eq!(aggregate_health(&subs), Health::Ok);
 }
@@ -41,8 +51,14 @@ fn test_all_ok_returns_ok() {
 #[test]
 fn test_one_down_returns_down() {
     let subs = vec![
-        Subsystem { name: "db", health: Health::Down("conn refused".to_string()) },
-        Subsystem { name: "cache", health: Health::Ok },
+        Subsystem {
+            name: "db",
+            health: Health::Down("conn refused".to_string()),
+        },
+        Subsystem {
+            name: "cache",
+            health: Health::Ok,
+        },
     ];
     assert!(matches!(aggregate_health(&subs), Health::Down(_)));
 }
@@ -50,8 +66,14 @@ fn test_one_down_returns_down() {
 #[test]
 fn test_degraded_only_returns_degraded() {
     let subs = vec![
-        Subsystem { name: "db", health: Health::Ok },
-        Subsystem { name: "cache", health: Health::Degraded("slow".to_string()) },
+        Subsystem {
+            name: "db",
+            health: Health::Ok,
+        },
+        Subsystem {
+            name: "cache",
+            health: Health::Degraded("slow".to_string()),
+        },
     ];
     assert!(matches!(aggregate_health(&subs), Health::Degraded(_)));
 }
@@ -59,18 +81,29 @@ fn test_degraded_only_returns_degraded() {
 #[test]
 fn test_down_takes_priority_over_degraded() {
     let subs = vec![
-        Subsystem { name: "db", health: Health::Degraded("slow".to_string()) },
-        Subsystem { name: "cache", health: Health::Down("crash".to_string()) },
+        Subsystem {
+            name: "db",
+            health: Health::Degraded("slow".to_string()),
+        },
+        Subsystem {
+            name: "cache",
+            health: Health::Down("crash".to_string()),
+        },
     ];
     assert!(matches!(aggregate_health(&subs), Health::Down(_)));
 }
 
 #[test]
 fn test_down_message_includes_subsystem_name() {
-    let subs = vec![Subsystem { name: "journal-store", health: Health::Down("io error".to_string()) }];
+    let subs = vec![Subsystem {
+        name: "journal-store",
+        health: Health::Down("io error".to_string()),
+    }];
     if let Health::Down(msg) = aggregate_health(&subs) {
         assert!(msg.contains("journal-store"));
-    } else { panic!("expected Down"); }
+    } else {
+        panic!("expected Down");
+    }
 }
 
 #[test]

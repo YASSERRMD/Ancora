@@ -129,7 +129,9 @@ mod tests {
     fn blocked_item_renders_reason() {
         let item = ReadinessItem::new(
             "deploy",
-            CheckState::Blocked { reason: "waiting for infra".into() },
+            CheckState::Blocked {
+                reason: "waiting for infra".into(),
+            },
         );
         let r = item.render();
         assert!(r.contains("waiting for infra"));

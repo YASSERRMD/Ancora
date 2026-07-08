@@ -2,7 +2,11 @@ use crate::security_scan::{Finding, ScanError, ScanReport, ScanStatus, Severity}
 
 #[test]
 fn clean_scan_is_attached_and_publishable() {
-    let report = ScanReport::new("ancora-scanner-v2", "2026-06-15T10:00:00Z", ScanStatus::Clean);
+    let report = ScanReport::new(
+        "ancora-scanner-v2",
+        "2026-06-15T10:00:00Z",
+        ScanStatus::Clean,
+    );
     assert!(report.is_publishable().is_ok());
     assert_eq!(report.scanner, "ancora-scanner-v2");
 }

@@ -14,10 +14,8 @@ fn reasoning_parity_score_canonical() {
 
 #[test]
 fn reasoning_parity_contradiction_detection() {
-    let mut steps = StepDecomposer::decompose(vec![
-        "gravity exists".into(),
-        "NOT: gravity exists".into(),
-    ]);
+    let mut steps =
+        StepDecomposer::decompose(vec!["gravity exists".into(), "NOT: gravity exists".into()]);
     let pairs = ContradictionDetector::detect(&steps);
     assert_eq!(pairs.len(), 1);
     assert_eq!(pairs[0], (0, 1));

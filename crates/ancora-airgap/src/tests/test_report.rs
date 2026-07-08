@@ -18,10 +18,28 @@ fn report_empty() {
 #[test]
 fn report_with_data() {
     let mut b = AirGapBoundary::new();
-    b.add_zone(AirGapZone::new("z1", "Z1", ZoneClassification::Restricted, "t1"));
-    b.add_zone(AirGapZone::new("z2", "Z2", ZoneClassification::Public, "t1"));
+    b.add_zone(AirGapZone::new(
+        "z1",
+        "Z1",
+        ZoneClassification::Restricted,
+        "t1",
+    ));
+    b.add_zone(AirGapZone::new(
+        "z2",
+        "Z2",
+        ZoneClassification::Public,
+        "t1",
+    ));
     let mut s = TransferStore::new();
-    s.insert(TransferRequest::new("r1", "t1", "alice", MediaType::UsbDrive, TransferDirection::Inbound, "", 1));
+    s.insert(TransferRequest::new(
+        "r1",
+        "t1",
+        "alice",
+        MediaType::UsbDrive,
+        TransferDirection::Inbound,
+        "",
+        1,
+    ));
     let a = AirGapAuditLog::new();
     let r = AirGapReport::generate(&b, &s, &a, 10);
     assert_eq!(r.total_zones, 2);

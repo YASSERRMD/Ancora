@@ -11,7 +11,11 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn new(id: impl Into<String>, title: impl Into<String>, content: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        title: impl Into<String>,
+        content: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             title: title.into(),
@@ -27,7 +31,9 @@ pub struct DocumentStore {
 
 impl DocumentStore {
     pub fn new() -> Self {
-        Self { documents: Vec::new() }
+        Self {
+            documents: Vec::new(),
+        }
     }
 
     pub fn ingest(&mut self, doc: Document) {
@@ -47,7 +53,9 @@ impl DocumentStore {
         let q = query.to_lowercase();
         self.documents
             .iter()
-            .filter(|d| d.content.to_lowercase().contains(&q) || d.title.to_lowercase().contains(&q))
+            .filter(|d| {
+                d.content.to_lowercase().contains(&q) || d.title.to_lowercase().contains(&q)
+            })
             .collect()
     }
 }
@@ -107,7 +115,11 @@ mod tests {
     #[test]
     fn answer_contains_source_id() {
         let mut store = DocumentStore::new();
-        store.ingest(Document::new("doc1", "Policy", "The retention policy requires 7 years."));
+        store.ingest(Document::new(
+            "doc1",
+            "Policy",
+            "The retention policy requires 7 years.",
+        ));
         let engine = DocumentQaEngine::new(store);
         let answer = engine.ask("retention");
         assert!(answer.source_ids.contains(&"doc1".to_string()));

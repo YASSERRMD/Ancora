@@ -1,5 +1,4 @@
 /// Tests verifying zero duplicate effects across a swap sequence.
-
 use crate::runtime::{make_model, RunId, SwapRuntime};
 
 #[test]

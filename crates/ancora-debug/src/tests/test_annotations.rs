@@ -1,5 +1,4 @@
 /// test_annotations.rs - Verify that annotations persist and are retrievable.
-
 use crate::annotate::{AnnotateError, Annotation, AnnotationStore};
 use crate::loader::{RunId, Seq};
 
@@ -51,7 +50,11 @@ fn deletion_nonexistent_returns_not_found() {
 fn all_for_run_sorted_by_seq() {
     let mut store = AnnotationStore::new();
     for seq in [7u64, 2, 5, 0, 9] {
-        store.upsert(Annotation::new(RunId::new("run-a"), Seq(seq), format!("note-{}", seq)));
+        store.upsert(Annotation::new(
+            RunId::new("run-a"),
+            Seq(seq),
+            format!("note-{}", seq),
+        ));
     }
     let all = store.all_for_run(&RunId::new("run-a"));
     let seqs: Vec<u64> = all.iter().map(|a| a.seq.0).collect();

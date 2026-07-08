@@ -19,7 +19,10 @@ fn tool_drift_detected_when_tool_disappears() {
     let counts: HashMap<String, usize> = HashMap::new();
     let detector = ToolDriftDetector::new(0.15);
     let result = detector.check(&reference, &counts);
-    assert!(result.any_drifted, "expected tool drift when tool disappears");
+    assert!(
+        result.any_drifted,
+        "expected tool drift when tool disappears"
+    );
 }
 
 #[test]

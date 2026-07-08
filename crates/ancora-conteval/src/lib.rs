@@ -2,7 +2,6 @@
 ///
 /// Tracks quality metrics over time per model and provider, with rolling
 /// windows, trend detection, automatic dataset refresh, and alerting.
-
 pub mod alerting;
 pub mod dashboard;
 pub mod model_tracking;

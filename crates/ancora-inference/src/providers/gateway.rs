@@ -12,7 +12,10 @@ pub struct FallbackChain {
 impl FallbackChain {
     /// Create an empty fallback chain.
     pub fn new() -> Self {
-        Self { entries: Vec::new(), cursor: 0 }
+        Self {
+            entries: Vec::new(),
+            cursor: 0,
+        }
     }
 
     /// Append a `(provider, model)` pair to the chain.
@@ -60,7 +63,9 @@ impl FallbackChain {
 }
 
 impl Default for FallbackChain {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Parse the cost USD value from an OpenRouter `x-openrouter-cost` response header.
@@ -98,8 +103,14 @@ mod tests {
     #[test]
     fn fallback_chain_next_advances_cursor() {
         let mut chain = sample_chain();
-        assert_eq!(chain.next_fallback(), Some(("anthropic", "claude-3-5-haiku")));
-        assert_eq!(chain.next_fallback(), Some(("mistral", "mistral-small-latest")));
+        assert_eq!(
+            chain.next_fallback(),
+            Some(("anthropic", "claude-3-5-haiku"))
+        );
+        assert_eq!(
+            chain.next_fallback(),
+            Some(("mistral", "mistral-small-latest"))
+        );
         assert_eq!(chain.next_fallback(), None);
     }
 
@@ -108,7 +119,10 @@ mod tests {
         let mut chain = sample_chain();
         chain.next_fallback();
         chain.reset();
-        assert_eq!(chain.next_fallback(), Some(("anthropic", "claude-3-5-haiku")));
+        assert_eq!(
+            chain.next_fallback(),
+            Some(("anthropic", "claude-3-5-haiku"))
+        );
     }
 
     #[test]

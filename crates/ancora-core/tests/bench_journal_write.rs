@@ -11,10 +11,12 @@ struct BenchEntry {
 }
 
 fn write_bench_journal(n: usize) -> Vec<BenchEntry> {
-    (0..n).map(|i| BenchEntry {
-        seq: i as u64,
-        payload: [(i & 0xFF) as u8; 64],
-    }).collect()
+    (0..n)
+        .map(|i| BenchEntry {
+            seq: i as u64,
+            payload: [(i & 0xFF) as u8; 64],
+        })
+        .collect()
 }
 
 fn read_bench_journal(entries: &[BenchEntry]) -> u64 {
@@ -27,14 +29,21 @@ fn test_bench_100k_journal_writes_under_2s() {
     let entries = write_bench_journal(BENCH_N);
     let _ = read_bench_journal(&entries);
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < BENCH_BUDGET_MS, "took {}ms budget {}ms", elapsed, BENCH_BUDGET_MS);
+    assert!(
+        elapsed < BENCH_BUDGET_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        BENCH_BUDGET_MS
+    );
     assert_eq!(entries.len(), BENCH_N);
 }
 
 #[test]
 fn test_bench_entry_seq_correct() {
     let entries = write_bench_journal(10);
-    for (i, e) in entries.iter().enumerate() { assert_eq!(e.seq, i as u64); }
+    for (i, e) in entries.iter().enumerate() {
+        assert_eq!(e.seq, i as u64);
+    }
 }
 
 #[test]

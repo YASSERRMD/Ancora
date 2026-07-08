@@ -3,7 +3,6 @@
 /// Each engine supports a different subset of features.  This module
 /// provides a uniform `Capabilities` struct and detection helpers so
 /// callers can choose the right engine at runtime.
-
 use crate::model::EngineKind;
 
 /// A set of features an engine may or may not support.

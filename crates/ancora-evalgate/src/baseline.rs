@@ -2,7 +2,6 @@
 ///
 /// A `Baseline` records the accepted metric values for a named dataset.
 /// Values are keyed by metric name and stored as `f64`.
-
 use std::collections::HashMap;
 
 /// A snapshot of baseline metric values for one dataset.

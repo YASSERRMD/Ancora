@@ -54,10 +54,20 @@ pub extern "C" fn ancora_run_poll(
         if let Some(event) = run.poll_event() {
             unsafe { *out_event = ancora_buffer_from_str(&event) };
         } else {
-            unsafe { *out_event = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 } };
+            unsafe {
+                *out_event = AncorBuffer {
+                    ptr: std::ptr::null_mut(),
+                    len: 0,
+                }
+            };
         }
     } else {
-        unsafe { *out_event = AncorBuffer { ptr: std::ptr::null_mut(), len: 0 } };
+        unsafe {
+            *out_event = AncorBuffer {
+                ptr: std::ptr::null_mut(),
+                len: 0,
+            }
+        };
     }
     AncorErrorCode::Ok
 }

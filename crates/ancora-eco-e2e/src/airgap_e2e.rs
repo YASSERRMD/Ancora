@@ -1,5 +1,4 @@
 /// Air-gap end-to-end: offline registry bundle workflow.
-
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -12,7 +11,12 @@ pub struct BundledPlugin {
 
 impl BundledPlugin {
     pub fn new(name: &str, version: &str, payload: Vec<u8>) -> Self {
-        let checksum = format!("{:x}", payload.iter().fold(0u64, |acc, &b| acc.wrapping_add(b as u64)));
+        let checksum = format!(
+            "{:x}",
+            payload
+                .iter()
+                .fold(0u64, |acc, &b| acc.wrapping_add(b as u64))
+        );
         BundledPlugin {
             name: name.to_string(),
             version: version.to_string(),

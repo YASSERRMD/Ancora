@@ -37,7 +37,10 @@ impl PostMortem {
     }
 
     pub fn add_event(&mut self, at: u64, description: &str) {
-        self.timeline.push(TimelineEvent { at_secs: at, description: description.to_string() });
+        self.timeline.push(TimelineEvent {
+            at_secs: at,
+            description: description.to_string(),
+        });
     }
 
     pub fn add_action(&mut self, description: &str, owner: &str, due: u64) {

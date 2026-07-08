@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::log_record::LogLevel;
+use std::collections::HashMap;
 
 /// Per-module log level configuration.
 #[derive(Default)]
@@ -16,7 +16,10 @@ impl Default for LogLevel {
 
 impl LevelConfig {
     pub fn new(global: LogLevel) -> Self {
-        Self { global, per_module: HashMap::new() }
+        Self {
+            global,
+            per_module: HashMap::new(),
+        }
     }
 
     pub fn set_module(&mut self, module: impl Into<String>, level: LogLevel) {

@@ -1,14 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use crate::{
-        env_provider::EnvSecretProvider,
-        error::ConfigError,
-        external_provider::ExternalSecretProvider,
-        file_provider::FileSecretProvider,
-        resolver::SecretResolver,
-        secret_provider::SecretProvider,
+        env_provider::EnvSecretProvider, error::ConfigError,
+        external_provider::ExternalSecretProvider, file_provider::FileSecretProvider,
+        resolver::SecretResolver, secret_provider::SecretProvider,
     };
+    use std::collections::HashMap;
 
     #[test]
     fn env_provider_resolves_override() {
@@ -34,13 +31,20 @@ mod tests {
     #[test]
     fn file_provider_missing_key_errors() {
         let p = FileSecretProvider::new(HashMap::new());
-        assert!(matches!(p.resolve("missing").unwrap_err(), ConfigError::KeyNotFound { .. }));
+        assert!(matches!(
+            p.resolve("missing").unwrap_err(),
+            ConfigError::KeyNotFound { .. }
+        ));
     }
 
     #[test]
     fn external_provider_resolves_via_mock() {
         let p = ExternalSecretProvider::new("vault", |key: &str| {
-            if key == "api_key" { Ok("tok-123".into()) } else { Err("not found".into()) }
+            if key == "api_key" {
+                Ok("tok-123".into())
+            } else {
+                Err("not found".into())
+            }
         });
         assert_eq!(p.resolve("api_key").unwrap(), "tok-123");
     }
@@ -78,7 +82,10 @@ mod tests {
     fn secrets_never_stored_in_config_structs() {
         // Verify api_key_ref is a reference string, not an inline secret value.
         use crate::schema::WorkerCfg;
-        let cfg = WorkerCfg { api_key_ref: Some("env:MY_SECRET".into()), ..Default::default() };
+        let cfg = WorkerCfg {
+            api_key_ref: Some("env:MY_SECRET".into()),
+            ..Default::default()
+        };
         // The ref string is just a pointer; the actual secret is never in the struct.
         assert!(cfg.api_key_ref.as_deref().unwrap().starts_with("env:"));
     }

@@ -72,10 +72,7 @@ pub fn readiness_criteria() -> Vec<Criterion> {
         Criterion {
             id: "ready-005",
             description: "No unsafe code, or unsafe blocks are documented and reviewed",
-            required_for: vec![
-                Milestone::StableRelease,
-                Milestone::MarketplaceListing,
-            ],
+            required_for: vec![Milestone::StableRelease, Milestone::MarketplaceListing],
         },
         Criterion {
             id: "ready-006",

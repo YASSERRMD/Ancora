@@ -52,7 +52,11 @@ fn scheduling_overhead_measured() {
     let req = small_req();
     let ns = measure_schedule_overhead_ns(&hw, &req, 32, 64);
     // Scheduling must complete in under 100 ms (100_000_000 ns).
-    assert!(ns < 100_000_000, "scheduling took {}ns, expected < 100ms", ns);
+    assert!(
+        ns < 100_000_000,
+        "scheduling took {}ns, expected < 100ms",
+        ns
+    );
 }
 
 #[test]

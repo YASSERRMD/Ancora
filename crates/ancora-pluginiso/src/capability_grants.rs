@@ -3,7 +3,6 @@
 /// Capabilities are named permissions beyond basic compute access.  The host
 /// checks whether a requested capability is present in the plugin's grant set
 /// before forwarding the operation.
-
 use std::collections::HashSet;
 
 /// A named capability that may be granted to a plugin.
@@ -34,7 +33,9 @@ pub struct CapabilityGrants {
 impl CapabilityGrants {
     /// No capabilities granted (most restrictive).
     pub fn none() -> Self {
-        Self { granted: HashSet::new() }
+        Self {
+            granted: HashSet::new(),
+        }
     }
 
     /// All standard capabilities granted (least restrictive - use with care).

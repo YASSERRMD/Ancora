@@ -1,5 +1,5 @@
-use std::fmt;
 use std::collections::HashMap;
+use std::fmt;
 
 /// The kind of object being attested.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -97,7 +97,8 @@ impl AttestationRegistry {
         tick: u64,
     ) -> &AttestationRecord {
         let id: String = artifact_id.into();
-        let record = AttestationRecord::new(id.clone(), kind, expected_digest, measured_digest, tick);
+        let record =
+            AttestationRecord::new(id.clone(), kind, expected_digest, measured_digest, tick);
         self.records.insert(id.clone(), record);
         self.records.get(&id).unwrap()
     }
@@ -135,7 +136,13 @@ pub fn attest_model(
     measured_digest: Vec<u8>,
     tick: u64,
 ) -> &AttestationRecord {
-    registry.attest(model_id, AttestationKind::Model, expected_digest, measured_digest, tick)
+    registry.attest(
+        model_id,
+        AttestationKind::Model,
+        expected_digest,
+        measured_digest,
+        tick,
+    )
 }
 
 /// Attest config integrity for a given device.
@@ -146,5 +153,11 @@ pub fn attest_config(
     measured_digest: Vec<u8>,
     tick: u64,
 ) -> &AttestationRecord {
-    registry.attest(config_id, AttestationKind::Config, expected_digest, measured_digest, tick)
+    registry.attest(
+        config_id,
+        AttestationKind::Config,
+        expected_digest,
+        measured_digest,
+        tick,
+    )
 }

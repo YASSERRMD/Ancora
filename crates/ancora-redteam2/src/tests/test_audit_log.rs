@@ -1,6 +1,11 @@
 use crate::audit::{RedTeamAction, RedTeamAuditEntry, RedTeamAuditLog};
 
-fn entry(tick: u64, tenant_id: &str, scenario_id: &str, action: RedTeamAction) -> RedTeamAuditEntry {
+fn entry(
+    tick: u64,
+    tenant_id: &str,
+    scenario_id: &str,
+    action: RedTeamAction,
+) -> RedTeamAuditEntry {
     RedTeamAuditEntry::new(tick, tenant_id, scenario_id, action, "operator", "detail")
 }
 

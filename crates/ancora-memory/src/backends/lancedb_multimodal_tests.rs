@@ -38,8 +38,10 @@ mod lancedb_multimodal_tests {
     #[test]
     fn row_with_columns_adds_custom_fields() {
         let r = row_with_columns(
-            1, vec![0.1f32], serde_json::json!({}),
-            serde_json::json!({"category": "image", "width": 1024})
+            1,
+            vec![0.1f32],
+            serde_json::json!({}),
+            serde_json::json!({"category": "image", "width": 1024}),
         );
         assert_eq!(r["category"], "image");
         assert_eq!(r["width"], 1024);

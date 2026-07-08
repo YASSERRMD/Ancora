@@ -44,7 +44,13 @@ fn tool_with_empty_description_fails_validation() {
 
 #[test]
 fn tool_with_empty_license_fails_validation() {
-    let entry = ToolEntry::new("my-id", "My Tool", "desc", ToolEffect::None, empty_license_meta());
+    let entry = ToolEntry::new(
+        "my-id",
+        "My Tool",
+        "desc",
+        ToolEffect::None,
+        empty_license_meta(),
+    );
     let errors = validate_tool(&entry);
     assert!(errors.iter().any(|e| e.field == "license"));
 }

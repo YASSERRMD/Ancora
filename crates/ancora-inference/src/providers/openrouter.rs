@@ -36,7 +36,9 @@ pub fn build_openrouter_profile(config: OpenRouterConfig) -> ProviderProfile {
     let mut profile = ProviderProfile::new(
         "openrouter",
         "https://openrouter.ai/api",
-        AuthStrategy::BearerToken { env_var: "OPENROUTER_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "OPENROUTER_API_KEY".to_owned(),
+        },
     )
     .with_extra_header("HTTP-Referer", config.site_url)
     .with_extra_header("X-Title", config.app_name);
@@ -46,7 +48,10 @@ pub fn build_openrouter_profile(config: OpenRouterConfig) -> ProviderProfile {
         .chain(config.fallback_models.iter().map(|s| s.as_str()));
     for m in all_models {
         profile = profile.add_model(
-            ModelMeta::new(m, 200_000).with_tools().with_vision().with_streaming(),
+            ModelMeta::new(m, 200_000)
+                .with_tools()
+                .with_vision()
+                .with_streaming(),
         );
     }
 
@@ -92,7 +97,9 @@ mod tests {
     use std::sync::Arc;
 
     fn client() -> OpenAiClient {
-        OpenAiClient::new(Arc::new(build_openrouter_profile(OpenRouterConfig::default())))
+        OpenAiClient::new(Arc::new(build_openrouter_profile(
+            OpenRouterConfig::default(),
+        )))
     }
 
     #[test]
@@ -118,7 +125,10 @@ mod tests {
             vec![Message::text("user", "hi")],
         );
         let body = c.build_request_body(&req, false).unwrap();
-        assert_eq!(body["model"], serde_json::json!("anthropic/claude-3-5-haiku"));
+        assert_eq!(
+            body["model"],
+            serde_json::json!("anthropic/claude-3-5-haiku")
+        );
     }
 
     #[test]
@@ -129,8 +139,14 @@ mod tests {
             app_name: "MyApp".to_owned(),
             site_url: "https://myapp.test".to_owned(),
         });
-        assert_eq!(p.extra_headers.get("HTTP-Referer").map(|s| s.as_str()), Some("https://myapp.test"));
-        assert_eq!(p.extra_headers.get("X-Title").map(|s| s.as_str()), Some("MyApp"));
+        assert_eq!(
+            p.extra_headers.get("HTTP-Referer").map(|s| s.as_str()),
+            Some("https://myapp.test")
+        );
+        assert_eq!(
+            p.extra_headers.get("X-Title").map(|s| s.as_str()),
+            Some("MyApp")
+        );
     }
 
     #[test]
@@ -193,7 +209,10 @@ mod tests {
         let req = CompletionRequest::simple("openai/gpt-4o", vec![Message::text("user", "hi")]);
         let body = c.build_request_body(&req, false).unwrap();
         // When no fallbacks, the "models" key should not exist
-        assert!(body.get("models").is_none(), "no fallbacks should mean no models key");
+        assert!(
+            body.get("models").is_none(),
+            "no fallbacks should mean no models key"
+        );
     }
 
     #[test]
@@ -205,7 +224,10 @@ mod tests {
             app_name: "StaticApp".to_owned(),
             site_url: "https://static.test".to_owned(),
         });
-        assert_eq!(p.extra_headers.get("X-Title").map(|s| s.as_str()), Some("StaticApp"));
+        assert_eq!(
+            p.extra_headers.get("X-Title").map(|s| s.as_str()),
+            Some("StaticApp")
+        );
     }
 
     #[test]

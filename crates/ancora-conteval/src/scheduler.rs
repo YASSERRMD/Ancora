@@ -2,7 +2,6 @@
 ///
 /// Manages when and how often evaluation jobs are triggered,
 /// supporting cron-like interval specifications and manual triggers.
-
 use std::time::{Duration, SystemTime};
 
 /// Interval at which evaluation jobs are triggered.

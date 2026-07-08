@@ -1,12 +1,11 @@
+use crate::embedders::embedder::{EmbedResult, Embedder, Embedding};
 /// OpenAI-compatible embedding API helpers.
 ///
 /// Works with OpenAI `/v1/embeddings` and any compatible endpoint
 /// (Azure OpenAI, LiteLLM, Ollama with OpenAI shim, etc.).
 /// Requires the `ureq` optional dep via any backend feature, or call via
 /// your own HTTP client by using the descriptor returned by `request_body`.
-
 use serde_json::{json, Value};
-use crate::embedders::embedder::{Embedding, EmbedResult, Embedder};
 
 // ---- config --------------------------------------------------------------
 
@@ -64,7 +63,8 @@ impl OpenAiEmbedConfig {
     }
 
     pub fn with_dimensions(mut self, dims: usize) -> Self {
-        self.dimensions = Some(dims); self
+        self.dimensions = Some(dims);
+        self
     }
 
     pub fn embeddings_url(&self) -> String {
@@ -117,7 +117,10 @@ pub struct OpenAiEmbedder {
 
 impl OpenAiEmbedder {
     pub fn new(config: OpenAiEmbedConfig, fallback_dims: usize) -> Self {
-        Self { config, fallback_dims }
+        Self {
+            config,
+            fallback_dims,
+        }
     }
 
     fn effective_dims(&self) -> usize {
@@ -129,7 +132,9 @@ impl Embedder for OpenAiEmbedder {
     fn embed(&self, text: &str) -> EmbedResult<Embedding> {
         let dims = self.effective_dims();
         let mut v = vec![0.0f32; dims];
-        let h = text.bytes().fold(0u64, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u64));
+        let h = text
+            .bytes()
+            .fold(0u64, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u64));
         let idx = (h as usize) % dims;
         v[idx] = 1.0;
         Ok(v)
@@ -139,9 +144,13 @@ impl Embedder for OpenAiEmbedder {
         texts.iter().map(|t| self.embed(t)).collect()
     }
 
-    fn model_name(&self) -> &str { &self.config.model }
+    fn model_name(&self) -> &str {
+        &self.config.model
+    }
 
-    fn dims(&self) -> usize { self.effective_dims() }
+    fn dims(&self) -> usize {
+        self.effective_dims()
+    }
 }
 
 // ---- response parsing ---------------------------------------------------
@@ -149,7 +158,7 @@ impl Embedder for OpenAiEmbedder {
 /// Parse usage info from OpenAI embedding response.
 pub fn parse_usage(body: &Value) -> (u64, u64) {
     let prompt = body["usage"]["prompt_tokens"].as_u64().unwrap_or(0);
-    let total  = body["usage"]["total_tokens"].as_u64().unwrap_or(0);
+    let total = body["usage"]["total_tokens"].as_u64().unwrap_or(0);
     (prompt, total)
 }
 
@@ -162,7 +171,11 @@ mod openai_tests {
     #[test]
     fn config_embeddings_url_ends_with_embeddings() {
         let cfg = OpenAiEmbedConfig::new("key", "text-embedding-3-small");
-        assert!(cfg.embeddings_url().ends_with("/embeddings"), "url: {}", cfg.embeddings_url());
+        assert!(
+            cfg.embeddings_url().ends_with("/embeddings"),
+            "url: {}",
+            cfg.embeddings_url()
+        );
     }
 
     #[test]
@@ -222,7 +235,10 @@ mod openai_tests {
         let e = OpenAiEmbedder::new(cfg, 1024);
         let v1 = e.embed("hello").unwrap();
         let v2 = e.embed("this_is_a_very_different_string_xyz_9876").unwrap();
-        assert_ne!(v1, v2, "different texts should produce different embeddings");
+        assert_ne!(
+            v1, v2,
+            "different texts should produce different embeddings"
+        );
     }
 
     #[test]

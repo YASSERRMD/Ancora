@@ -97,7 +97,10 @@ impl DeviceIdentityRegistry {
 
     /// Returns true if the device's key pair is revoked.
     pub fn is_revoked(&self, device_id: &DeviceId) -> bool {
-        self.keys.get(device_id).map(|kp| kp.revoked).unwrap_or(false)
+        self.keys
+            .get(device_id)
+            .map(|kp| kp.revoked)
+            .unwrap_or(false)
     }
 
     /// Number of registered devices.

@@ -1,10 +1,9 @@
-/// Eval run CLI - command-line interface for running evaluations.
-
-use crate::executor::{EvalCase, Executor, RunConfig, RunId, exact_match};
-use crate::rollout::RolloutRunner;
 use crate::aggregate::compute_aggregate;
 use crate::breakdown::{compute_breakdown, sort_by_pass_rate_asc};
+/// Eval run CLI - command-line interface for running evaluations.
+use crate::executor::{exact_match, EvalCase, Executor, RunConfig, RunId};
 use crate::report::EvalReport;
+use crate::rollout::RolloutRunner;
 
 /// CLI command variants.
 #[derive(Debug, Clone)]
@@ -54,13 +53,17 @@ pub fn parse_args(args: &[&str]) -> Result<CliCommand, String> {
                 match args[i] {
                     "--rollouts" => {
                         i += 1;
-                        n_rollouts = args.get(i).ok_or("missing value for --rollouts")?
+                        n_rollouts = args
+                            .get(i)
+                            .ok_or("missing value for --rollouts")?
                             .parse::<usize>()
                             .map_err(|e| e.to_string())?;
                     }
                     "--seed" => {
                         i += 1;
-                        seed = args.get(i).ok_or("missing value for --seed")?
+                        seed = args
+                            .get(i)
+                            .ok_or("missing value for --seed")?
                             .parse::<u64>()
                             .map_err(|e| e.to_string())?;
                     }
@@ -77,7 +80,12 @@ pub fn parse_args(args: &[&str]) -> Result<CliCommand, String> {
                 }
                 i += 1;
             }
-            Ok(CliCommand::Run { suite_name, n_rollouts, seed, output_format })
+            Ok(CliCommand::Run {
+                suite_name,
+                n_rollouts,
+                seed,
+                output_format,
+            })
         }
         "compare" => {
             if args.len() < 3 {
@@ -106,7 +114,12 @@ where
     F: Fn(&str, u64) -> (String, u64, u64),
 {
     match command {
-        CliCommand::Run { suite_name, n_rollouts, seed, output_format } => {
+        CliCommand::Run {
+            suite_name,
+            n_rollouts,
+            seed,
+            output_format,
+        } => {
             let run_id = RunId(format!("{}-{}", suite_name, seed));
             let config = RunConfig {
                 run_id: run_id.clone(),
@@ -120,21 +133,15 @@ where
             let mut breakdowns = compute_breakdown(&rollouts);
             sort_by_pass_rate_asc(&mut breakdowns);
 
-            let report = EvalReport::new(
-                run_id,
-                suite_name.clone(),
-                timestamp,
-                metrics,
-                breakdowns,
-            );
+            let report =
+                EvalReport::new(run_id, suite_name.clone(), timestamp, metrics, breakdowns);
 
             match output_format {
                 OutputFormat::Json => Ok(report.to_json()),
                 OutputFormat::Html => Ok(report.to_html()),
                 OutputFormat::Text => Ok(format!(
                     "Eval run complete: suite={} pass_rate={:.3}",
-                    suite_name,
-                    report.metrics.pass_rate,
+                    suite_name, report.metrics.pass_rate,
                 )),
             }
         }

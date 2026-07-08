@@ -48,7 +48,10 @@ impl TraceTree {
     }
 
     pub fn root_spans(&self) -> Vec<&Span> {
-        self.spans.iter().filter(|s| s.parent_id.is_none()).collect()
+        self.spans
+            .iter()
+            .filter(|s| s.parent_id.is_none())
+            .collect()
     }
 
     pub fn children_of(&self, parent_id: &str) -> Vec<&Span> {

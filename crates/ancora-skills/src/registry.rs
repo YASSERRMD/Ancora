@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::skill::SkillDescriptor;
 use crate::error::SkillError;
+use crate::skill::SkillDescriptor;
+use std::collections::HashMap;
 
 /// Registry of loaded skills with versioned lookup.
 #[derive(Debug, Default)]
@@ -10,7 +10,10 @@ pub struct SkillRegistry {
 
 impl SkillRegistry {
     pub fn load(&mut self, skill: SkillDescriptor) {
-        self.skills.entry(skill.name.clone()).or_default().push(skill);
+        self.skills
+            .entry(skill.name.clone())
+            .or_default()
+            .push(skill);
     }
 
     pub fn find(&self, name: &str) -> Option<&SkillDescriptor> {
@@ -22,14 +25,16 @@ impl SkillRegistry {
     }
 
     pub fn by_tag(&self, tag: &str) -> Vec<&SkillDescriptor> {
-        self.skills.values()
+        self.skills
+            .values()
             .flat_map(|v| v.iter())
             .filter(|s| s.has_tag(tag))
             .collect()
     }
 
     pub fn lookup(&self, name: &str) -> Result<&SkillDescriptor, SkillError> {
-        self.find(name).ok_or_else(|| SkillError::NotFound(name.to_string()))
+        self.find(name)
+            .ok_or_else(|| SkillError::NotFound(name.to_string()))
     }
 
     pub fn len(&self) -> usize {

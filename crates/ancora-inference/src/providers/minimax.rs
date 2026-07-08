@@ -11,7 +11,9 @@ pub fn build_minimax_profile() -> ProviderProfile {
     ProviderProfile::new(
         "minimax",
         MINIMAX_URL,
-        AuthStrategy::BearerToken { env_var: "MINIMAX_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "MINIMAX_API_KEY".to_owned(),
+        },
     )
     // MiniMax-Text-01 -- 1M context window, flagship text model
     .add_model(
@@ -87,7 +89,9 @@ mod tests {
 
     #[test]
     fn minimax_recorded_fixture_completes() {
-        let resp = minimax_client().parse_response(MINIMAX_FIXTURE, "MiniMax-Text-01").unwrap();
+        let resp = minimax_client()
+            .parse_response(MINIMAX_FIXTURE, "MiniMax-Text-01")
+            .unwrap();
         assert_eq!(resp.content, "Hello from MiniMax");
         assert_eq!(resp.tokens_in, 13);
         assert_eq!(resp.tokens_out, 6);
@@ -117,7 +121,9 @@ mod tests {
 
     #[test]
     fn minimax_multimodal_vl_fixture_parses() {
-        let resp = minimax_client().parse_response(MINIMAX_VL_FIXTURE, "MiniMax-VL-01").unwrap();
+        let resp = minimax_client()
+            .parse_response(MINIMAX_VL_FIXTURE, "MiniMax-VL-01")
+            .unwrap();
         assert!(resp.content.contains("apple"));
         assert_eq!(resp.tokens_in, 50);
         assert_eq!(resp.tokens_out, 10);
@@ -145,7 +151,9 @@ mod tests {
 pub fn supports_tools(model_id: &str) -> bool {
     let p = build_minimax_profile();
     let canonical = p.resolve_model_id(model_id);
-    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.tools)
+    p.model_catalog
+        .get(canonical)
+        .map_or(false, |m| m.capabilities.tools)
 }
 
 /// Parse a single SSE line from a MiniMax streaming response.
@@ -158,7 +166,8 @@ pub fn parse_stream_line(line: &str) -> Option<crate::types::TokenEvent> {
 
 /// Collect all token text from a slice of SSE lines into a single string.
 pub fn collect_stream_text(lines: &[&str]) -> String {
-    lines.iter()
+    lines
+        .iter()
         .filter_map(|l| parse_stream_line(l))
         .filter(|ev| !ev.text.is_empty())
         .map(|ev| ev.text)
@@ -169,5 +178,7 @@ pub fn collect_stream_text(lines: &[&str]) -> String {
 pub fn supports_vision(model_id: &str) -> bool {
     let p = build_minimax_profile();
     let canonical = p.resolve_model_id(model_id);
-    p.model_catalog.get(canonical).map_or(false, |m| m.capabilities.vision)
+    p.model_catalog
+        .get(canonical)
+        .map_or(false, |m| m.capabilities.vision)
 }

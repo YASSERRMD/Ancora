@@ -24,10 +24,7 @@ impl FeedbackStore {
 
     /// Retrieve all feedback for a given run.
     pub fn for_run(&self, run_id: &str) -> &[Feedback] {
-        self.records
-            .get(run_id)
-            .map(Vec::as_slice)
-            .unwrap_or(&[])
+        self.records.get(run_id).map(Vec::as_slice).unwrap_or(&[])
     }
 
     /// Retrieve feedback for a specific step within a run.

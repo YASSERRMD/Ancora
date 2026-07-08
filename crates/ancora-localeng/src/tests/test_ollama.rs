@@ -1,5 +1,4 @@
 /// Tests for the Ollama integration using mock transports.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineKind};
 use crate::ollama::{OllamaClient, OllamaError, OllamaModelList, OllamaTransport};
 
@@ -69,11 +68,7 @@ fn ollama_list_models_ok() {
 #[test]
 fn ollama_complete_ok() {
     let config = crate::ollama::default_config();
-    let client = OllamaClient::new(
-        config,
-        "llama3",
-        OkTransport { models: vec![] },
-    );
+    let client = OllamaClient::new(config, "llama3", OkTransport { models: vec![] });
     let req = CompletionRequest::new("ping");
     let res = client.complete(&req).unwrap();
     assert!(res.text.contains("llama3"));

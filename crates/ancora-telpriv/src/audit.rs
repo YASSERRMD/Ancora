@@ -107,7 +107,10 @@ impl RedactionAuditLog {
 
     /// Filter entries by reason.
     pub fn by_reason(&self, reason: &RedactionReason) -> Vec<&RedactionEntry> {
-        self.entries.iter().filter(|e| &e.reason == reason).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.reason == reason)
+            .collect()
     }
 }
 

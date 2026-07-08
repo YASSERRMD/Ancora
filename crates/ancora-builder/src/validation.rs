@@ -1,5 +1,4 @@
 /// validation - Validate graph specs and live canvas state in the editor.
-
 use crate::edges::EdgeStore;
 use crate::import::GraphSpec;
 use crate::placement::Canvas;
@@ -15,15 +14,27 @@ pub struct Diagnostic {
 
 impl Diagnostic {
     pub fn error(message: impl Into<String>) -> Self {
-        Diagnostic { severity: Severity::Error, message: message.into(), target: None }
+        Diagnostic {
+            severity: Severity::Error,
+            message: message.into(),
+            target: None,
+        }
     }
 
     pub fn warning(message: impl Into<String>) -> Self {
-        Diagnostic { severity: Severity::Warning, message: message.into(), target: None }
+        Diagnostic {
+            severity: Severity::Warning,
+            message: message.into(),
+            target: None,
+        }
     }
 
     pub fn info(message: impl Into<String>) -> Self {
-        Diagnostic { severity: Severity::Info, message: message.into(), target: None }
+        Diagnostic {
+            severity: Severity::Info,
+            message: message.into(),
+            target: None,
+        }
     }
 
     pub fn with_target(mut self, target: impl Into<String>) -> Self {
@@ -55,15 +66,21 @@ impl ValidationReport {
     }
 
     pub fn has_errors(&self) -> bool {
-        self.diagnostics.iter().any(|d| d.severity == Severity::Error)
+        self.diagnostics
+            .iter()
+            .any(|d| d.severity == Severity::Error)
     }
 
     pub fn errors(&self) -> impl Iterator<Item = &Diagnostic> {
-        self.diagnostics.iter().filter(|d| d.severity == Severity::Error)
+        self.diagnostics
+            .iter()
+            .filter(|d| d.severity == Severity::Error)
     }
 
     pub fn warnings(&self) -> impl Iterator<Item = &Diagnostic> {
-        self.diagnostics.iter().filter(|d| d.severity == Severity::Warning)
+        self.diagnostics
+            .iter()
+            .filter(|d| d.severity == Severity::Warning)
     }
 
     pub fn is_valid(&self) -> bool {
@@ -90,7 +107,8 @@ pub fn validate_spec(spec: &GraphSpec) -> ValidationReport {
             report.push(Diagnostic::error("node has an empty id").with_target(""));
         } else if !seen_node_ids.insert(n.id.clone()) {
             report.push(
-                Diagnostic::error(format!("duplicate node id '{}'", n.id)).with_target(n.id.clone()),
+                Diagnostic::error(format!("duplicate node id '{}'", n.id))
+                    .with_target(n.id.clone()),
             );
         }
         if n.kind.trim().is_empty() {
@@ -107,18 +125,27 @@ pub fn validate_spec(spec: &GraphSpec) -> ValidationReport {
         if e.id.trim().is_empty() {
             report.push(Diagnostic::error("edge has an empty id"));
         } else if !seen_edge_ids.insert(e.id.clone()) {
-            report.push(Diagnostic::error(format!("duplicate edge id '{}'", e.id)).with_target(e.id.clone()));
+            report.push(
+                Diagnostic::error(format!("duplicate edge id '{}'", e.id))
+                    .with_target(e.id.clone()),
+            );
         }
         if !seen_node_ids.contains(&e.source) {
             report.push(
-                Diagnostic::error(format!("edge '{}' references unknown source node '{}'", e.id, e.source))
-                    .with_target(e.id.clone()),
+                Diagnostic::error(format!(
+                    "edge '{}' references unknown source node '{}'",
+                    e.id, e.source
+                ))
+                .with_target(e.id.clone()),
             );
         }
         if !seen_node_ids.contains(&e.target) {
             report.push(
-                Diagnostic::error(format!("edge '{}' references unknown target node '{}'", e.id, e.target))
-                    .with_target(e.id.clone()),
+                Diagnostic::error(format!(
+                    "edge '{}' references unknown target node '{}'",
+                    e.id, e.target
+                ))
+                .with_target(e.id.clone()),
             );
         }
         if e.source == e.target {
@@ -131,7 +158,10 @@ pub fn validate_spec(spec: &GraphSpec) -> ValidationReport {
 
     // Structural warning: any isolated node?
     for n in &spec.nodes {
-        let connected = spec.edges.iter().any(|e| e.source == n.id || e.target == n.id);
+        let connected = spec
+            .edges
+            .iter()
+            .any(|e| e.source == n.id || e.target == n.id);
         if !connected && spec.nodes.len() > 1 {
             report.push(
                 Diagnostic::warning(format!("node '{}' is isolated (no edges)", n.id))

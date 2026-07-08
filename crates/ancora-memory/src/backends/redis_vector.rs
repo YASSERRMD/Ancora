@@ -6,7 +6,6 @@
 /// without requiring a live server.
 ///
 /// Requires the `redis-vector` feature: `ancora-memory = { features = ["redis-vector"] }`.
-
 use serde_json::{json, Value};
 
 // ---- connection config ---------------------------------------------------
@@ -23,18 +22,28 @@ pub struct RedisVectorConfig {
 
 impl RedisVectorConfig {
     pub fn new(host: impl Into<String>, port: u16) -> Self {
-        Self { host: host.into(), port, password: None, tls: false, timeout_secs: 30 }
+        Self {
+            host: host.into(),
+            port,
+            password: None,
+            tls: false,
+            timeout_secs: 30,
+        }
     }
 
     pub fn with_password(mut self, pwd: impl Into<String>) -> Self {
-        self.password = Some(pwd.into()); self
+        self.password = Some(pwd.into());
+        self
     }
 
     pub fn with_tls(mut self) -> Self {
-        self.tls = true; self
+        self.tls = true;
+        self
     }
 
-    pub fn local() -> Self { Self::new("localhost", 6379) }
+    pub fn local() -> Self {
+        Self::new("localhost", 6379)
+    }
 
     /// Returns the connection URL string.
     pub fn url(&self) -> String {
@@ -110,7 +119,8 @@ impl CreateIndexArgs {
     }
 
     pub fn distance(mut self, d: impl Into<String>) -> Self {
-        self.distance = d.into(); self
+        self.distance = d.into();
+        self
     }
 
     pub fn hnsw_params(mut self, ef: u16, m: u16) -> Self {
@@ -120,31 +130,41 @@ impl CreateIndexArgs {
     }
 
     pub fn add_field(mut self, name: impl Into<String>, field_type: impl Into<String>) -> Self {
-        self.extra_fields.push((name.into(), field_type.into())); self
+        self.extra_fields.push((name.into(), field_type.into()));
+        self
     }
 
     /// Returns the FT.CREATE command as a JSON descriptor (for documentation / codegen).
     pub fn to_json(&self) -> Value {
         let mut params = vec![
-            json!("TYPE"), json!("FLOAT32"),
-            json!("DIM"), json!(self.dims),
-            json!("DISTANCE_METRIC"), json!(self.distance),
+            json!("TYPE"),
+            json!("FLOAT32"),
+            json!("DIM"),
+            json!(self.dims),
+            json!("DISTANCE_METRIC"),
+            json!(self.distance),
         ];
         if self.algorithm == algorithm::HNSW {
             if let Some(ef) = self.ef_construction {
-                params.push(json!("EF_CONSTRUCTION")); params.push(json!(ef));
+                params.push(json!("EF_CONSTRUCTION"));
+                params.push(json!(ef));
             }
             if let Some(m) = self.m {
-                params.push(json!("M")); params.push(json!(m));
+                params.push(json!("M"));
+                params.push(json!(m));
             }
         }
 
         let mut fields = vec![
-            json!(self.vector_field), json!(field_type::VECTOR), json!(self.algorithm),
-            json!(params.len()), json!(params),
+            json!(self.vector_field),
+            json!(field_type::VECTOR),
+            json!(self.algorithm),
+            json!(params.len()),
+            json!(params),
         ];
         for (name, ftype) in &self.extra_fields {
-            fields.push(json!(name)); fields.push(json!(ftype));
+            fields.push(json!(name));
+            fields.push(json!(ftype));
         }
 
         json!({
@@ -172,7 +192,11 @@ pub struct SearchArgs {
 
 impl SearchArgs {
     /// ANN-only search (no scalar pre-filter).
-    pub fn ann(index_name: impl Into<String>, vector_field: impl Into<String>, top_k: usize) -> Self {
+    pub fn ann(
+        index_name: impl Into<String>,
+        vector_field: impl Into<String>,
+        top_k: usize,
+    ) -> Self {
         let vf = vector_field.into();
         let query_filter = format!("(*)=>[KNN {top_k} @{vf} $query_vec AS score]");
         Self {
@@ -193,7 +217,10 @@ impl SearchArgs {
         top_k: usize,
     ) -> Self {
         let vf = vector_field.into();
-        let query_filter = format!("({})=>[KNN {top_k} @{vf} $query_vec AS score]", pre_filter.into());
+        let query_filter = format!(
+            "({})=>[KNN {top_k} @{vf} $query_vec AS score]",
+            pre_filter.into()
+        );
         Self {
             index_name: index_name.into(),
             query_filter,
@@ -205,7 +232,8 @@ impl SearchArgs {
     }
 
     pub fn returns(mut self, fields: &[&str]) -> Self {
-        self.return_fields = fields.iter().map(|s| s.to_string()).collect(); self
+        self.return_fields = fields.iter().map(|s| s.to_string()).collect();
+        self
     }
 
     pub fn to_json(&self) -> Value {
@@ -270,7 +298,8 @@ pub fn parse_search_results(body: &Value) -> Vec<(String, f32, Value)> {
         .map(|r| {
             let key = r["key"].as_str().unwrap_or("").to_owned();
             let score = r["score"].as_f64().unwrap_or(0.0) as f32;
-            let payload = r["payload"].as_str()
+            let payload = r["payload"]
+                .as_str()
                 .and_then(|s| serde_json::from_str(s).ok())
                 .unwrap_or(json!({}));
             (key, score, payload)

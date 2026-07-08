@@ -7,17 +7,41 @@ fn build_registry() -> ModelRegistry {
     // Small 3B Q4 model.
     reg.register_gguf(
         "small-3b",
-        GgufDescriptor::new("small-3b", "/tmp/s.gguf", "llama", 3.0, GgufQuantType::Q4_K, 0, 2048),
+        GgufDescriptor::new(
+            "small-3b",
+            "/tmp/s.gguf",
+            "llama",
+            3.0,
+            GgufQuantType::Q4_K,
+            0,
+            2048,
+        ),
     );
     // Medium 7B Q5 model.
     reg.register_gguf(
         "medium-7b",
-        GgufDescriptor::new("medium-7b", "/tmp/m.gguf", "llama", 7.0, GgufQuantType::Q5_K, 0, 4096),
+        GgufDescriptor::new(
+            "medium-7b",
+            "/tmp/m.gguf",
+            "llama",
+            7.0,
+            GgufQuantType::Q5_K,
+            0,
+            4096,
+        ),
     );
     // Large 13B Q8 model.
     reg.register_gguf(
         "large-13b",
-        GgufDescriptor::new("large-13b", "/tmp/l.gguf", "llama", 13.0, GgufQuantType::Q8_0, 0, 4096),
+        GgufDescriptor::new(
+            "large-13b",
+            "/tmp/l.gguf",
+            "llama",
+            13.0,
+            GgufQuantType::Q8_0,
+            0,
+            4096,
+        ),
     );
     reg
 }

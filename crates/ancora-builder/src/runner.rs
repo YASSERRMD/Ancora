@@ -1,5 +1,4 @@
 /// runner - Run a graph spec against a local backend from within the builder.
-
 use crate::import::GraphSpec;
 use crate::validation::validate_spec;
 use std::collections::HashMap;
@@ -181,7 +180,13 @@ fn simulate_node(
     _config: &LocalBackendConfig,
 ) -> (Option<String>, Option<String>, StepStatus, u64) {
     // Verifier nodes that have no schema configured fail.
-    if node.kind.starts_with("verifier.") && node.config.get("schema").map(|s| s.is_empty()).unwrap_or(true) {
+    if node.kind.starts_with("verifier.")
+        && node
+            .config
+            .get("schema")
+            .map(|s| s.is_empty())
+            .unwrap_or(true)
+    {
         if node.kind == "verifier.json_schema" && node.config.get("schema").is_none() {
             // Treat as warning but still succeed in stub mode.
         }
@@ -242,16 +247,39 @@ mod unit {
 
     fn two_node_spec() -> GraphSpec {
         let mut spec = GraphSpec::new("runner_test");
-        spec.nodes.push(SpecNode { id: "n1".into(), kind: "agent.llm".into(), label: "LLM".into(), x: 0.0, y: 0.0, config: HashMap::new() });
-        spec.nodes.push(SpecNode { id: "n2".into(), kind: "verifier.json_schema".into(), label: "V".into(), x: 100.0, y: 0.0, config: HashMap::new() });
-        spec.edges.push(SpecEdge { id: "e1".into(), source: "n1".into(), target: "n2".into(), edge_type: "data_flow".into(), label: None });
+        spec.nodes.push(SpecNode {
+            id: "n1".into(),
+            kind: "agent.llm".into(),
+            label: "LLM".into(),
+            x: 0.0,
+            y: 0.0,
+            config: HashMap::new(),
+        });
+        spec.nodes.push(SpecNode {
+            id: "n2".into(),
+            kind: "verifier.json_schema".into(),
+            label: "V".into(),
+            x: 100.0,
+            y: 0.0,
+            config: HashMap::new(),
+        });
+        spec.edges.push(SpecEdge {
+            id: "e1".into(),
+            source: "n1".into(),
+            target: "n2".into(),
+            edge_type: "data_flow".into(),
+            label: None,
+        });
         spec
     }
 
     #[test]
     fn run_succeeds_offline() {
         let spec = two_node_spec();
-        let config = LocalBackendConfig { offline: true, ..Default::default() };
+        let config = LocalBackendConfig {
+            offline: true,
+            ..Default::default()
+        };
         let result = run_spec(&spec, &config).unwrap();
         assert_eq!(result.status, RunStatus::Completed);
         assert_eq!(result.steps.len(), 2);

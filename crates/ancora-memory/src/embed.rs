@@ -23,7 +23,9 @@ impl HashEmbeddingProvider {
 impl EmbeddingProvider for HashEmbeddingProvider {
     fn embed(&self, text: &str) -> Embedding {
         let mut v = vec![0.0f32; self.dims];
-        let idx = text.bytes().fold(0usize, |acc, b| (acc * 31 + b as usize) % self.dims);
+        let idx = text
+            .bytes()
+            .fold(0usize, |acc, b| (acc * 31 + b as usize) % self.dims);
         v[idx] = 1.0;
         v
     }

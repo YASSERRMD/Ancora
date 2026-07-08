@@ -1,5 +1,5 @@
-use crate::dotnet_helpers::{DotnetCostAccessor, DotnetTraceAccessor};
 use crate::context::CostRecord;
+use crate::dotnet_helpers::{DotnetCostAccessor, DotnetTraceAccessor};
 
 #[test]
 fn dotnet_trace_accessor_returns_spans() {

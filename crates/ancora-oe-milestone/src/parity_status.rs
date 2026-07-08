@@ -28,7 +28,11 @@ impl ParityEntry {
         match &self.state {
             ParityState::Full => format!("{}: full parity", self.feature),
             ParityState::Partial { missing } => {
-                format!("{}: partial (missing: {})", self.feature, missing.join(", "))
+                format!(
+                    "{}: partial (missing: {})",
+                    self.feature,
+                    missing.join(", ")
+                )
             }
             ParityState::Missing => format!("{}: not implemented", self.feature),
         }
@@ -60,7 +64,9 @@ mod tests {
     fn partial_parity_entry() {
         let e = ParityEntry::new(
             "trace-propagation",
-            ParityState::Partial { missing: vec!["go".into()] },
+            ParityState::Partial {
+                missing: vec!["go".into()],
+            },
         );
         assert!(!e.is_full_parity());
         assert!(e.describe().contains("go"));

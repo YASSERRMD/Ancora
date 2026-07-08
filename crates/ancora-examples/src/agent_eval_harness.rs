@@ -7,8 +7,16 @@ use ancora_ageval::{
 
 pub fn run() {
     let mut dataset = EvalDataset::new("advanced-capabilities-v1");
-    dataset.add(EvalSample::new("plan-001").with_tag("planning").with_meta("goal", "search"));
-    dataset.add(EvalSample::new("refl-001").with_tag("reflection").with_meta("goal", "critique"));
+    dataset.add(
+        EvalSample::new("plan-001")
+            .with_tag("planning")
+            .with_meta("goal", "search"),
+    );
+    dataset.add(
+        EvalSample::new("refl-001")
+            .with_tag("reflection")
+            .with_meta("goal", "critique"),
+    );
     dataset.add(EvalSample::new("route-001").with_tag("routing"));
     println!("Dataset: {} samples", dataset.len());
 

@@ -152,7 +152,11 @@ mod tests {
 
     #[test]
     fn sampling_rate_roughly_correct() {
-        let cfg = SamplingConfig { rate: 0.1, buffer_size: 10_000, seed: 0 };
+        let cfg = SamplingConfig {
+            rate: 0.1,
+            buffer_size: 10_000,
+            seed: 0,
+        };
         let mut sampler = Sampler::new(cfg);
         let n = 10_000u32;
         let mut accepted = 0u32;
@@ -177,7 +181,11 @@ mod tests {
 
     #[test]
     fn drain_clears_buffer() {
-        let cfg = SamplingConfig { rate: 1.0, buffer_size: 100, seed: 1 };
+        let cfg = SamplingConfig {
+            rate: 1.0,
+            buffer_size: 100,
+            seed: 1,
+        };
         let mut sampler = Sampler::new(cfg);
         for i in 0..10 {
             sampler.offer(Trace {

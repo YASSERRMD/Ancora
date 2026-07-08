@@ -24,8 +24,14 @@ impl AirGappedProof {
         let tick_bytes = tick.to_le_bytes();
 
         for i in 0..32 {
-            let d = device_bytes.get(i % device_bytes.len().max(1)).copied().unwrap_or(0);
-            let b = boot_hash.get(i % boot_hash.len().max(1)).copied().unwrap_or(0);
+            let d = device_bytes
+                .get(i % device_bytes.len().max(1))
+                .copied()
+                .unwrap_or(0);
+            let b = boot_hash
+                .get(i % boot_hash.len().max(1))
+                .copied()
+                .unwrap_or(0);
             let n = nonce_bytes[i % 8];
             let t = tick_bytes[i % 8];
             proof_token[i] = d ^ b ^ n ^ t ^ (i as u8).wrapping_mul(0x37);
@@ -69,7 +75,11 @@ pub struct AirGappedAttestationBundle {
 }
 
 impl AirGappedAttestationBundle {
-    pub fn new(proof: AirGappedProof, boot_hash: Vec<u8>, device_metadata: impl Into<String>) -> Self {
+    pub fn new(
+        proof: AirGappedProof,
+        boot_hash: Vec<u8>,
+        device_metadata: impl Into<String>,
+    ) -> Self {
         Self {
             proof,
             boot_hash,

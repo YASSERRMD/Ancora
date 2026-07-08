@@ -26,7 +26,12 @@ fn planner_parity_empty_expected() {
 
 #[test]
 fn planner_parity_fan_out_count() {
-    let tasks = fan_out("o", "a", vec![json!("t1"), json!("t2"), json!("t3")], "root");
+    let tasks = fan_out(
+        "o",
+        "a",
+        vec![json!("t1"), json!("t2"), json!("t3")],
+        "root",
+    );
     assert_eq!(tasks.len(), 3);
 }
 

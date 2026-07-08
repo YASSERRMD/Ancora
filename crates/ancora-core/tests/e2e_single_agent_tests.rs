@@ -174,7 +174,13 @@ fn single_agent_e2e_tokens_stream_matches_output() {
 
     let tokens: Vec<String> = rx
         .into_iter()
-        .filter_map(|e| if let StreamEvent::Token { text } = e { Some(text) } else { None })
+        .filter_map(|e| {
+            if let StreamEvent::Token { text } = e {
+                Some(text)
+            } else {
+                None
+            }
+        })
         .collect();
 
     assert_eq!(tokens.join(""), output);
@@ -183,7 +189,11 @@ fn single_agent_e2e_tokens_stream_matches_output() {
 #[test]
 fn single_agent_e2e_event_count_matches_spec() {
     let events = build_single_agent_journal("count-run", "{}");
-    assert_eq!(events.len(), 5, "started+entered+activity+exited+completed = 5");
+    assert_eq!(
+        events.len(),
+        5,
+        "started+entered+activity+exited+completed = 5"
+    );
 }
 
 #[test]

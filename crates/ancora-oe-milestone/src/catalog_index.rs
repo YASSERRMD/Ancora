@@ -166,7 +166,12 @@ mod tests {
     fn stable_entries_filtered() {
         let c = CatalogIndex::new()
             .add(CatalogEntry::new("M3", CatalogKind::Metric, "rps", "req/s").stable())
-            .add(CatalogEntry::new("E2", CatalogKind::Eval, "rouge", "rouge score"));
+            .add(CatalogEntry::new(
+                "E2",
+                CatalogKind::Eval,
+                "rouge",
+                "rouge score",
+            ));
         assert_eq!(c.stable_entries().len(), 1);
     }
 }

@@ -43,7 +43,11 @@ impl DriftMonitor {
         }
         let n = samples.len() as f64;
         let mean = samples.iter().map(|s| s.score).sum::<f64>() / n;
-        let variance = samples.iter().map(|s| (s.score - mean).powi(2)).sum::<f64>() / n;
+        let variance = samples
+            .iter()
+            .map(|s| (s.score - mean).powi(2))
+            .sum::<f64>()
+            / n;
         self.baseline_mean = Some(mean);
         self.baseline_std = Some(variance.sqrt());
         Ok(())

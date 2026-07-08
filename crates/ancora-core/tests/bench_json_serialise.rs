@@ -16,8 +16,7 @@ fn parse_seq_from_json(json: &str) -> u64 {
     json.find(prefix)
         .and_then(|pos| {
             let rest = &json[pos + prefix.len()..];
-            rest.split([',', '}']).next()
-                .and_then(|s| s.parse().ok())
+            rest.split([',', '}']).next().and_then(|s| s.parse().ok())
         })
         .unwrap_or(0)
 }
@@ -31,7 +30,12 @@ fn test_bench_50k_json_round_trips_under_1s() {
         total_seq += parse_seq_from_json(&json);
     }
     let elapsed = t0.elapsed().as_millis();
-    assert!(elapsed < JSON_BENCH_MS, "took {}ms budget {}ms", elapsed, JSON_BENCH_MS);
+    assert!(
+        elapsed < JSON_BENCH_MS,
+        "took {}ms budget {}ms",
+        elapsed,
+        JSON_BENCH_MS
+    );
     let expected: u64 = (0..JSON_BENCH_N as u64).sum();
     assert_eq!(total_seq, expected);
 }

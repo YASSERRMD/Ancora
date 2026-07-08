@@ -45,8 +45,16 @@ impl NotebookTraceRenderer {
         lines.push(String::from("---"));
         for span in &trace.spans {
             let parent = span.parent_id.as_deref().unwrap_or("(root)");
-            let dur = span.duration_ns().map(|d| format!("{}ns", d)).unwrap_or_else(|| "open".into());
-            lines.push(format!("  [{parent}] {name} | {dur}", parent = parent, name = span.name, dur = dur));
+            let dur = span
+                .duration_ns()
+                .map(|d| format!("{}ns", d))
+                .unwrap_or_else(|| "open".into());
+            lines.push(format!(
+                "  [{parent}] {name} | {dur}",
+                parent = parent,
+                name = span.name,
+                dur = dur
+            ));
         }
         NotebookCellOutput::new(NotebookOutputFormat::PlainText, lines.join("\n"))
     }
@@ -56,7 +64,10 @@ impl NotebookTraceRenderer {
         let mut rows = String::new();
         for span in &trace.spans {
             let parent = span.parent_id.as_deref().unwrap_or("(root)");
-            let dur = span.duration_ns().map(|d| format!("{}ns", d)).unwrap_or_else(|| "open".into());
+            let dur = span
+                .duration_ns()
+                .map(|d| format!("{}ns", d))
+                .unwrap_or_else(|| "open".into());
             rows.push_str(&format!(
                 "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>",
                 span.span_id, span.name, parent, dur
@@ -78,8 +89,14 @@ impl NotebookTraceRenderer {
         lines.push("|----|------|--------|----------|".into());
         for span in &trace.spans {
             let parent = span.parent_id.as_deref().unwrap_or("(root)");
-            let dur = span.duration_ns().map(|d| format!("{}ns", d)).unwrap_or_else(|| "open".into());
-            lines.push(format!("| {} | {} | {} | {} |", span.span_id, span.name, parent, dur));
+            let dur = span
+                .duration_ns()
+                .map(|d| format!("{}ns", d))
+                .unwrap_or_else(|| "open".into());
+            lines.push(format!(
+                "| {} | {} | {} | {} |",
+                span.span_id, span.name, parent, dur
+            ));
         }
         NotebookCellOutput::new(NotebookOutputFormat::Markdown, lines.join("\n"))
     }
@@ -99,7 +116,11 @@ mod tests {
     fn make_trace() -> Trace {
         let mut t = Trace::new("nb-trace-1");
         t.add_span(Span::new("s1", "root.call", 0).finish(1000));
-        t.add_span(Span::new("s2", "child.call", 100).with_parent("s1").finish(900));
+        t.add_span(
+            Span::new("s2", "child.call", 100)
+                .with_parent("s1")
+                .finish(900),
+        );
         t
     }
 

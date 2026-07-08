@@ -1,8 +1,7 @@
 use ancora_dataclass::{
-    AccessKind, ClassificationAuditEntry, ClassificationAuditLog, ClassificationEnforcer,
-    ClassificationPolicy, DataCategory, DataQuery, DataRecordBuilder, DataRegistry,
-    DowngradePolicy, EnforcementDecision, RedactionConfig, SensitivityLevel,
-    to_csv, to_json,
+    to_csv, to_json, AccessKind, ClassificationAuditEntry, ClassificationAuditLog,
+    ClassificationEnforcer, ClassificationPolicy, DataCategory, DataQuery, DataRecordBuilder,
+    DataRegistry, DowngradePolicy, EnforcementDecision, RedactionConfig, SensitivityLevel,
 };
 
 fn main() {
@@ -79,7 +78,10 @@ fn main() {
 
     let all_refs: Vec<_> = registry.all().collect();
     let csv = to_csv(&all_refs);
-    println!("\nCSV export (first 200 chars):\n{}", &csv[..csv.len().min(200)]);
+    println!(
+        "\nCSV export (first 200 chars):\n{}",
+        &csv[..csv.len().min(200)]
+    );
 
     let json = to_json(&all_refs);
     println!("\nJSON export: {}", &json[..json.len().min(200)]);

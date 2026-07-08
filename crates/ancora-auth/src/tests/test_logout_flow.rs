@@ -1,4 +1,6 @@
-use crate::{logout_all_for_subject, logout_session, RevocationStore, Session, SessionState, SessionStore};
+use crate::{
+    logout_all_for_subject, logout_session, RevocationStore, Session, SessionState, SessionStore,
+};
 
 fn setup() -> (SessionStore, RevocationStore) {
     let mut sessions = SessionStore::new();

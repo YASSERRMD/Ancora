@@ -44,7 +44,9 @@ impl Postmortem {
     }
 
     pub fn runbook_completion_rate(&self) -> f64 {
-        if self.steps_total == 0 { return 0.0; }
+        if self.steps_total == 0 {
+            return 0.0;
+        }
         self.steps_completed as f64 / self.steps_total as f64
     }
 }

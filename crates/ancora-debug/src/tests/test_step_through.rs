@@ -1,5 +1,4 @@
 /// test_step_through.rs - Verify that the replayer reaches every entry.
-
 use crate::loader::{load_journal, EntryKind, JournalEntry, RunId, Seq};
 use crate::replay::{Replayer, StepResult};
 

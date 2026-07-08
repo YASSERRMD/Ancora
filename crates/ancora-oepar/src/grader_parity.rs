@@ -49,7 +49,11 @@ pub struct F1Grader;
 impl F1Grader {
     fn tokenize(text: &str) -> Vec<String> {
         text.split_whitespace()
-            .map(|t| t.to_lowercase().trim_matches(|c: char| !c.is_alphanumeric()).to_string())
+            .map(|t| {
+                t.to_lowercase()
+                    .trim_matches(|c: char| !c.is_alphanumeric())
+                    .to_string()
+            })
             .filter(|t| !t.is_empty())
             .collect()
     }
@@ -104,7 +108,10 @@ pub fn check_grader_parity(results: &[GraderResult], tolerance: f64) -> Vec<Stri
     // Group by (case_id, grader_name)
     let mut grouped: HashMap<(&str, &str), Vec<&GraderResult>> = HashMap::new();
     for r in results {
-        grouped.entry((&r.case_id, &r.grader_name)).or_default().push(r);
+        grouped
+            .entry((&r.case_id, &r.grader_name))
+            .or_default()
+            .push(r);
     }
 
     for ((case_id, grader), group) in &grouped {
@@ -114,9 +121,12 @@ pub fn check_grader_parity(results: &[GraderResult], tolerance: f64) -> Vec<Stri
                 if diff > tolerance {
                     issues.push(format!(
                         "grader {:?} on case {:?}: {:?}={:.4} vs {:?}={:.4} (diff={:.4})",
-                        grader, case_id,
-                        first.language, first.score,
-                        other.language, other.score,
+                        grader,
+                        case_id,
+                        first.language,
+                        first.score,
+                        other.language,
+                        other.score,
                         diff
                     ));
                 }
@@ -129,11 +139,7 @@ pub fn check_grader_parity(results: &[GraderResult], tolerance: f64) -> Vec<Stri
 
 /// Build reference grader results for parity testing.
 pub fn reference_grader_results(languages: &[&str]) -> Vec<GraderResult> {
-    let graders: &[(&str, f64)] = &[
-        ("exact_match", 1.0),
-        ("contains", 1.0),
-        ("f1", 0.9),
-    ];
+    let graders: &[(&str, f64)] = &[("exact_match", 1.0), ("contains", 1.0), ("f1", 0.9)];
     let cases = &["case-001", "case-002", "case-003"];
 
     let mut results = Vec::new();

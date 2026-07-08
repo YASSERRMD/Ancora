@@ -11,10 +11,20 @@ use ancora_ageval::{
 fn cross_language_parity_for_advanced_features() {
     // These canonical values serve as the reference for all SDK ports.
     // planning: 2/3 steps matched
-    assert!((PlanningMetric::score(&["a".into(), "b".into(), "c".into()], &["a".into(), "b".into()]) - 2.0/3.0).abs() < 1e-9);
+    assert!(
+        (PlanningMetric::score(
+            &["a".into(), "b".into(), "c".into()],
+            &["a".into(), "b".into()]
+        ) - 2.0 / 3.0)
+            .abs()
+            < 1e-9
+    );
 
     // reflection: changed and longer = 1.0
-    assert_eq!(ReflectionMetric::score("short", "much longer improved answer"), 1.0);
+    assert_eq!(
+        ReflectionMetric::score("short", "much longer improved answer"),
+        1.0
+    );
 
     // routing: quality=1.0, cost=0 -> score=1.0
     assert_eq!(RoutingMetric::score(1.0, 0, 100), 1.0);

@@ -1,6 +1,6 @@
 use crate::gate::GateDecision;
-use crate::regression::RegressionResult;
 use crate::gate::MetricVerdict;
+use crate::regression::RegressionResult;
 use crate::report::GateReport;
 
 #[test]
@@ -22,7 +22,10 @@ fn gate_report_contains_dataset_and_status() {
 fn gate_report_fail_contains_blocking_note() {
     let verdicts = vec![MetricVerdict {
         metric: "accuracy".to_string(),
-        regression: RegressionResult::Regression { delta: 0.10, threshold: 0.02 },
+        regression: RegressionResult::Regression {
+            delta: 0.10,
+            threshold: 0.02,
+        },
         significant: true,
         blocks: true,
     }];

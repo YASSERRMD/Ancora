@@ -1,4 +1,6 @@
-use ancora_toolsynth::{spec_from_goal, ApprovalGate, EffectClass, SandboxRunner, SynthCache, ToolSpec};
+use ancora_toolsynth::{
+    spec_from_goal, ApprovalGate, EffectClass, SandboxRunner, SynthCache, ToolSpec,
+};
 use serde_json::json;
 
 #[test]

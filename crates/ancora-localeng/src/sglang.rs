@@ -2,7 +2,6 @@
 ///
 /// SGLang provides a high-throughput serving runtime with its own HTTP API.
 /// This module wraps it with a typed client and mock transport.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Default SGLang endpoint.
@@ -67,10 +66,7 @@ impl<T: SglangTransport> SglangClient<T> {
         self.config.endpoint.as_deref().unwrap_or(DEFAULT_ENDPOINT)
     }
 
-    pub fn complete(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, SglangError> {
+    pub fn complete(&self, request: &CompletionRequest) -> Result<CompletionResult, SglangError> {
         self.transport
             .generate(self.endpoint(), &self.model, request)
     }

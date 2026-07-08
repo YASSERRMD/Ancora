@@ -6,21 +6,35 @@ struct PartialJournal {
 }
 
 impl PartialJournal {
-    fn new(entries: Vec<String>, truncated: bool) -> Self { Self { entries, truncated } }
+    fn new(entries: Vec<String>, truncated: bool) -> Self {
+        Self { entries, truncated }
+    }
 
     fn is_complete(&self) -> bool {
-        !self.truncated && self.entries.last().map(|e| e == "completed").unwrap_or(false)
+        !self.truncated
+            && self
+                .entries
+                .last()
+                .map(|e| e == "completed")
+                .unwrap_or(false)
     }
 
     fn recoverable_count(&self) -> usize {
-        let last = if self.truncated { self.entries.len().saturating_sub(1) } else { self.entries.len() };
+        let last = if self.truncated {
+            self.entries.len().saturating_sub(1)
+        } else {
+            self.entries.len()
+        };
         last
     }
 }
 
 #[test]
 fn test_complete_journal_is_complete() {
-    let j = PartialJournal::new(vec!["started".into(), "activity".into(), "completed".into()], false);
+    let j = PartialJournal::new(
+        vec!["started".into(), "activity".into(), "completed".into()],
+        false,
+    );
     assert!(j.is_complete());
 }
 

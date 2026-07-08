@@ -96,12 +96,18 @@ impl EnterpriseLicense {
         self
     }
 
-    pub fn has_cap(&self, cap: &EnterpriseCap) -> bool { self.capabilities.contains(cap) }
-    pub fn cap_count(&self) -> usize { self.capabilities.len() }
+    pub fn has_cap(&self, cap: &EnterpriseCap) -> bool {
+        self.capabilities.contains(cap)
+    }
+    pub fn cap_count(&self) -> usize {
+        self.capabilities.len()
+    }
     pub fn is_expired(&self, current_tick: u64) -> bool {
         self.expires_tick.map(|t| current_tick > t).unwrap_or(false)
     }
-    pub fn is_valid(&self, current_tick: u64) -> bool { !self.is_expired(current_tick) }
+    pub fn is_valid(&self, current_tick: u64) -> bool {
+        !self.is_expired(current_tick)
+    }
     pub fn is_enterprise_or_above(&self) -> bool {
         matches!(self.tier, LicenseTier::Enterprise | LicenseTier::GovCloud)
     }

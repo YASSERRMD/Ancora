@@ -39,10 +39,18 @@ impl HsmSlot {
         }
     }
 
-    pub fn insert_token(&mut self) { self.state = SlotState::TokenPresent; }
-    pub fn remove_token(&mut self) { self.state = SlotState::TokenAbsent; }
-    pub fn has_token(&self) -> bool { self.state == SlotState::TokenPresent }
-    pub fn set_flag(&mut self, key: impl Into<String>, value: bool) { self.flags.insert(key.into(), value); }
+    pub fn insert_token(&mut self) {
+        self.state = SlotState::TokenPresent;
+    }
+    pub fn remove_token(&mut self) {
+        self.state = SlotState::TokenAbsent;
+    }
+    pub fn has_token(&self) -> bool {
+        self.state == SlotState::TokenPresent
+    }
+    pub fn set_flag(&mut self, key: impl Into<String>, value: bool) {
+        self.flags.insert(key.into(), value);
+    }
 }
 
 pub struct SlotManager {
@@ -50,11 +58,25 @@ pub struct SlotManager {
 }
 
 impl SlotManager {
-    pub fn new() -> Self { Self { slots: Vec::new() } }
-    pub fn add_slot(&mut self, slot: HsmSlot) { self.slots.push(slot); }
-    pub fn get(&self, id: u32) -> Option<&HsmSlot> { self.slots.iter().find(|s| s.id == id) }
-    pub fn get_mut(&mut self, id: u32) -> Option<&mut HsmSlot> { self.slots.iter_mut().find(|s| s.id == id) }
-    pub fn slots_with_token(&self) -> Vec<&HsmSlot> { self.slots.iter().filter(|s| s.has_token()).collect() }
-    pub fn count(&self) -> usize { self.slots.len() }
-    pub fn all(&self) -> &[HsmSlot] { &self.slots }
+    pub fn new() -> Self {
+        Self { slots: Vec::new() }
+    }
+    pub fn add_slot(&mut self, slot: HsmSlot) {
+        self.slots.push(slot);
+    }
+    pub fn get(&self, id: u32) -> Option<&HsmSlot> {
+        self.slots.iter().find(|s| s.id == id)
+    }
+    pub fn get_mut(&mut self, id: u32) -> Option<&mut HsmSlot> {
+        self.slots.iter_mut().find(|s| s.id == id)
+    }
+    pub fn slots_with_token(&self) -> Vec<&HsmSlot> {
+        self.slots.iter().filter(|s| s.has_token()).collect()
+    }
+    pub fn count(&self) -> usize {
+        self.slots.len()
+    }
+    pub fn all(&self) -> &[HsmSlot] {
+        &self.slots
+    }
 }

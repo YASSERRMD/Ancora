@@ -16,7 +16,9 @@ fn looks_like_live_key(s: &str) -> bool {
 fn has_high_entropy_64char_string(s: &str) -> bool {
     // crude check: 64-char hex or base64 substrings that aren't known-safe test values
     let known_safe = ["0af7651916cd43dd8448eb211c80319c"];
-    let tokens: Vec<&str> = s.split(|c: char| !c.is_alphanumeric() && c != '-' && c != '_').collect();
+    let tokens: Vec<&str> = s
+        .split(|c: char| !c.is_alphanumeric() && c != '-' && c != '_')
+        .collect();
     for tok in tokens {
         if tok.len() >= 40 && !known_safe.contains(&tok) {
             return true;
@@ -45,7 +47,10 @@ fn test_openai_key_prefix_detected() {
 #[test]
 fn test_no_high_entropy_strings_in_fixtures() {
     for blob in FIXTURE_BLOBS {
-        assert!(!has_high_entropy_64char_string(blob), "suspicious string in: {blob}");
+        assert!(
+            !has_high_entropy_64char_string(blob),
+            "suspicious string in: {blob}"
+        );
     }
 }
 

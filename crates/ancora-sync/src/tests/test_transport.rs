@@ -1,7 +1,9 @@
 //! Tests: encrypted sync transport.
 
 use crate::protocol::{SyncRequest, SyncResponse};
-use crate::transport::{decrypt, encrypt, open_request, open_response, seal_request, seal_response};
+use crate::transport::{
+    decrypt, encrypt, open_request, open_response, seal_request, seal_response,
+};
 
 const KEY: &[u8] = b"super-secret-key";
 const NONCE: [u8; 8] = [1, 2, 3, 4, 5, 6, 7, 8];

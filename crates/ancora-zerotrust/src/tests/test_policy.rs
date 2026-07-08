@@ -1,5 +1,5 @@
-use crate::policy::ZeroTrustPolicy;
 use crate::device::TrustLevel;
+use crate::policy::ZeroTrustPolicy;
 
 #[test]
 fn default_policy_no_device_required() {
@@ -24,7 +24,9 @@ fn policy_mfa_for_group() {
 
 #[test]
 fn policy_require_device() {
-    let p = ZeroTrustPolicy::new("t1").require_device().min_trust(TrustLevel::Trusted);
+    let p = ZeroTrustPolicy::new("t1")
+        .require_device()
+        .min_trust(TrustLevel::Trusted);
     assert!(p.require_device_trust);
     assert_eq!(p.min_device_trust, TrustLevel::Trusted);
 }

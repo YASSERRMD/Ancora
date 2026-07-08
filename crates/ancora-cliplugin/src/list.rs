@@ -1,6 +1,5 @@
 /// Plugin list command - produces a human-readable table of installed plugins
 /// and their status.
-
 use crate::interface::PluginMeta;
 use crate::update::UpdateStatus;
 
@@ -72,7 +71,10 @@ fn render_header(opts: &ListOptions) -> String {
 
     if opts.show_updates {
         let update_h = "Update";
-        format!("{}  {}  {}  {}  {}", id_h, name_h, ver_h, status_h, update_h)
+        format!(
+            "{}  {}  {}  {}  {}",
+            id_h, name_h, ver_h, status_h, update_h
+        )
     } else {
         format!("{}  {}  {}  {}", id_h, name_h, ver_h, status_h)
     }

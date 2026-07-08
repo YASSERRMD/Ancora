@@ -36,7 +36,12 @@ pub struct EvalResult {
 }
 
 impl EvalResult {
-    pub fn new(eval_id: impl Into<String>, sample_id: impl Into<String>, score: f64, threshold: f64) -> Self {
+    pub fn new(
+        eval_id: impl Into<String>,
+        sample_id: impl Into<String>,
+        score: f64,
+        threshold: f64,
+    ) -> Self {
         let passed = score >= threshold;
         Self {
             eval_id: eval_id.into(),

@@ -17,10 +17,7 @@ fn test_shared_dataset_case_ids_match_polyglot_registry() {
         "dataset length must match registry"
     );
     for (case, &registry_id) in dataset.iter().zip(registry_ids.iter()) {
-        assert_eq!(
-            case.id, registry_id,
-            "case ids must be in the same order"
-        );
+        assert_eq!(case.id, registry_id, "case ids must be in the same order");
     }
 }
 
@@ -42,6 +39,9 @@ fn test_all_cases_have_non_empty_fields() {
     for case in &dataset {
         assert!(!case.id.is_empty(), "case id must not be empty");
         assert!(!case.input.is_empty(), "case input must not be empty");
-        assert!(!case.expected_output.is_empty(), "expected_output must not be empty");
+        assert!(
+            !case.expected_output.is_empty(),
+            "expected_output must not be empty"
+        );
     }
 }

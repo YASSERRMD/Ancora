@@ -99,6 +99,8 @@ mod tests {
     fn filter_by_plugin_category() {
         let plugins = by_category(&ExampleCategory::Plugin);
         assert!(!plugins.is_empty());
-        assert!(plugins.iter().all(|e| e.category == ExampleCategory::Plugin));
+        assert!(plugins
+            .iter()
+            .all(|e| e.category == ExampleCategory::Plugin));
     }
 }

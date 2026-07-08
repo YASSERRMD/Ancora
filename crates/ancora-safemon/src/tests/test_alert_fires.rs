@@ -44,7 +44,9 @@ fn alert_does_not_fire_below_threshold() {
 
     struct NoopChannel;
     impl crate::alerting::AlertChannel for NoopChannel {
-        fn name(&self) -> &str { "noop" }
+        fn name(&self) -> &str {
+            "noop"
+        }
         fn send(&self, _: &crate::alerting::Alert) -> Result<(), String> {
             Err("should not fire".to_string())
         }

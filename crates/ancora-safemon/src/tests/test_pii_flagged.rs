@@ -1,5 +1,5 @@
-use crate::pii::{PiiDetector, PiiKind};
 use crate::classifier::SafetyClassifier;
+use crate::pii::{PiiDetector, PiiKind};
 
 #[test]
 fn email_in_output_is_flagged() {

@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::media::MediaType;
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TransferDirection {
@@ -101,6 +101,10 @@ impl TransferRequest {
         self
     }
 
-    pub fn is_pending(&self) -> bool { self.status == TransferStatus::Pending }
-    pub fn is_approved(&self) -> bool { self.status == TransferStatus::Approved }
+    pub fn is_pending(&self) -> bool {
+        self.status == TransferStatus::Pending
+    }
+    pub fn is_approved(&self) -> bool {
+        self.status == TransferStatus::Approved
+    }
 }

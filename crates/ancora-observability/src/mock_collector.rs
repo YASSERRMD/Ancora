@@ -74,7 +74,11 @@ fn parse_content_length(headers: &str) -> usize {
     for line in headers.lines() {
         let lower = line.to_lowercase();
         if lower.starts_with("content-length:") {
-            return lower.trim_start_matches("content-length:").trim().parse().unwrap_or(0);
+            return lower
+                .trim_start_matches("content-length:")
+                .trim()
+                .parse()
+                .unwrap_or(0);
         }
     }
     0
@@ -130,7 +134,8 @@ mod tests {
         exporter.export().unwrap();
         collector.wait_for_request();
         let body = &collector.bodies()[0];
-        let parsed: serde_json::Value = serde_json::from_str(body).expect("body should be valid json");
+        let parsed: serde_json::Value =
+            serde_json::from_str(body).expect("body should be valid json");
         assert!(parsed.get("resourceSpans").is_some());
     }
 }

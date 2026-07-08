@@ -89,7 +89,9 @@ pub struct MyProvider {
 
 impl MyProvider {
     pub fn new(api_key: impl Into<String>) -> Self {
-        Self { api_key: api_key.into() }
+        Self {
+            api_key: api_key.into(),
+        }
     }
 }
 
@@ -109,7 +111,11 @@ impl ProviderAdapter for MyProvider {
             return Err(ProviderError::ModelNotFound(req.model));
         }
         // TODO: replace with a real HTTP call to your provider.
-        let last = req.messages.last().map(|m| m.content.as_str()).unwrap_or("");
+        let last = req
+            .messages
+            .last()
+            .map(|m| m.content.as_str())
+            .unwrap_or("");
         Ok(GenerateResponse {
             content: format!("my-provider echo: {last}"),
             model: "my-provider-v1".to_string(),

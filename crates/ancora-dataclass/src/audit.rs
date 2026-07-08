@@ -1,6 +1,6 @@
-use std::collections::VecDeque;
 use crate::enforcer::EnforcementDecision;
 use crate::label::SensitivityLevel;
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AccessKind {
@@ -54,23 +54,40 @@ pub struct ClassificationAuditLog {
 }
 
 impl ClassificationAuditLog {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
-    pub fn record(&mut self, entry: ClassificationAuditEntry) { self.entries.push_back(entry); }
+    pub fn record(&mut self, entry: ClassificationAuditEntry) {
+        self.entries.push_back(entry);
+    }
 
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
 
     pub fn denied_for_tenant(&self, tenant_id: &str) -> Vec<&ClassificationAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id && !e.allowed).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id && !e.allowed)
+            .collect()
     }
 
     pub fn allowed_for_tenant(&self, tenant_id: &str) -> Vec<&ClassificationAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id && e.allowed).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id && e.allowed)
+            .collect()
     }
 
     pub fn for_record(&self, record_id: &str) -> Vec<&ClassificationAuditEntry> {
-        self.entries.iter().filter(|e| e.record_id == record_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.record_id == record_id)
+            .collect()
     }
 
-    pub fn all(&self) -> impl Iterator<Item = &ClassificationAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &ClassificationAuditEntry> {
+        self.entries.iter()
+    }
 }

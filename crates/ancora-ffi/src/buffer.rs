@@ -12,7 +12,10 @@ pub struct AncorBuffer {
 #[no_mangle]
 pub extern "C" fn ancora_buffer_new(bytes: *const u8, len: usize) -> AncorBuffer {
     if len == 0 || bytes.is_null() {
-        return AncorBuffer { ptr: std::ptr::null_mut(), len: 0 };
+        return AncorBuffer {
+            ptr: std::ptr::null_mut(),
+            len: 0,
+        };
     }
     let slice = unsafe { std::slice::from_raw_parts(bytes, len) };
     let mut vec = slice.to_vec();

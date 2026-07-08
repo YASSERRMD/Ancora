@@ -36,7 +36,10 @@ fn test_airgap_no_external_access() {
         "/etc/ancora/license.key",
     );
     let tmpl = AirgapTemplate::render(config).expect("should render");
-    assert!(tmpl.contains("external_access: false"), "Must disable external access");
+    assert!(
+        tmpl.contains("external_access: false"),
+        "Must disable external access"
+    );
 }
 
 #[test]
@@ -48,7 +51,10 @@ fn test_airgap_fips_mode() {
         "/etc/ancora/license.key",
     );
     let tmpl = AirgapTemplate::render(config).expect("should render");
-    assert!(tmpl.contains("fips_mode: true"), "FIPS mode must be enabled for air-gapped deployments");
+    assert!(
+        tmpl.contains("fips_mode: true"),
+        "FIPS mode must be enabled for air-gapped deployments"
+    );
 }
 
 #[test]
@@ -83,7 +89,8 @@ fn test_airgap_node_count() {
         "1.0.0",
         ArtifactSource::LocalRegistry("local:5000".to_string()),
         "/etc/ancora/license.key",
-    ).with_node_count(5);
+    )
+    .with_node_count(5);
     let tmpl = AirgapTemplate::render(config).expect("should render");
     assert!(tmpl.contains("node_count: 5"));
 }

@@ -1,6 +1,6 @@
-use crate::skill::SkillDescriptor;
-use crate::registry::SkillRegistry;
 use crate::error::SkillError;
+use crate::registry::SkillRegistry;
+use crate::skill::SkillDescriptor;
 
 /// Just-in-time skill loader that bounds context by loading on demand.
 pub struct JitLoader {
@@ -12,7 +12,11 @@ impl JitLoader {
         Self { loaded: Vec::new() }
     }
 
-    pub fn load_on_demand(&mut self, registry: &mut SkillRegistry, skill: SkillDescriptor) -> Result<(), SkillError> {
+    pub fn load_on_demand(
+        &mut self,
+        registry: &mut SkillRegistry,
+        skill: SkillDescriptor,
+    ) -> Result<(), SkillError> {
         if self.loaded.contains(&skill.name) {
             return Ok(());
         }

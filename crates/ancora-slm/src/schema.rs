@@ -86,27 +86,25 @@ fn validate_at(value: &Value, schema: &Schema, path: &str, errors: &mut Vec<Vali
             if !variants.contains(&s.to_string()) {
                 errors.push(ValidationError {
                     path: path.to_string(),
-                    message: format!(
-                        "expected one of {:?}, got {:?}",
-                        variants, value
-                    ),
+                    message: format!("expected one of {:?}, got {:?}", variants, value),
                 });
             }
         }
-        Schema::Array { item_schema } => {
-            match value.as_array() {
-                None => errors.push(ValidationError {
-                    path: path.to_string(),
-                    message: format!("expected array, got {:?}", value),
-                }),
-                Some(arr) => {
-                    for (i, item) in arr.iter().enumerate() {
-                        validate_at(item, item_schema, &format!("{}/{}", path, i), errors);
-                    }
+        Schema::Array { item_schema } => match value.as_array() {
+            None => errors.push(ValidationError {
+                path: path.to_string(),
+                message: format!("expected array, got {:?}", value),
+            }),
+            Some(arr) => {
+                for (i, item) in arr.iter().enumerate() {
+                    validate_at(item, item_schema, &format!("{}/{}", path, i), errors);
                 }
             }
-        }
-        Schema::Object { required, properties } => {
+        },
+        Schema::Object {
+            required,
+            properties,
+        } => {
             match value.as_object() {
                 None => errors.push(ValidationError {
                     path: path.to_string(),
@@ -152,11 +150,23 @@ pub fn schema_to_prompt_hint(schema: &Schema) -> String {
         Schema::String => "a JSON string".to_string(),
         Schema::Number => "a JSON number".to_string(),
         Schema::Boolean => "true or false".to_string(),
-        Schema::Enum(vs) => format!("one of: {}", vs.iter().map(|s| format!("\"{}\"", s)).collect::<Vec<_>>().join(", ")),
+        Schema::Enum(vs) => format!(
+            "one of: {}",
+            vs.iter()
+                .map(|s| format!("\"{}\"", s))
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
         Schema::Array { item_schema } => {
-            format!("a JSON array where each item is {}", schema_to_prompt_hint(item_schema))
+            format!(
+                "a JSON array where each item is {}",
+                schema_to_prompt_hint(item_schema)
+            )
         }
-        Schema::Object { required, properties } => {
+        Schema::Object {
+            required,
+            properties,
+        } => {
             let fields: Vec<String> = required
                 .iter()
                 .map(|k| {

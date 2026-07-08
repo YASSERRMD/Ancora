@@ -31,7 +31,10 @@ pub fn build(params: &ParamSet) -> Recipe {
         r.add_step(RecipeStep::new(
             format!("round-{}", round),
             StepAction::Generate,
-            format!("Run debate round {}: each agent responds to opponents", round),
+            format!(
+                "Run debate round {}: each agent responds to opponents",
+                round
+            ),
         ));
     }
 
@@ -61,12 +64,7 @@ pub struct Argument {
 }
 
 impl Argument {
-    pub fn new(
-        agent_id: usize,
-        round: usize,
-        stance: Stance,
-        text: impl Into<String>,
-    ) -> Self {
+    pub fn new(agent_id: usize, round: usize, stance: Stance, text: impl Into<String>) -> Self {
         Self {
             agent_id,
             round,

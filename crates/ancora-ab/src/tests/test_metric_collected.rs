@@ -5,7 +5,12 @@ fn metric_collected_per_variant() {
     let mut store = OutcomeStore::new();
     for i in 0..10 {
         store.record(Observation::new("exp-1", format!("u-{i}"), "control", 0.7));
-        store.record(Observation::new("exp-1", format!("u-{}", i + 100), "treatment", 0.85));
+        store.record(Observation::new(
+            "exp-1",
+            format!("u-{}", i + 100),
+            "treatment",
+            0.85,
+        ));
     }
 
     let ctrl_values = store.values_for_variant("exp-1", "control");

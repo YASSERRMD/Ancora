@@ -1,7 +1,16 @@
 use crate::attack::{AttackLog, AttackOutcome, AttackStep, AttackVector};
 
 fn step(id: &str, scenario_id: &str, outcome: AttackOutcome) -> AttackStep {
-    AttackStep::new(id, scenario_id, "N", AttackVector::Network, outcome, "", "", 1)
+    AttackStep::new(
+        id,
+        scenario_id,
+        "N",
+        AttackVector::Network,
+        outcome,
+        "",
+        "",
+        1,
+    )
 }
 
 #[test]

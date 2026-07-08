@@ -5,8 +5,10 @@
 /// journals for each scenario are structurally identical across two runs,
 /// validating deterministic replay for all supported scenario types.
 use ancora_core::{
-    conformance::{all_scenarios, ConformanceResult, ConformanceScenario, CRASH_AND_RECOVER,
-                   HUMAN_IN_LOOP, MULTI_AGENT_VERIFIER, SINGLE_AGENT},
+    conformance::{
+        all_scenarios, ConformanceResult, ConformanceScenario, CRASH_AND_RECOVER, HUMAN_IN_LOOP,
+        MULTI_AGENT_VERIFIER, SINGLE_AGENT,
+    },
     graph::{Edge, Graph, Node, NodeKind, NodeSpec},
     journal::{JournalStore, MemoryStore},
     journal_mask::{assert_structurally_equal, mask_events},
@@ -95,7 +97,9 @@ fn complete_journal(run_id: &str, node_ids: &[&str]) -> Vec<JournalEvent> {
         run_id: run_id.to_owned(),
         seq,
         recorded_at_ns: (seq * 1_000_000) as i64,
-        event: Some(Event::RunCompleted(RunCompletedEvent { output_json: String::new() })),
+        event: Some(Event::RunCompleted(RunCompletedEvent {
+            output_json: String::new(),
+        })),
     });
 
     events
@@ -151,7 +155,11 @@ fn multi_agent_verifier_scenario_graph_validates() {
     let graph = Graph {
         id: "g-multi".into(),
         nodes: vec![agent_node("agent"), agent_node("verifier")],
-        edges: vec![Edge { from: "agent".into(), to: "verifier".into(), condition: None }],
+        edges: vec![Edge {
+            from: "agent".into(),
+            to: "verifier".into(),
+            condition: None,
+        }],
         entry_node: "agent".into(),
     };
     assert!(graph.validate().is_ok());
@@ -218,7 +226,9 @@ fn conformance_result_passed_variant_exists() {
 
 #[test]
 fn conformance_result_failed_carries_reason() {
-    let r = ConformanceResult::Failed { reason: "timeout".into() };
+    let r = ConformanceResult::Failed {
+        reason: "timeout".into(),
+    };
     if let ConformanceResult::Failed { reason } = r {
         assert_eq!(reason, "timeout");
     } else {
@@ -228,7 +238,9 @@ fn conformance_result_failed_carries_reason() {
 
 #[test]
 fn conformance_result_skipped_carries_reason() {
-    let r = ConformanceResult::Skipped { reason: "not implemented".into() };
+    let r = ConformanceResult::Skipped {
+        reason: "not implemented".into(),
+    };
     if let ConformanceResult::Skipped { reason } = r {
         assert!(!reason.is_empty());
     } else {
@@ -239,6 +251,10 @@ fn conformance_result_skipped_carries_reason() {
 #[test]
 fn all_scenarios_have_non_empty_description() {
     for s in all_scenarios() {
-        assert!(!s.description.is_empty(), "scenario '{}' has empty description", s.id);
+        assert!(
+            !s.description.is_empty(),
+            "scenario '{}' has empty description",
+            s.id
+        );
     }
 }

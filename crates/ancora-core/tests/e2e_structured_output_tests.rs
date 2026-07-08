@@ -77,15 +77,10 @@ fn empty_schema_accepts_any_output() {
 #[test]
 fn repair_succeeds_on_second_attempt() {
     let mut attempts = 0u32;
-    let result = validate_with_repair(
-        "not json".into(),
-        r#"{"type":"object"}"#,
-        3,
-        |_, _| {
-            attempts += 1;
-            Ok(r#"{"repaired":true}"#.into())
-        },
-    );
+    let result = validate_with_repair("not json".into(), r#"{"type":"object"}"#, 3, |_, _| {
+        attempts += 1;
+        Ok(r#"{"repaired":true}"#.into())
+    });
     assert!(result.is_ok());
     assert_eq!(attempts, 1, "repair called once for one invalid attempt");
 }
@@ -133,12 +128,9 @@ fn structured_output_journal_activity_key_is_structured() {
 
 #[test]
 fn max_attempts_one_means_immediate_failure_on_invalid() {
-    let result = validate_with_repair(
-        "not json".into(),
-        r#"{"type":"object"}"#,
-        1,
-        |_, _| unreachable!("repair must not be called when max_attempts=1"),
-    );
+    let result = validate_with_repair("not json".into(), r#"{"type":"object"}"#, 1, |_, _| {
+        unreachable!("repair must not be called when max_attempts=1")
+    });
     assert!(result.is_err());
     if let Err(AncoraError::OutputValidation { attempts, .. }) = result {
         assert_eq!(attempts, 1);
@@ -156,6 +148,8 @@ fn json_array_fails_object_schema() {
     let output = r#"["item1","item2"]"#;
     let schema = r#"{"type":"object"}"#;
     let result = validate_output(output, schema);
-    assert!(result.is_err() || serde_json::from_str::<serde_json::Value>(output).is_ok(),
-        "array must fail object schema or parse error detected");
+    assert!(
+        result.is_err() || serde_json::from_str::<serde_json::Value>(output).is_ok(),
+        "array must fail object schema or parse error detected"
+    );
 }

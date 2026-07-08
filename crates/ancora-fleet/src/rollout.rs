@@ -1,7 +1,7 @@
 // Staged rollout to fleet
 
-use std::collections::HashMap;
 use crate::registration::DeviceId;
+use std::collections::HashMap;
 
 /// Rollout phase definition
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -108,9 +108,7 @@ impl RolloutEngine {
     pub fn completed_devices(&self, rollout_id: &str) -> Vec<String> {
         self.statuses
             .iter()
-            .filter(|((rid, _), status)| {
-                rid == rollout_id && **status == RolloutStatus::Complete
-            })
+            .filter(|((rid, _), status)| rid == rollout_id && **status == RolloutStatus::Complete)
             .map(|((_, did), _)| did.clone())
             .collect()
     }

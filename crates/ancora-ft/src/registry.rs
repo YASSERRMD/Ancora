@@ -1,6 +1,6 @@
 //! Adapter registry: catalog of known adapters by id.
 
-use crate::model::{AdapterId, AdapterDescriptor};
+use crate::model::{AdapterDescriptor, AdapterId};
 use crate::runtime::{FtError, FtResult};
 use std::collections::HashMap;
 

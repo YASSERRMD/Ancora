@@ -88,13 +88,7 @@ impl CostEfficiencySuite {
                     500,
                     true,
                 ),
-                CostCase::new(
-                    "ce-003",
-                    "What is 2+2?",
-                    TokenUsage::new(5, 3),
-                    50,
-                    true,
-                ),
+                CostCase::new("ce-003", "What is 2+2?", TokenUsage::new(5, 3), 50, true),
             ],
         }
     }

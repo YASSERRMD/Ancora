@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::schema::FiredAlert;
+use std::collections::HashSet;
 
 /// Deduplication tracker: suppresses repeat firings of the same alert fingerprint
 /// within a configurable window.
@@ -12,7 +12,11 @@ pub struct AlertDedup {
 
 impl AlertDedup {
     pub fn new(cooldown_secs: u64) -> Self {
-        Self { seen: HashSet::new(), cooldown_secs, last_seen: Default::default() }
+        Self {
+            seen: HashSet::new(),
+            cooldown_secs,
+            last_seen: Default::default(),
+        }
     }
 
     /// Returns true if the alert should be routed (not suppressed).

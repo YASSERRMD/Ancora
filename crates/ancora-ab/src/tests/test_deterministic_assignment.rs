@@ -6,10 +6,7 @@ fn same_key_always_gets_same_variant() {
     let experiment = Experiment::new(
         "det-test",
         "Determinism check",
-        vec![
-            Variant::new("control", 0.5),
-            Variant::new("treatment", 0.5),
-        ],
+        vec![Variant::new("control", 0.5), Variant::new("treatment", 0.5)],
         Metric::new("score", MetricKind::Maximize),
     )
     .unwrap();
@@ -37,10 +34,7 @@ fn different_experiments_can_produce_different_variants() {
         Experiment::new(
             id,
             "variant check",
-            vec![
-                Variant::new("a", 0.5),
-                Variant::new("b", 0.5),
-            ],
+            vec![Variant::new("a", 0.5), Variant::new("b", 0.5)],
             Metric::new("m", MetricKind::Maximize),
         )
         .unwrap()
@@ -57,5 +51,8 @@ fn different_experiments_can_produce_different_variants() {
             break;
         }
     }
-    assert!(differ, "expected at least one user to differ across experiments");
+    assert!(
+        differ,
+        "expected at least one user to differ across experiments"
+    );
 }

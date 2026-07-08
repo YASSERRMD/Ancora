@@ -47,7 +47,10 @@ impl std::fmt::Display for LicenseError {
 }
 
 impl LicenseDeclaration {
-    pub fn new(spdx_expression: impl Into<String>, is_open_source: bool) -> Result<Self, LicenseError> {
+    pub fn new(
+        spdx_expression: impl Into<String>,
+        is_open_source: bool,
+    ) -> Result<Self, LicenseError> {
         let spdx_expression = spdx_expression.into();
         if spdx_expression.is_empty() {
             return Err(LicenseError::EmptySpdxExpression);
@@ -75,12 +78,22 @@ impl LicenseDeclaration {
 }
 
 fn is_permissive(expr: &str) -> bool {
-    let known = ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Unlicense", "0BSD"];
+    let known = [
+        "MIT",
+        "Apache-2.0",
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "ISC",
+        "Unlicense",
+        "0BSD",
+    ];
     known.iter().any(|&k| expr.contains(k))
 }
 
 fn is_copyleft(expr: &str) -> bool {
-    let known = ["GPL-2.0", "GPL-3.0", "LGPL-2.0", "LGPL-2.1", "LGPL-3.0", "AGPL-3.0"];
+    let known = [
+        "GPL-2.0", "GPL-3.0", "LGPL-2.0", "LGPL-2.1", "LGPL-3.0", "AGPL-3.0",
+    ];
     known.iter().any(|&k| expr.contains(k))
 }
 
@@ -111,7 +124,10 @@ mod tests {
 
     #[test]
     fn missing_license_blocked() {
-        assert_eq!(require_license(None, false), Err(LicenseError::DeclarationMissing));
+        assert_eq!(
+            require_license(None, false),
+            Err(LicenseError::DeclarationMissing)
+        );
     }
 
     #[test]

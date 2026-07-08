@@ -129,7 +129,11 @@ mod pinecone_retry_tests {
     #[test]
     fn config_auth_header_contains_api_key() {
         use crate::backends::pinecone::PineconeConfig;
-        let cfg = PineconeConfig { api_key: "test-key".to_owned(), environment: "us-east1-gcp".to_owned(), timeout_secs: 30 };
+        let cfg = PineconeConfig {
+            api_key: "test-key".to_owned(),
+            environment: "us-east1-gcp".to_owned(),
+            timeout_secs: 30,
+        };
         let hdr = cfg.auth_header();
         assert!(hdr.contains("test-key"), "header: {hdr}");
     }
@@ -137,7 +141,15 @@ mod pinecone_retry_tests {
     #[test]
     fn config_controller_url_is_https() {
         use crate::backends::pinecone::PineconeConfig;
-        let cfg = PineconeConfig { api_key: "k".to_owned(), environment: "us-east1-gcp".to_owned(), timeout_secs: 30 };
-        assert!(cfg.controller_url().starts_with("https://"), "url: {}", cfg.controller_url());
+        let cfg = PineconeConfig {
+            api_key: "k".to_owned(),
+            environment: "us-east1-gcp".to_owned(),
+            timeout_secs: 30,
+        };
+        assert!(
+            cfg.controller_url().starts_with("https://"),
+            "url: {}",
+            cfg.controller_url()
+        );
     }
 }

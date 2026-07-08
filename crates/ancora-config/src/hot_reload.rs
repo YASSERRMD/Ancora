@@ -28,7 +28,10 @@ pub struct HotReloadState {
 
 impl HotReloadState {
     pub fn new(cfg: AncoraCfg) -> Self {
-        Self { current: cfg, reload_count: 0 }
+        Self {
+            current: cfg,
+            reload_count: 0,
+        }
     }
 
     /// Apply safe fields from a new config snapshot without full restart.

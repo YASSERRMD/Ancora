@@ -1,4 +1,4 @@
-use crate::eval_parity::{shared_eval_dataset, run_eval, EvalRunSummary, check_eval_parity};
+use crate::eval_parity::{check_eval_parity, run_eval, shared_eval_dataset, EvalRunSummary};
 
 #[test]
 fn test_shared_dataset_has_three_cases() {
@@ -20,7 +20,11 @@ fn test_all_cases_pass_for_each_language() {
     for &lang in langs {
         let results = run_eval(lang, &cases);
         for r in &results {
-            assert!(r.passed, "case {:?} failed for language {:?}", r.case_id, lang);
+            assert!(
+                r.passed,
+                "case {:?} failed for language {:?}",
+                r.case_id, lang
+            );
         }
     }
 }

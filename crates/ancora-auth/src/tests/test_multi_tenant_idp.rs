@@ -4,7 +4,12 @@ use crate::{IdpConfig, IdpKind, IdpRegistry};
 fn registry_holds_multiple_tenants() {
     let mut reg = IdpRegistry::new();
     reg.register(IdpConfig::oidc("tenant-a", "https://a.com", "ca", "sa"));
-    reg.register(IdpConfig::saml("tenant-b", "https://b.com", "urn:b", "https://b.com/acs"));
+    reg.register(IdpConfig::saml(
+        "tenant-b",
+        "https://b.com",
+        "urn:b",
+        "https://b.com/acs",
+    ));
     assert_eq!(reg.get("tenant-a").map(|c| &c.kind), Some(&IdpKind::Oidc));
     assert_eq!(reg.get("tenant-b").map(|c| &c.kind), Some(&IdpKind::Saml));
 }

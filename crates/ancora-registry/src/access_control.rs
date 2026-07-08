@@ -40,7 +40,9 @@ impl AccessPolicy {
                 if set.contains(publisher) {
                     AccessResult::Allowed
                 } else {
-                    AccessResult::Denied(format!("publisher '{publisher}' is not on the allow-list"))
+                    AccessResult::Denied(format!(
+                        "publisher '{publisher}' is not on the allow-list"
+                    ))
                 }
             }
             Self::DenyAll => AccessResult::Denied("registry is read-only".to_string()),

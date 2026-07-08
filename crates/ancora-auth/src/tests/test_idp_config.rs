@@ -10,10 +10,18 @@ fn oidc_config_has_correct_kind() {
 
 #[test]
 fn saml_config_has_correct_kind() {
-    let config = IdpConfig::saml("t2", "https://saml.example.com", "urn:sp", "https://acs.example.com/acs");
+    let config = IdpConfig::saml(
+        "t2",
+        "https://saml.example.com",
+        "urn:sp",
+        "https://acs.example.com/acs",
+    );
     assert_eq!(config.kind, IdpKind::Saml);
     assert_eq!(config.extra.get("entity_id"), Some(&"urn:sp".to_string()));
-    assert_eq!(config.extra.get("acs_url"), Some(&"https://acs.example.com/acs".to_string()));
+    assert_eq!(
+        config.extra.get("acs_url"),
+        Some(&"https://acs.example.com/acs".to_string())
+    );
 }
 
 #[test]

@@ -23,14 +23,14 @@ impl BackendKind {
     /// The canonical feature flag string required in `Cargo.toml`.
     pub fn feature_flag(&self) -> &'static str {
         match self {
-            Self::PgVector    => "pgvector",
-            Self::Qdrant      => "qdrant",
-            Self::Weaviate    => "weaviate",
-            Self::Milvus      => "milvus",
-            Self::LanceDb     => "lancedb",
-            Self::Chroma      => "chroma",
-            Self::Pinecone    => "pinecone",
-            Self::Vespa       => "vespa",
+            Self::PgVector => "pgvector",
+            Self::Qdrant => "qdrant",
+            Self::Weaviate => "weaviate",
+            Self::Milvus => "milvus",
+            Self::LanceDb => "lancedb",
+            Self::Chroma => "chroma",
+            Self::Pinecone => "pinecone",
+            Self::Vespa => "vespa",
             Self::RedisVector => "redis-vector",
         }
     }
@@ -66,7 +66,12 @@ impl BackendInfo {
         default_port: Option<u16>,
         description: &'static str,
     ) -> Self {
-        Self { kind, display_name, default_port, description }
+        Self {
+            kind,
+            display_name,
+            default_port,
+            description,
+        }
     }
 }
 
@@ -139,8 +144,15 @@ pub fn select_backend(name: &str) -> Option<BackendInfo> {
 /// List all known backend short names (canonical only).
 pub fn known_backends() -> &'static [&'static str] {
     &[
-        "pgvector", "qdrant", "weaviate", "milvus",
-        "lancedb", "chroma", "pinecone", "vespa", "redis-vector",
+        "pgvector",
+        "qdrant",
+        "weaviate",
+        "milvus",
+        "lancedb",
+        "chroma",
+        "pinecone",
+        "vespa",
+        "redis-vector",
     ]
 }
 

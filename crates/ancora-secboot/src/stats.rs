@@ -12,7 +12,10 @@ pub struct BootStats {
 impl BootStats {
     pub fn from(chain: &BootChain, attestations: &AttestationLog) -> Self {
         let tenant_attestations = attestations.for_tenant(&chain.tenant_id);
-        let trusted = tenant_attestations.iter().filter(|a| a.is_trusted()).count();
+        let trusted = tenant_attestations
+            .iter()
+            .filter(|a| a.is_trusted())
+            .count();
         let untrusted = tenant_attestations.len() - trusted;
         Self {
             tenant_id: chain.tenant_id.clone(),
@@ -24,7 +27,9 @@ impl BootStats {
     }
 
     pub fn trust_rate(&self) -> f64 {
-        if self.attestation_count == 0 { return 0.0; }
+        if self.attestation_count == 0 {
+            return 0.0;
+        }
         self.trusted_count as f64 / self.attestation_count as f64
     }
 }

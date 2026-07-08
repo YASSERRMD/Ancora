@@ -2,15 +2,18 @@
 
 #[cfg(test)]
 mod pipeline_ext_tests {
-    use std::sync::Arc;
-    use crate::embedders::pipeline::{RetrievalPipeline, PipelineConfig};
-    use crate::embedders::local::{HashEmbedder, TfidfEmbedder};
-    use crate::embedders::rerank::{CosineReranker, rrf_fuse, sort_by_score, ScoredPassage};
+    use crate::embedders::citation::{build_citations, dedup_by_source, filter_by_score};
     use crate::embedders::context::ContextAssembler;
-    use crate::embedders::citation::{build_citations, filter_by_score, dedup_by_source};
+    use crate::embedders::local::{HashEmbedder, TfidfEmbedder};
+    use crate::embedders::pipeline::{PipelineConfig, RetrievalPipeline};
+    use crate::embedders::rerank::{rrf_fuse, sort_by_score, CosineReranker, ScoredPassage};
+    use std::sync::Arc;
 
     fn hash_pipeline(top_k: usize) -> RetrievalPipeline {
-        RetrievalPipeline::new(Arc::new(HashEmbedder::new(128)), PipelineConfig::new(8, 1, top_k))
+        RetrievalPipeline::new(
+            Arc::new(HashEmbedder::new(128)),
+            PipelineConfig::new(8, 1, top_k),
+        )
     }
 
     // ---- pipeline tests ------------------------------------------------
@@ -18,40 +21,69 @@ mod pipeline_ext_tests {
     #[test]
     fn pipeline_ingest_returns_chunk_count() {
         let mut p = hash_pipeline(5);
-        let count = p.ingest("f.txt", "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9").unwrap();
+        let count = p
+            .ingest(
+                "f.txt",
+                "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9",
+            )
+            .unwrap();
         assert!(count >= 1, "expected >=1 chunks, got {count}");
     }
 
     #[test]
     fn pipeline_passage_count_accumulates() {
         let mut p = hash_pipeline(5);
-        let c1 = p.ingest("a.txt", "aaaa bbbb cccc dddd eeee ffff gggg hhhh iiii jjjj").unwrap();
-        let c2 = p.ingest("b.txt", "xxxx yyyy zzzz wwww vvvv uuuu tttt ssss rrrr qqqq").unwrap();
+        let c1 = p
+            .ingest("a.txt", "aaaa bbbb cccc dddd eeee ffff gggg hhhh iiii jjjj")
+            .unwrap();
+        let c2 = p
+            .ingest("b.txt", "xxxx yyyy zzzz wwww vvvv uuuu tttt ssss rrrr qqqq")
+            .unwrap();
         assert_eq!(p.passage_count(), c1 + c2);
     }
 
     #[test]
     fn pipeline_query_scores_are_valid_range() {
         let mut p = hash_pipeline(10);
-        p.ingest("doc.txt", "the quick brown fox jumps over the lazy dog yes it does").unwrap();
+        p.ingest(
+            "doc.txt",
+            "the quick brown fox jumps over the lazy dog yes it does",
+        )
+        .unwrap();
         let results = p.query("quick brown fox").unwrap();
         for r in &results {
-            assert!(r.score >= -1.0 && r.score <= 1.0 + 1e-4, "score: {}", r.score);
+            assert!(
+                r.score >= -1.0 && r.score <= 1.0 + 1e-4,
+                "score: {}",
+                r.score
+            );
         }
     }
 
     #[test]
     fn pipeline_top_k_respected() {
         let mut p = hash_pipeline(2);
-        p.ingest("doc.txt", "w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15").unwrap();
+        p.ingest(
+            "doc.txt",
+            "w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15",
+        )
+        .unwrap();
         let results = p.query("w0 w1 w2").unwrap();
-        assert!(results.len() <= 2, "top_k=2 but got {} results", results.len());
+        assert!(
+            results.len() <= 2,
+            "top_k=2 but got {} results",
+            results.len()
+        );
     }
 
     #[test]
     fn pipeline_citation_source_matches_ingested() {
         let mut p = hash_pipeline(5);
-        p.ingest("report.pdf", "analysis of quarterly performance metrics data").unwrap();
+        p.ingest(
+            "report.pdf",
+            "analysis of quarterly performance metrics data",
+        )
+        .unwrap();
         let cits = p.query_with_citations("quarterly performance").unwrap();
         if !cits.is_empty() {
             assert_eq!(cits[0].source, "report.pdf");
@@ -61,9 +93,11 @@ mod pipeline_ext_tests {
     #[test]
     fn pipeline_clear_allows_reingest() {
         let mut p = hash_pipeline(5);
-        p.ingest("old.txt", "old content that should be cleared").unwrap();
+        p.ingest("old.txt", "old content that should be cleared")
+            .unwrap();
         p.clear();
-        p.ingest("new.txt", "new content after clearing the store").unwrap();
+        p.ingest("new.txt", "new content after clearing the store")
+            .unwrap();
         assert!(p.passage_count() > 0);
     }
 
@@ -71,7 +105,11 @@ mod pipeline_ext_tests {
 
     #[test]
     fn tfidf_pipeline_ingest_and_query() {
-        let docs = &["machine learning models", "vector search databases", "natural language processing"];
+        let docs = &[
+            "machine learning models",
+            "vector search databases",
+            "natural language processing",
+        ];
         let embedder = TfidfEmbedder::fit(docs, 50);
         let mut p = RetrievalPipeline::new(Arc::new(embedder), PipelineConfig::new(4, 0, 3));
         for (i, doc) in docs.iter().enumerate() {
@@ -87,9 +125,9 @@ mod pipeline_ext_tests {
     fn cosine_reranker_changes_order() {
         let q_emb = vec![1.0f32, 0.0, 0.0];
         let embs = vec![
-            vec![0.0f32, 1.0, 0.0],  // orthogonal
-            vec![1.0f32, 0.0, 0.0],  // parallel
-            vec![0.5f32, 0.5, 0.0],  // 45 degrees
+            vec![0.0f32, 1.0, 0.0], // orthogonal
+            vec![1.0f32, 0.0, 0.0], // parallel
+            vec![0.5f32, 0.5, 0.0], // 45 degrees
         ];
         let reranker = CosineReranker::new(q_emb, embs);
         let top = reranker.top_k(3);
@@ -111,7 +149,11 @@ mod pipeline_ext_tests {
     #[test]
     fn context_assembler_from_pipeline_results() {
         let mut p = hash_pipeline(3);
-        p.ingest("doc.txt", "chapter one content about retrieval augmented generation systems").unwrap();
+        p.ingest(
+            "doc.txt",
+            "chapter one content about retrieval augmented generation systems",
+        )
+        .unwrap();
         let passages = p.query("retrieval").unwrap();
         let texts: Vec<&str> = passages.iter().map(|p| p.text.as_str()).collect();
         let ctx = ContextAssembler::new(100_000).assemble(&texts);

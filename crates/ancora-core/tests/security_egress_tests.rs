@@ -60,7 +60,9 @@ fn simple_journal(run_id: &str) -> Vec<JournalEvent> {
             run_id: run_id.to_owned(),
             seq: 1,
             recorded_at_ns: 0,
-            event: Some(Event::RunCompleted(RunCompletedEvent { output_json: "{}".into() })),
+            event: Some(Event::RunCompleted(RunCompletedEvent {
+                output_json: "{}".into(),
+            })),
         },
     ]
 }
@@ -91,7 +93,11 @@ fn graph_validation_operates_without_network() {
     let graph = Graph {
         id: "egress-graph".into(),
         nodes: vec![agent_node("a"), agent_node("b")],
-        edges: vec![Edge { from: "a".into(), to: "b".into(), condition: None }],
+        edges: vec![Edge {
+            from: "a".into(),
+            to: "b".into(),
+            condition: None,
+        }],
         entry_node: "a".into(),
     };
     assert!(graph.validate().is_ok());
@@ -120,12 +126,9 @@ fn output_repair_prompt_operates_without_network() {
 
 #[test]
 fn validate_with_repair_operates_without_network() {
-    let result = validate_with_repair(
-        "{}".into(),
-        r#"{"type":"object"}"#,
-        3,
-        |_, _| unreachable!("repair must not be called for valid output"),
-    );
+    let result = validate_with_repair("{}".into(), r#"{"type":"object"}"#, 3, |_, _| {
+        unreachable!("repair must not be called for valid output")
+    });
     assert!(result.is_ok());
 }
 
@@ -162,7 +165,13 @@ fn cancellation_operates_without_network() {
 #[test]
 fn cost_tracker_operates_without_network() {
     let mut tracker = CostTracker::new(0.000003, 0.000015);
-    tracker.record("n1", TokenUsage { tokens_in: 100, tokens_out: 50 });
+    tracker.record(
+        "n1",
+        TokenUsage {
+            tokens_in: 100,
+            tokens_out: 50,
+        },
+    );
     let summary = tracker.summary();
     assert!(summary.total_cost_usd > 0.0);
 }
@@ -175,6 +184,13 @@ fn retry_engine_operates_without_network() {
         max_backoff_ms: 0,
         jitter: 0.0,
     };
-    let outcome = run_with_retry(&policy, |_| Ok::<_, ancora_core::error::AncoraError>("ok"), |_| {});
-    assert!(matches!(outcome, ancora_core::retry::RetryOutcome::Ok { .. }));
+    let outcome = run_with_retry(
+        &policy,
+        |_| Ok::<_, ancora_core::error::AncoraError>("ok"),
+        |_| {},
+    );
+    assert!(matches!(
+        outcome,
+        ancora_core::retry::RetryOutcome::Ok { .. }
+    ));
 }

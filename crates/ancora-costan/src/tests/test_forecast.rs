@@ -10,8 +10,12 @@ fn linear_forecast_within_tolerance() {
     let predicted = f.forecast_linear(10).unwrap();
     // Expected: 2.0 + 10 = 12.0
     let tolerance = 0.05;
-    assert!((predicted - 12.0).abs() < tolerance,
-        "predicted {} is not within {} of 12.0", predicted, tolerance);
+    assert!(
+        (predicted - 12.0).abs() < tolerance,
+        "predicted {} is not within {} of 12.0",
+        predicted,
+        tolerance
+    );
 }
 
 #[test]
@@ -43,5 +47,8 @@ fn insufficient_observations_returns_none() {
     let mut f = CostForecaster::new();
     f.add_observation(0, 1.0);
     let pred = f.forecast_linear(5);
-    assert!(pred.is_none(), "need >= 2 observations for linear regression");
+    assert!(
+        pred.is_none(),
+        "need >= 2 observations for linear regression"
+    );
 }

@@ -16,7 +16,8 @@ fn redact_recursive(v: &mut Value) {
         Value::Object(map) => {
             for (k, val) in map.iter_mut() {
                 let k_lower = k.to_lowercase();
-                if k_lower.contains("ref") || k_lower.contains("key") || k_lower.contains("secret") {
+                if k_lower.contains("ref") || k_lower.contains("key") || k_lower.contains("secret")
+                {
                     if !val.is_null() {
                         *val = Value::String(REDACTED.into());
                     }

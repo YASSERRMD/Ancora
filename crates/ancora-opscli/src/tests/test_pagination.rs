@@ -1,5 +1,5 @@
-use crate::run_store::{RunEntry, RunStatus};
 use crate::pagination::paginate;
+use crate::run_store::{RunEntry, RunStatus};
 
 fn make_entries(n: usize) -> Vec<RunEntry> {
     (0..n)

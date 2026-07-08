@@ -12,8 +12,7 @@ fn override_applies_new_key() {
 
 #[test]
 fn override_replaces_existing_key() {
-    let preset = research_assistant()
-        .with_override("max_citations", "10");
+    let preset = research_assistant().with_override("max_citations", "10");
     let modified = apply_overrides(
         preset,
         vec![("max_citations".to_string(), "100".to_string())],

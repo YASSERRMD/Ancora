@@ -105,7 +105,10 @@ mod tests {
     use super::*;
 
     fn node(id: &str) -> GraphNode {
-        GraphNode { id: id.into(), label: id.into() }
+        GraphNode {
+            id: id.into(),
+            label: id.into(),
+        }
     }
 
     #[test]

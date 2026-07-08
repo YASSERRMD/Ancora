@@ -8,7 +8,10 @@ pub struct RotationPolicy {
 
 impl RotationPolicy {
     pub fn new(max_versions: usize) -> Self {
-        Self { max_versions, rotate_after_ticks: None }
+        Self {
+            max_versions,
+            rotate_after_ticks: None,
+        }
     }
 
     pub fn with_rotation_interval(mut self, ticks: u64) -> Self {

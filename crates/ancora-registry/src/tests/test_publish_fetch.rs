@@ -29,11 +29,27 @@ fn multiple_versions_are_independently_fetchable() {
     let v1 = Version::new(1, 0, 0);
     let v2 = Version::new(2, 0, 0);
 
-    svc.publish(PublishEntry::new("tool", v1.clone(), b"v1-data".to_vec(), "bob"))
-        .unwrap();
-    svc.publish(PublishEntry::new("tool", v2.clone(), b"v2-data".to_vec(), "bob"))
-        .unwrap();
+    svc.publish(PublishEntry::new(
+        "tool",
+        v1.clone(),
+        b"v1-data".to_vec(),
+        "bob",
+    ))
+    .unwrap();
+    svc.publish(PublishEntry::new(
+        "tool",
+        v2.clone(),
+        b"v2-data".to_vec(),
+        "bob",
+    ))
+    .unwrap();
 
-    assert_eq!(svc.fetch("tool", &v1), FetchResult::Found(b"v1-data".to_vec()));
-    assert_eq!(svc.fetch("tool", &v2), FetchResult::Found(b"v2-data".to_vec()));
+    assert_eq!(
+        svc.fetch("tool", &v1),
+        FetchResult::Found(b"v1-data".to_vec())
+    );
+    assert_eq!(
+        svc.fetch("tool", &v2),
+        FetchResult::Found(b"v2-data".to_vec())
+    );
 }

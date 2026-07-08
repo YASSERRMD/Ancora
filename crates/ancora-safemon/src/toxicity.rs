@@ -33,15 +33,9 @@ pub struct ToxicityDetector {
 impl ToxicityDetector {
     pub fn new() -> Self {
         Self {
-            severe_terms: vec![
-                "kill", "murder", "abuse", "attack", "threat",
-            ],
-            moderate_terms: vec![
-                "hate", "racist", "violent", "bully",
-            ],
-            mild_terms: vec![
-                "idiot", "stupid", "dumb", "fool", "annoying",
-            ],
+            severe_terms: vec!["kill", "murder", "abuse", "attack", "threat"],
+            moderate_terms: vec!["hate", "racist", "violent", "bully"],
+            mild_terms: vec!["idiot", "stupid", "dumb", "fool", "annoying"],
         }
     }
 

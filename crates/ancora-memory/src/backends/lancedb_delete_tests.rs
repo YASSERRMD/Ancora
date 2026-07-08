@@ -28,7 +28,11 @@ mod lancedb_delete_tests {
     fn delete_predicate_with_compound_filter() {
         let expr = sql_or(&sql_lt("score", 0), &sql_eq_str("status", "spam"));
         let j = delete_predicate("docs", &expr);
-        assert!(j["predicate"].as_str().unwrap().contains("OR"), "expr: {}", j["predicate"]);
+        assert!(
+            j["predicate"].as_str().unwrap().contains("OR"),
+            "expr: {}",
+            j["predicate"]
+        );
     }
 
     #[test]

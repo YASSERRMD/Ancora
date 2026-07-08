@@ -19,8 +19,13 @@ mod milvus_conformance {
     fn create_collection_has_float_vector_field() {
         let body = create_collection_body("test", 128, metric_type::COSINE);
         let fields = body["schema"]["fields"].as_array().unwrap();
-        let vec_field = fields.iter().find(|f| f["dataType"] == field_type::FLOAT_VECTOR);
-        assert!(vec_field.is_some(), "schema must include a FloatVector field");
+        let vec_field = fields
+            .iter()
+            .find(|f| f["dataType"] == field_type::FLOAT_VECTOR);
+        assert!(
+            vec_field.is_some(),
+            "schema must include a FloatVector field"
+        );
     }
 
     #[test]
@@ -40,10 +45,13 @@ mod milvus_conformance {
 
     #[test]
     fn insert_body_has_data_array() {
-        let body = insert_entities_body("c", &[
-            (vec![0.1f32; 4], serde_json::json!({"k": "v"})),
-            (vec![0.2f32; 4], serde_json::json!({"k": "w"})),
-        ]);
+        let body = insert_entities_body(
+            "c",
+            &[
+                (vec![0.1f32; 4], serde_json::json!({"k": "v"})),
+                (vec![0.2f32; 4], serde_json::json!({"k": "w"})),
+            ],
+        );
         assert_eq!(body["data"].as_array().unwrap().len(), 2);
     }
 
@@ -104,7 +112,13 @@ mod milvus_conformance {
 
     #[test]
     fn create_index_body_sets_index_type() {
-        let body = create_index_body("c", "embedding", "my_idx", index_type::HNSW, metric_type::COSINE);
+        let body = create_index_body(
+            "c",
+            "embedding",
+            "my_idx",
+            index_type::HNSW,
+            metric_type::COSINE,
+        );
         let idx = &body["indexParams"][0];
         assert_eq!(idx["indexType"], index_type::HNSW);
     }

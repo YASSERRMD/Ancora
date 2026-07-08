@@ -2,7 +2,6 @@
 ///
 /// Provides the core trait surface that Rust-based extensions must implement,
 /// plus lightweight derive-helper utilities so boilerplate stays minimal.
-
 use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------

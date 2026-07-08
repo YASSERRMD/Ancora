@@ -3,7 +3,6 @@
 /// TGI exposes a generate endpoint and a health endpoint.  The default
 /// port is 80 (Docker) or 8080 (local build).  This module wraps the
 /// API with a typed client and mock transport.
-
 use crate::model::{CompletionRequest, CompletionResult, EngineConfig, EngineKind};
 
 /// Default TGI endpoint (local build).
@@ -93,12 +92,10 @@ impl<T: TgiTransport> TgiClient<T> {
         self.config.endpoint.as_deref().unwrap_or(DEFAULT_ENDPOINT)
     }
 
-    pub fn complete(
-        &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionResult, TgiError> {
+    pub fn complete(&self, request: &CompletionRequest) -> Result<CompletionResult, TgiError> {
         let params = TgiParams::from_request(request);
-        self.transport.generate(self.endpoint(), &request.prompt, &params)
+        self.transport
+            .generate(self.endpoint(), &request.prompt, &params)
     }
 
     pub fn info(&self) -> Result<TgiInfo, TgiError> {

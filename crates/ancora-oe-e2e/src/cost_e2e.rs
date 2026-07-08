@@ -1,5 +1,4 @@
 /// Cost analytics module for tracking token usage and costs per run.
-
 use std::collections::HashMap;
 
 /// Token usage for a single LLM call.
@@ -11,7 +10,10 @@ pub struct TokenUsage {
 
 impl TokenUsage {
     pub fn new(prompt_tokens: u64, completion_tokens: u64) -> Self {
-        Self { prompt_tokens, completion_tokens }
+        Self {
+            prompt_tokens,
+            completion_tokens,
+        }
     }
 
     pub fn total(&self) -> u64 {
@@ -30,7 +32,12 @@ pub struct CostEntry {
 }
 
 impl CostEntry {
-    pub fn new(run_id: impl Into<String>, model: impl Into<String>, usage: TokenUsage, cost_microdollars: u64) -> Self {
+    pub fn new(
+        run_id: impl Into<String>,
+        model: impl Into<String>,
+        usage: TokenUsage,
+        cost_microdollars: u64,
+    ) -> Self {
         Self {
             run_id: run_id.into(),
             model: model.into(),

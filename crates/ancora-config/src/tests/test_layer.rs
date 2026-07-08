@@ -9,7 +9,10 @@ mod tests {
     fn file_overlay_overrides_base() {
         let base = AncoraCfg::default();
         let overlay = AncoraCfg {
-            core: CoreCfg { log_level: "debug".into(), ..Default::default() },
+            core: CoreCfg {
+                log_level: "debug".into(),
+                ..Default::default()
+            },
             ..Default::default()
         };
         let merged = ConfigLayers::new(base).with_file(overlay).resolve();
@@ -20,11 +23,17 @@ mod tests {
     fn env_overlay_wins_over_file() {
         let base = AncoraCfg::default();
         let file_overlay = AncoraCfg {
-            core: CoreCfg { log_level: "debug".into(), ..Default::default() },
+            core: CoreCfg {
+                log_level: "debug".into(),
+                ..Default::default()
+            },
             ..Default::default()
         };
         let env_overlay = AncoraCfg {
-            core: CoreCfg { log_level: "warn".into(), ..Default::default() },
+            core: CoreCfg {
+                log_level: "warn".into(),
+                ..Default::default()
+            },
             ..Default::default()
         };
         let merged = ConfigLayers::new(base)
@@ -38,11 +47,17 @@ mod tests {
     fn tenant_overlay_wins_over_env() {
         let base = AncoraCfg::default();
         let env_overlay = AncoraCfg {
-            worker: WorkerCfg { concurrency: 2, ..Default::default() },
+            worker: WorkerCfg {
+                concurrency: 2,
+                ..Default::default()
+            },
             ..Default::default()
         };
         let tenant_overlay = AncoraCfg {
-            worker: WorkerCfg { concurrency: 16, ..Default::default() },
+            worker: WorkerCfg {
+                concurrency: 16,
+                ..Default::default()
+            },
             ..Default::default()
         };
         let merged = ConfigLayers::new(base)

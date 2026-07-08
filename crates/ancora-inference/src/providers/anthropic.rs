@@ -67,7 +67,9 @@ mod tests {
 
     #[test]
     fn anthropic_recorded_fixture_completes() {
-        let resp = client().parse_response(FIXTURE_CHAT, "claude-sonnet-4-6").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_CHAT, "claude-sonnet-4-6")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Anthropic");
         assert_eq!(resp.tokens_in, 12);
         assert_eq!(resp.tokens_out, 4);
@@ -75,7 +77,9 @@ mod tests {
 
     #[test]
     fn anthropic_cost_computed_from_profile_pricing() {
-        let resp = client().parse_response(FIXTURE_CHAT, "claude-sonnet-4-6").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_CHAT, "claude-sonnet-4-6")
+            .unwrap();
         // 12 * $3.0/M + 4 * $15.0/M
         let expected = 12.0 * 3.0 / 1_000_000.0 + 4.0 * 15.0 / 1_000_000.0;
         let cost = resp.cost_usd.expect("cost must be Some for priced model");
@@ -114,7 +118,9 @@ mod tests {
 
     #[test]
     fn anthropic_tool_call_parsed_from_fixture() {
-        let resp = client().parse_response(FIXTURE_TOOL_CALL, "claude-sonnet-4-6").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_TOOL_CALL, "claude-sonnet-4-6")
+            .unwrap();
         assert_eq!(resp.tool_calls.len(), 1);
         let tc = &resp.tool_calls[0];
         assert_eq!(tc.id, "toolu_01XYZ");
@@ -124,7 +130,9 @@ mod tests {
 
     #[test]
     fn anthropic_tool_call_content_is_empty() {
-        let resp = client().parse_response(FIXTURE_TOOL_CALL, "claude-sonnet-4-6").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE_TOOL_CALL, "claude-sonnet-4-6")
+            .unwrap();
         assert!(resp.content.is_empty());
     }
 

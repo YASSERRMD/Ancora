@@ -68,7 +68,11 @@ const EXPECTED_TEST_MODULES: &[&str] = &[
 
 #[test]
 fn test_expected_module_count_at_least_57() {
-    assert!(EXPECTED_TEST_MODULES.len() >= 57, "expected >= 57 modules, got {}", EXPECTED_TEST_MODULES.len());
+    assert!(
+        EXPECTED_TEST_MODULES.len() >= 57,
+        "expected >= 57 modules, got {}",
+        EXPECTED_TEST_MODULES.len()
+    );
 }
 
 #[test]
@@ -76,30 +80,46 @@ fn test_no_duplicate_module_names() {
     let mut sorted = EXPECTED_TEST_MODULES.to_vec();
     sorted.sort();
     sorted.dedup();
-    assert_eq!(sorted.len(), EXPECTED_TEST_MODULES.len(), "duplicate module names found");
+    assert_eq!(
+        sorted.len(),
+        EXPECTED_TEST_MODULES.len(),
+        "duplicate module names found"
+    );
 }
 
 #[test]
 fn test_all_module_names_are_snake_case() {
     for name in EXPECTED_TEST_MODULES {
-        assert!(name.chars().all(|c| c.is_ascii_lowercase() || c == '_'), "not snake_case: {name}");
+        assert!(
+            name.chars().all(|c| c.is_ascii_lowercase() || c == '_'),
+            "not snake_case: {name}"
+        );
     }
 }
 
 #[test]
 fn test_det_suite_has_19_modules() {
-    let det: Vec<&&str> = EXPECTED_TEST_MODULES.iter().filter(|n| n.starts_with("det_")).collect();
+    let det: Vec<&&str> = EXPECTED_TEST_MODULES
+        .iter()
+        .filter(|n| n.starts_with("det_"))
+        .collect();
     assert_eq!(det.len(), 19);
 }
 
 #[test]
 fn test_sec_suite_has_11_modules() {
-    let sec: Vec<&&str> = EXPECTED_TEST_MODULES.iter().filter(|n| n.starts_with("sec_")).collect();
+    let sec: Vec<&&str> = EXPECTED_TEST_MODULES
+        .iter()
+        .filter(|n| n.starts_with("sec_"))
+        .collect();
     assert_eq!(sec.len(), 11);
 }
 
 #[test]
 fn test_policy_suite_has_8_modules() {
-    let pol: Vec<&&str> = EXPECTED_TEST_MODULES.iter().filter(|n| n.starts_with("policy_")).collect();
+    let pol: Vec<&&str> = EXPECTED_TEST_MODULES
+        .iter()
+        .filter(|n| n.starts_with("policy_"))
+        .collect();
     assert_eq!(pol.len(), 8);
 }

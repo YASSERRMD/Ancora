@@ -35,7 +35,7 @@ fn span_attributes_are_readable_after_end() {
 
 #[test]
 fn multiple_spans_accumulate_independently() {
-    let mut root    = Span::new("root");
+    let mut root = Span::new("root");
     let mut child_a = Span::new("child-a");
     let mut child_b = Span::new("child-b");
 
@@ -57,6 +57,6 @@ fn multiple_spans_accumulate_independently() {
 #[test]
 fn cost_estimate_scales_with_text_length() {
     let short = TokenEstimator::estimate_tokens("hello");
-    let long  = TokenEstimator::estimate_tokens("hello world, how are you doing today?");
+    let long = TokenEstimator::estimate_tokens("hello world, how are you doing today?");
     assert!(long > short);
 }

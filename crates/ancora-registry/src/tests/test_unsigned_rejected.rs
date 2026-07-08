@@ -19,7 +19,12 @@ fn strict_registry_with_key() -> (RegistryService, String) {
 #[test]
 fn unsigned_entry_rejected_in_strict_mode() {
     let (mut svc, _) = strict_registry_with_key();
-    let entry = PublishEntry::new("signed-tool", Version::new(1, 0, 0), b"data".to_vec(), "alice");
+    let entry = PublishEntry::new(
+        "signed-tool",
+        Version::new(1, 0, 0),
+        b"data".to_vec(),
+        "alice",
+    );
     let err = svc.publish(entry).unwrap_err();
     assert_eq!(err, PublishError::MissingSignature);
 }
@@ -27,8 +32,13 @@ fn unsigned_entry_rejected_in_strict_mode() {
 #[test]
 fn entry_with_wrong_signature_rejected() {
     let (mut svc, _) = strict_registry_with_key();
-    let entry = PublishEntry::new("signed-tool", Version::new(1, 0, 0), b"data".to_vec(), "alice")
-        .with_signature("wrong-sig");
+    let entry = PublishEntry::new(
+        "signed-tool",
+        Version::new(1, 0, 0),
+        b"data".to_vec(),
+        "alice",
+    )
+    .with_signature("wrong-sig");
     let err = svc.publish(entry).unwrap_err();
     assert_eq!(err, PublishError::InvalidSignature);
 }
@@ -36,7 +46,13 @@ fn entry_with_wrong_signature_rejected() {
 #[test]
 fn entry_with_correct_signature_accepted() {
     let (mut svc, expected_sig) = strict_registry_with_key();
-    let entry = PublishEntry::new("signed-tool", Version::new(1, 0, 0), b"data".to_vec(), "alice")
-        .with_signature(expected_sig);
-    svc.publish(entry).expect("valid signature should be accepted");
+    let entry = PublishEntry::new(
+        "signed-tool",
+        Version::new(1, 0, 0),
+        b"data".to_vec(),
+        "alice",
+    )
+    .with_signature(expected_sig);
+    svc.publish(entry)
+        .expect("valid signature should be accepted");
 }

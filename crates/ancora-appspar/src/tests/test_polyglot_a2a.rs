@@ -10,7 +10,9 @@ fn full_router_has_all_languages() {
 #[test]
 fn dispatch_go_to_python() {
     let router = full_router();
-    let msg = router.dispatch(&Language::Go, &Language::Python, "ping").unwrap();
+    let msg = router
+        .dispatch(&Language::Go, &Language::Python, "ping")
+        .unwrap();
     assert_eq!(msg.from_language, "go");
     assert_eq!(msg.to_language, "python");
     assert_eq!(msg.payload, "ping");
@@ -20,7 +22,9 @@ fn dispatch_go_to_python() {
 #[test]
 fn dispatch_rust_to_java() {
     let router = full_router();
-    let msg = router.dispatch(&Language::Rust, &Language::Java, "hello").unwrap();
+    let msg = router
+        .dispatch(&Language::Rust, &Language::Java, "hello")
+        .unwrap();
     assert_eq!(msg.from_language, "rust");
     assert_eq!(msg.to_language, "java");
 }
@@ -28,7 +32,9 @@ fn dispatch_rust_to_java() {
 #[test]
 fn dispatch_rejects_empty_payload() {
     let router = full_router();
-    let err = router.dispatch(&Language::Go, &Language::Python, "").unwrap_err();
+    let err = router
+        .dispatch(&Language::Go, &Language::Python, "")
+        .unwrap_err();
     assert_eq!(err, RouterError::EmptyPayload);
 }
 
@@ -36,16 +42,25 @@ fn dispatch_rejects_empty_payload() {
 fn dispatch_rejects_unknown_target() {
     let mut router = PolyglotRouter::new();
     router.register(Language::Go, "in-process://go");
-    let err = router.dispatch(&Language::Go, &Language::Python, "msg").unwrap_err();
-    assert_eq!(err, RouterError::NoEndpointForLanguage("python".to_string()));
+    let err = router
+        .dispatch(&Language::Go, &Language::Python, "msg")
+        .unwrap_err();
+    assert_eq!(
+        err,
+        RouterError::NoEndpointForLanguage("python".to_string())
+    );
 }
 
 #[test]
 fn all_language_pairs_can_dispatch() {
     let router = full_router();
     let langs = [
-        Language::Go, Language::Python, Language::TypeScript,
-        Language::DotNet, Language::Java, Language::Rust,
+        Language::Go,
+        Language::Python,
+        Language::TypeScript,
+        Language::DotNet,
+        Language::Java,
+        Language::Rust,
     ];
     for from in &langs {
         for to in &langs {

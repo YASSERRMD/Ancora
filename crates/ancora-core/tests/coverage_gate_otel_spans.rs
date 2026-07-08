@@ -10,12 +10,12 @@ const OTEL_REQUIRED_FIELDS: &[&str] = &[
 ];
 
 const OTEL_TEST_MAP: &[(&str, &str)] = &[
-    ("trace_id",       "det_otel_replay"),
-    ("span_id",        "det_otel_replay"),
+    ("trace_id", "det_otel_replay"),
+    ("span_id", "det_otel_replay"),
     ("parent_span_id", "det_otel_replay"),
-    ("operation",      "xlang_otel_parity"),
-    ("lang",           "xlang_otel_parity"),
-    ("status",         "xlang_otel_parity"),
+    ("operation", "xlang_otel_parity"),
+    ("lang", "xlang_otel_parity"),
+    ("status", "xlang_otel_parity"),
 ];
 
 const TRACE_ID_VALUE: &str = "0af7651916cd43dd8448eb211c80319c";
@@ -24,7 +24,10 @@ const TRACE_ID_VALUE: &str = "0af7651916cd43dd8448eb211c80319c";
 fn test_all_otel_fields_have_coverage() {
     let covered: Vec<&str> = OTEL_TEST_MAP.iter().map(|(f, _)| *f).collect();
     for field in OTEL_REQUIRED_FIELDS {
-        assert!(covered.contains(field), "no OTel coverage for field: {field}");
+        assert!(
+            covered.contains(field),
+            "no OTel coverage for field: {field}"
+        );
     }
 }
 
@@ -46,7 +49,8 @@ fn test_trace_id_is_hex() {
 
 #[test]
 fn test_det_otel_replay_covers_trace_and_span() {
-    let det_coverage: Vec<&str> = OTEL_TEST_MAP.iter()
+    let det_coverage: Vec<&str> = OTEL_TEST_MAP
+        .iter()
         .filter(|(_, t)| *t == "det_otel_replay")
         .map(|(f, _)| *f)
         .collect();

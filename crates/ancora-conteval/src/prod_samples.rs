@@ -63,7 +63,10 @@ impl ProdSample {
 
     /// Returns true if this sample is safe for evaluation.
     pub fn is_eval_safe(&self) -> bool {
-        matches!(self.sensitivity, Sensitivity::Public | Sensitivity::Redacted)
+        matches!(
+            self.sensitivity,
+            Sensitivity::Public | Sensitivity::Redacted
+        )
     }
 }
 
@@ -75,7 +78,9 @@ pub struct ProdEvalSet {
 
 impl ProdEvalSet {
     pub fn new() -> Self {
-        ProdEvalSet { samples: Vec::new() }
+        ProdEvalSet {
+            samples: Vec::new(),
+        }
     }
 
     /// Add a sample to the set. Returns an error if the sample contains

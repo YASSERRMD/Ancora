@@ -13,7 +13,9 @@ pub struct InMemoryStore {
 
 impl InMemoryStore {
     pub fn new() -> Self {
-        Self { data: Mutex::new(HashMap::new()) }
+        Self {
+            data: Mutex::new(HashMap::new()),
+        }
     }
 }
 
@@ -25,7 +27,12 @@ impl Default for InMemoryStore {
 
 impl Memory for InMemoryStore {
     fn write(&self, scope: &Scope, entry: MemoryEntry) {
-        self.data.lock().unwrap().entry(scope.clone()).or_default().push(entry);
+        self.data
+            .lock()
+            .unwrap()
+            .entry(scope.clone())
+            .or_default()
+            .push(entry);
     }
 
     fn read(&self, scope: &Scope, tier: Option<MemoryTier>) -> Vec<MemoryEntry> {

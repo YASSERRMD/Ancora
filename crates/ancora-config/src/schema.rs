@@ -34,7 +34,10 @@ pub struct JournalCfg {
 
 impl Default for JournalCfg {
     fn default() -> Self {
-        Self { flush_interval_ms: 500, max_entries_per_batch: 256 }
+        Self {
+            flush_interval_ms: 500,
+            max_entries_per_batch: 256,
+        }
     }
 }
 

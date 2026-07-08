@@ -1,5 +1,5 @@
 use crate::classification::DataClass;
-use crate::span_policy::{SpanPolicy, apply_span_policy};
+use crate::span_policy::{apply_span_policy, SpanPolicy};
 
 #[test]
 fn pii_attributes_not_in_exported_span() {

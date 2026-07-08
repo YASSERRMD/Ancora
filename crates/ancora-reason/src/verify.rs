@@ -12,10 +12,7 @@ pub struct VerificationResult {
 pub struct StepVerifier;
 
 impl StepVerifier {
-    pub fn verify<F: Fn(&str) -> bool>(
-        step: &mut ReasoningStep,
-        checker: F,
-    ) -> VerificationResult {
+    pub fn verify<F: Fn(&str) -> bool>(step: &mut ReasoningStep, checker: F) -> VerificationResult {
         let passed = checker(&step.claim);
         step.status = if passed {
             StepStatus::Verified

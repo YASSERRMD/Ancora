@@ -14,8 +14,14 @@ pub struct FeedbackMetrics {
 /// Aggregate a slice of feedback records into summary metrics.
 pub fn aggregate(feedback: &[Feedback]) -> FeedbackMetrics {
     let total = feedback.len();
-    let thumbs_up = feedback.iter().filter(|f| f.rating == ThumbsRating::Up).count();
-    let thumbs_down = feedback.iter().filter(|f| f.rating == ThumbsRating::Down).count();
+    let thumbs_up = feedback
+        .iter()
+        .filter(|f| f.rating == ThumbsRating::Up)
+        .count();
+    let thumbs_down = feedback
+        .iter()
+        .filter(|f| f.rating == ThumbsRating::Down)
+        .count();
     let with_comment = feedback.iter().filter(|f| f.comment.is_some()).count();
     let approval_rate = if total == 0 {
         None
@@ -33,8 +39,11 @@ pub fn aggregate(feedback: &[Feedback]) -> FeedbackMetrics {
 }
 
 /// Aggregate feedback grouped by run ID.
-pub fn aggregate_by_run(feedback: &[Feedback]) -> std::collections::HashMap<String, FeedbackMetrics> {
-    let mut by_run: std::collections::HashMap<String, Vec<&Feedback>> = std::collections::HashMap::new();
+pub fn aggregate_by_run(
+    feedback: &[Feedback],
+) -> std::collections::HashMap<String, FeedbackMetrics> {
+    let mut by_run: std::collections::HashMap<String, Vec<&Feedback>> =
+        std::collections::HashMap::new();
     for f in feedback {
         by_run.entry(f.run_id.clone()).or_default().push(f);
     }
@@ -55,7 +64,15 @@ mod tests {
     #[test]
     fn aggregation_correct() {
         let feedback = vec![
-            Feedback::new("f1", "r1", None, ThumbsRating::Up, Some("great".into()), "alice", 0),
+            Feedback::new(
+                "f1",
+                "r1",
+                None,
+                ThumbsRating::Up,
+                Some("great".into()),
+                "alice",
+                0,
+            ),
             Feedback::new("f2", "r1", None, ThumbsRating::Down, None, "bob", 1),
             Feedback::new("f3", "r1", None, ThumbsRating::Up, None, "carol", 2),
         ];

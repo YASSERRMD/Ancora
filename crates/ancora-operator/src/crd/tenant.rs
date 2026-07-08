@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::crd::cluster::ObjectMeta;
+use serde::{Deserialize, Serialize};
 
 /// AncoraTenant CRD: defines an isolated tenant within a cluster.
 #[derive(Debug, Clone, Serialize, Deserialize)]

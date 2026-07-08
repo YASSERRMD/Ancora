@@ -26,20 +26,20 @@ struct CountActivity {
 }
 
 impl Activity for CountActivity {
-    fn key(&self) -> String { self.key.clone() }
+    fn key(&self) -> String {
+        self.key.clone()
+    }
     fn execute(&self) -> Result<String, AncoraError> {
         self.counter.fetch_add(1, Ordering::SeqCst);
         Ok(r#"{"done":true}"#.into())
     }
 }
 
-fn do_activity(
-    store: &dyn JournalStore,
-    run_id: &str,
-    key: &str,
-    counter: &Arc<AtomicUsize>,
-) {
-    let act = CountActivity { key: key.into(), counter: Arc::clone(counter) };
+fn do_activity(store: &dyn JournalStore, run_id: &str, key: &str, counter: &Arc<AtomicUsize>) {
+    let act = CountActivity {
+        key: key.into(),
+        counter: Arc::clone(counter),
+    };
     let wa = WriteActivity::new(&act).unwrap();
     let _ = write_once(run_id, wa, store);
 }
@@ -47,12 +47,7 @@ fn do_activity(
 /// Run all activities for a given `run_id` using the shared store.
 /// Simulates a full run attempt that may be starting from an arbitrary
 /// mid-run state already in the journal.
-fn run_all(
-    store: &dyn JournalStore,
-    run_id: &str,
-    keys: &[&str],
-    counters: &[Arc<AtomicUsize>],
-) {
+fn run_all(store: &dyn JournalStore, run_id: &str, keys: &[&str], counters: &[Arc<AtomicUsize>]) {
     for (key, counter) in keys.iter().zip(counters.iter()) {
         do_activity(store, run_id, key, counter);
     }
@@ -67,9 +62,8 @@ fn crash_at_every_position_yields_exactly_one_execution() {
     for crash_after in 0..=n {
         let store = MemoryStore::new();
         let run_id = "chaos-dup";
-        let counters: Vec<Arc<AtomicUsize>> = (0..n)
-            .map(|_| Arc::new(AtomicUsize::new(0)))
-            .collect();
+        let counters: Vec<Arc<AtomicUsize>> =
+            (0..n).map(|_| Arc::new(AtomicUsize::new(0))).collect();
 
         // First run: execute `crash_after` activities then "crash".
         for (i, key) in key_strs.iter().enumerate().take(crash_after) {
@@ -82,9 +76,12 @@ fn crash_at_every_position_yields_exactly_one_execution() {
         // Every activity must have executed exactly once.
         for (i, c) in counters.iter().enumerate() {
             assert_eq!(
-                c.load(Ordering::SeqCst), 1,
+                c.load(Ordering::SeqCst),
+                1,
                 "crash_after={}: activity {} executed {} times (expected 1)",
-                crash_after, i, c.load(Ordering::SeqCst)
+                crash_after,
+                i,
+                c.load(Ordering::SeqCst)
             );
         }
     }
@@ -95,9 +92,7 @@ fn repeated_resumes_do_not_increase_effect_count() {
     let store = MemoryStore::new();
     let run_id = "multi-resume";
     let keys = ["k1", "k2", "k3"];
-    let counters: Vec<Arc<AtomicUsize>> = (0..3)
-        .map(|_| Arc::new(AtomicUsize::new(0)))
-        .collect();
+    let counters: Vec<Arc<AtomicUsize>> = (0..3).map(|_| Arc::new(AtomicUsize::new(0))).collect();
 
     // Simulate 10 resume attempts.
     for _ in 0..10 {
@@ -106,8 +101,10 @@ fn repeated_resumes_do_not_increase_effect_count() {
 
     for (i, c) in counters.iter().enumerate() {
         assert_eq!(
-            c.load(Ordering::SeqCst), 1,
-            "activity {} must execute exactly once across 10 resume attempts", i
+            c.load(Ordering::SeqCst),
+            1,
+            "activity {} must execute exactly once across 10 resume attempts",
+            i
         );
     }
 }
@@ -134,7 +131,10 @@ impl JournalStore for SeqFaultyStore {
         let seq = self.total_appends.fetch_add(1, Ordering::SeqCst);
         let fail = self.fail_at_seq.lock().unwrap().contains(&seq);
         if fail {
-            return Err(AncoraError::Storage(format!("injected failure at seq {}", seq)));
+            return Err(AncoraError::Storage(format!(
+                "injected failure at seq {}",
+                seq
+            )));
         }
         self.inner.append(run_id, event)
     }
@@ -151,9 +151,7 @@ fn targeted_append_failures_cause_at_most_one_re_execution() {
     let store = SeqFaultyStore::new(vec![0, 2]);
     let run_id = "seq-faulty-run";
     let n = 4usize;
-    let counters: Vec<Arc<AtomicUsize>> = (0..n)
-        .map(|_| Arc::new(AtomicUsize::new(0)))
-        .collect();
+    let counters: Vec<Arc<AtomicUsize>> = (0..n).map(|_| Arc::new(AtomicUsize::new(0))).collect();
     let keys: Vec<String> = (0..n).map(|i| format!("key-{}", i)).collect();
 
     // First pass: some appends fail.
@@ -172,7 +170,9 @@ fn targeted_append_failures_cause_at_most_one_re_execution() {
         let count = c.load(Ordering::SeqCst);
         assert!(
             count >= 1 && count <= 2,
-            "activity {} executed {} times -- expected 1 or 2 (at most one retry)", i, count
+            "activity {} executed {} times -- expected 1 or 2 (at most one retry)",
+            i,
+            count
         );
     }
 }

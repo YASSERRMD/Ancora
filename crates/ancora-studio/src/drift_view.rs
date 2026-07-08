@@ -42,7 +42,10 @@ pub struct DriftView {
 
 impl DriftView {
     pub fn new(points: Vec<DriftPoint>, quality_metrics: Vec<QualityMetric>) -> Self {
-        Self { points, quality_metrics }
+        Self {
+            points,
+            quality_metrics,
+        }
     }
 
     pub fn points_for_metric(&self, metric: &str) -> Vec<&DriftPoint> {

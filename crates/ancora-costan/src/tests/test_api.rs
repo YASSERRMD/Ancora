@@ -90,5 +90,8 @@ fn api_suggestions_generated() {
         a.ingest(make_event(i * 100, 10.0, "claude-opus", "anthropic"));
     }
     let suggestions = a.generate_suggestions();
-    assert!(!suggestions.is_empty(), "should generate at least one suggestion");
+    assert!(
+        !suggestions.is_empty(),
+        "should generate at least one suggestion"
+    );
 }

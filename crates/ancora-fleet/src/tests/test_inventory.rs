@@ -24,8 +24,9 @@ fn test_inventory_accurate() {
 fn test_inventory_summary() {
     let mut inv = FleetInventory::new();
     for i in 0..4 {
-        let record = DeviceInventory::new(DeviceId::new(format!("dev-{}", i)), format!("host-{}", i))
-            .with_resources(4, 8192, 256);
+        let record =
+            DeviceInventory::new(DeviceId::new(format!("dev-{}", i)), format!("host-{}", i))
+                .with_resources(4, 8192, 256);
         inv.update(record);
     }
     let summary = inv.summary();
@@ -38,7 +39,8 @@ fn test_inventory_summary() {
 fn test_inventory_devices_with_model() {
     let mut inv = FleetInventory::new();
     for i in 0..3 {
-        let mut record = DeviceInventory::new(DeviceId::new(format!("dev-{}", i)), format!("h{}", i));
+        let mut record =
+            DeviceInventory::new(DeviceId::new(format!("dev-{}", i)), format!("h{}", i));
         if i < 2 {
             record.add_model("llm-tiny");
         }

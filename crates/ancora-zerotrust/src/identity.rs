@@ -51,7 +51,12 @@ pub struct Identity {
 }
 
 impl Identity {
-    pub fn new(id: impl Into<String>, tenant_id: impl Into<String>, kind: IdentityKind, tick: u64) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        tenant_id: impl Into<String>,
+        kind: IdentityKind,
+        tick: u64,
+    ) -> Self {
         Self {
             id: id.into(),
             tenant_id: tenant_id.into(),
@@ -63,12 +68,23 @@ impl Identity {
         }
     }
 
-    pub fn add_group(&mut self, group: impl Into<String>) { self.groups.push(group.into()); }
-    pub fn suspend(&mut self) { self.status = IdentityStatus::Suspended; }
-    pub fn revoke(&mut self) { self.status = IdentityStatus::Revoked; }
-    pub fn is_active(&self) -> bool { self.status == IdentityStatus::Active }
-    pub fn in_group(&self, group: &str) -> bool { self.groups.contains(&group.to_string()) }
+    pub fn add_group(&mut self, group: impl Into<String>) {
+        self.groups.push(group.into());
+    }
+    pub fn suspend(&mut self) {
+        self.status = IdentityStatus::Suspended;
+    }
+    pub fn revoke(&mut self) {
+        self.status = IdentityStatus::Revoked;
+    }
+    pub fn is_active(&self) -> bool {
+        self.status == IdentityStatus::Active
+    }
+    pub fn in_group(&self, group: &str) -> bool {
+        self.groups.contains(&group.to_string())
+    }
     pub fn with_metadata(mut self, k: impl Into<String>, v: impl Into<String>) -> Self {
-        self.metadata.insert(k.into(), v.into()); self
+        self.metadata.insert(k.into(), v.into());
+        self
     }
 }

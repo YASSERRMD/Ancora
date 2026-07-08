@@ -10,7 +10,9 @@ fn make_skill(name: &str) -> SkillDescriptor {
 fn jit_loading_bounds_context() {
     let mut loader = JitLoader::new();
     let mut registry = SkillRegistry::default();
-    loader.load_on_demand(&mut registry, make_skill("lazy_skill")).unwrap();
+    loader
+        .load_on_demand(&mut registry, make_skill("lazy_skill"))
+        .unwrap();
     assert!(loader.is_loaded("lazy_skill"));
     assert!(registry.find("lazy_skill").is_some());
 }
@@ -19,8 +21,12 @@ fn jit_loading_bounds_context() {
 fn jit_duplicate_load_is_idempotent() {
     let mut loader = JitLoader::new();
     let mut registry = SkillRegistry::default();
-    loader.load_on_demand(&mut registry, make_skill("once")).unwrap();
-    loader.load_on_demand(&mut registry, make_skill("once")).unwrap();
+    loader
+        .load_on_demand(&mut registry, make_skill("once"))
+        .unwrap();
+    loader
+        .load_on_demand(&mut registry, make_skill("once"))
+        .unwrap();
     assert_eq!(loader.loaded_count(), 1);
 }
 

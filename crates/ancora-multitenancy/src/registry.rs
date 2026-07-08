@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::tenant::{Tenant, TenantConfig, TenantId, TenantState};
 use crate::error::TenantError;
+use crate::tenant::{Tenant, TenantConfig, TenantId, TenantState};
+use std::collections::HashMap;
 
 /// In-memory store of all tenants. In production this would back onto the journal store.
 #[derive(Default)]
@@ -25,13 +25,19 @@ impl TenantRegistry {
     }
 
     pub fn suspend(&mut self, id: &TenantId) -> Result<(), TenantError> {
-        let t = self.tenants.get_mut(id).ok_or(TenantError::NotFound(id.0.clone()))?;
+        let t = self
+            .tenants
+            .get_mut(id)
+            .ok_or(TenantError::NotFound(id.0.clone()))?;
         t.state = TenantState::Suspended;
         Ok(())
     }
 
     pub fn delete(&mut self, id: &TenantId) -> Result<(), TenantError> {
-        let t = self.tenants.get_mut(id).ok_or(TenantError::NotFound(id.0.clone()))?;
+        let t = self
+            .tenants
+            .get_mut(id)
+            .ok_or(TenantError::NotFound(id.0.clone()))?;
         t.state = TenantState::Deleted;
         Ok(())
     }

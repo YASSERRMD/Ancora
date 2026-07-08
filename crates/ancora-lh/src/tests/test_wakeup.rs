@@ -1,4 +1,4 @@
-use crate::wakeup::{ScheduledWakeup, EventWakeup};
+use crate::wakeup::{EventWakeup, ScheduledWakeup};
 
 #[test]
 fn scheduled_wakeup_fires_at_tick() {

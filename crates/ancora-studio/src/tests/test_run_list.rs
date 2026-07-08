@@ -1,4 +1,4 @@
-use crate::run_list::{RunList, RunSummary, RunStatus, RunListFilter};
+use crate::run_list::{RunList, RunListFilter, RunStatus, RunSummary};
 
 fn make_run(id: &str, status: RunStatus, label: &str) -> RunSummary {
     RunSummary {
@@ -28,7 +28,10 @@ fn test_run_list_search_by_label() {
         make_run("r1", RunStatus::Completed, "alpha"),
         make_run("r2", RunStatus::Completed, "beta"),
     ]);
-    let f = RunListFilter { query: "beta".into(), ..Default::default() };
+    let f = RunListFilter {
+        query: "beta".into(),
+        ..Default::default()
+    };
     let results = list.filter(&f);
     assert_eq!(results.len(), 1);
     assert_eq!(results[0].id, "r2");

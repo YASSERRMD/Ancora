@@ -1,4 +1,4 @@
-use ancora_guard::{InputGuardrail, InjectionInputGuardrail, GuardrailOutcome};
+use ancora_guard::{GuardrailOutcome, InjectionInputGuardrail, InputGuardrail};
 
 #[test]
 fn injection_attack_blocked() {

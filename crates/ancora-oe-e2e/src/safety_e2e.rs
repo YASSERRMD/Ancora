@@ -87,9 +87,29 @@ impl SafetyMonitor {
 /// Build a default safety monitor for testing.
 pub fn default_safety_monitor() -> SafetyMonitor {
     let mut monitor = SafetyMonitor::new();
-    monitor.add_rule(KeywordRule::new("S001", "bomb", Severity::Critical, "Violence keyword"));
-    monitor.add_rule(KeywordRule::new("S002", "hack", Severity::High, "Security keyword"));
-    monitor.add_rule(KeywordRule::new("S003", "spam", Severity::Medium, "Spam keyword"));
-    monitor.add_rule(KeywordRule::new("S004", "advertisement", Severity::Low, "Promotional content"));
+    monitor.add_rule(KeywordRule::new(
+        "S001",
+        "bomb",
+        Severity::Critical,
+        "Violence keyword",
+    ));
+    monitor.add_rule(KeywordRule::new(
+        "S002",
+        "hack",
+        Severity::High,
+        "Security keyword",
+    ));
+    monitor.add_rule(KeywordRule::new(
+        "S003",
+        "spam",
+        Severity::Medium,
+        "Spam keyword",
+    ));
+    monitor.add_rule(KeywordRule::new(
+        "S004",
+        "advertisement",
+        Severity::Low,
+        "Promotional content",
+    ));
     monitor
 }

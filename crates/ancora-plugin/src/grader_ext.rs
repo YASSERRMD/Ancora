@@ -74,7 +74,10 @@ pub struct LengthRatioGrader {
 
 impl LengthRatioGrader {
     pub fn new(id: impl Into<String>, threshold: f32) -> Self {
-        Self { id: id.into(), threshold: threshold.clamp(0.0, 1.0) }
+        Self {
+            id: id.into(),
+            threshold: threshold.clamp(0.0, 1.0),
+        }
     }
 }
 

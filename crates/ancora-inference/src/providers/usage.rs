@@ -11,7 +11,11 @@ pub struct UsageSummary {
 }
 
 impl UsageSummary {
-    pub fn from_response(provider: impl Into<String>, model_id: impl Into<String>, resp: &CompletionResponse) -> Self {
+    pub fn from_response(
+        provider: impl Into<String>,
+        model_id: impl Into<String>,
+        resp: &CompletionResponse,
+    ) -> Self {
         Self {
             provider: provider.into(),
             model_id: model_id.into(),
@@ -72,8 +76,8 @@ mod tests {
 
     #[test]
     fn cost_summary_correct_for_openai_fixture() {
-        use crate::providers::openai::build_openai_profile;
         use crate::openai::OpenAiClient;
+        use crate::providers::openai::build_openai_profile;
         use std::sync::Arc;
         const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"hi","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":8,"completion_tokens":4}}"#;
         let client = OpenAiClient::new(Arc::new(build_openai_profile()));
@@ -86,15 +90,18 @@ mod tests {
 
     #[test]
     fn cost_summary_correct_for_azure_fixture() {
-        use crate::providers::azure::build_azure_profile;
         use crate::openai::OpenAiClient;
+        use crate::providers::azure::build_azure_profile;
         use std::sync::Arc;
         const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"ok","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":5,"completion_tokens":2}}"#;
         let client = OpenAiClient::new(Arc::new(build_azure_profile("r", "dep", "2024-02-01")));
         let resp = client.parse_response(FIXTURE, "dep").unwrap();
         let summary = UsageSummary::from_response("azure-openai", "dep", &resp);
         // Azure deployment has no pricing metadata -> cost is None
-        assert!(summary.cost_usd.is_none(), "Azure profile has no pricing so cost should be None");
+        assert!(
+            summary.cost_usd.is_none(),
+            "Azure profile has no pricing so cost should be None"
+        );
     }
 
     #[test]
@@ -109,8 +116,8 @@ mod tests {
 
     #[test]
     fn cost_summary_correct_for_stepfun_fixture() {
-        use crate::providers::stepfun::build_stepfun_profile;
         use crate::openai::OpenAiClient;
+        use crate::providers::stepfun::build_stepfun_profile;
         use std::sync::Arc;
         const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"step","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":5}}"#;
         let client = OpenAiClient::new(Arc::new(build_stepfun_profile()));
@@ -123,8 +130,8 @@ mod tests {
 
     #[test]
     fn cost_summary_correct_for_ernie_fixture() {
-        use crate::providers::ernie::build_ernie_profile;
         use crate::openai::OpenAiClient;
+        use crate::providers::ernie::build_ernie_profile;
         use std::sync::Arc;
         const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"ernie","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":3}}"#;
         let client = OpenAiClient::new(Arc::new(build_ernie_profile()));
@@ -137,8 +144,8 @@ mod tests {
 
     #[test]
     fn cost_summary_correct_for_hunyuan_fixture() {
-        use crate::providers::hunyuan::build_hunyuan_profile;
         use crate::openai::OpenAiClient;
+        use crate::providers::hunyuan::build_hunyuan_profile;
         use std::sync::Arc;
         const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"hunyuan","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":11,"completion_tokens":5}}"#;
         let client = OpenAiClient::new(Arc::new(build_hunyuan_profile()));
@@ -151,12 +158,14 @@ mod tests {
 
     #[test]
     fn cost_summary_correct_for_doubao_fixture() {
-        use crate::providers::doubao::build_doubao_profile;
         use crate::openai::OpenAiClient;
+        use crate::providers::doubao::build_doubao_profile;
         use std::sync::Arc;
         const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"doubao","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":4}}"#;
         let client = OpenAiClient::new(Arc::new(build_doubao_profile()));
-        let response = client.parse_response(FIXTURE, "doubao-1.5-lite-32k").unwrap();
+        let response = client
+            .parse_response(FIXTURE, "doubao-1.5-lite-32k")
+            .unwrap();
         let summary = UsageSummary::from_response("doubao", "doubao-1.5-lite-32k", &response);
         // doubao-lite: $0.01/M in + $0.03/M out
         let expected = 12.0 * 0.01 / 1_000_000.0 + 4.0 * 0.03 / 1_000_000.0;
@@ -165,8 +174,8 @@ mod tests {
 
     #[test]
     fn cost_summary_correct_for_hunyuan_lite_free() {
-        use crate::providers::hunyuan::build_hunyuan_profile;
         use crate::openai::OpenAiClient;
+        use crate::providers::hunyuan::build_hunyuan_profile;
         use std::sync::Arc;
         const FIXTURE: &str = r#"{"choices":[{"message":{"role":"assistant","content":"free","tool_calls":[]},"finish_reason":"stop"}],"usage":{"prompt_tokens":20,"completion_tokens":10}}"#;
         let client = OpenAiClient::new(Arc::new(build_hunyuan_profile()));

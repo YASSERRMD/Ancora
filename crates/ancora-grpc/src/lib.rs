@@ -7,7 +7,7 @@ pub mod auth;
 pub mod client;
 pub mod handoff;
 pub mod identity;
-pub mod task;
 pub mod service;
 pub mod store;
+pub mod task;
 pub mod tls;

@@ -1,4 +1,4 @@
-use crate::timeline::{Timeline, TimelineStep, StepKind};
+use crate::timeline::{StepKind, Timeline, TimelineStep};
 
 fn make_step(index: usize, start_ms: u64, end_ms: u64, redacted: bool) -> TimelineStep {
     TimelineStep {
@@ -18,10 +18,7 @@ fn make_step(index: usize, start_ms: u64, end_ms: u64, redacted: bool) -> Timeli
 fn test_timeline_renders_a_run() {
     let tl = Timeline::new(
         "r1",
-        vec![
-            make_step(0, 0, 100, false),
-            make_step(1, 100, 250, false),
-        ],
+        vec![make_step(0, 0, 100, false), make_step(1, 100, 250, false)],
     );
     assert_eq!(tl.steps().len(), 2);
     assert_eq!(tl.total_duration_ms(), 250);
@@ -31,10 +28,7 @@ fn test_timeline_renders_a_run() {
 fn test_timeline_redacted_steps_hidden() {
     let tl = Timeline::new(
         "r1",
-        vec![
-            make_step(0, 0, 100, false),
-            make_step(1, 100, 200, true),
-        ],
+        vec![make_step(0, 0, 100, false), make_step(1, 100, 200, true)],
     );
     assert_eq!(tl.visible_steps().len(), 1);
 }
@@ -50,7 +44,10 @@ fn test_timeline_cost_sum() {
 
 #[test]
 fn test_timeline_step_at() {
-    let tl = Timeline::new("r1", vec![make_step(0, 0, 10, false), make_step(1, 10, 20, false)]);
+    let tl = Timeline::new(
+        "r1",
+        vec![make_step(0, 0, 10, false), make_step(1, 10, 20, false)],
+    );
     assert!(tl.step_at(1).is_some());
     assert!(tl.step_at(99).is_none());
 }

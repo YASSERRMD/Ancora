@@ -30,12 +30,16 @@ fn concurrent_runs_produce_unique_ids() {
 
     let ids = ids.lock().unwrap();
     let unique: HashSet<&String> = ids.iter().collect();
-    assert_eq!(ids.len(), unique.len(), "all concurrent run IDs must be distinct");
+    assert_eq!(
+        ids.len(),
+        unique.len(),
+        "all concurrent run IDs must be distinct"
+    );
 }
 
 #[test]
 fn primary_and_verifier_spec_are_different_instructions() {
-    let primary_instr  = "Produce an answer.";
+    let primary_instr = "Produce an answer.";
     let verifier_instr = "Verify the answer.";
     assert_ne!(primary_instr, verifier_instr);
 }

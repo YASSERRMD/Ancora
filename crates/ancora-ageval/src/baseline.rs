@@ -4,8 +4,14 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum BaselineResult {
-    Passed { score: f64 },
-    Regressed { expected: f64, actual: f64, delta: f64 },
+    Passed {
+        score: f64,
+    },
+    Regressed {
+        expected: f64,
+        actual: f64,
+        delta: f64,
+    },
     NoPrior,
 }
 

@@ -45,6 +45,10 @@ fn thermal_pressure_throughput_scale_range() {
     for v in 0u8..=3 {
         let p = ThermalPressure::from_u8(v);
         let scale = p.throughput_scale();
-        assert!(scale > 0.0 && scale <= 1.0, "scale out of range for {:?}", p);
+        assert!(
+            scale > 0.0 && scale <= 1.0,
+            "scale out of range for {:?}",
+            p
+        );
     }
 }

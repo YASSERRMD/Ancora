@@ -93,37 +93,21 @@ impl MultilingualSuite {
 
     pub fn default_catalog() -> Self {
         let cases = vec![
-            MultilingualCase::new(
-                "ml-001",
-                LanguageCode::new("en"),
-                "Say hello",
-                "hello",
-            ),
-            MultilingualCase::new(
-                "ml-002",
-                LanguageCode::new("es"),
-                "Di hola",
-                "hola",
-            ),
-            MultilingualCase::new(
-                "ml-003",
-                LanguageCode::new("fr"),
-                "Dis bonjour",
-                "bonjour",
-            ),
-            MultilingualCase::new(
-                "ml-004",
-                LanguageCode::new("de"),
-                "Sag hallo",
-                "hallo",
-            ),
+            MultilingualCase::new("ml-001", LanguageCode::new("en"), "Say hello", "hello"),
+            MultilingualCase::new("ml-002", LanguageCode::new("es"), "Di hola", "hola"),
+            MultilingualCase::new("ml-003", LanguageCode::new("fr"), "Dis bonjour", "bonjour"),
+            MultilingualCase::new("ml-004", LanguageCode::new("de"), "Sag hallo", "hallo"),
         ];
         Self::new(cases, LocalMultilingualResponder::default())
     }
 
     pub fn evaluate(&self, case: &MultilingualCase) -> MultilingualOutcome {
         match self.responder.respond(&case.language, &case.prompt) {
-            Some(resp) if resp.to_lowercase().contains(&case.expected_fragment.to_lowercase()) => {
+            Some(resp)
+                if resp
+                    .to_lowercase()
+                    .contains(&case.expected_fragment.to_lowercase()) =>
+            {
                 MultilingualOutcome::Correct
             }
             _ => MultilingualOutcome::IncorrectOrMissing,

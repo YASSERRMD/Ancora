@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::indicator::{Indicator, ThreatLevel};
+use std::collections::HashMap;
 
 pub struct ThreatIntelStats {
     pub tenant_id: String,
@@ -13,19 +13,38 @@ pub struct ThreatIntelStats {
 
 impl ThreatIntelStats {
     pub fn for_tenant(indicators: &[&Indicator], tenant_id: &str) -> Self {
-        let tenant: Vec<&&Indicator> = indicators.iter().filter(|i| i.tenant_id == tenant_id).collect();
+        let tenant: Vec<&&Indicator> = indicators
+            .iter()
+            .filter(|i| i.tenant_id == tenant_id)
+            .collect();
         let total_indicators = tenant.len();
         let active_indicators = tenant.iter().filter(|i| i.active).count();
-        let critical_count = tenant.iter().filter(|i| i.threat_level == ThreatLevel::Critical).count();
-        let high_count = tenant.iter().filter(|i| i.threat_level == ThreatLevel::High).count();
+        let critical_count = tenant
+            .iter()
+            .filter(|i| i.threat_level == ThreatLevel::Critical)
+            .count();
+        let high_count = tenant
+            .iter()
+            .filter(|i| i.threat_level == ThreatLevel::High)
+            .count();
         let mut by_kind = HashMap::new();
         let mut by_level = HashMap::new();
         for i in &tenant {
             *by_kind.entry(format!("{}", i.kind)).or_insert(0) += 1;
             *by_level.entry(format!("{}", i.threat_level)).or_insert(0) += 1;
         }
-        Self { tenant_id: tenant_id.to_string(), total_indicators, active_indicators, critical_count, high_count, by_kind, by_level }
+        Self {
+            tenant_id: tenant_id.to_string(),
+            total_indicators,
+            active_indicators,
+            critical_count,
+            high_count,
+            by_kind,
+            by_level,
+        }
     }
 
-    pub fn is_critical_free(&self) -> bool { self.critical_count == 0 }
+    pub fn is_critical_free(&self) -> bool {
+        self.critical_count == 0
+    }
 }

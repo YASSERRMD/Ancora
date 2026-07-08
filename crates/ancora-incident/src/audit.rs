@@ -64,14 +64,30 @@ pub struct IncidentAuditLog {
 }
 
 impl IncidentAuditLog {
-    pub fn new() -> Self { Self { entries: VecDeque::new() } }
-    pub fn record(&mut self, entry: IncidentAuditEntry) { self.entries.push_back(entry); }
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn new() -> Self {
+        Self {
+            entries: VecDeque::new(),
+        }
+    }
+    pub fn record(&mut self, entry: IncidentAuditEntry) {
+        self.entries.push_back(entry);
+    }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn for_incident<'a>(&'a self, incident_id: &str) -> Vec<&'a IncidentAuditEntry> {
-        self.entries.iter().filter(|e| e.incident_id == incident_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.incident_id == incident_id)
+            .collect()
     }
     pub fn for_tenant<'a>(&'a self, tenant_id: &str) -> Vec<&'a IncidentAuditEntry> {
-        self.entries.iter().filter(|e| e.tenant_id == tenant_id).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.tenant_id == tenant_id)
+            .collect()
     }
-    pub fn all(&self) -> impl Iterator<Item = &IncidentAuditEntry> { self.entries.iter() }
+    pub fn all(&self) -> impl Iterator<Item = &IncidentAuditEntry> {
+        self.entries.iter()
+    }
 }

@@ -8,7 +8,9 @@ pub fn build_mistral_profile() -> ProviderProfile {
     ProviderProfile::new(
         "mistral",
         "https://api.mistral.ai",
-        AuthStrategy::BearerToken { env_var: "MISTRAL_API_KEY".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "MISTRAL_API_KEY".to_owned(),
+        },
     )
     .add_model(
         ModelMeta::new("mistral-large-latest", 128_000)
@@ -63,7 +65,9 @@ mod tests {
 
     #[test]
     fn mistral_recorded_fixture_completes() {
-        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE, "mistral-large-latest")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Mistral");
         assert_eq!(resp.tokens_in, 8);
         assert_eq!(resp.tokens_out, 4);
@@ -71,22 +75,24 @@ mod tests {
 
     #[test]
     fn mistral_fixture_content_non_empty() {
-        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE, "mistral-large-latest")
+            .unwrap();
         assert!(!resp.content.is_empty());
     }
 
     #[test]
     fn mistral_fixture_no_tool_calls() {
-        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE, "mistral-large-latest")
+            .unwrap();
         assert!(resp.tool_calls.is_empty());
     }
 
     #[test]
     fn mistral_request_body_has_model_and_messages() {
-        let req = CompletionRequest::simple(
-            "mistral-large-latest",
-            vec![Message::text("user", "Hello")],
-        );
+        let req =
+            CompletionRequest::simple("mistral-large-latest", vec![Message::text("user", "Hello")]);
         let body = client().build_request_body(&req, false).unwrap();
         assert_eq!(body["model"], "mistral-large-latest");
         assert!(body["messages"].is_array());
@@ -113,7 +119,8 @@ mod tests {
 
     #[test]
     fn mistral_streaming_fixture_ordered() {
-        let texts: Vec<String> = FIXTURE_STREAM_LINES.iter()
+        let texts: Vec<String> = FIXTURE_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text.clone())
@@ -123,7 +130,8 @@ mod tests {
 
     #[test]
     fn mistral_streaming_combined_text() {
-        let combined: String = FIXTURE_STREAM_LINES.iter()
+        let combined: String = FIXTURE_STREAM_LINES
+            .iter()
             .filter_map(|l| OpenAiClient::parse_sse_line(l))
             .filter(|ev| !ev.text.is_empty())
             .map(|ev| ev.text)
@@ -148,7 +156,9 @@ mod tests {
 
     #[test]
     fn mistral_cost_computed_from_pricing_for_large_model() {
-        let resp = client().parse_response(FIXTURE, "mistral-large-latest").unwrap();
+        let resp = client()
+            .parse_response(FIXTURE, "mistral-large-latest")
+            .unwrap();
         // 8 in * $2.0/M + 4 out * $6.0/M
         let expected = 8.0 * 2.0 / 1_000_000.0 + 4.0 * 6.0 / 1_000_000.0;
         let cost = resp.cost_usd.unwrap();

@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use super::ProviderProfile;
+use std::collections::HashMap;
 
 /// Registry of named provider profiles.
 ///
@@ -77,7 +77,9 @@ mod tests {
     fn registry_resolves_profile_by_name_and_exposes_catalog() {
         let mut reg = ProviderRegistry::new();
         let profile = ProviderProfile::new("myco", "https://api.myco.test", AuthStrategy::None)
-            .add_model(crate::provider::meta::ModelMeta::new("myco-large", 200_000).with_pricing(3.0, 9.0))
+            .add_model(
+                crate::provider::meta::ModelMeta::new("myco-large", 200_000).with_pricing(3.0, 9.0),
+            )
             .add_alias("large", "myco-large");
         reg.register(profile);
 

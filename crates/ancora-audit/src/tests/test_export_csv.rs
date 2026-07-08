@@ -9,7 +9,16 @@ fn export_csv_has_header_row() {
 #[test]
 fn export_csv_has_data_row() {
     let mut log = ImmutableAuditLog::new();
-    log.append(AuditEntry::new(0, 42, "t1", "bob", "write", "file.txt", Outcome::Failure, Severity::Warning));
+    log.append(AuditEntry::new(
+        0,
+        42,
+        "t1",
+        "bob",
+        "write",
+        "file.txt",
+        Outcome::Failure,
+        Severity::Warning,
+    ));
     let entries: Vec<&AuditEntry> = log.entries().collect();
     let csv = to_csv(&entries);
     assert!(csv.contains("bob"));

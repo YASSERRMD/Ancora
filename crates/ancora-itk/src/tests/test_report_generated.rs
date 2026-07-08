@@ -16,7 +16,10 @@ fn make_all_pass_report() -> KitReport {
 fn make_partial_report() -> KitReport {
     KitReport {
         title: "Partial Suite".into(),
-        status: KitStatus::SomeFailed { failed: 1, total: 3 },
+        status: KitStatus::SomeFailed {
+            failed: 1,
+            total: 3,
+        },
         lines: vec![
             "[PASS] kit::check_name - ok".into(),
             "[PASS] kit::check_call - ok".into(),
@@ -61,6 +64,9 @@ fn report_status_display() {
     let all_pass = KitStatus::AllPassed;
     assert_eq!(format!("{all_pass}"), "ALL PASSED");
 
-    let some_fail = KitStatus::SomeFailed { failed: 2, total: 5 };
+    let some_fail = KitStatus::SomeFailed {
+        failed: 2,
+        total: 5,
+    };
     assert_eq!(format!("{some_fail}"), "2/5 FAILED");
 }

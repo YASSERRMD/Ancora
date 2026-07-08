@@ -8,7 +8,10 @@ mod lancedb_offline_tests {
     #[test]
     fn local_path_requires_no_credentials() {
         let cfg = LanceDbConfig::local("/tmp/test_db");
-        assert!(cfg.aws_region.is_none(), "local path must not need AWS credentials");
+        assert!(
+            cfg.aws_region.is_none(),
+            "local path must not need AWS credentials"
+        );
     }
 
     #[test]

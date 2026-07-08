@@ -1,5 +1,4 @@
 /// Tests verifying that in-flight runs keep their pinned model after a swap.
-
 use crate::runtime::{make_model, RunId, SwapRuntime};
 
 #[test]

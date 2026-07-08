@@ -168,7 +168,10 @@ pub fn run_verifiers(output: &str, verifiers: &[Box<dyn Verifier>]) -> Verificat
         checks.push((v.name().to_string(), verdict));
     }
 
-    VerificationReport { verdict: overall, checks }
+    VerificationReport {
+        verdict: overall,
+        checks,
+    }
 }
 
 /// A function-based verifier for quick inline checks.
@@ -178,8 +181,14 @@ pub struct FnVerifier {
 }
 
 impl FnVerifier {
-    pub fn new(name: impl Into<String>, func: impl Fn(&str) -> Verdict + Send + Sync + 'static) -> Self {
-        Self { name: name.into(), func: Box::new(func) }
+    pub fn new(
+        name: impl Into<String>,
+        func: impl Fn(&str) -> Verdict + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            func: Box::new(func),
+        }
     }
 }
 

@@ -3,7 +3,6 @@
 /// An audit log entry records who did what to which plugin and when.  The host
 /// appends an entry for every lifecycle event: load, unload, crash, policy
 /// violation, signature check result, etc.
-
 use crate::audit::{AuditEvent, AuditLog, EventKind};
 
 #[test]
@@ -41,18 +40,42 @@ fn policy_violation_recorded() {
 #[test]
 fn multiple_events_accumulated() {
     let mut log = AuditLog::new();
-    log.record(AuditEvent { plugin_id: "p".into(), kind: EventKind::Loaded, detail: "".into() });
-    log.record(AuditEvent { plugin_id: "p".into(), kind: EventKind::Crashed, detail: "oom".into() });
-    log.record(AuditEvent { plugin_id: "p".into(), kind: EventKind::Unloaded, detail: "".into() });
+    log.record(AuditEvent {
+        plugin_id: "p".into(),
+        kind: EventKind::Loaded,
+        detail: "".into(),
+    });
+    log.record(AuditEvent {
+        plugin_id: "p".into(),
+        kind: EventKind::Crashed,
+        detail: "oom".into(),
+    });
+    log.record(AuditEvent {
+        plugin_id: "p".into(),
+        kind: EventKind::Unloaded,
+        detail: "".into(),
+    });
     assert_eq!(log.len(), 3);
 }
 
 #[test]
 fn filter_by_plugin_id() {
     let mut log = AuditLog::new();
-    log.record(AuditEvent { plugin_id: "alpha".into(), kind: EventKind::Loaded, detail: "".into() });
-    log.record(AuditEvent { plugin_id: "beta".into(), kind: EventKind::Loaded, detail: "".into() });
-    log.record(AuditEvent { plugin_id: "alpha".into(), kind: EventKind::Unloaded, detail: "".into() });
+    log.record(AuditEvent {
+        plugin_id: "alpha".into(),
+        kind: EventKind::Loaded,
+        detail: "".into(),
+    });
+    log.record(AuditEvent {
+        plugin_id: "beta".into(),
+        kind: EventKind::Loaded,
+        detail: "".into(),
+    });
+    log.record(AuditEvent {
+        plugin_id: "alpha".into(),
+        kind: EventKind::Unloaded,
+        detail: "".into(),
+    });
 
     let alpha_events = log.events_for_plugin("alpha");
     assert_eq!(alpha_events.len(), 2);

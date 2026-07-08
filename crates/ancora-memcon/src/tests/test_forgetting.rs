@@ -1,8 +1,14 @@
-use crate::salience::{SalienceItem, SalienceScorer};
 use crate::forgetting::ForgettingPolicy;
+use crate::salience::{SalienceItem, SalienceScorer};
 
 fn item(key: &str, importance: u32, access_count: u32, age_secs: u64) -> SalienceItem {
-    SalienceItem { key: key.into(), content: "c".into(), importance, access_count, age_secs }
+    SalienceItem {
+        key: key.into(),
+        content: "c".into(),
+        importance,
+        access_count,
+        age_secs,
+    }
 }
 
 #[test]
@@ -25,10 +31,7 @@ fn low_salience_item_forgotten() {
 fn prune_drops_low_salience_old_items() {
     let pol = ForgettingPolicy::new(0.0, 50);
     let scorer = SalienceScorer::default_weights();
-    let items = vec![
-        item("keep", 10, 10, 10),
-        item("drop", 1, 0, 100),
-    ];
+    let items = vec![item("keep", 10, 10, 10), item("drop", 1, 0, 100)];
     let retained = pol.prune(items, &scorer);
     assert_eq!(retained.len(), 1);
     assert_eq!(retained[0].key, "keep");

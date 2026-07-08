@@ -14,13 +14,39 @@ pub fn build_vercelai_profile() -> ProviderProfile {
     ProviderProfile::new(
         "vercelai",
         VERCEL_AI_GATEWAY_URL,
-        AuthStrategy::BearerToken { env_var: "VERCEL_AI_TOKEN".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "VERCEL_AI_TOKEN".to_owned(),
+        },
     )
-    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("openai/gpt-4o-mini", 128_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("anthropic/claude-3-5-haiku-20241022", 200_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("anthropic/claude-3-7-sonnet-20250219", 200_000).with_tools().with_vision().with_streaming())
-    .add_model(ModelMeta::new("mistral/mistral-large-latest", 131_072).with_tools().with_streaming())
+    .add_model(
+        ModelMeta::new("openai/gpt-4o", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("openai/gpt-4o-mini", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("anthropic/claude-3-5-haiku-20241022", 200_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("anthropic/claude-3-7-sonnet-20250219", 200_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
+    .add_model(
+        ModelMeta::new("mistral/mistral-large-latest", 131_072)
+            .with_tools()
+            .with_streaming(),
+    )
     .add_alias("gpt-4o", "openai/gpt-4o")
     .add_alias("gpt-4o-mini", "openai/gpt-4o-mini")
     .add_alias("haiku", "anthropic/claude-3-5-haiku-20241022")
@@ -36,9 +62,16 @@ pub fn build_vercelai_custom_profile(base_url: impl Into<String>) -> ProviderPro
     ProviderProfile::new(
         "vercelai",
         base_url,
-        AuthStrategy::BearerToken { env_var: "VERCEL_AI_TOKEN".to_owned() },
+        AuthStrategy::BearerToken {
+            env_var: "VERCEL_AI_TOKEN".to_owned(),
+        },
     )
-    .add_model(ModelMeta::new("openai/gpt-4o", 128_000).with_tools().with_vision().with_streaming())
+    .add_model(
+        ModelMeta::new("openai/gpt-4o", 128_000)
+            .with_tools()
+            .with_vision()
+            .with_streaming(),
+    )
     .add_alias("gpt-4o", "openai/gpt-4o")
 }
 
@@ -83,7 +116,9 @@ mod tests {
 
     #[test]
     fn vercelai_recorded_fixture_completes() {
-        let resp = vai_client().parse_response(VERCELAI_FIXTURE, "openai/gpt-4o").unwrap();
+        let resp = vai_client()
+            .parse_response(VERCELAI_FIXTURE, "openai/gpt-4o")
+            .unwrap();
         assert_eq!(resp.content, "Hello from Vercel AI");
         assert_eq!(resp.tokens_in, 9);
         assert_eq!(resp.tokens_out, 5);
@@ -98,7 +133,10 @@ mod tests {
     #[test]
     fn vercelai_haiku_alias_resolves() {
         let p = build_vercelai_profile();
-        assert_eq!(p.resolve_model_id("haiku"), "anthropic/claude-3-5-haiku-20241022");
+        assert_eq!(
+            p.resolve_model_id("haiku"),
+            "anthropic/claude-3-5-haiku-20241022"
+        );
     }
 
     #[test]

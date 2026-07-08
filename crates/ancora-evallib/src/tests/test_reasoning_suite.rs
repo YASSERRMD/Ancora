@@ -1,4 +1,4 @@
-use crate::reasoning::{ReasoningSuite, ReasoningOutcome};
+use crate::reasoning::{ReasoningOutcome, ReasoningSuite};
 
 #[test]
 fn reasoning_default_catalog_all_pass() {
