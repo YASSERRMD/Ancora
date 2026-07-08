@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Ancora.Interop;
@@ -113,7 +114,16 @@ public static class ToolRegistry
                     args[i] = param.HasDefaultValue ? param.DefaultValue : null;
                 }
             }
-            var result = method.Invoke(target, args);
+            object? result;
+            try
+            {
+                result = method.Invoke(target, args);
+            }
+            catch (TargetInvocationException tie) when (tie.InnerException is not null)
+            {
+                ExceptionDispatchInfo.Capture(tie.InnerException).Throw();
+                throw; // unreachable, satisfies compiler
+            }
             return result is string s ? s : JsonSerializer.Serialize(result);
         };
     }
