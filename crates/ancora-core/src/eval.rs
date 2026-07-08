@@ -57,11 +57,11 @@ fn edit_distance(a: &str, b: &str) -> usize {
     let b: Vec<char> = b.chars().collect();
     let (m, n) = (a.len(), b.len());
     let mut dp = vec![vec![0usize; n + 1]; m + 1];
-    for i in 0..=m {
-        dp[i][0] = i;
+    for (i, row) in dp.iter_mut().enumerate() {
+        row[0] = i;
     }
-    for j in 0..=n {
-        dp[0][j] = j;
+    for (j, cell) in dp[0].iter_mut().enumerate() {
+        *cell = j;
     }
     for i in 1..=m {
         for j in 1..=n {
@@ -154,7 +154,7 @@ mod tests {
     fn normalized_edit_scorer_completely_different_less_than_one() {
         let s = NormalizedEditScorer;
         let v = s.score("abc", "xyz");
-        assert!(v < 1.0 && v >= 0.0);
+        assert!((0.0..1.0).contains(&v));
     }
 
     #[test]

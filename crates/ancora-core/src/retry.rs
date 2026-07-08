@@ -81,7 +81,7 @@ where
                     };
                 }
                 if attempt < policy.max_attempts {
-                    let exp = (attempt - 1) as u32;
+                    let exp = attempt - 1;
                     let shift = exp.min(63);
                     let base = policy.initial_backoff_ms.saturating_mul(1u64 << shift);
                     let capped = base.min(policy.max_backoff_ms);

@@ -328,7 +328,7 @@ impl GraphExecutor {
         let mut current_output = decision.to_string();
 
         match self.next_node(&suspended.node_id, &current_output)? {
-            None => return Ok(RunOutcome::Completed(current_output)),
+            None => Ok(RunOutcome::Completed(current_output)),
             Some(next_id) => {
                 let mut current_id = next_id;
 
