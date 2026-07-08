@@ -1,8 +1,8 @@
-/// Local model preload on boot for headless OS integration.
-///
-/// Manages model manifests, preload state, and cache validation
-/// so the agent can serve inference immediately after boot with no
-/// network round-trips.
+//! Local model preload on boot for headless OS integration.
+//!
+//! Manages model manifests, preload state, and cache validation
+//! so the agent can serve inference immediately after boot with no
+//! network round-trips.
 
 use std::collections::HashMap;
 use std::time::Duration;
@@ -114,7 +114,11 @@ impl PreloadRecord {
         }
     }
 
-    pub fn failure(model_id: impl Into<String>, duration: Duration, reason: impl Into<String>) -> Self {
+    pub fn failure(
+        model_id: impl Into<String>,
+        duration: Duration,
+        reason: impl Into<String>,
+    ) -> Self {
         PreloadRecord {
             model_id: model_id.into(),
             state: PreloadState::Failed(reason.into()),
@@ -157,12 +161,14 @@ impl ModelRegistry {
     }
 
     pub fn loaded_count(&self) -> usize {
-        self.states.values().filter(|s| **s == PreloadState::Loaded).count()
+        self.states
+            .values()
+            .filter(|s| **s == PreloadState::Loaded)
+            .count()
     }
 
     pub fn all_loaded(&self) -> bool {
-        !self.states.is_empty()
-            && self.states.values().all(|s| *s == PreloadState::Loaded)
+        !self.states.is_empty() && self.states.values().all(|s| *s == PreloadState::Loaded)
     }
 
     pub fn ids(&self) -> Vec<&str> {
@@ -202,5 +208,9 @@ pub fn validate_checksum(desc: &ModelDescriptor, actual_sha256: &str) -> bool {
 
 /// Returns the total memory required to hold all listed models.
 pub fn total_model_memory_mb(records: &[PreloadRecord]) -> u64 {
-    records.iter().filter(|r| r.state == PreloadState::Loaded).map(|r| r.memory_mb).sum()
+    records
+        .iter()
+        .filter(|r| r.state == PreloadState::Loaded)
+        .map(|r| r.memory_mb)
+        .sum()
 }

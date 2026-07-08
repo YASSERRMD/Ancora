@@ -1,7 +1,7 @@
-/// Minimal dependency footprint tracking for headless OS integration.
-///
-/// Tracks the binary size, dependency count, and runtime memory
-/// to ensure Ancora stays within the target for embedded/inference OS use.
+//! Minimal dependency footprint tracking for headless OS integration.
+//!
+//! Tracks the binary size, dependency count, and runtime memory
+//! to ensure Ancora stays within the target for embedded/inference OS use.
 
 /// Target limits for the headless build.
 pub struct FootprintTarget {
@@ -37,7 +37,13 @@ pub struct FootprintMeasurement {
 }
 
 impl FootprintMeasurement {
-    pub fn new(label: impl Into<String>, binary_bytes: u64, dep_count: usize, rss_mb: u64, disk_mb: u64) -> Self {
+    pub fn new(
+        label: impl Into<String>,
+        binary_bytes: u64,
+        dep_count: usize,
+        rss_mb: u64,
+        disk_mb: u64,
+    ) -> Self {
         FootprintMeasurement {
             binary_bytes,
             dep_count,
@@ -140,7 +146,10 @@ impl FootprintManifest {
     }
 
     pub fn mandatory_count(&self) -> usize {
-        self.deps.iter().filter(|d| !d.optional && !d.feature_gated).count()
+        self.deps
+            .iter()
+            .filter(|d| !d.optional && !d.feature_gated)
+            .count()
     }
 }
 

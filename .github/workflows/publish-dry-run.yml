@@ -32,20 +32,27 @@ jobs:
       - name: dry-run ancora-proto
         run: cargo publish -p ancora-proto --dry-run --allow-dirty
 
-      - name: dry-run ancora-core
-        run: cargo publish -p ancora-core --dry-run --allow-dirty
-
-      - name: dry-run ancora-ffi
-        run: cargo publish -p ancora-ffi --dry-run --allow-dirty
-
       - name: dry-run ancora-tools
         run: cargo publish -p ancora-tools --dry-run --allow-dirty
 
       - name: dry-run ancora-policy
         run: cargo publish -p ancora-policy --dry-run --allow-dirty
 
+      # ancora-core/ancora-ffi/ancora-grpc depend on sibling crates (ancora-proto,
+      # ancora-core) via path + version. `cargo publish --dry-run` resolves those
+      # against the real crates.io index, which can't succeed until the sibling
+      # crates have actually been published there for the first time. Until then,
+      # `cargo package --list` still validates the packaging manifest without
+      # requiring registry resolution; switch these back to `publish --dry-run`
+      # once ancora-proto/ancora-core have a real crates.io release.
+      - name: dry-run ancora-core
+        run: cargo package -p ancora-core --list --allow-dirty
+
+      - name: dry-run ancora-ffi
+        run: cargo package -p ancora-ffi --list --allow-dirty
+
       - name: dry-run ancora-grpc
-        run: cargo publish -p ancora-grpc --dry-run --allow-dirty
+        run: cargo package -p ancora-grpc --list --allow-dirty
 
   pypi:
     name: python build (PyPI dry-run)

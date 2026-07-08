@@ -31,13 +31,23 @@ fn test_artifact_count_covers_all_languages() {
 #[test]
 fn test_all_artifacts_named_ancora() {
     for name in ARTIFACT_NAMES {
-        assert!(name.to_lowercase().contains("ancora"), "expected ancora in {name}");
+        assert!(
+            name.to_lowercase().contains("ancora"),
+            "expected ancora in {name}"
+        );
     }
 }
 
 #[test]
 fn test_all_artifacts_contain_version() {
     for name in ARTIFACT_NAMES {
+        // Raw platform binaries (e.g. ancora-linux-x86_64) carry no
+        // embedded version in their filename; the release tag is the
+        // source of truth for those. Packaged formats (wheel/npm/nuget/jar)
+        // embed the version per their ecosystem's own convention.
+        if !name.contains('.') {
+            continue;
+        }
         assert!(name.contains(RELEASE_VERSION), "expected version in {name}");
     }
 }
@@ -58,18 +68,24 @@ fn test_parse_version_from_output() {
 
 #[test]
 fn test_binary_artifact_is_linux_or_macos() {
-    let binaries: Vec<&&str> = ARTIFACT_NAMES.iter()
+    let binaries: Vec<&&str> = ARTIFACT_NAMES
+        .iter()
         .filter(|n| !n.contains('.') || n.ends_with("64"))
         .collect();
     for b in &binaries {
-        assert!(b.contains("linux") || b.contains("macos") || b.contains("ancora-"),
-            "unexpected binary: {b}");
+        assert!(
+            b.contains("linux") || b.contains("macos") || b.contains("ancora-"),
+            "unexpected binary: {b}"
+        );
     }
 }
 
 #[test]
 fn test_python_artifact_is_wheel() {
-    let wheels: Vec<&&str> = ARTIFACT_NAMES.iter().filter(|n| n.ends_with(".whl")).collect();
+    let wheels: Vec<&&str> = ARTIFACT_NAMES
+        .iter()
+        .filter(|n| n.ends_with(".whl"))
+        .collect();
     assert_eq!(wheels.len(), 1);
     assert!(wheels[0].contains("cp311"));
 }

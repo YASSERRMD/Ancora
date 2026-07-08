@@ -1,7 +1,7 @@
-/// Service supervision and automatic restart for the headless agent.
-///
-/// Implements a supervisor that monitors the agent process, detects
-/// crashes, enforces restart back-off, and limits total restart attempts.
+//! Service supervision and automatic restart for the headless agent.
+//!
+//! Implements a supervisor that monitors the agent process, detects
+//! crashes, enforces restart back-off, and limits total restart attempts.
 
 use std::time::{Duration, Instant};
 
@@ -13,7 +13,10 @@ pub enum RestartStrategy {
     /// Always restart immediately.
     Immediate,
     /// Restart with exponential back-off starting at `initial_delay`.
-    ExponentialBackoff { initial_delay_ms: u64, max_delay_ms: u64 },
+    ExponentialBackoff {
+        initial_delay_ms: u64,
+        max_delay_ms: u64,
+    },
     /// Restart with a fixed delay between attempts.
     FixedDelay { delay_ms: u64 },
 }
@@ -23,8 +26,15 @@ impl std::fmt::Display for RestartStrategy {
         match self {
             RestartStrategy::Never => write!(f, "never"),
             RestartStrategy::Immediate => write!(f, "immediate"),
-            RestartStrategy::ExponentialBackoff { initial_delay_ms, max_delay_ms } => {
-                write!(f, "exponential-backoff({}ms..{}ms)", initial_delay_ms, max_delay_ms)
+            RestartStrategy::ExponentialBackoff {
+                initial_delay_ms,
+                max_delay_ms,
+            } => {
+                write!(
+                    f,
+                    "exponential-backoff({}ms..{}ms)",
+                    initial_delay_ms, max_delay_ms
+                )
             }
             RestartStrategy::FixedDelay { delay_ms } => write!(f, "fixed-delay({}ms)", delay_ms),
         }
@@ -162,7 +172,10 @@ impl Supervisor {
         match &self.config.strategy {
             RestartStrategy::Immediate => Duration::ZERO,
             RestartStrategy::FixedDelay { delay_ms } => Duration::from_millis(*delay_ms),
-            RestartStrategy::ExponentialBackoff { initial_delay_ms, max_delay_ms } => {
+            RestartStrategy::ExponentialBackoff {
+                initial_delay_ms,
+                max_delay_ms,
+            } => {
                 let exp = 1u64 << self.restart_count.min(20);
                 let ms = (initial_delay_ms * exp).min(*max_delay_ms);
                 Duration::from_millis(ms)

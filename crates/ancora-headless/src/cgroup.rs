@@ -1,7 +1,7 @@
-/// Resource cgroup limits for the headless agent service.
-///
-/// Provides data structures and helpers for defining and applying
-/// Linux cgroup v2 resource limits (CPU, memory, I/O) for the Ancora agent.
+//! Resource cgroup limits for the headless agent service.
+//!
+//! Provides data structures and helpers for defining and applying
+//! Linux cgroup v2 resource limits (CPU, memory, I/O) for the Ancora agent.
 
 use std::collections::HashMap;
 
@@ -84,7 +84,10 @@ impl CgroupLimits {
         if self.memory_swap_mb == 0 {
             "0".to_string()
         } else {
-            format!("{}", (self.memory_limit_mb + self.memory_swap_mb) * 1024 * 1024)
+            format!(
+                "{}",
+                (self.memory_limit_mb + self.memory_swap_mb) * 1024 * 1024
+            )
         }
     }
 

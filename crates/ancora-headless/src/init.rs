@@ -1,8 +1,8 @@
-/// Init service integration for the headless OS agent.
-///
-/// Provides abstractions for registering Ancora as a system service
-/// (systemd-compatible unit descriptor, PID file management, readiness
-/// signalling via sd_notify-style protocol).
+//! Init service integration for the headless OS agent.
+//!
+//! Provides abstractions for registering Ancora as a system service
+//! (systemd-compatible unit descriptor, PID file management, readiness
+//! signalling via sd_notify-style protocol).
 
 use std::collections::HashMap;
 
@@ -114,7 +114,10 @@ pub struct PidFile {
 
 impl PidFile {
     pub fn new(path: impl Into<String>, pid: u32) -> Self {
-        PidFile { path: path.into(), pid }
+        PidFile {
+            path: path.into(),
+            pid,
+        }
     }
 
     /// Returns the PID file content as a string.

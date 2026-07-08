@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ancora-core = { path = "../ancora-core" }
+ancora-core = { path = "../ancora-core", version = "0.6.0" }
 prost = "0.13"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "io-util"] }
 tonic = { version = "0.12", features = ["tls"] }
