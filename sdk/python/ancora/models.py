@@ -101,14 +101,14 @@ class AgentSpec(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    name: str = ""
+    name: str = Field(default="", min_length=1)
 
     def wire_bytes(self) -> bytes:
         """Return this spec serialized to JSON wire bytes."""
         from ancora.wire import to_wire_bytes
         return to_wire_bytes(self)
 
-    model_id: str = ""
+    model_id: str = Field(default="", min_length=1)
     instructions: str = ""
     output_schema_json: str = ""
     tools: List[ToolSpec] = Field(default_factory=list)
