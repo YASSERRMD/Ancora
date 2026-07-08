@@ -108,6 +108,11 @@ impl DeviceIdentityRegistry {
         self.keys.len()
     }
 
+    /// Returns true if there are no registered devices.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Verify ownership: returns true if the presented public key matches the device's registered key and is not revoked.
     pub fn verify_identity(&self, device_id: &DeviceId, presented_public_key: &[u8]) -> bool {
         if let Some(kp) = self.keys.get(device_id) {
@@ -115,5 +120,11 @@ impl DeviceIdentityRegistry {
         } else {
             false
         }
+    }
+}
+
+impl Default for DeviceIdentityRegistry {
+    fn default() -> Self {
+        Self::new()
     }
 }

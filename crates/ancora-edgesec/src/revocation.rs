@@ -104,3 +104,9 @@ impl DeviceRevocationList {
         removed
     }
 }
+
+impl Default for DeviceRevocationList {
+    fn default() -> Self {
+        Self::new()
+    }
+}

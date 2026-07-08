@@ -113,6 +113,11 @@ impl AttestationRegistry {
         self.records.len()
     }
 
+    /// Returns true if there are no registered attestations.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns true if all registered attestations are valid.
     pub fn all_valid(&self) -> bool {
         self.records.values().all(|r| r.is_valid())
@@ -125,6 +130,12 @@ impl AttestationRegistry {
             .filter(|r| !r.is_valid())
             .map(|r| r.artifact_id.as_str())
             .collect()
+    }
+}
+
+impl Default for AttestationRegistry {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

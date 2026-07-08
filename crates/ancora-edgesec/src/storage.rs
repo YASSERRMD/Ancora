@@ -78,6 +78,11 @@ impl EncryptedLocalStorage {
         self.entries.len()
     }
 
+    /// Returns true if there are no entries.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Check if a key exists.
     pub fn contains_key(&self, k: &str) -> bool {
         self.entries.contains_key(k)

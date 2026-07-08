@@ -85,3 +85,9 @@ impl EdgeEgress {
         &self.policy
     }
 }
+
+impl Default for EdgeEgress {
+    fn default() -> Self {
+        Self::new()
+    }
+}
