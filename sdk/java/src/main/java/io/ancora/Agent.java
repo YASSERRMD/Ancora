@@ -1,5 +1,7 @@
 package io.ancora;
 
+import java.util.Objects;
+
 public final class Agent implements AutoCloseable {
 
     private final Runtime runtime;
@@ -11,7 +13,7 @@ public final class Agent implements AutoCloseable {
     }
 
     public Agent(Runtime runtime) {
-        this.runtime = runtime;
+        this.runtime = Objects.requireNonNull(runtime, "runtime must not be null");
         this.ownsRuntime = false;
     }
 
@@ -32,7 +34,7 @@ public final class Agent implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Throwable {
+    public void close() {
         if (ownsRuntime) runtime.close();
     }
 }

@@ -14,6 +14,10 @@ public final class ToolRegistration implements AutoCloseable {
         return spec;
     }
 
+    public AutoCloseable disposable() {
+        return disposable;
+    }
+
     @Override
     public void close() throws Exception {
         disposable.close();

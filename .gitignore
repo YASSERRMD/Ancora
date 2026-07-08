@@ -47,6 +47,7 @@ bindings/dotnet/**/obj/
 .gradle/
 *.class
 *.jar
+!gradle-wrapper.jar
 *.war
 *.ear
 .idea/

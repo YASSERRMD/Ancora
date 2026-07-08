@@ -127,7 +127,7 @@ public final class Runtime implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Throwable {
+    public void close() {
         if (!closed) {
             closed = true;
             handle.close();

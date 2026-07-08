@@ -35,7 +35,7 @@ class Phase148NullHandlingTest {
     @Test
     void toolSpec_nullSchema_accepted() {
         ToolSpec spec = new ToolSpec("tool_a", "description", null);
-        assertNull(spec.schema());
+        assertNull(spec.inputSchema());
     }
 
     @Test
