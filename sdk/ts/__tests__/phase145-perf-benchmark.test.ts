@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => ({
     startRun(_: Buffer): string {
       const id = `p-${PERF145_CTR++}`
       PERF145[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]
       return id
@@ -38,19 +38,19 @@ const noopTool = defineTool({
 })
 
 describe('phase145 call overhead benchmark', () => {
-  it('1000 tool dispatches under 5 seconds', () => {
+  it('1000 tool dispatches under 5 seconds', async () => {
     const reg = new ToolRegistry()
     reg.register(noopTool)
     const start = Date.now()
-    for (let i = 0; i < 1000; i++) reg.dispatch('noop_perf', { x: i })
+    for (let i = 0; i < 1000; i++) await reg.dispatch('noop_perf', { x: i })
     expect(Date.now() - start).toBeLessThan(5000)
   })
 
-  it('100 tool dispatches under 1 second', () => {
+  it('100 tool dispatches under 1 second', async () => {
     const reg = new ToolRegistry()
     reg.register(noopTool)
     const start = Date.now()
-    for (let i = 0; i < 100; i++) reg.dispatch('noop_perf', { x: i })
+    for (let i = 0; i < 100; i++) await reg.dispatch('noop_perf', { x: i })
     expect(Date.now() - start).toBeLessThan(1000)
   })
 
@@ -65,18 +65,18 @@ describe('phase145 call overhead benchmark', () => {
     expect(Date.now() - start).toBeLessThan(5000)
   })
 
-  it('dispatch is deterministic', () => {
+  it('dispatch is deterministic', async () => {
     const reg = new ToolRegistry()
     reg.register(noopTool)
-    expect(reg.dispatch('noop_perf', { x: 42 })).toBe(42)
-    expect(reg.dispatch('noop_perf', { x: 42 })).toBe(42)
+    expect(await reg.dispatch('noop_perf', { x: 42 })).toBe(42)
+    expect(await reg.dispatch('noop_perf', { x: 42 })).toBe(42)
   })
 
-  it('500 dispatches via registry under 5 seconds', () => {
+  it('500 dispatches via registry under 5 seconds', async () => {
     const reg = new ToolRegistry()
     reg.register(noopTool)
     const start = Date.now()
-    for (let i = 0; i < 500; i++) reg.dispatch('noop_perf', { x: i })
+    for (let i = 0; i < 500; i++) await reg.dispatch('noop_perf', { x: i })
     expect(Date.now() - start).toBeLessThan(5000)
   })
 
@@ -88,11 +88,11 @@ describe('phase145 call overhead benchmark', () => {
     expect(Date.now() - start).toBeLessThan(1000)
   })
 
-  it('tool dispatch throughput result types are correct', () => {
+  it('tool dispatch throughput result types are correct', async () => {
     const reg = new ToolRegistry()
     reg.register(noopTool)
     for (let i = 0; i < 10; i++) {
-      const r = reg.dispatch('noop_perf', { x: i })
+      const r = await reg.dispatch('noop_perf', { x: i })
       expect(typeof r).toBe('number')
     }
   })

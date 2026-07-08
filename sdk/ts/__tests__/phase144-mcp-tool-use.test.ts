@@ -45,21 +45,21 @@ describe('phase144 mcp tool use', () => {
   it('mcp read_file tool registered', () => {
     const reg = new ToolRegistry()
     reg.register(mcpReadFile)
-    expect(reg.get('mcp_read_file')).toBeDefined()
+    expect(reg.has('mcp_read_file')).toBe(true)
   })
 
-  it('mcp read_file dispatch returns JSON', () => {
+  it('mcp read_file dispatch returns JSON', async () => {
     const reg = new ToolRegistry()
     reg.register(mcpReadFile)
-    const result = reg.dispatch('mcp_read_file', { path: '/tmp/test.txt' })
+    const result = await reg.dispatch('mcp_read_file', { path: '/tmp/test.txt' })
     const parsed = JSON.parse(result as string)
     expect(parsed.content).toBe('fixture-content')
   })
 
-  it('mcp list_dir dispatch returns entries', () => {
+  it('mcp list_dir dispatch returns entries', async () => {
     const reg = new ToolRegistry()
     reg.register(mcpListDir)
-    const result = reg.dispatch('mcp_list_dir', { path: '/tmp' })
+    const result = await reg.dispatch('mcp_list_dir', { path: '/tmp' })
     const parsed = JSON.parse(result as string)
     expect(parsed.entries).toHaveLength(2)
   })
@@ -68,8 +68,8 @@ describe('phase144 mcp tool use', () => {
     const reg = new ToolRegistry()
     reg.register(mcpReadFile)
     reg.register(mcpListDir)
-    expect(reg.get('mcp_read_file')).toBeDefined()
-    expect(reg.get('mcp_list_dir')).toBeDefined()
+    expect(reg.has('mcp_read_file')).toBe(true)
+    expect(reg.has('mcp_list_dir')).toBe(true)
   })
 
   it('mcp call JSON round-trips', () => {

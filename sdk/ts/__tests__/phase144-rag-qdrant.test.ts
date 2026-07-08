@@ -34,7 +34,7 @@ describe('phase144 rag retrieval qdrant', () => {
   })
 
   it('defineTool wraps qdrant retriever', () => {
-    expect(qdrantRetrieve.name).toBe('qdrant_retrieve')
+    expect(qdrantRetrieve.spec.name).toBe('qdrant_retrieve')
   })
 
   it('qdrant tool spec has input_schema', () => {
@@ -44,29 +44,29 @@ describe('phase144 rag retrieval qdrant', () => {
   it('qdrant tool registered in registry', () => {
     const reg = new ToolRegistry()
     reg.register(qdrantRetrieve)
-    expect(reg.get('qdrant_retrieve')).toBeDefined()
+    expect(reg.has('qdrant_retrieve')).toBe(true)
   })
 
-  it('dispatch returns JSON with 3 chunks', () => {
+  it('dispatch returns JSON with 3 chunks', async () => {
     const reg = new ToolRegistry()
     reg.register(qdrantRetrieve)
-    const result = reg.dispatch('qdrant_retrieve', { query: 'vector', top_k: 3 })
+    const result = await reg.dispatch('qdrant_retrieve', { query: 'vector', top_k: 3 })
     const chunks = JSON.parse(result as string)
     expect(chunks).toHaveLength(3)
   })
 
-  it('top_k limits results', () => {
+  it('top_k limits results', async () => {
     const reg = new ToolRegistry()
     reg.register(qdrantRetrieve)
-    const result = reg.dispatch('qdrant_retrieve', { query: 'rust', top_k: 1 })
+    const result = await reg.dispatch('qdrant_retrieve', { query: 'rust', top_k: 1 })
     const chunks = JSON.parse(result as string)
     expect(chunks).toHaveLength(1)
   })
 
-  it('result chunks have id, text, score', () => {
+  it('result chunks have id, text, score', async () => {
     const reg = new ToolRegistry()
     reg.register(qdrantRetrieve)
-    const result = reg.dispatch('qdrant_retrieve', { query: 'hnsw', top_k: 2 })
+    const result = await reg.dispatch('qdrant_retrieve', { query: 'hnsw', top_k: 2 })
     const chunks = JSON.parse(result as string)
     chunks.forEach((c: { id: string; text: string; score: number }) => {
       expect(c.id).toBeDefined()

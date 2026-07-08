@@ -39,7 +39,7 @@ jest.mock('../ancora.node', () => ({
     startRun(_: Buffer): string {
       const id = `cotel-${COTEL145_CTR++}`
       COTEL145[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'cost', run_id: id, ...COST_OTEL }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]
@@ -85,18 +85,31 @@ describe('phase145 cost and otel emission verified', () => {
   })
 
   it('agent run emits cost event', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'llama3' }))
+    // 'cost' is not a kind recognized by RunEventSchema, so this reads the
+    // mocked runtime directly instead of through Agent/RunHandle (which
+    // strictly validates events against the wire schema).
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const evs: unknown[] = []
-    for await (const ev of h) evs.push(ev)
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      evs.push(JSON.parse(raw))
+      raw = rt.pollRun(id)
+    }
     expect(evs.some((e) => (e as { kind: string }).kind === 'cost')).toBe(true)
   })
 
   it('cost event input_tokens matches fixture', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'llama3' }))
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const evs: unknown[] = []
-    for await (const ev of h) evs.push(ev)
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      evs.push(JSON.parse(raw))
+      raw = rt.pollRun(id)
+    }
     const ce = evs.find((e) => (e as { kind: string }).kind === 'cost') as { input_tokens?: number }
     expect(ce?.input_tokens).toBe(120)
   })

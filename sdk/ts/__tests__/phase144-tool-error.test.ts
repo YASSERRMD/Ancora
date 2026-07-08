@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => {
       startRun(_: Buffer): string {
         const id = `te-${ctr++}`
         runs[id] = [
-          JSON.stringify({ kind: 'started', run_id: id }),
+          JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
           JSON.stringify({ kind: 'tool_call', run_id: id, name: 'fail_tool', input: '{"x":1}' }),
           JSON.stringify({ kind: 'completed', run_id: id }),
         ]
@@ -43,18 +43,18 @@ describe('phase144 tool error propagation', () => {
   it('defineTool with throwing handler is registered', () => {
     const reg = new ToolRegistry()
     reg.register(failTool)
-    expect(reg.get('fail_tool')).toBeDefined()
+    expect(reg.has('fail_tool')).toBe(true)
   })
 
-  it('ToolRegistry dispatch propagates throw', () => {
+  it('ToolRegistry dispatch propagates throw', async () => {
     const reg = new ToolRegistry()
     reg.register(failTool)
-    expect(() => reg.dispatch('fail_tool', { x: 1 })).toThrow('intentional failure')
+    await expect(reg.dispatch('fail_tool', { x: 1 })).rejects.toThrow('intentional failure')
   })
 
-  it('ToolRegistry dispatch on missing tool throws', () => {
+  it('ToolRegistry dispatch on missing tool throws', async () => {
     const reg = new ToolRegistry()
-    expect(() => reg.dispatch('nonexistent', {})).toThrow()
+    await expect(reg.dispatch('nonexistent', {})).rejects.toThrow()
   })
 
   it('ToolBridge continues iteration after tool error', async () => {
@@ -72,12 +72,12 @@ describe('phase144 tool error propagation', () => {
     expect(events.length).toBeGreaterThanOrEqual(0)
   })
 
-  it('error message is preserved', () => {
+  it('error message is preserved', async () => {
     const reg = new ToolRegistry()
     reg.register(failTool)
     let msg = ''
     try {
-      reg.dispatch('fail_tool', { x: 99 })
+      await reg.dispatch('fail_tool', { x: 99 })
     } catch (err) {
       msg = (err as Error).message
     }
@@ -100,19 +100,19 @@ describe('phase144 tool error propagation', () => {
     expect(failTool.spec.name).toBe('fail_tool')
   })
 
-  it('tool not in registry dispatch throws ReferenceError-like', () => {
+  it('tool not in registry dispatch throws ReferenceError-like', async () => {
     const reg = new ToolRegistry()
-    expect(() => reg.dispatch('ghost', {})).toThrow()
+    await expect(reg.dispatch('ghost', {})).rejects.toThrow()
   })
 
-  it('error does not corrupt registry', () => {
+  it('error does not corrupt registry', async () => {
     const reg = new ToolRegistry()
     reg.register(failTool)
-    try { reg.dispatch('fail_tool', { x: 1 }) } catch (_) {}
-    expect(reg.get('fail_tool')).toBeDefined()
+    try { await reg.dispatch('fail_tool', { x: 1 }) } catch (_) {}
+    expect(reg.has('fail_tool')).toBe(true)
   })
 
-  it('second tool still works after first throws', () => {
+  it('second tool still works after first throws', async () => {
     const ok = defineTool({
       name: 'ok_tool',
       description: 'Always ok',
@@ -122,7 +122,7 @@ describe('phase144 tool error propagation', () => {
     const reg = new ToolRegistry()
     reg.register(failTool)
     reg.register(ok)
-    try { reg.dispatch('fail_tool', { x: 1 }) } catch (_) {}
-    expect(reg.dispatch('ok_tool', { v: 'fine' })).toBe('fine')
+    try { await reg.dispatch('fail_tool', { x: 1 }) } catch (_) {}
+    expect(await reg.dispatch('ok_tool', { v: 'fine' })).toBe('fine')
   })
 })

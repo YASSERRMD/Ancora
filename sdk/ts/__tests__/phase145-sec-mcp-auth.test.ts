@@ -15,54 +15,55 @@ const secureResource = defineTool({
 })
 
 describe('phase145 unauthenticated mcp refused', () => {
-  it('valid token returns data', () => {
+  it('valid token returns data', async () => {
     const reg = new ToolRegistry()
     reg.register(secureResource)
-    const result = JSON.parse(reg.dispatch('secure_resource', { token: VALID_TOKEN }) as string)
+    const result = JSON.parse((await reg.dispatch('secure_resource', { token: VALID_TOKEN })) as string)
     expect(result.data).toBe('secret-value')
   })
 
-  it('invalid token throws unauthorized', () => {
+  it('invalid token throws unauthorized', async () => {
     const reg = new ToolRegistry()
     reg.register(secureResource)
-    expect(() => reg.dispatch('secure_resource', { token: 'wrong' })).toThrow(ERR_UNAUTHORIZED)
+    await expect(reg.dispatch('secure_resource', { token: 'wrong' })).rejects.toThrow(ERR_UNAUTHORIZED)
   })
 
-  it('empty token throws unauthorized', () => {
+  it('empty token throws unauthorized', async () => {
     const reg = new ToolRegistry()
     reg.register(secureResource)
-    expect(() => reg.dispatch('secure_resource', { token: '' })).toThrow(ERR_UNAUTHORIZED)
+    await expect(reg.dispatch('secure_resource', { token: '' })).rejects.toThrow(ERR_UNAUTHORIZED)
   })
 
-  it('error message is unauthorized not secret-value', () => {
+  it('error message is unauthorized not secret-value', async () => {
     const reg = new ToolRegistry()
     reg.register(secureResource)
     let msg = ''
-    try { reg.dispatch('secure_resource', { token: 'bad' }) } catch (err) { msg = (err as Error).message }
+    try { await reg.dispatch('secure_resource', { token: 'bad' }) } catch (err) { msg = (err as Error).message }
     expect(msg).toBe(ERR_UNAUTHORIZED)
     expect(msg).not.toContain('secret-value')
   })
 
-  it('multiple invalid tokens all throw', () => {
+  it('multiple invalid tokens all throw', async () => {
     const reg = new ToolRegistry()
     reg.register(secureResource)
     const bad = ['', 'wrong', 'hacked', "' OR 1=1"]
-    bad.forEach((t) => {
-      expect(() => reg.dispatch('secure_resource', { token: t })).toThrow()
-    })
+    for (const t of bad) {
+      await expect(reg.dispatch('secure_resource', { token: t })).rejects.toThrow()
+    }
   })
 
-  it('valid dispatch does not throw', () => {
+  it('valid dispatch does not throw', async () => {
     const reg = new ToolRegistry()
     reg.register(secureResource)
-    expect(() => reg.dispatch('secure_resource', { token: VALID_TOKEN })).not.toThrow()
+    const result = await reg.dispatch('secure_resource', { token: VALID_TOKEN })
+    expect(result).toBeDefined()
   })
 
-  it('error does not corrupt registry', () => {
+  it('error does not corrupt registry', async () => {
     const reg = new ToolRegistry()
     reg.register(secureResource)
-    try { reg.dispatch('secure_resource', { token: 'bad' }) } catch (_) {}
-    expect(reg.get('secure_resource')).toBeDefined()
+    try { await reg.dispatch('secure_resource', { token: 'bad' }) } catch (_) {}
+    expect(reg.has('secure_resource')).toBe(true)
   })
 
   it('tool spec name matches handler name', () => {
@@ -73,8 +74,8 @@ describe('phase145 unauthenticated mcp refused', () => {
     expect(ERR_UNAUTHORIZED).toBe('unauthorized')
   })
 
-  it('dispatch missing tool still throws', () => {
+  it('dispatch missing tool still throws', async () => {
     const reg = new ToolRegistry()
-    expect(() => reg.dispatch('missing_tool', {})).toThrow()
+    await expect(reg.dispatch('missing_tool', {})).rejects.toThrow()
   })
 })

@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => ({
     startRun(_: Buffer): string {
       const id = `e2e-sa-${E2E_SA_CTR++}`
       E2E_SA[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'token', run_id: id, text: 'hi' }),
         JSON.stringify({ kind: 'completed', run_id: id }),
       ]

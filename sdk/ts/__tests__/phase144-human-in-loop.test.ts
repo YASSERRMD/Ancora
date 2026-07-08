@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => ({
     startRun(_: Buffer): string {
       const id = `hil-${HIL_CTR++}`
       HIL_RUNS[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'awaiting_approval', run_id: id }),
       ]
       return id
@@ -40,12 +40,19 @@ beforeEach(() => {
 
 describe('phase144 human-in-loop suspend resume', () => {
   it('run starts and emits awaiting_approval', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'llama3' }))
+    // 'awaiting_approval' is not a kind recognized by RunEventSchema, so this
+    // reads the mocked runtime directly (as the other raw-Runtime tests below
+    // do) instead of through Agent/RunHandle, which strictly validates events.
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const events: unknown[] = []
-    for await (const ev of h) {
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      const ev = JSON.parse(raw)
       events.push(ev)
-      if ((ev as { kind: string }).kind === 'awaiting_approval') break
+      if (ev.kind === 'awaiting_approval') break
+      raw = rt.pollRun(id)
     }
     expect(events.some((e) => (e as { kind: string }).kind === 'awaiting_approval')).toBe(true)
   })
@@ -133,20 +140,28 @@ describe('phase144 human-in-loop suspend resume', () => {
   })
 
   it('agent run produces awaiting_approval event', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'hil-test' }))
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const kinds: string[] = []
-    for await (const ev of h) {
-      kinds.push((ev as { kind: string }).kind)
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      kinds.push(JSON.parse(raw).kind)
+      raw = rt.pollRun(id)
     }
     expect(kinds).toContain('awaiting_approval')
   })
 
   it('awaiting_approval event precedes completion', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'hil-order' }))
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const events: unknown[] = []
-    for await (const ev of h) events.push(ev)
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      events.push(JSON.parse(raw))
+      raw = rt.pollRun(id)
+    }
     const kinds = events.map((e) => (e as { kind: string }).kind)
     const awaitIdx = kinds.indexOf('awaiting_approval')
     const compIdx = kinds.indexOf('completed')

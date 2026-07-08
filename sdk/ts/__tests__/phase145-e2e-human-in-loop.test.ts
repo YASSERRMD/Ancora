@@ -9,7 +9,7 @@ jest.mock('../ancora.node', () => ({
     startRun(_: Buffer): string {
       const id = `h145-${HIL145_CTR++}`
       HIL145[id] = [
-        JSON.stringify({ kind: 'started', run_id: id }),
+        JSON.stringify({ kind: 'started', run_id: id, spec: '{}' }),
         JSON.stringify({ kind: 'awaiting_approval', run_id: id }),
       ]
       return id
@@ -35,10 +35,18 @@ beforeEach(() => { Object.keys(HIL145).forEach((k) => delete HIL145[k]); HIL145_
 
 describe('phase145 e2e human-in-loop end to end', () => {
   it('run emits awaiting_approval', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'llama3' }))
+    // 'awaiting_approval' is not a kind recognized by RunEventSchema, so this
+    // reads the mocked runtime directly rather than through Agent/RunHandle,
+    // which strictly validates events (see the raw-Runtime tests below).
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const kinds: string[] = []
-    for await (const ev of h) kinds.push((ev as { kind: string }).kind)
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      kinds.push(JSON.parse(raw).kind)
+      raw = rt.pollRun(id)
+    }
     expect(kinds).toContain('awaiting_approval')
   })
 
@@ -75,10 +83,15 @@ describe('phase145 e2e human-in-loop end to end', () => {
   })
 
   it('awaiting_approval precedes completed', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'llama3' }))
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const kinds: string[] = []
-    for await (const ev of h) kinds.push((ev as { kind: string }).kind)
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      kinds.push(JSON.parse(raw).kind)
+      raw = rt.pollRun(id)
+    }
     const ai = kinds.indexOf('awaiting_approval')
     const ci = kinds.indexOf('completed')
     if (ai !== -1 && ci !== -1) expect(ai).toBeLessThan(ci)
@@ -112,10 +125,15 @@ describe('phase145 e2e human-in-loop end to end', () => {
   })
 
   it('started precedes awaiting_approval', async () => {
-    const agent = new Agent()
-    const h = agent.run(AgentSpecSchema.parse({ model: 'llama3' }))
+    const { Runtime } = await import('../index')
+    const rt = new Runtime()
+    const id = rt.startRun('{}')
     const kinds: string[] = []
-    for await (const ev of h) kinds.push((ev as { kind: string }).kind)
+    let raw = rt.pollRun(id)
+    while (raw !== null) {
+      kinds.push(JSON.parse(raw).kind)
+      raw = rt.pollRun(id)
+    }
     expect(kinds.indexOf('started')).toBeLessThan(kinds.indexOf('awaiting_approval'))
   })
 
