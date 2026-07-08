@@ -82,6 +82,29 @@ internal sealed class RunEventJsonConverter : JsonConverter<RunEvent>
 
     public override void Write(Utf8JsonWriter writer, RunEvent value, JsonSerializerOptions options)
     {
-        throw new NotSupportedException("RunEvent serialization is not supported");
+        writer.WriteStartObject();
+        writer.WriteString("kind", value.Kind);
+        writer.WriteString("run_id", value.RunId);
+        switch (value)
+        {
+            case StartedEvent started:
+                writer.WriteString("spec", started.Spec);
+                break;
+            case TokenEvent token:
+                writer.WriteString("text", token.Text);
+                break;
+            case CompletedEvent:
+                break;
+            case ResumedEvent resumed:
+                writer.WriteString("decision", resumed.Decision);
+                break;
+            case ToolCallEvent toolCall:
+                writer.WriteString("name", toolCall.Name);
+                writer.WriteString("input", toolCall.Input);
+                break;
+            default:
+                throw new NotSupportedException($"Unknown RunEvent subtype: {value.GetType()}");
+        }
+        writer.WriteEndObject();
     }
 }
