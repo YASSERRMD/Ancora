@@ -29,7 +29,6 @@ jobs:
         run: |
           cd sdk/python
           pip install -e ".[test]"
-          maturin develop --release
       - name: run tests
         run: |
           cd sdk/python
