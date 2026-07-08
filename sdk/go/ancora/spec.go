@@ -44,8 +44,7 @@ func (b *AgentSpecBuilder) WithTool(t *ToolSpec) *AgentSpecBuilder {
 
 // Build returns the AgentSpec proto message.
 func (b *AgentSpecBuilder) Build() *AgentSpec {
-	spec := b.spec
-	return &spec
+	return proto.Clone(&b.spec).(*AgentSpec)
 }
 
 // BuildBytes marshals the AgentSpec to proto-encoded bytes.
@@ -83,8 +82,7 @@ func (b *ToolSpecBuilder) WithInputSchema(schema string) *ToolSpecBuilder {
 
 // Build returns the ToolSpec proto message.
 func (b *ToolSpecBuilder) Build() *ToolSpec {
-	spec := b.spec
-	return &spec
+	return proto.Clone(&b.spec).(*ToolSpec)
 }
 
 // NewAgentSpec is a convenience constructor that returns a minimal AgentSpec.
