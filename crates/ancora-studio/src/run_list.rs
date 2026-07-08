@@ -71,7 +71,7 @@ impl RunList {
 
     pub fn sorted_by_started(&self) -> Vec<&RunSummary> {
         let mut refs: Vec<&RunSummary> = self.runs.iter().collect();
-        refs.sort_by(|a, b| b.started_at.cmp(&a.started_at));
+        refs.sort_by_key(|b| std::cmp::Reverse(b.started_at));
         refs
     }
 }

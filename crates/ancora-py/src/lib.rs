@@ -1,3 +1,9 @@
+// pyo3 0.22's macro expansions (create_exception!, #[pymethods]) reference
+// cfgs and PyErr conversions that this crate never declares; both are
+// harmless artifacts of the macro internals, not real issues in this crate.
+#![allow(unexpected_cfgs)]
+#![allow(clippy::useless_conversion)]
+
 use pyo3::prelude::*;
 
 mod error;

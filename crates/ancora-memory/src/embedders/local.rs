@@ -85,7 +85,7 @@ impl TfidfEmbedder {
             }
         }
         let mut terms: Vec<(String, usize)> = freq.into_iter().collect();
-        terms.sort_by(|a, b| b.1.cmp(&a.1));
+        terms.sort_by_key(|b| std::cmp::Reverse(b.1));
         terms.truncate(max_vocab);
         let n = docs.len().max(1) as f32;
         let vocab: Vec<String> = terms.iter().map(|(t, _)| t.clone()).collect();

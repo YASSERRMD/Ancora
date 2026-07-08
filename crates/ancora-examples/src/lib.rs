@@ -138,7 +138,7 @@ pub fn keyword_retrieve<'a>(corpus: &'a [Passage], query: &str, top_k: usize) ->
         })
         .collect();
 
-    scored.sort_by(|a, b| b.1.cmp(&a.1));
+    scored.sort_by_key(|b| std::cmp::Reverse(b.1));
     scored.into_iter().take(top_k).map(|(p, _)| p).collect()
 }
 

@@ -98,7 +98,7 @@ impl ControlPlaneStore {
                     && state_filter.is_none_or(|s| &r.state == s)
             })
             .collect();
-        runs.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        runs.sort_by_key(|b| std::cmp::Reverse(b.created_at));
 
         let start = cursor
             .and_then(|c| runs.iter().position(|r| r.id == c.after_id))
