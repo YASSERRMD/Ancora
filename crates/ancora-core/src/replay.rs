@@ -68,8 +68,30 @@ fn apply_event(state: &mut ReplayState, event: &JournalEvent) -> Result<(), Anco
 /// path (`observed`) matches the sequence recorded in the journal (`expected`).
 ///
 /// Returns `AncoraError::Nondeterminism` with position details if any key
-/// diverges. An extra observed key beyond the journal end is also a divergence.
+/// diverges, or if `observed` ends before `expected` does. This catches code
+/// changes that alter execution paths without updating the journal, so use it
+/// when verifying a completed run replayed every recorded step. For a run
+/// that may still be in progress, use [`detect_divergence_allow_partial`].
 pub fn detect_divergence(expected: &[String], observed: &[String]) -> Result<(), AncoraError> {
+    detect_divergence_inner(expected, observed, false)
+}
+
+/// Like [`detect_divergence`], but treats `observed` being a shorter, matching
+/// prefix of `expected` as valid rather than a divergence -- e.g. when
+/// checking a run that was paused mid-way and hasn't replayed the full
+/// journal yet. An observed key beyond the journal end is still a divergence.
+pub fn detect_divergence_allow_partial(
+    expected: &[String],
+    observed: &[String],
+) -> Result<(), AncoraError> {
+    detect_divergence_inner(expected, observed, true)
+}
+
+fn detect_divergence_inner(
+    expected: &[String],
+    observed: &[String],
+    allow_partial: bool,
+) -> Result<(), AncoraError> {
     for (seq, (exp, obs)) in expected.iter().zip(observed.iter()).enumerate() {
         if exp != obs {
             return Err(AncoraError::Nondeterminism {
@@ -84,6 +106,13 @@ pub fn detect_divergence(expected: &[String], observed: &[String]) -> Result<(),
             seq: expected.len() as u64,
             expected: "<end-of-journal>".to_string(),
             got: observed[expected.len()].clone(),
+        });
+    }
+    if !allow_partial && observed.len() < expected.len() {
+        return Err(AncoraError::Nondeterminism {
+            seq: observed.len() as u64,
+            expected: expected[observed.len()].clone(),
+            got: "<end-of-observed>".to_string(),
         });
     }
     Ok(())
