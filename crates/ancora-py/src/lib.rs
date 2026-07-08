@@ -13,6 +13,11 @@ pub use version::py_version;
 fn _ancora(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyRuntime>()?;
     m.add_function(wrap_pyfunction!(py_version, m)?)?;
-    m.add("AncorError", m.py().get_type_bound::<AncorError>())?;
+    let err_type = m.py().get_type_bound::<AncorError>();
+    err_type.setattr("ErrOk", 0)?;
+    err_type.setattr("ErrInternal", 1)?;
+    err_type.setattr("ErrNotFound", 2)?;
+    err_type.setattr("ErrInvalidArg", 3)?;
+    m.add("AncorError", err_type)?;
     Ok(())
 }

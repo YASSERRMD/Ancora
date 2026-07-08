@@ -13,5 +13,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ancora-core = { path = "../ancora-core" }
-pyo3 = { version = "0.22", features = ["extension-module"] }
+pyo3 = { version = "0.22", features = ["extension-module", "generate-import-lib"] }
 uuid = { version = "1", features = ["v4"] }

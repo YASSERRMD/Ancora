@@ -1,5 +1,6 @@
 """Phase 142 task 6: structured output pydantic."""
 
+import inspect
 import json
 import pytest
 from pydantic import BaseModel
@@ -81,8 +82,10 @@ def test_pydantic_model_validates_required_fields():
         OutputSchema.model_validate({"score": 1.0})
 
 
-def test_params_to_schema_returns_schema_string():
-    schema = params_to_schema({"x": str, "y": int})
-    assert isinstance(schema, str)
-    parsed = json.loads(schema)
+def test_params_to_schema_returns_schema_dict():
+    def fn(x: str, y: int): ...
+
+    schema = params_to_schema(inspect.signature(fn))
+    assert isinstance(schema, dict)
+    parsed = json.loads(json.dumps(schema))
     assert "properties" in parsed

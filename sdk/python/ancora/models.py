@@ -115,3 +115,5 @@ class AgentSpec(BaseModel):
     max_steps: int = Field(default=0, ge=0)
     model_retry: Optional[RetryPolicy] = None
     model_params_json: str = ""
+    require_approval: bool = False
+    system_prompt: str = ""
