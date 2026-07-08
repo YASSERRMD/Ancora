@@ -19,7 +19,7 @@ impl PiiGuard {
     }
 
     fn scan(&self, payload: &str) -> Vec<String> {
-        let lower = payload.to_lowercase();
+        let lower = payload.to_lowercase().replace('"', "");
         self.patterns
             .iter()
             .filter(|p| lower.contains(*p))
