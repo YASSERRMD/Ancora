@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using Ancora.Handles;
@@ -36,6 +37,31 @@ public sealed class Runtime : IDisposable
     {
         ArgumentNullException.ThrowIfNull(provider);
         var bytes = Wire.EncodeRuntimeConfig(provider);
+        _handle = RuntimeHandle.Create(bytes);
+    }
+
+    /// <summary>
+    /// Create a new Ancora runtime pointed at a real Postgres + pgvector
+    /// instance for document embeddings instead of the zero-dependency
+    /// in-memory vector store the parameterless constructor uses.
+    /// </summary>
+    /// <exception cref="AncorException">Thrown if the native runtime cannot be allocated.</exception>
+    /// <exception cref="DllNotFoundException">Thrown if the native library is not found.</exception>
+    public Runtime(MemoryConfig memory) : this(null, memory)
+    {
+    }
+
+    /// <summary>
+    /// Create a new Ancora runtime with a real model provider, a real
+    /// pgvector-backed memory store, or both. Either may be omitted (null)
+    /// to keep that half's zero-dependency default (offline echo model
+    /// client, or in-memory vector store, respectively).
+    /// </summary>
+    /// <exception cref="AncorException">Thrown if the native runtime cannot be allocated.</exception>
+    /// <exception cref="DllNotFoundException">Thrown if the native library is not found.</exception>
+    public Runtime(ProviderConfig? provider, MemoryConfig? memory)
+    {
+        var bytes = Wire.EncodeRuntimeConfig(provider, memory);
         _handle = RuntimeHandle.Create(bytes);
     }
 
@@ -142,6 +168,100 @@ public sealed class Runtime : IDisposable
         var json = GetCost(runId);
         return System.Text.Json.JsonSerializer.Deserialize<Cost>(json, Wire.Options)
             ?? new Cost(runId, 0.0);
+    }
+
+    /// <summary>
+    /// Create a vector collection for document embeddings.
+    /// </summary>
+    /// <param name="name">Collection name.</param>
+    /// <param name="dimensions">Embedding dimensionality every point in this collection must match.</param>
+    /// <param name="distance">One of <c>"cosine"</c>, <c>"dot"</c>, or <c>"l2"</c>.</param>
+    public unsafe void CreateCollection(string name, int dimensions, string distance = "cosine")
+    {
+        ThrowIfDisposed();
+        var bytes = Wire.EncodeCollectionSpec(name, dimensions, distance);
+        fixed (byte* p = bytes)
+        {
+            var rc = AncoraNative.ancora_memory_create_collection(
+                _handle.DangerousGetHandle(), (IntPtr)p, (nuint)bytes.Length);
+            if (rc != AncorErrorCode.Ok)
+            {
+                throw new AncorException(
+                    (int)rc, $"ancora_memory_create_collection failed for '{name}'");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Drop a vector collection by name.
+    /// </summary>
+    public void DropCollection(string name)
+    {
+        ThrowIfDisposed();
+        var rc = AncoraNative.ancora_memory_drop_collection(_handle.DangerousGetHandle(), name);
+        if (rc != AncorErrorCode.Ok)
+            throw new AncorException((int)rc, $"ancora_memory_drop_collection failed for '{name}'");
+    }
+
+    /// <summary>
+    /// Upsert points into a collection.
+    /// </summary>
+    public unsafe void Upsert(string collection, IReadOnlyList<VectorPoint> points)
+    {
+        ThrowIfDisposed();
+        var bytes = Wire.EncodePoints(points);
+        fixed (byte* p = bytes)
+        {
+            var rc = AncoraNative.ancora_memory_upsert(
+                _handle.DangerousGetHandle(), collection, (IntPtr)p, (nuint)bytes.Length);
+            if (rc != AncorErrorCode.Ok)
+                throw new AncorException((int)rc, $"ancora_memory_upsert failed for '{collection}'");
+        }
+    }
+
+    /// <summary>
+    /// Run a similarity query against a collection.
+    /// </summary>
+    /// <param name="collection">Collection to query.</param>
+    /// <param name="vector">Query embedding vector.</param>
+    /// <param name="topK">Maximum number of results to return.</param>
+    /// <param name="scoreThreshold">Drop results scoring below this threshold, if set.</param>
+    public unsafe IReadOnlyList<ScoredVectorPoint> Query(
+        string collection, float[] vector, int topK = 10, double? scoreThreshold = null)
+    {
+        ThrowIfDisposed();
+        var bytes = Wire.EncodeQueryRequest(vector, topK, scoreThreshold);
+        fixed (byte* p = bytes)
+        {
+            var rc = AncoraNative.ancora_memory_query(
+                _handle.DangerousGetHandle(), collection, (IntPtr)p, (nuint)bytes.Length, out var buf);
+            if (rc != AncorErrorCode.Ok)
+                throw new AncorException((int)rc, $"ancora_memory_query failed for '{collection}'");
+            try
+            {
+                return Wire.ParseScoredPoints(buf.AsSpan());
+            }
+            finally
+            {
+                AncoraNative.ancora_buffer_free(buf);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Delete points from a collection by id.
+    /// </summary>
+    public unsafe void Delete(string collection, IEnumerable<ulong> ids)
+    {
+        ThrowIfDisposed();
+        var bytes = Wire.EncodeIds(ids);
+        fixed (byte* p = bytes)
+        {
+            var rc = AncoraNative.ancora_memory_delete(
+                _handle.DangerousGetHandle(), collection, (IntPtr)p, (nuint)bytes.Length);
+            if (rc != AncorErrorCode.Ok)
+                throw new AncorException((int)rc, $"ancora_memory_delete failed for '{collection}'");
+        }
     }
 
     /// <summary>

@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::error_code::AncorErrorCode;
 use crate::handles::AncorRuntime;
+use crate::memory_backend::memory_store_from_config_bytes;
 use crate::model_client::ModelBackend;
 use crate::runs::InnerRun;
 use crate::tool_registry::ToolRegistry;
@@ -60,9 +61,10 @@ pub unsafe extern "C" fn ancora_runtime_new_with_config(
     } else {
         unsafe { std::slice::from_raw_parts(config_bytes, config_len) }
     };
-    let boxed: Box<InnerRuntime> = Box::new(InnerRuntime::with_model_backend(
-        ModelBackend::from_config_bytes(bytes),
-    ));
+    let boxed: Box<InnerRuntime> = Box::new(InnerRuntime {
+        memory: memory_store_from_config_bytes(bytes),
+        ..InnerRuntime::with_model_backend(ModelBackend::from_config_bytes(bytes))
+    });
     unsafe { *out = Box::into_raw(boxed).cast() };
     AncorErrorCode::Ok
 }
@@ -88,6 +90,7 @@ pub(crate) struct InnerRuntime {
     pub tools: Mutex<ToolRegistry>,
     pub journal: Arc<dyn ancora_core::journal::JournalStore>,
     pub model_backend: ModelBackend,
+    pub memory: Arc<dyn ancora_memory::vector_store::VectorStore>,
 }
 
 impl Default for InnerRuntime {
@@ -103,6 +106,7 @@ impl InnerRuntime {
             tools: Mutex::new(ToolRegistry::new()),
             journal: Arc::new(ancora_core::journal::MemoryStore::new()),
             model_backend,
+            memory: Arc::new(ancora_memory::mem_store::MemStore::new()),
         }
     }
 }
