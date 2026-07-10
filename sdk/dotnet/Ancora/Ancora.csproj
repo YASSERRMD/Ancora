@@ -18,7 +18,17 @@
     <RepositoryType>git</RepositoryType>
     <!-- Place native runtimes into runtimes/<rid>/native/ inside the package. -->
     <EnablePackageValidation>false</EnablePackageValidation>
+    <!-- Symbol package (.snupkg) and SourceLink, so consumers can step into
+         SDK source from a debugger against the exact commit a build came from. -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>Ancora.Tests</_Parameter1>
