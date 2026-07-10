@@ -14,29 +14,6 @@ use ancora_proto::ancora::{
     TokenUsage, ToolCallContent,
 };
 
-/// Runtime-level configuration decoded from `ancora_runtime_new_with_config`'s
-/// config bytes. Selects which model backend real runs are driven against.
-#[derive(Debug, Default, serde::Deserialize)]
-pub(crate) struct RuntimeConfig {
-    pub provider: Option<ProviderConfig>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub(crate) struct ProviderConfig {
-    /// Provider root URL, e.g. `"https://api.openai.com"` or
-    /// `"https://integrate.api.nvidia.com/v1"` for NVIDIA NIM (hosted or
-    /// self-hosted; switching is a base_url change only).
-    pub base_url: String,
-    /// Environment variable holding the bearer token, e.g. `"OPENAI_API_KEY"`
-    /// or `"NVIDIA_API_KEY"` (`nvapi-...`). Omit for unauthenticated
-    /// endpoints.
-    #[serde(default)]
-    pub auth_env_var: Option<String>,
-    /// Override the default `"/v1/chat/completions"` completions path.
-    #[serde(default)]
-    pub chat_completions_path: Option<String>,
-}
-
 /// Selects which model backend a runtime executes runs against.
 pub(crate) enum ModelBackend {
     /// Deterministic, offline, no-network default. Used when no provider
@@ -46,22 +23,36 @@ pub(crate) enum ModelBackend {
 }
 
 impl ModelBackend {
+    /// Config bytes are JSON: `{"provider":{"base_url":"...",
+    /// "auth_env_var":"...","chat_completions_path":"..."}}`. Parsed as a
+    /// plain `serde_json::Value` (rather than a derived struct) to keep
+    /// this crate's only structured-JSON dependency `serde_json`, matching
+    /// `spec_decode.rs`. Missing, empty, or unrecognized config bytes fall
+    /// back to `Offline`, so this never fails on malformed input.
     pub(crate) fn from_config_bytes(bytes: &[u8]) -> Self {
         if bytes.is_empty() {
             return ModelBackend::Offline;
         }
-        let Ok(config) = serde_json::from_slice::<RuntimeConfig>(bytes) else {
+        let Ok(config) = serde_json::from_slice::<serde_json::Value>(bytes) else {
             return ModelBackend::Offline;
         };
-        let Some(provider) = config.provider else {
+        let Some(provider) = config.get("provider") else {
             return ModelBackend::Offline;
         };
-        let auth = match provider.auth_env_var {
-            Some(env_var) => AuthStrategy::BearerToken { env_var },
+        let Some(base_url) = provider.get("base_url").and_then(|v| v.as_str()) else {
+            return ModelBackend::Offline;
+        };
+        let auth = match provider.get("auth_env_var").and_then(|v| v.as_str()) {
+            Some(env_var) => AuthStrategy::BearerToken {
+                env_var: env_var.to_owned(),
+            },
             None => AuthStrategy::None,
         };
-        let mut profile = ProviderProfile::new("configured", provider.base_url, auth);
-        if let Some(path) = provider.chat_completions_path {
+        let mut profile = ProviderProfile::new("configured", base_url, auth);
+        if let Some(path) = provider
+            .get("chat_completions_path")
+            .and_then(|v| v.as_str())
+        {
             profile = profile.with_chat_path(path);
         }
         let client = ancora_inference::openai::OpenAiClient::new(Arc::new(profile));
