@@ -139,6 +139,19 @@ public sealed class Runtime : IDisposable
     }
 
     /// <summary>
+    /// Resume a suspended run with a typed tool-call decision: the JSON
+    /// value the pending gated tool call should have returned, and whether
+    /// it represents an error. Use this instead of the plain-text
+    /// <see cref="ResumeRun(string, ReadOnlySpan{byte})"/> overload when the
+    /// pending call needs a structured result rather than a bare string.
+    /// </summary>
+    public void ResumeRun(string runId, string resultJson, bool isError = false)
+    {
+        ArgumentNullException.ThrowIfNull(resultJson);
+        ResumeRun(runId, Wire.EncodeToolDecision(resultJson, isError));
+    }
+
+    /// <summary>
     /// Return the cost summary JSON for a completed run.
     /// </summary>
     public string GetCost(string runId)
@@ -299,6 +312,26 @@ public sealed class Runtime : IDisposable
         var rc = AncoraNative.ancora_tool_register(_handle.DangerousGetHandle(), name, cb);
         if (rc != AncorErrorCode.Ok)
             throw new AncorException((int)rc, $"ancora_tool_register failed for '{name}'");
+    }
+
+    /// <summary>
+    /// Register a native callback that requires human approval before every
+    /// call: the run pauses at a <see cref="SuspendedEvent"/> instead of
+    /// invoking <paramref name="cb"/>, and stays paused until
+    /// <see cref="RunHandle.Resume(string, bool)"/>/<see cref="ResumeRun(string, string, bool)"/>
+    /// supplies a decision for that tool call. The delegate must stay alive
+    /// as long as it is registered.
+    /// </summary>
+    internal void RegisterCallbackRequiringApproval(string name, AncorToolCallback cb)
+    {
+        ThrowIfDisposed();
+        var rc = AncoraNative.ancora_tool_register_requires_approval(
+            _handle.DangerousGetHandle(), name, cb);
+        if (rc != AncorErrorCode.Ok)
+        {
+            throw new AncorException(
+                (int)rc, $"ancora_tool_register_requires_approval failed for '{name}'");
+        }
     }
 
     /// <summary>

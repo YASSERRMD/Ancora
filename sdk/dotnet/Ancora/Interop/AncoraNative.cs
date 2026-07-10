@@ -78,6 +78,12 @@ internal static unsafe class AncoraNative
         AncorToolCallback cb);
 
     [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern AncorErrorCode ancora_tool_register_requires_approval(
+        IntPtr rt,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string name,
+        AncorToolCallback cb);
+
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
     internal static extern AncorErrorCode ancora_tool_unregister(
         IntPtr rt,
         [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
