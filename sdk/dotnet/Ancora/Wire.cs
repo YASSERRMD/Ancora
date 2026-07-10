@@ -79,6 +79,15 @@ internal static class Wire
     internal static byte[] EncodeDecision(string decision) =>
         Encoding.UTF8.GetBytes(decision);
 
+    private sealed record ToolDecisionWire(string ResultJson, bool IsError);
+
+    /// <summary>
+    /// Serialize a typed tool-call decision to UTF-8 JSON bytes for the FFI
+    /// ancora_run_resume call.
+    /// </summary>
+    internal static byte[] EncodeToolDecision(string resultJson, bool isError) =>
+        JsonSerializer.SerializeToUtf8Bytes(new ToolDecisionWire(resultJson, isError), Options);
+
     // ---- memory / vector store wire shapes --------------------------------
 
     private sealed record CollectionSpecWire(string Name, int Dimensions, string Distance);

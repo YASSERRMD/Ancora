@@ -47,6 +47,20 @@ public sealed record ResumedEvent(string RunId, string Decision)
     : RunEvent("resumed", RunId);
 
 /// <summary>
+/// Emitted when the run pauses at a tool call registered with
+/// <see cref="Runtime.RegisterCallbackRequiringApproval"/> -- the run stays
+/// paused until <see cref="RunHandle.Resume"/>/<see cref="Runtime.ResumeRun"/>
+/// supplies a decision for <see cref="ToolCallId"/>.
+/// </summary>
+public sealed record SuspendedEvent(
+    string RunId,
+    string ToolCallId,
+    string ToolName,
+    string ArgumentsJson,
+    string Prompt)
+    : RunEvent("suspended", RunId);
+
+/// <summary>
 /// Emitted when the model requests a tool invocation.
 /// The Input field is the JSON-serialized tool arguments.
 /// </summary>
@@ -91,6 +105,12 @@ internal sealed class RunEventJsonConverter : JsonConverter<RunEvent>
                 runId,
                 root.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "",
                 root.TryGetProperty("input", out var input) ? input.GetString() ?? "" : ""),
+            "suspended" => new SuspendedEvent(
+                runId,
+                root.TryGetProperty("tool_call_id", out var tcId) ? tcId.GetString() ?? "" : "",
+                root.TryGetProperty("tool_name", out var tName) ? tName.GetString() ?? "" : "",
+                root.TryGetProperty("arguments_json", out var args) ? args.GetString() ?? "" : "",
+                root.TryGetProperty("prompt", out var prompt) ? prompt.GetString() ?? "" : ""),
             _ => throw new JsonException($"Unknown run event kind: {kind}")
         };
     }
@@ -120,6 +140,12 @@ internal sealed class RunEventJsonConverter : JsonConverter<RunEvent>
             case ToolCallEvent toolCall:
                 writer.WriteString("name", toolCall.Name);
                 writer.WriteString("input", toolCall.Input);
+                break;
+            case SuspendedEvent suspended:
+                writer.WriteString("tool_call_id", suspended.ToolCallId);
+                writer.WriteString("tool_name", suspended.ToolName);
+                writer.WriteString("arguments_json", suspended.ArgumentsJson);
+                writer.WriteString("prompt", suspended.Prompt);
                 break;
             default:
                 throw new NotSupportedException($"Unknown RunEvent subtype: {value.GetType()}");

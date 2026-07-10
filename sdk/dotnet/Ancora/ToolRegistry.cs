@@ -35,6 +35,33 @@ public static class ToolRegistry
     }
 
     /// <summary>
+    /// Register a named tool that requires human approval before every
+    /// call: the run pauses at a <see cref="SuspendedEvent"/> instead of
+    /// invoking <paramref name="handler"/>, and stays paused until
+    /// <see cref="RunHandle.Resume(string, bool)"/> supplies a decision.
+    /// <paramref name="handler"/> is never invoked automatically -- it is
+    /// accepted for API symmetry with <see cref="Register"/> and so a host
+    /// can still call it manually (e.g. to actually perform the gated
+    /// action once a human approves) after resuming.
+    /// Returns an IDisposable that unregisters the tool when disposed.
+    /// The returned value must stay alive as long as the tool is needed.
+    /// </summary>
+    public static IDisposable RegisterRequiringApproval(
+        Runtime runtime,
+        string name,
+        string description,
+        ToolHandler handler)
+    {
+        ArgumentNullException.ThrowIfNull(runtime);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(handler);
+
+        var bridge = new ToolBridge(handler);
+        runtime.RegisterCallbackRequiringApproval(name, bridge.NativeCallback);
+        return new ToolDisposable(runtime, name, bridge);
+    }
+
+    /// <summary>
     /// Discover all [Tool]-decorated public methods on target and register each one.
     /// Returns a list pairing each ToolSpec with its IDisposable registration.
     /// Disposing a registration unregisters that tool.

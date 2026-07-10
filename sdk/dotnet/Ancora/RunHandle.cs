@@ -72,6 +72,14 @@ public sealed class RunHandle
         _runtime.ResumeRun(RunId, decisionBytes);
 
     /// <summary>
+    /// Resume a suspended run with a typed tool-call decision: the JSON
+    /// value the pending gated tool call should have returned, and whether
+    /// it represents an error.
+    /// </summary>
+    public void Resume(string resultJson, bool isError) =>
+        _runtime.ResumeRun(RunId, resultJson, isError);
+
+    /// <summary>
     /// Resume a suspended run and then collect all subsequent events.
     /// </summary>
     public async Task<IReadOnlyList<RunEvent>> ResumeAndCollectAsync(
