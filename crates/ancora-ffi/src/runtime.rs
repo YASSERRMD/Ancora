@@ -1,8 +1,9 @@
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use crate::error_code::AncorErrorCode;
 use crate::handles::AncorRuntime;
+use crate::model_client::ModelBackend;
 use crate::runs::InnerRun;
 use crate::tool_registry::ToolRegistry;
 
@@ -33,18 +34,37 @@ pub unsafe extern "C" fn ancora_runtime_new(out: *mut *mut AncorRuntime) -> Anco
 }
 
 /// Allocate a runtime with serialized config bytes and write pointer to `out`.
-/// Config bytes are currently ignored (reserved for future use).
+///
+/// Config bytes are JSON: `{"provider":{"base_url":"...","auth_env_var":"...",
+/// "chat_completions_path":"..."}}`. `base_url` points at any
+/// OpenAI-compatible chat-completions endpoint (hosted or self-hosted, e.g.
+/// NVIDIA NIM); switching is a `base_url` change only. Missing, empty, or
+/// unrecognized config bytes fall back to the offline echo model client used
+/// by `ancora_runtime_new`, so this never fails on malformed input.
 /// Returns `NullPtr` if `out` is null.
 ///
 /// # Safety
-/// `out` must point to valid, writable memory for a pointer.
+/// `out` must point to valid, writable memory for a pointer. If `config_bytes`
+/// is non-null it must point to at least `config_len` valid bytes.
 #[no_mangle]
 pub unsafe extern "C" fn ancora_runtime_new_with_config(
-    _config_bytes: *const u8,
-    _config_len: usize,
+    config_bytes: *const u8,
+    config_len: usize,
     out: *mut *mut AncorRuntime,
 ) -> AncorErrorCode {
-    ancora_runtime_new(out)
+    if out.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let bytes = if config_bytes.is_null() || config_len == 0 {
+        &[][..]
+    } else {
+        unsafe { std::slice::from_raw_parts(config_bytes, config_len) }
+    };
+    let boxed: Box<InnerRuntime> = Box::new(InnerRuntime::with_model_backend(
+        ModelBackend::from_config_bytes(bytes),
+    ));
+    unsafe { *out = Box::into_raw(boxed).cast() };
+    AncorErrorCode::Ok
 }
 
 /// Free a runtime previously created by `ancora_create_runtime`.
@@ -66,21 +86,23 @@ pub unsafe extern "C" fn ancora_free_runtime(ptr: *mut AncorRuntime) {
 pub(crate) struct InnerRuntime {
     pub runs: Mutex<HashMap<String, InnerRun>>,
     pub tools: Mutex<ToolRegistry>,
-    _store: ancora_core::journal::MemoryStore,
+    pub journal: Arc<dyn ancora_core::journal::JournalStore>,
+    pub model_backend: ModelBackend,
 }
 
 impl Default for InnerRuntime {
     fn default() -> Self {
-        Self::new()
+        Self::with_model_backend(ModelBackend::Offline)
     }
 }
 
 impl InnerRuntime {
-    pub fn new() -> Self {
+    pub fn with_model_backend(model_backend: ModelBackend) -> Self {
         Self {
             runs: Mutex::new(HashMap::new()),
             tools: Mutex::new(ToolRegistry::new()),
-            _store: ancora_core::journal::MemoryStore::new(),
+            journal: Arc::new(ancora_core::journal::MemoryStore::new()),
+            model_backend,
         }
     }
 }

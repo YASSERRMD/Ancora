@@ -90,7 +90,7 @@ impl AgentCard {
                                  Content-Type: application/json\r\n\
                                  Content-Length: {}\r\n\r\n{}",
                                 body.len(),
-                                &*body
+                                *body
                             )
                         } else {
                             "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n".into()

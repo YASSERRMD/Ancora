@@ -102,7 +102,9 @@ void ancora_run_id_free(struct AncorRunId *ptr);
 struct AncorBuffer ancora_run_id_to_str(const struct AncorRunId *ptr);
 
 /**
- * Start a new run from serialized agent spec bytes.
+ * Start a new run from serialized agent spec bytes, driving it to
+ * completion synchronously against the runtime's configured model backend
+ * (see `ancora_runtime_new_with_config`) before returning.
  * Writes the run ID (as UTF-8) into `out_run_id`.
  * Returns `NullPtr` if runtime or spec pointer is null.
  *
@@ -176,14 +178,21 @@ enum AncorErrorCode ancora_runtime_new(struct AncorRuntime **out);
 
 /**
  * Allocate a runtime with serialized config bytes and write pointer to `out`.
- * Config bytes are currently ignored (reserved for future use).
+ *
+ * Config bytes are JSON: `{"provider":{"base_url":"...","auth_env_var":"...",
+ * "chat_completions_path":"..."}}`. `base_url` points at any
+ * OpenAI-compatible chat-completions endpoint (hosted or self-hosted, e.g.
+ * NVIDIA NIM); switching is a `base_url` change only. Missing, empty, or
+ * unrecognized config bytes fall back to the offline echo model client used
+ * by `ancora_runtime_new`, so this never fails on malformed input.
  * Returns `NullPtr` if `out` is null.
  *
  * # Safety
- * `out` must point to valid, writable memory for a pointer.
+ * `out` must point to valid, writable memory for a pointer. If `config_bytes`
+ * is non-null it must point to at least `config_len` valid bytes.
  */
-enum AncorErrorCode ancora_runtime_new_with_config(const uint8_t *_config_bytes,
-                                                   uintptr_t _config_len,
+enum AncorErrorCode ancora_runtime_new_with_config(const uint8_t *config_bytes,
+                                                   uintptr_t config_len,
                                                    struct AncorRuntime **out);
 
 /**

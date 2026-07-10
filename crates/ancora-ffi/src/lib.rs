@@ -1,11 +1,14 @@
 pub mod buffer;
 pub mod error_code;
 pub mod handles;
+mod model_client;
 pub mod run_id;
 pub mod run_ops;
 pub mod runs;
 pub mod runtime;
+mod spec_decode;
 pub mod tool_callback;
+mod tool_dispatch;
 pub mod tool_ops;
 pub mod tool_registry;
 pub mod version;

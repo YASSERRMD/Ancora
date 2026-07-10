@@ -1,4 +1,9 @@
 /// All generated protobuf types plus their pbjson serde implementations.
+// pbjson-build's own codegen emits `write!(formatter, "...", &FIELDS)` in the
+// Deserialize visitor's expecting() impl; newer clippy flags the redundant
+// reference. This is generated code we don't control, so silence it here
+// rather than patch it out of every OUT_DIR build.
+#[allow(clippy::useless_borrows_in_formatting)]
 pub mod ancora {
     include!(concat!(env!("OUT_DIR"), "/ancora.rs"));
     include!(concat!(env!("OUT_DIR"), "/ancora.serde.rs"));
