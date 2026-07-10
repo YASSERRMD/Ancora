@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use ancora_memory::mem_store::MemStore;
 use ancora_memory::vector_store::{
-    CollectionSpec, Distance, Payload, PayloadValue, Point, PointId, QueryRequest, ScoredPoint,
-    VectorStore,
+    CollectionInfo, CollectionSpec, Distance, Filter, HybridQueryRequest, Payload, PayloadValue,
+    Point, PointId, QueryRequest, ScoredPoint, VectorStore,
 };
 
 /// Build the `VectorStore` a runtime queries documents against. Config bytes
@@ -104,11 +104,54 @@ pub(crate) fn decode_points(bytes: &[u8]) -> Option<Vec<Point>> {
     Some(points)
 }
 
+// ---- wire decode: filter ---------------------------------------------------
+
+/// Decode a `Filter` expression from JSON:
+/// `{"eq":["case_id","c-1"]}`, `{"ne":[...]}`, `{"gt":["score",0.5]}`,
+/// `{"lt":[...]}`, `{"and":[filter,filter]}`, `{"or":[filter,filter]}`.
+/// This is the shape a compliance/RAG caller needs to scope a query to
+/// e.g. a case or tenant id rather than searching the whole collection.
+/// Returns `None` for any unrecognized shape rather than failing the whole
+/// request -- callers that pass a malformed filter get an unfiltered query
+/// rather than an error, matching this module's permissive decoding style.
+pub(crate) fn decode_filter(value: &serde_json::Value) -> Option<Filter> {
+    let obj = value.as_object()?;
+    let pair = |key: &str| -> Option<(String, PayloadValue)> {
+        let arr = obj.get(key)?.as_array()?;
+        let field = arr.first()?.as_str()?.to_owned();
+        let val = json_value_to_payload_value(arr.get(1)?);
+        Some((field, val))
+    };
+    if let Some((field, val)) = pair("eq") {
+        return Some(Filter::Eq(field, val));
+    }
+    if let Some((field, val)) = pair("ne") {
+        return Some(Filter::Ne(field, val));
+    }
+    if let Some((field, val)) = pair("gt") {
+        return Some(Filter::Gt(field, val));
+    }
+    if let Some((field, val)) = pair("lt") {
+        return Some(Filter::Lt(field, val));
+    }
+    if let Some(arr) = obj.get("and").and_then(|v| v.as_array()) {
+        let a = decode_filter(arr.first()?)?;
+        let b = decode_filter(arr.get(1)?)?;
+        return Some(a.and(b));
+    }
+    if let Some(arr) = obj.get("or").and_then(|v| v.as_array()) {
+        let a = decode_filter(arr.first()?)?;
+        let b = decode_filter(arr.get(1)?)?;
+        return Some(a.or(b));
+    }
+    None
+}
+
 // ---- wire decode: query request -------------------------------------------
 
 /// Decode a `QueryRequest` from JSON bytes:
-/// `{"vector":[0.1,0.2],"top_k":5,"score_threshold":0.0}`. `top_k` defaults
-/// to 10, `score_threshold` is optional.
+/// `{"vector":[0.1,0.2],"top_k":5,"score_threshold":0.0,"filter":{"eq":["case_id","c-1"]}}`.
+/// `top_k` defaults to 10, `score_threshold` and `filter` are optional.
 pub(crate) fn decode_query_request(bytes: &[u8]) -> Option<QueryRequest> {
     let value: serde_json::Value = serde_json::from_slice(bytes).ok()?;
     let vector: Vec<f32> = value
@@ -122,6 +165,38 @@ pub(crate) fn decode_query_request(bytes: &[u8]) -> Option<QueryRequest> {
     if let Some(t) = value.get("score_threshold").and_then(|v| v.as_f64()) {
         req = req.with_score_threshold(t as f32);
     }
+    if let Some(filter) = value.get("filter").and_then(decode_filter) {
+        req = req.with_filter(filter);
+    }
+    Some(req)
+}
+
+// ---- wire decode: hybrid query request -------------------------------------
+
+/// Decode a `HybridQueryRequest` from JSON bytes:
+/// `{"dense_vector":[0.1,0.2],"keyword":"contract termination","top_k":5,
+/// "alpha":0.5,"score_threshold":0.0,"filter":{"eq":["case_id","c-1"]}}`.
+/// `top_k` defaults to 10, `alpha` defaults to 0.5 (even blend).
+pub(crate) fn decode_hybrid_query_request(bytes: &[u8]) -> Option<HybridQueryRequest> {
+    let value: serde_json::Value = serde_json::from_slice(bytes).ok()?;
+    let dense_vector: Vec<f32> = value
+        .get("dense_vector")?
+        .as_array()?
+        .iter()
+        .map(|v| v.as_f64().unwrap_or(0.0) as f32)
+        .collect();
+    let keyword = value.get("keyword")?.as_str()?.to_owned();
+    let top_k = value.get("top_k").and_then(|v| v.as_u64()).unwrap_or(10) as usize;
+    let mut req = HybridQueryRequest::new(dense_vector, keyword, top_k);
+    if let Some(alpha) = value.get("alpha").and_then(|v| v.as_f64()) {
+        req = req.with_alpha(alpha as f32);
+    }
+    if let Some(t) = value.get("score_threshold").and_then(|v| v.as_f64()) {
+        req.score_threshold = Some(t as f32);
+    }
+    if let Some(filter) = value.get("filter").and_then(decode_filter) {
+        req = req.with_filter(filter);
+    }
     Some(req)
 }
 
@@ -133,6 +208,13 @@ pub(crate) fn decode_point_ids(bytes: &[u8]) -> Option<Vec<PointId>> {
     let value: serde_json::Value = serde_json::from_slice(bytes).ok()?;
     let arr = value.as_array()?;
     arr.iter().map(|v| v.as_u64().map(PointId::Num)).collect()
+}
+
+/// Decode a bare `Filter` expression from JSON bytes, e.g.
+/// `{"eq":["case_id","c-1"]}`, for `ancora_memory_delete_by_filter`.
+pub(crate) fn decode_filter_bytes(bytes: &[u8]) -> Option<Filter> {
+    let value: serde_json::Value = serde_json::from_slice(bytes).ok()?;
+    decode_filter(&value)
 }
 
 // ---- wire encode: scored points (query response) ---------------------------
@@ -154,6 +236,23 @@ fn point_id_to_json(id: &PointId) -> serde_json::Value {
         PointId::Num(n) => serde_json::Value::Number((*n).into()),
         PointId::Uuid(s) => serde_json::Value::String(s.clone()),
     }
+}
+
+/// Encode a `CollectionInfo` for `ancora_memory_describe_collection`:
+/// `{"name":"docs","dimensions":768,"point_count":42,"distance":"cosine"}`.
+pub(crate) fn encode_collection_info(info: &CollectionInfo) -> String {
+    let distance = match info.distance {
+        Distance::Cosine => "cosine",
+        Distance::Dot => "dot",
+        Distance::L2 => "l2",
+    };
+    serde_json::json!({
+        "name": info.name,
+        "dimensions": info.dimensions,
+        "point_count": info.point_count,
+        "distance": distance,
+    })
+    .to_string()
 }
 
 /// Encode query results as a JSON array:
@@ -262,6 +361,98 @@ mod tests {
     fn decode_query_request_defaults_top_k_to_ten() {
         let req = decode_query_request(br#"{"vector":[0.1]}"#).unwrap();
         assert_eq!(req.top_k, 10);
+    }
+
+    #[test]
+    fn decode_query_request_reads_filter() {
+        let req =
+            decode_query_request(br#"{"vector":[0.1],"filter":{"eq":["case_id","c-1"]}}"#).unwrap();
+        let filter = req.filter.expect("filter should be decoded");
+        assert!(matches!(
+            filter,
+            Filter::Eq(field, PayloadValue::String(v)) if field == "case_id" && v == "c-1"
+        ));
+    }
+
+    #[test]
+    fn decode_filter_reads_eq_ne_gt_lt() {
+        assert!(matches!(
+            decode_filter(&serde_json::json!({"eq": ["k", "v"]})),
+            Some(Filter::Eq(_, _))
+        ));
+        assert!(matches!(
+            decode_filter(&serde_json::json!({"ne": ["k", "v"]})),
+            Some(Filter::Ne(_, _))
+        ));
+        assert!(matches!(
+            decode_filter(&serde_json::json!({"gt": ["k", 1]})),
+            Some(Filter::Gt(_, _))
+        ));
+        assert!(matches!(
+            decode_filter(&serde_json::json!({"lt": ["k", 1]})),
+            Some(Filter::Lt(_, _))
+        ));
+    }
+
+    #[test]
+    fn decode_filter_reads_nested_and_or() {
+        let and_filter = decode_filter(&serde_json::json!({
+            "and": [{"eq": ["a", "1"]}, {"eq": ["b", "2"]}]
+        }));
+        assert!(matches!(and_filter, Some(Filter::And(_, _))));
+
+        let or_filter = decode_filter(&serde_json::json!({
+            "or": [{"eq": ["a", "1"]}, {"eq": ["b", "2"]}]
+        }));
+        assert!(matches!(or_filter, Some(Filter::Or(_, _))));
+    }
+
+    #[test]
+    fn decode_filter_unrecognized_shape_returns_none() {
+        assert!(decode_filter(&serde_json::json!({"unknown": []})).is_none());
+        assert!(decode_filter(&serde_json::json!("not an object")).is_none());
+    }
+
+    #[test]
+    fn decode_filter_bytes_reads_bare_filter() {
+        let filter = decode_filter_bytes(br#"{"eq":["case_id","c-1"]}"#).unwrap();
+        assert!(matches!(filter, Filter::Eq(_, _)));
+    }
+
+    #[test]
+    fn decode_hybrid_query_request_reads_all_fields() {
+        let req = decode_hybrid_query_request(
+            br#"{"dense_vector":[0.1,0.2],"keyword":"termination","top_k":3,"alpha":0.7,"score_threshold":0.2}"#,
+        )
+        .unwrap();
+        assert_eq!(req.dense_vector, vec![0.1, 0.2]);
+        assert_eq!(req.keyword, "termination");
+        assert_eq!(req.top_k, 3);
+        assert!((req.alpha - 0.7).abs() < 1e-6);
+        assert_eq!(req.score_threshold, Some(0.2));
+    }
+
+    #[test]
+    fn decode_hybrid_query_request_defaults_top_k_and_alpha() {
+        let req = decode_hybrid_query_request(br#"{"dense_vector":[0.1],"keyword":"x"}"#).unwrap();
+        assert_eq!(req.top_k, 10);
+        assert!((req.alpha - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn encode_collection_info_round_trips_through_json() {
+        let info = CollectionInfo {
+            name: "docs".to_owned(),
+            dimensions: 768,
+            point_count: 42,
+            distance: Distance::Cosine,
+        };
+        let json = encode_collection_info(&info);
+        let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed["name"], "docs");
+        assert_eq!(parsed["dimensions"], 768);
+        assert_eq!(parsed["point_count"], 42);
+        assert_eq!(parsed["distance"], "cosine");
     }
 
     #[test]

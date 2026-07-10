@@ -154,6 +154,66 @@ enum AncorErrorCode ancora_memory_delete(struct AncorRuntime *rt,
                                          uintptr_t ids_len);
 
 /**
+ * Delete every point matching a filter expression. `filter_bytes` is a
+ * bare `Filter` JSON object: `{"eq":["case_id","c-1"]}` (see
+ * `ancora_memory_query`'s `filter` field for the full expression grammar).
+ * Writes `{"deleted_count":N}` into `out`.
+ * Returns `NullPtr` if any pointer is null, `InvalidUtf8` if `filter_bytes`
+ * is not a recognized filter expression, `Internal` if the backend rejects
+ * the request.
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `collection` must be a valid
+ * null-terminated C string. `filter_bytes` must point to at least
+ * `filter_len` valid bytes. `out` must point to valid, writable memory for
+ * an `AncorBuffer`.
+ */
+enum AncorErrorCode ancora_memory_delete_by_filter(struct AncorRuntime *rt,
+                                                   const char *collection,
+                                                   const uint8_t *filter_bytes,
+                                                   uintptr_t filter_len,
+                                                   struct AncorBuffer *out);
+
+/**
+ * Run a hybrid (dense-vector + keyword) similarity query against a
+ * collection. `query_bytes` is JSON:
+ * `{"dense_vector":[0.1,0.2],"keyword":"contract termination","top_k":5,
+ * "alpha":0.5,"score_threshold":0.0}` (`top_k` defaults to 10, `alpha`
+ * defaults to 0.5, `score_threshold` is optional). Writes a JSON array of
+ * `{"id":..,"score":..,"payload":{..}}` into `out`, same shape as
+ * `ancora_memory_query`.
+ * Returns `NullPtr` if any pointer is null, `InvalidUtf8` if `query_bytes`
+ * is malformed, `Internal` if the backend rejects the request.
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `collection` must be a valid
+ * null-terminated C string. `query_bytes` must point to at least
+ * `query_len` valid bytes. `out` must point to valid, writable memory for
+ * an `AncorBuffer`.
+ */
+enum AncorErrorCode ancora_memory_hybrid_query(struct AncorRuntime *rt,
+                                               const char *collection,
+                                               const uint8_t *query_bytes,
+                                               uintptr_t query_len,
+                                               struct AncorBuffer *out);
+
+/**
+ * Describe a collection: dimensions, point count, and distance metric.
+ * Writes `{"name":..,"dimensions":..,"point_count":..,"distance":..}` into
+ * `out`.
+ * Returns `NullPtr` if any pointer is null, `Internal` if the collection
+ * does not exist.
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `name` must be a valid
+ * null-terminated C string. `out` must point to valid, writable memory for
+ * an `AncorBuffer`.
+ */
+enum AncorErrorCode ancora_memory_describe_collection(struct AncorRuntime *rt,
+                                                      const char *name,
+                                                      struct AncorBuffer *out);
+
+/**
  * Allocate a new run ID from a null-terminated UTF-8 string.
  * Returns null if `s` is null or not valid UTF-8.
  *
