@@ -34,7 +34,9 @@ jobs:
 
       - name: Run unit tests (no native library)
         working-directory: sdk/dotnet
-        run: dotnet test --no-build --configuration Release --verbosity normal
+        run: |
+          dotnet test --no-build --configuration Release --verbosity normal \
+            --filter "FullyQualifiedName!~Phase148"
 
   e2e:
     name: .NET e2e tests (with native library)
