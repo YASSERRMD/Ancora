@@ -26,9 +26,19 @@ public sealed record TokenEvent(string RunId, string Text)
 
 /// <summary>
 /// Emitted when a run reaches its final completed state.
+/// The Output field is the run's final text output; use
+/// <see cref="StructuredOutputExtensions.Deserialize{T}"/> to parse it as a
+/// typed structured-output value.
 /// </summary>
-public sealed record CompletedEvent(string RunId)
+public sealed record CompletedEvent(string RunId, string Output = "")
     : RunEvent("completed", RunId);
+
+/// <summary>
+/// Emitted when a run fails, e.g. an unreachable or erroring model
+/// endpoint. The Error field is a human-readable description.
+/// </summary>
+public sealed record FailedEvent(string RunId, string Error)
+    : RunEvent("failed", RunId);
 
 /// <summary>
 /// Emitted after a suspended run receives a human decision and resumes.
@@ -68,7 +78,12 @@ internal sealed class RunEventJsonConverter : JsonConverter<RunEvent>
             "token" => new TokenEvent(
                 runId,
                 root.TryGetProperty("text", out var text) ? text.GetString() ?? "" : ""),
-            "completed" => new CompletedEvent(runId),
+            "completed" => new CompletedEvent(
+                runId,
+                root.TryGetProperty("output", out var output) ? output.GetString() ?? "" : ""),
+            "failed" => new FailedEvent(
+                runId,
+                root.TryGetProperty("error", out var error) ? error.GetString() ?? "" : ""),
             "resumed" => new ResumedEvent(
                 runId,
                 root.TryGetProperty("decision", out var dec) ? dec.GetString() ?? "" : ""),
@@ -93,7 +108,11 @@ internal sealed class RunEventJsonConverter : JsonConverter<RunEvent>
             case TokenEvent token:
                 writer.WriteString("text", token.Text);
                 break;
-            case CompletedEvent:
+            case CompletedEvent completed:
+                writer.WriteString("output", completed.Output);
+                break;
+            case FailedEvent failed:
+                writer.WriteString("error", failed.Error);
                 break;
             case ResumedEvent resumed:
                 writer.WriteString("decision", resumed.Decision);
