@@ -5,8 +5,11 @@ use crate::error_code::AncorErrorCode;
 use crate::handles::AncorRuntime;
 use crate::runs::InnerRun;
 use crate::runtime::InnerRuntime;
+use crate::spec_decode::decode_agent_spec;
 
-/// Start a new run from serialized agent spec bytes.
+/// Start a new run from serialized agent spec bytes, driving it to
+/// completion synchronously against the runtime's configured model backend
+/// (see `ancora_runtime_new_with_config`) before returning.
 /// Writes the run ID (as UTF-8) into `out_run_id`.
 /// Returns `NullPtr` if runtime or spec pointer is null.
 ///
@@ -24,15 +27,21 @@ pub unsafe extern "C" fn ancora_run_start(
     if rt.is_null() || spec_bytes.is_null() || out_run_id.is_null() {
         return AncorErrorCode::NullPtr;
     }
-    let spec_str = if spec_len == 0 {
-        String::new()
+    let spec_slice = if spec_len == 0 {
+        &[][..]
     } else {
-        let slice = unsafe { std::slice::from_raw_parts(spec_bytes, spec_len) };
-        String::from_utf8_lossy(slice).into_owned()
+        unsafe { std::slice::from_raw_parts(spec_bytes, spec_len) }
     };
+    let spec = decode_agent_spec(spec_slice);
     let run_id = uuid::Uuid::new_v4().to_string();
-    let run = InnerRun::new(&run_id, &spec_str);
     let inner = unsafe { &mut *rt.cast::<InnerRuntime>() };
+    let run = InnerRun::execute(
+        &run_id,
+        spec,
+        &inner.model_backend,
+        &inner.tools,
+        std::sync::Arc::clone(&inner.journal),
+    );
     inner.runs.lock().unwrap().insert(run_id.clone(), run);
     unsafe { *out_run_id = ancora_buffer_from_str(&run_id) };
     AncorErrorCode::Ok
