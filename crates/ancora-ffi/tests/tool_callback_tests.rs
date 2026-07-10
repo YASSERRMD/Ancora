@@ -3,7 +3,7 @@ use ancora_ffi::error_code::AncorErrorCode;
 use ancora_ffi::runtime::{ancora_free_runtime, ancora_runtime_new};
 use ancora_ffi::tool_ops::{
     ancora_tool_count, ancora_tool_exists, ancora_tool_invoke, ancora_tool_register,
-    ancora_tool_unregister,
+    ancora_tool_register_requires_approval, ancora_tool_unregister,
 };
 
 fn make_rt() -> *mut ancora_ffi::handles::AncorRuntime {
@@ -132,4 +132,23 @@ fn unregister_removes_tool_from_exists() {
     unsafe { ancora_tool_unregister(rt, name.as_ptr()) };
     assert_eq!(unsafe { ancora_tool_exists(rt, name.as_ptr()) }, 0);
     unsafe { ancora_free_runtime(rt) };
+}
+
+#[test]
+fn register_requires_approval_still_registers_the_tool() {
+    let rt = make_rt();
+    let name = cstr("gated");
+    let code = unsafe { ancora_tool_register_requires_approval(rt, name.as_ptr(), echo_cb) };
+    assert_eq!(code, AncorErrorCode::Ok);
+    assert_eq!(unsafe { ancora_tool_exists(rt, name.as_ptr()) }, 1);
+    unsafe { ancora_free_runtime(rt) };
+}
+
+#[test]
+fn register_requires_approval_with_null_rt_returns_null_ptr() {
+    let name = cstr("gated");
+    let code = unsafe {
+        ancora_tool_register_requires_approval(std::ptr::null_mut(), name.as_ptr(), echo_cb)
+    };
+    assert_eq!(code, AncorErrorCode::NullPtr);
 }

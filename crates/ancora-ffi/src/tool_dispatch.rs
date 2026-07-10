@@ -33,6 +33,13 @@ impl<'a> FfiToolDispatcher<'a> {
 }
 
 impl ToolDispatcher for FfiToolDispatcher<'_> {
+    fn requires_approval(&self, call: &ToolCallContent) -> bool {
+        self.tools
+            .lock()
+            .unwrap()
+            .requires_approval(&call.tool_name)
+    }
+
     fn dispatch(&self, call: &ToolCallContent) -> Result<ToolResultContent, AncoraError> {
         self.events.lock().unwrap().push(
             serde_json::json!({
@@ -163,6 +170,18 @@ mod tests {
         assert!(result.is_error);
     }
 
+    #[test]
+    fn requires_approval_delegates_to_registry() {
+        let mut registry = ToolRegistry::new();
+        registry.register_requires_approval("gated", echo_callback as AncorToolCallback);
+        registry.register("free", echo_callback as AncorToolCallback);
+        let tools = Mutex::new(registry);
+        let dispatcher = FfiToolDispatcher::new(&tools, "run-1");
+
+        assert!(dispatcher.requires_approval(&call("gated")));
+        assert!(!dispatcher.requires_approval(&call("free")));
+    }
+
     /// End-to-end: an `Agent::run_loop` where the model requests a tool
     /// call, `FfiToolDispatcher` invokes the real registered callback, the
     /// result feeds back into the next model call, and the loop terminates
@@ -247,8 +266,11 @@ mod tests {
         };
         let mut agent = Agent::new(spec, "run-tool-loop", Arc::new(MemoryStore::new()));
 
-        let output = agent.run_loop("go", &model, &dispatcher).unwrap();
-        assert_eq!(output, "done");
+        let outcome = agent.run_loop("go", &model, &dispatcher).unwrap();
+        assert!(matches!(
+            outcome,
+            ancora_core::agent::AgentOutcome::Completed(text) if text == "done"
+        ));
 
         let events = dispatcher.into_events();
         assert_eq!(events.len(), 1);

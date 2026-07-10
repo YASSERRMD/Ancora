@@ -32,6 +32,38 @@ pub unsafe extern "C" fn ancora_tool_register(
     AncorErrorCode::Ok
 }
 
+/// Register a named tool callback that requires human approval before every
+/// dispatch: instead of invoking `cb`, `ancora_run_start`/`ancora_run_resume`
+/// suspend the run (a `suspended` event) and wait for
+/// `ancora_run_resume` to supply the human's decision.
+/// Returns `NullPtr` if either `rt` or `name` is null.
+///
+/// # Safety
+/// `rt` must be a live runtime pointer. `name` must be a valid
+/// null-terminated C string. `cb` must be safe to call with a byte buffer
+/// for as long as it remains registered.
+#[no_mangle]
+pub unsafe extern "C" fn ancora_tool_register_requires_approval(
+    rt: *mut AncorRuntime,
+    name: *const c_char,
+    cb: AncorToolCallback,
+) -> AncorErrorCode {
+    if rt.is_null() || name.is_null() {
+        return AncorErrorCode::NullPtr;
+    }
+    let inner = unsafe { &*(rt.cast::<InnerRuntime>()) };
+    let name_str = match unsafe { CStr::from_ptr(name) }.to_str() {
+        Ok(s) => s.to_owned(),
+        Err(_) => return AncorErrorCode::InvalidUtf8,
+    };
+    inner
+        .tools
+        .lock()
+        .unwrap()
+        .register_requires_approval(name_str, cb);
+    AncorErrorCode::Ok
+}
+
 /// Unregister a named tool callback. Returns `NullPtr` if either pointer is null.
 ///
 /// # Safety

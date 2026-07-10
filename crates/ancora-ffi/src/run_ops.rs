@@ -110,16 +110,15 @@ pub unsafe extern "C" fn ancora_run_resume(
     let id = unsafe { std::ffi::CStr::from_ptr(run_id) }
         .to_str()
         .unwrap_or("");
-    let decision = if decision_bytes.is_null() || decision_len == 0 {
-        String::new()
+    let decision: &[u8] = if decision_bytes.is_null() || decision_len == 0 {
+        &[]
     } else {
-        let slice = unsafe { std::slice::from_raw_parts(decision_bytes, decision_len) };
-        String::from_utf8_lossy(slice).into_owned()
+        unsafe { std::slice::from_raw_parts(decision_bytes, decision_len) }
     };
     let inner = unsafe { &mut *rt.cast::<InnerRuntime>() };
     let mut guard = inner.runs.lock().unwrap();
     if let Some(run) = guard.get_mut(id) {
-        run.resume(&decision);
+        run.resume(decision, &inner.model_backend, &inner.tools);
     }
     AncorErrorCode::Ok
 }
