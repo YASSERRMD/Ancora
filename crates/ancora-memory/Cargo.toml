@@ -13,7 +13,7 @@ serde = { version = "1", features = ["derive"], optional = true }
 tokio = { version = "1", features = ["rt-multi-thread", "net", "time"], optional = true }
 tokio-postgres = { version = "0.7", features = ["with-serde_json-1"], optional = true }
 pgvector = { version = "0.4", features = ["postgres"], optional = true }
-ureq = { version = "2", optional = true }
+ureq = { version = "2", features = ["json"], optional = true }
 
 [features]
 default = []

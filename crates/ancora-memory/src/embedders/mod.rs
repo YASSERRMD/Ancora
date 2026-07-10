@@ -26,6 +26,8 @@ pub mod loader;
 pub mod loader_tests;
 pub mod local;
 pub mod openai;
+#[cfg(feature = "openai-embed")]
+pub mod openai_live;
 pub mod pipeline;
 pub mod pipeline_tests;
 pub mod qwen_glm;
