@@ -10,13 +10,14 @@ description = "Composable memory tiers for Ancora agents"
 [dependencies]
 serde_json = "1"
 serde = { version = "1", features = ["derive"], optional = true }
-tokio = { version = "1", features = ["rt"], optional = true }
-tokio-postgres = { version = "0.7", optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "net", "time"], optional = true }
+tokio-postgres = { version = "0.7", features = ["with-serde_json-1"], optional = true }
+pgvector = { version = "0.4", features = ["postgres"], optional = true }
 ureq = { version = "2", optional = true }
 
 [features]
 default = []
-pgvector = ["serde", "tokio", "tokio-postgres"]
+pgvector = ["dep:pgvector", "serde", "tokio", "tokio-postgres"]
 qdrant = ["serde", "ureq"]
 weaviate = ["serde", "ureq"]
 milvus = ["serde", "ureq"]

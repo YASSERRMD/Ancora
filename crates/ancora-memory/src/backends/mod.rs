@@ -31,7 +31,10 @@ pub mod pgvector;
 pub mod pgvector_conformance;
 pub mod pgvector_filter_tests;
 pub mod pgvector_hybrid_tests;
+pub mod pgvector_integration;
 pub mod pgvector_migration;
+#[cfg(feature = "pgvector")]
+pub mod pgvector_store;
 pub mod pinecone;
 pub mod pinecone_conformance;
 pub mod pinecone_index_tests;
