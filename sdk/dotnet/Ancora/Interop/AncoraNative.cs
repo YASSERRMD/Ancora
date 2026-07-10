@@ -133,6 +133,26 @@ internal static unsafe class AncoraNative
         [MarshalAs(UnmanagedType.LPUTF8Str)] string collection,
         IntPtr idsBytes, nuint idsLen);
 
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern AncorErrorCode ancora_memory_delete_by_filter(
+        IntPtr rt,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string collection,
+        IntPtr filterBytes, nuint filterLen,
+        out AncorBuffer outResult);
+
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern AncorErrorCode ancora_memory_hybrid_query(
+        IntPtr rt,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string collection,
+        IntPtr queryBytes, nuint queryLen,
+        out AncorBuffer outResult);
+
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern AncorErrorCode ancora_memory_describe_collection(
+        IntPtr rt,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string name,
+        out AncorBuffer outResult);
+
     // --- Version ---
 
     [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]

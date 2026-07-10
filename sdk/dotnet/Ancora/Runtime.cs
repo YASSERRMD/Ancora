@@ -239,11 +239,16 @@ public sealed class Runtime : IDisposable
     /// <param name="vector">Query embedding vector.</param>
     /// <param name="topK">Maximum number of results to return.</param>
     /// <param name="scoreThreshold">Drop results scoring below this threshold, if set.</param>
+    /// <param name="filter">Scope results to points matching this filter, if set.</param>
     public unsafe IReadOnlyList<ScoredVectorPoint> Query(
-        string collection, float[] vector, int topK = 10, double? scoreThreshold = null)
+        string collection,
+        float[] vector,
+        int topK = 10,
+        double? scoreThreshold = null,
+        VectorFilter? filter = null)
     {
         ThrowIfDisposed();
-        var bytes = Wire.EncodeQueryRequest(vector, topK, scoreThreshold);
+        var bytes = Wire.EncodeQueryRequest(vector, topK, scoreThreshold, filter);
         fixed (byte* p = bytes)
         {
             var rc = AncoraNative.ancora_memory_query(
@@ -262,6 +267,63 @@ public sealed class Runtime : IDisposable
     }
 
     /// <summary>
+    /// Run a hybrid (dense-vector + keyword) similarity query against a
+    /// collection, blending the two scores by <paramref name="alpha"/>
+    /// (1.0 = pure vector, 0.0 = pure keyword).
+    /// </summary>
+    public unsafe IReadOnlyList<ScoredVectorPoint> HybridQuery(
+        string collection,
+        float[] denseVector,
+        string keyword,
+        int topK = 10,
+        float alpha = 0.5f,
+        double? scoreThreshold = null,
+        VectorFilter? filter = null)
+    {
+        ThrowIfDisposed();
+        var bytes = Wire.EncodeHybridQueryRequest(
+            denseVector, keyword, topK, alpha, scoreThreshold, filter);
+        fixed (byte* p = bytes)
+        {
+            var rc = AncoraNative.ancora_memory_hybrid_query(
+                _handle.DangerousGetHandle(), collection, (IntPtr)p, (nuint)bytes.Length, out var buf);
+            if (rc != AncorErrorCode.Ok)
+                throw new AncorException((int)rc, $"ancora_memory_hybrid_query failed for '{collection}'");
+            try
+            {
+                return Wire.ParseScoredPoints(buf.AsSpan());
+            }
+            finally
+            {
+                AncoraNative.ancora_buffer_free(buf);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Describe a collection: dimensions, point count, and distance metric.
+    /// </summary>
+    public CollectionInfo DescribeCollection(string collection)
+    {
+        ThrowIfDisposed();
+        var rc = AncoraNative.ancora_memory_describe_collection(
+            _handle.DangerousGetHandle(), collection, out var buf);
+        if (rc != AncorErrorCode.Ok)
+        {
+            throw new AncorException(
+                (int)rc, $"ancora_memory_describe_collection failed for '{collection}'");
+        }
+        try
+        {
+            return Wire.ParseCollectionInfo(buf.AsSpan());
+        }
+        finally
+        {
+            AncoraNative.ancora_buffer_free(buf);
+        }
+    }
+
+    /// <summary>
     /// Delete points from a collection by id.
     /// </summary>
     public unsafe void Delete(string collection, IEnumerable<ulong> ids)
@@ -274,6 +336,35 @@ public sealed class Runtime : IDisposable
                 _handle.DangerousGetHandle(), collection, (IntPtr)p, (nuint)bytes.Length);
             if (rc != AncorErrorCode.Ok)
                 throw new AncorException((int)rc, $"ancora_memory_delete failed for '{collection}'");
+        }
+    }
+
+    /// <summary>
+    /// Delete every point matching a filter expression. Returns the number
+    /// of points deleted.
+    /// </summary>
+    public unsafe ulong DeleteByFilter(string collection, VectorFilter filter)
+    {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(filter);
+        var bytes = Wire.EncodeFilterBytes(filter);
+        fixed (byte* p = bytes)
+        {
+            var rc = AncoraNative.ancora_memory_delete_by_filter(
+                _handle.DangerousGetHandle(), collection, (IntPtr)p, (nuint)bytes.Length, out var buf);
+            if (rc != AncorErrorCode.Ok)
+            {
+                throw new AncorException(
+                    (int)rc, $"ancora_memory_delete_by_filter failed for '{collection}'");
+            }
+            try
+            {
+                return Wire.ParseDeletedCount(buf.AsSpan());
+            }
+            finally
+            {
+                AncoraNative.ancora_buffer_free(buf);
+            }
         }
     }
 

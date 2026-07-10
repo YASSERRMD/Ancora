@@ -106,4 +106,95 @@ public class MemoryStoreTests
         var results = runtime.Query("docs", new[] { 1.0f, 0.0f }, topK: 1);
         Assert.Single(results);
     }
+
+    [Fact]
+    public void Query_With_Filter_Scopes_Results_To_Matching_Payload()
+    {
+        using var runtime = new Runtime();
+        runtime.CreateCollection("docs", dimensions: 2);
+        runtime.Upsert("docs", new[]
+        {
+            new VectorPoint(1, new[] { 1.0f, 0.0f }, new Dictionary<string, object?> { ["case_id"] = "a" }),
+            new VectorPoint(2, new[] { 1.0f, 0.0f }, new Dictionary<string, object?> { ["case_id"] = "b" }),
+        });
+
+        var results = runtime.Query(
+            "docs", new[] { 1.0f, 0.0f }, topK: 10, filter: VectorFilter.Eq("case_id", "b"));
+
+        var point = Assert.Single(results);
+        Assert.Equal(2UL, point.Id);
+    }
+
+    [Fact]
+    public void Query_With_And_Filter_Requires_Both_Conditions()
+    {
+        using var runtime = new Runtime();
+        runtime.CreateCollection("docs", dimensions: 2);
+        runtime.Upsert("docs", new[]
+        {
+            new VectorPoint(1, new[] { 1.0f, 0.0f },
+                new Dictionary<string, object?> { ["case_id"] = "a", ["status"] = "open" }),
+            new VectorPoint(2, new[] { 1.0f, 0.0f },
+                new Dictionary<string, object?> { ["case_id"] = "a", ["status"] = "closed" }),
+        });
+
+        var filter = VectorFilter.Eq("case_id", "a").And(VectorFilter.Eq("status", "open"));
+        var results = runtime.Query("docs", new[] { 1.0f, 0.0f }, topK: 10, filter: filter);
+
+        var point = Assert.Single(results);
+        Assert.Equal(1UL, point.Id);
+    }
+
+    [Fact]
+    public void HybridQuery_Blends_Vector_And_Keyword_Score()
+    {
+        using var runtime = new Runtime();
+        runtime.CreateCollection("docs", dimensions: 2);
+        runtime.Upsert("docs", new[]
+        {
+            new VectorPoint(1, new[] { 1.0f, 0.0f }, new Dictionary<string, object?> { ["text"] = "contract termination clause" }),
+            new VectorPoint(2, new[] { 1.0f, 0.0f }, new Dictionary<string, object?> { ["text"] = "unrelated payroll memo" }),
+        });
+
+        // Pure keyword (alpha=0): only the matching-text point should score.
+        var results = runtime.HybridQuery(
+            "docs", new[] { 1.0f, 0.0f }, "termination", topK: 10, alpha: 0.0f);
+
+        Assert.Contains(results, p => p.Id == 1 && p.Score > 0);
+        Assert.Contains(results, p => p.Id == 2 && p.Score == 0);
+    }
+
+    [Fact]
+    public void DescribeCollection_Reports_Dimensions_And_Point_Count()
+    {
+        using var runtime = new Runtime();
+        runtime.CreateCollection("docs", dimensions: 3);
+        runtime.Upsert("docs", new[] { new VectorPoint(1, new[] { 1.0f, 0.0f, 0.0f }) });
+
+        var info = runtime.DescribeCollection("docs");
+
+        Assert.Equal("docs", info.Name);
+        Assert.Equal(3, info.Dimensions);
+        Assert.Equal(1UL, info.PointCount);
+        Assert.Equal("cosine", info.Distance);
+    }
+
+    [Fact]
+    public void DeleteByFilter_Removes_Only_Matching_Points()
+    {
+        using var runtime = new Runtime();
+        runtime.CreateCollection("docs", dimensions: 2);
+        runtime.Upsert("docs", new[]
+        {
+            new VectorPoint(1, new[] { 1.0f, 0.0f }, new Dictionary<string, object?> { ["case_id"] = "a" }),
+            new VectorPoint(2, new[] { 1.0f, 0.0f }, new Dictionary<string, object?> { ["case_id"] = "b" }),
+        });
+
+        var deletedCount = runtime.DeleteByFilter("docs", VectorFilter.Eq("case_id", "a"));
+
+        Assert.Equal(1UL, deletedCount);
+        var remaining = runtime.Query("docs", new[] { 1.0f, 0.0f }, topK: 10);
+        Assert.DoesNotContain(remaining, p => p.Id == 1);
+        Assert.Contains(remaining, p => p.Id == 2);
+    }
 }
