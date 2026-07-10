@@ -120,7 +120,7 @@ impl DeviceRegistry {
         }
         identity.activate();
 
-        let token = format!("tok-{}", &req.device_id.0);
+        let token = format!("tok-{}", req.device_id.0);
         self.devices.insert(req.device_id.clone(), identity);
 
         RegistrationResponse {
