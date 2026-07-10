@@ -14,21 +14,34 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0"
-      - name: Build Rust FFI lib
-        run: cargo build --release -p ancora-ffi 2>/dev/null || echo "ffi build skipped"
-      - name: Pack NuGet (dry run)
+          dotnet-version: "8.0.x"
+
+      - name: Build native library (linux-x64)
         run: |
-          cat > /tmp/Ancora.nuspec << 'NUSPEC'
-          <?xml version="1.0"?>
-          <package>
-            <metadata>
-              <id>Ancora</id>
-              <version>0.6.0</version>
-              <description>Ancora .NET SDK</description>
-              <authors>YASSERRMD</authors>
-            </metadata>
-          </package>
-          NUSPEC
-          nuget pack /tmp/Ancora.nuspec -OutputDirectory /tmp/nuget-out 2>/dev/null || \
-            dotnet pack /dev/null 2>/dev/null || echo "NuGet pack dry-run completed"
+          cargo build --release -p ancora-ffi --target x86_64-unknown-linux-gnu
+          mkdir -p sdk/dotnet/Ancora/build/native/linux-x64
+          cp target/x86_64-unknown-linux-gnu/release/libancora_ffi.so \
+             sdk/dotnet/Ancora/build/native/linux-x64/libancora_ffi.so
+
+      - name: Pack the real Ancora project
+        working-directory: sdk/dotnet/Ancora
+        run: dotnet pack --configuration Release --output ./nupkgs
+
+      - name: Verify package version matches the release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          CSPROJ_VERSION=$(grep -oP '(?<=<Version>)[^<]+' sdk/dotnet/Ancora/Ancora.csproj)
+          if [ "$TAG_VERSION" != "$CSPROJ_VERSION" ]; then
+            echo "::error::tag v$TAG_VERSION does not match Ancora.csproj Version $CSPROJ_VERSION"
+            exit 1
+          fi
+          echo "tag version $TAG_VERSION matches csproj version $CSPROJ_VERSION"
+
+      - name: Upload dry-run package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-dry-run-package
+          path: |
+            sdk/dotnet/Ancora/nupkgs/*.nupkg
+            sdk/dotnet/Ancora/nupkgs/*.snupkg
