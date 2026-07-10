@@ -56,7 +56,15 @@ impl ModelBackend {
             profile = profile.with_chat_path(path);
         }
         let client = ancora_inference::openai::OpenAiClient::new(Arc::new(profile));
-        ModelBackend::Provider(Arc::new(client))
+        // Wrap every provider-backed client with retry/backoff on transient
+        // failures (429 with Retry-After, 5xx, unreachable endpoint). Without
+        // this, a single transient network blip fails the whole run instead
+        // of being absorbed the way a production caller would expect.
+        let retrying = ancora_inference::retry::RetryingModelClient::new(
+            client,
+            ancora_inference::retry::RetryPolicy::default(),
+        );
+        ModelBackend::Provider(Arc::new(retrying))
     }
 
     /// Build a fresh `ancora_core::agent::ModelClient` adapter for one run.

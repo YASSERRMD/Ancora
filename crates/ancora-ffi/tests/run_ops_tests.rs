@@ -287,3 +287,43 @@ fn provider_backend_pointed_at_unreachable_host_produces_failed_event() {
     unsafe { ancora_buffer_free(failed) };
     unsafe { ancora_free_runtime(rt) };
 }
+
+/// The provider model client is wrapped in `RetryingModelClient` with the
+/// default policy (3 attempts). Connection-refused counts as
+/// `InferenceError::Unreachable`, which is retried, so a run against an
+/// unreachable host should take noticeably longer than a single instant
+/// connection-refused failure would -- proving the retries actually ran,
+/// not just that the run eventually fails.
+#[test]
+fn provider_backend_retries_before_giving_up_on_unreachable_host() {
+    use ancora_ffi::runtime::ancora_runtime_new_with_config;
+    use std::time::Instant;
+
+    // No auth_env_var: an unset credential env var short-circuits to
+    // `MissingCredential` before any network attempt, which would make this
+    // test measure the wrong thing. `AuthStrategy::None` guarantees the
+    // client actually attempts (and fails) the TCP connect.
+    let config = br#"{"provider":{"base_url":"http://127.0.0.1:1"}}"#;
+    let mut rt = std::ptr::null_mut();
+    unsafe { ancora_runtime_new_with_config(config.as_ptr(), config.len(), &mut rt) };
+
+    let spec = br#"{"model_id":"mock","instructions":"hello"}"#;
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    let start = Instant::now();
+    unsafe { ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out) };
+    let elapsed = start.elapsed();
+    unsafe { ancora_buffer_free(out) };
+    unsafe { ancora_free_runtime(rt) };
+
+    // Default RetryPolicy backs off 200ms then 400ms (before jitter) across
+    // the two retries a 3-attempt policy allows. A single, unretried
+    // connection-refused failure resolves in low single-digit milliseconds,
+    // so 500ms is a safe floor that only a real retry loop can cross.
+    assert!(
+        elapsed.as_millis() >= 500,
+        "expected retries to add measurable delay, run_start took only {elapsed:?}"
+    );
+}
