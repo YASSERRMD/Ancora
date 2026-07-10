@@ -35,10 +35,15 @@ await foreach (var ev in handle.EventsAsync())
         case TokenEvent t:
             Console.Write(t.Text);
             break;
-        case CompletedEvent:
+        case CompletedEvent completed:
+            Console.Write(completed.Output);
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("Run completed.");
+            break;
+        case FailedEvent failed:
+            Console.WriteLine();
+            Console.WriteLine($"Run failed: {failed.Error}");
             break;
         case ToolCallEvent tc:
             Console.WriteLine($"[tool call: {tc.Name}]");
@@ -47,5 +52,5 @@ await foreach (var ev in handle.EventsAsync())
 }
 
 // Print cost summary.
-var cost = handle.GetCost();
-Console.WriteLine($"Cost: {cost}");
+var cost = handle.GetCostTyped();
+Console.WriteLine($"Cost: ${cost.TotalUsd:F6}");
