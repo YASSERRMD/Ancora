@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Ancora;
@@ -111,14 +112,67 @@ internal static class Wire
         return JsonSerializer.SerializeToUtf8Bytes(wire, Options);
     }
 
-    private sealed record QueryRequestWire(float[] Vector, int TopK, double? ScoreThreshold);
+    private sealed record QueryRequestWire(
+        float[] Vector, int TopK, double? ScoreThreshold, JsonNode? Filter);
 
     /// <summary>
     /// Serialize a similarity query to UTF-8 JSON bytes for the FFI
     /// ancora_memory_query call.
     /// </summary>
-    internal static byte[] EncodeQueryRequest(float[] vector, int topK, double? scoreThreshold) =>
-        JsonSerializer.SerializeToUtf8Bytes(new QueryRequestWire(vector, topK, scoreThreshold), Options);
+    internal static byte[] EncodeQueryRequest(
+        float[] vector, int topK, double? scoreThreshold, VectorFilter? filter = null) =>
+        JsonSerializer.SerializeToUtf8Bytes(
+            new QueryRequestWire(vector, topK, scoreThreshold, filter is null ? null : EncodeFilter(filter)),
+            Options);
+
+    private sealed record HybridQueryRequestWire(
+        float[] DenseVector, string Keyword, int TopK, float Alpha, double? ScoreThreshold, JsonNode? Filter);
+
+    /// <summary>
+    /// Serialize a hybrid (dense-vector + keyword) query to UTF-8 JSON bytes
+    /// for the FFI ancora_memory_hybrid_query call.
+    /// </summary>
+    internal static byte[] EncodeHybridQueryRequest(
+        float[] denseVector,
+        string keyword,
+        int topK,
+        float alpha,
+        double? scoreThreshold,
+        VectorFilter? filter) =>
+        JsonSerializer.SerializeToUtf8Bytes(
+            new HybridQueryRequestWire(
+                denseVector, keyword, topK, alpha, scoreThreshold,
+                filter is null ? null : EncodeFilter(filter)),
+            Options);
+
+    /// <summary>
+    /// Serialize a bare filter expression to UTF-8 JSON bytes for the FFI
+    /// ancora_memory_delete_by_filter call.
+    /// </summary>
+    internal static byte[] EncodeFilterBytes(VectorFilter filter) =>
+        Encoding.UTF8.GetBytes(EncodeFilter(filter).ToJsonString());
+
+    /// <summary>
+    /// Encode a <see cref="VectorFilter"/> tree into the
+    /// <c>{"eq":["field","value"]}</c>-shaped JSON the FFI's filter decoder
+    /// expects (see ancora-ffi's memory_backend.rs decode_filter).
+    /// </summary>
+    private static JsonNode EncodeFilter(VectorFilter filter) => filter switch
+    {
+        EqFilter f => FilterPair("eq", f.Field, f.Value),
+        NeFilter f => FilterPair("ne", f.Field, f.Value),
+        GtFilter f => FilterPair("gt", f.Field, f.Value),
+        LtFilter f => FilterPair("lt", f.Field, f.Value),
+        AndFilter f => new JsonObject { ["and"] = new JsonArray(EncodeFilter(f.Left), EncodeFilter(f.Right)) },
+        OrFilter f => new JsonObject { ["or"] = new JsonArray(EncodeFilter(f.Left), EncodeFilter(f.Right)) },
+        _ => throw new NotSupportedException($"Unknown VectorFilter subtype: {filter.GetType()}"),
+    };
+
+    private static JsonNode FilterPair(string op, string field, object value) =>
+        new JsonObject
+        {
+            [op] = new JsonArray(JsonValue.Create(field), JsonSerializer.SerializeToNode(value)),
+        };
 
     /// <summary>
     /// Serialize point ids to a UTF-8 JSON array for the FFI
@@ -141,5 +195,28 @@ internal static class Wire
         return wire
             .Select(w => new ScoredVectorPoint(w.Id, w.Score, w.Payload ?? new Dictionary<string, JsonElement>()))
             .ToList();
+    }
+
+    private sealed record CollectionInfoWire(string Name, int Dimensions, ulong PointCount, string Distance);
+
+    /// <summary>
+    /// Parse the JSON object returned by the FFI
+    /// ancora_memory_describe_collection call.
+    /// </summary>
+    internal static CollectionInfo ParseCollectionInfo(ReadOnlySpan<byte> bytes)
+    {
+        var wire = JsonSerializer.Deserialize<CollectionInfoWire>(bytes, Options)
+            ?? throw new InvalidOperationException("Deserializing collection info returned null");
+        return new CollectionInfo(wire.Name, wire.Dimensions, wire.PointCount, wire.Distance);
+    }
+
+    /// <summary>
+    /// Parse the <c>{"deleted_count":N}</c> JSON object returned by the FFI
+    /// ancora_memory_delete_by_filter call.
+    /// </summary>
+    internal static ulong ParseDeletedCount(ReadOnlySpan<byte> bytes)
+    {
+        using var doc = JsonDocument.Parse(bytes.ToArray());
+        return doc.RootElement.GetProperty("deleted_count").GetUInt64();
     }
 }
