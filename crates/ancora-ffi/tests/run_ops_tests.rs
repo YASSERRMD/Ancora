@@ -210,3 +210,80 @@ fn drive_full_run_start_poll_poll_cost() {
     unsafe { ancora_buffer_free(cost) };
     unsafe { ancora_free_runtime(rt) };
 }
+
+/// Proves the run engine is real, not the old hard-coded stub: the
+/// `completed` event's output must equal what the offline echo model client
+/// actually produced from the spec's instructions, not a fixed string.
+#[test]
+fn completed_event_output_reflects_real_agent_execution() {
+    let rt = make_rt();
+    let spec = br#"{"model_id":"mock","instructions":"echo this exact phrase"}"#;
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    unsafe { ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out) };
+    let id = buf_to_string(&out);
+    unsafe { ancora_buffer_free(out) };
+    let c_id = cstr(&id);
+
+    let mut started = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    let mut completed = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut started) };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut completed) };
+    let completed_json = buf_to_string(&completed);
+    assert!(
+        completed_json.contains("echo this exact phrase"),
+        "completed event should carry the real echoed output, got: {completed_json}"
+    );
+    unsafe { ancora_buffer_free(started) };
+    unsafe { ancora_buffer_free(completed) };
+    unsafe { ancora_free_runtime(rt) };
+}
+
+/// A provider-configured runtime pointed at an unreachable endpoint must
+/// fail the run gracefully (a `failed` event), not panic or hang.
+#[test]
+fn provider_backend_pointed_at_unreachable_host_produces_failed_event() {
+    use ancora_ffi::runtime::ancora_runtime_new_with_config;
+
+    let config =
+        br#"{"provider":{"base_url":"http://127.0.0.1:1","auth_env_var":"UNSET_TEST_KEY"}}"#;
+    let mut rt = std::ptr::null_mut();
+    unsafe { ancora_runtime_new_with_config(config.as_ptr(), config.len(), &mut rt) };
+
+    let spec = br#"{"model_id":"mock","instructions":"hello"}"#;
+    let mut out = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    unsafe { ancora_run_start(rt, spec.as_ptr(), spec.len(), &mut out) };
+    let id = buf_to_string(&out);
+    unsafe { ancora_buffer_free(out) };
+    let c_id = cstr(&id);
+
+    let mut started = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    let mut failed = AncorBuffer {
+        ptr: std::ptr::null_mut(),
+        len: 0,
+    };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut started) };
+    unsafe { ancora_run_poll(rt, c_id.as_ptr(), &mut failed) };
+    let failed_json = buf_to_string(&failed);
+    assert!(
+        failed_json.contains("failed"),
+        "unreachable provider should produce a failed event, got: {failed_json}"
+    );
+    unsafe { ancora_buffer_free(started) };
+    unsafe { ancora_buffer_free(failed) };
+    unsafe { ancora_free_runtime(rt) };
+}
