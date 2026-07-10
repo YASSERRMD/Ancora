@@ -21,6 +21,18 @@ pub struct OpenAiEmbedConfig {
     pub dimensions: Option<usize>,
     /// Request timeout in seconds.
     pub timeout_secs: u64,
+    /// Asymmetric retrieval hint (`"passage"` or `"query"`), supported by
+    /// NeMo Retriever (NVIDIA NIM) and some other OpenAI-compatible
+    /// embedding endpoints. `None` omits the field entirely, matching
+    /// providers (e.g. plain OpenAI) that don't accept it.
+    pub input_type: Option<String>,
+}
+
+/// `input_type` values recognized by NeMo Retriever / NVIDIA NIM embedding
+/// models for asymmetric retrieval.
+pub mod input_type {
+    pub const PASSAGE: &str = "passage";
+    pub const QUERY: &str = "query";
 }
 
 impl OpenAiEmbedConfig {
@@ -31,6 +43,7 @@ impl OpenAiEmbedConfig {
             model: model.into(),
             dimensions: None,
             timeout_secs: 30,
+            input_type: None,
         }
     }
 
@@ -48,6 +61,7 @@ impl OpenAiEmbedConfig {
             model: dep,
             dimensions: None,
             timeout_secs: 30,
+            input_type: None,
         }
     }
 
@@ -59,11 +73,31 @@ impl OpenAiEmbedConfig {
             model: model.into(),
             dimensions: None,
             timeout_secs: 60,
+            input_type: None,
+        }
+    }
+
+    /// NVIDIA NIM hosted endpoint, e.g. for a NeMo Retriever embedding
+    /// model. `input_type` should be set separately via `with_input_type`
+    /// per-instance (one for passages, one for queries).
+    pub fn nvidia_nim(api_key: impl Into<String>, model: impl Into<String>) -> Self {
+        Self {
+            base_url: "https://integrate.api.nvidia.com/v1".to_owned(),
+            api_key: api_key.into(),
+            model: model.into(),
+            dimensions: None,
+            timeout_secs: 30,
+            input_type: None,
         }
     }
 
     pub fn with_dimensions(mut self, dims: usize) -> Self {
         self.dimensions = Some(dims);
+        self
+    }
+
+    pub fn with_input_type(mut self, input_type: impl Into<String>) -> Self {
+        self.input_type = Some(input_type.into());
         self
     }
 
@@ -88,6 +122,9 @@ pub fn request_body(config: &OpenAiEmbedConfig, text: &str) -> Value {
     if let Some(d) = config.dimensions {
         body["dimensions"] = json!(d);
     }
+    if let Some(it) = &config.input_type {
+        body["input_type"] = json!(it);
+    }
     body
 }
 
@@ -100,6 +137,9 @@ pub fn batch_request_body(config: &OpenAiEmbedConfig, texts: &[&str]) -> Value {
     });
     if let Some(d) = config.dimensions {
         body["dimensions"] = json!(d);
+    }
+    if let Some(it) = &config.input_type {
+        body["input_type"] = json!(it);
     }
     body
 }
@@ -176,6 +216,37 @@ mod openai_tests {
             "url: {}",
             cfg.embeddings_url()
         );
+    }
+
+    #[test]
+    fn nvidia_nim_config_base_url_carries_v1() {
+        let cfg = OpenAiEmbedConfig::nvidia_nim("nvapi-test", "nvidia/nv-embedqa-e5-v5");
+        assert_eq!(cfg.base_url, "https://integrate.api.nvidia.com/v1");
+        assert_eq!(
+            cfg.embeddings_url(),
+            "https://integrate.api.nvidia.com/v1/embeddings"
+        );
+    }
+
+    #[test]
+    fn request_body_omits_input_type_by_default() {
+        let cfg = OpenAiEmbedConfig::new("key", "model");
+        let body = request_body(&cfg, "hello");
+        assert!(body.get("input_type").is_none());
+    }
+
+    #[test]
+    fn request_body_includes_input_type_when_set() {
+        let cfg = OpenAiEmbedConfig::new("key", "model").with_input_type(input_type::PASSAGE);
+        let body = request_body(&cfg, "hello");
+        assert_eq!(body["input_type"], "passage");
+    }
+
+    #[test]
+    fn batch_request_body_includes_input_type_when_set() {
+        let cfg = OpenAiEmbedConfig::new("key", "model").with_input_type(input_type::QUERY);
+        let body = batch_request_body(&cfg, &["a", "b"]);
+        assert_eq!(body["input_type"], "query");
     }
 
     #[test]
