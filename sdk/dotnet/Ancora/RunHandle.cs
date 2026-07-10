@@ -86,4 +86,10 @@ public sealed class RunHandle
     /// Return the cost summary JSON for this run.
     /// </summary>
     public string GetCost() => _runtime.GetCost(RunId);
+
+    /// <summary>
+    /// Return the cost summary for this run, parsed into a typed
+    /// <see cref="Cost"/> record.
+    /// </summary>
+    public Cost GetCostTyped() => _runtime.GetCostTyped(RunId);
 }

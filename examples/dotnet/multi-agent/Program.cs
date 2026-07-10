@@ -44,8 +44,7 @@ var drafterHandle = drafter.Run(new AgentSpec(
 
 Console.WriteLine($"Drafter run: {drafterHandle.RunId}");
 var drafterEvents = await drafterHandle.CollectAsync();
-var draft = string.Concat(
-    drafterEvents.OfType<TokenEvent>().Select(t => t.Text));
+var draft = drafterEvents.OfType<CompletedEvent>().FirstOrDefault()?.Output ?? "";
 Console.WriteLine($"Draft answer: {draft.Trim()}");
 Console.WriteLine();
 
@@ -57,8 +56,7 @@ var verifierHandle = verifier.Run(new AgentSpec(
 
 Console.WriteLine($"Verifier run: {verifierHandle.RunId}");
 var verifierEvents = await verifierHandle.CollectAsync();
-var verdict = string.Concat(
-    verifierEvents.OfType<TokenEvent>().Select(t => t.Text)).Trim();
+var verdict = (verifierEvents.OfType<CompletedEvent>().FirstOrDefault()?.Output ?? "").Trim();
 Console.WriteLine($"Verdict: {verdict}");
 Console.WriteLine();
 
@@ -74,5 +72,5 @@ else
 }
 
 Console.WriteLine();
-Console.WriteLine("Drafter cost: " + drafterHandle.GetCost());
-Console.WriteLine("Verifier cost: " + verifierHandle.GetCost());
+Console.WriteLine($"Drafter cost: ${drafterHandle.GetCostTyped().TotalUsd:F6}");
+Console.WriteLine($"Verifier cost: ${verifierHandle.GetCostTyped().TotalUsd:F6}");

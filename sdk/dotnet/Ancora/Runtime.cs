@@ -26,6 +26,20 @@ public sealed class Runtime : IDisposable
     }
 
     /// <summary>
+    /// Create a new Ancora runtime pointed at a real OpenAI-compatible
+    /// provider (hosted or self-hosted, including NVIDIA NIM) instead of
+    /// the offline echo model client the parameterless constructor uses.
+    /// </summary>
+    /// <exception cref="AncorException">Thrown if the native runtime cannot be allocated.</exception>
+    /// <exception cref="DllNotFoundException">Thrown if the native library is not found.</exception>
+    public Runtime(ProviderConfig provider)
+    {
+        ArgumentNullException.ThrowIfNull(provider);
+        var bytes = Wire.EncodeRuntimeConfig(provider);
+        _handle = RuntimeHandle.Create(bytes);
+    }
+
+    /// <summary>
     /// Return the ABI version string from the native library.
     /// </summary>
     public static string Version()
@@ -117,6 +131,17 @@ public sealed class Runtime : IDisposable
         {
             AncoraNative.ancora_buffer_free(buf);
         }
+    }
+
+    /// <summary>
+    /// Return the cost summary for a completed run, parsed into a typed
+    /// <see cref="Cost"/> record.
+    /// </summary>
+    public Cost GetCostTyped(string runId)
+    {
+        var json = GetCost(runId);
+        return System.Text.Json.JsonSerializer.Deserialize<Cost>(json, Wire.Options)
+            ?? new Cost(runId, 0.0);
     }
 
     /// <summary>

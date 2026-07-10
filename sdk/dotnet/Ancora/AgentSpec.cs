@@ -37,16 +37,21 @@ public record ToolSpec(
 /// Describes a single agent: the model it uses, its system prompt, and its tools.
 /// </summary>
 /// <param name="Model">Model identifier, e.g. "llama3" or "gpt-4o".</param>
-/// <param name="Instructions">System prompt sent before the conversation.</param>
+/// <param name="Instructions">System prompt sent before the conversation. Also
+/// doubles as the run's initial input: the native run engine has no separate
+/// input parameter yet, so this is the whole prompt.</param>
 /// <param name="Tools">Tools available to this agent.</param>
 /// <param name="MaxTokens">Optional token budget for the model response.</param>
 /// <param name="Temperature">Optional sampling temperature (0.0 to 2.0).</param>
+/// <param name="MaxSteps">Maximum agent loop iterations before the run fails
+/// with a max-steps error. 0 (the default) means unlimited.</param>
 public record AgentSpec(
     string Model,
     string Instructions = "",
     List<ToolSpec>? Tools = null,
     int? MaxTokens = null,
-    double? Temperature = null
+    double? Temperature = null,
+    int MaxSteps = 0
 );
 
 /// <summary>

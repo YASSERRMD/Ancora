@@ -19,10 +19,30 @@ internal static class Wire
     };
 
     /// <summary>
+    /// Case-insensitive options for deserializing a run's structured output,
+    /// which is produced by the model according to whatever naming
+    /// convention its schema/prompt used -- not necessarily snake_case, so
+    /// this deliberately does not reuse <see cref="Options"/>.
+    /// </summary>
+    internal static readonly JsonSerializerOptions StructuredOutputOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
+
+    /// <summary>
     /// Serialize an AgentSpec to UTF-8 JSON bytes for the FFI StartRun call.
     /// </summary>
     internal static byte[] EncodeAgentSpec(AgentSpec spec) =>
         JsonSerializer.SerializeToUtf8Bytes(spec, Options);
+
+    private sealed record RuntimeConfigWire(ProviderConfig Provider);
+
+    /// <summary>
+    /// Serialize a ProviderConfig to UTF-8 JSON bytes for the FFI
+    /// RuntimeNewWithConfig call.
+    /// </summary>
+    internal static byte[] EncodeRuntimeConfig(ProviderConfig provider) =>
+        JsonSerializer.SerializeToUtf8Bytes(new RuntimeConfigWire(provider), Options);
 
     /// <summary>
     /// Serialize a GraphSpec to UTF-8 JSON bytes for the FFI StartRun call.
