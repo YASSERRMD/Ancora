@@ -42,6 +42,9 @@ sdk/dotnet/**/obj/
 examples/dotnet/**/bin/
 examples/dotnet/**/obj/
 *.user
+
+# native lib copied into the test project for local/CI test runs
+sdk/dotnet/Ancora.Tests/libancora_ffi.*
 *.suo
 .vs/
 *.nupkg
