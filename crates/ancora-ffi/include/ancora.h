@@ -31,18 +31,18 @@ typedef struct AncorBuffer {
 } AncorBuffer;
 
 /**
- * Opaque handle to a single run identifier.
- */
-typedef struct AncorRunId {
-  uint8_t _private[0];
-} AncorRunId;
-
-/**
  * Opaque handle to a live Ancora runtime.
  */
 typedef struct AncorRuntime {
   uint8_t _private[0];
 } AncorRuntime;
+
+/**
+ * Opaque handle to a single run identifier.
+ */
+typedef struct AncorRunId {
+  uint8_t _private[0];
+} AncorRunId;
 
 /**
  * Host-provided tool callback. `input` contains the tool invocation payload as bytes.
@@ -70,6 +70,88 @@ struct AncorBuffer ancora_buffer_new(const uint8_t *bytes, uintptr_t len);
  * (or be zero-length/null), and must not be freed more than once.
  */
 void ancora_buffer_free(struct AncorBuffer buf);
+
+/**
+ * Create a vector collection. `spec_bytes` is JSON:
+ * `{"name":"docs","dimensions":768,"distance":"cosine"}` (`distance` is one
+ * of `"cosine"`, `"dot"`, `"l2"`, defaulting to `"cosine"`).
+ * Returns `NullPtr` if `rt`/`spec_bytes` is null, `InvalidUtf8` if the JSON
+ * is malformed or missing `name`/`dimensions`, `Internal` if the backend
+ * rejects the request (e.g. collection already exists).
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `spec_bytes` must point to at least
+ * `spec_len` valid bytes.
+ */
+enum AncorErrorCode ancora_memory_create_collection(struct AncorRuntime *rt,
+                                                    const uint8_t *spec_bytes,
+                                                    uintptr_t spec_len);
+
+/**
+ * Drop a vector collection by name. Returns `NullPtr` if `rt`/`name` is
+ * null, `Internal` if the backend rejects the request (e.g. collection
+ * does not exist).
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `name` must be a valid
+ * null-terminated C string.
+ */
+enum AncorErrorCode ancora_memory_drop_collection(struct AncorRuntime *rt, const char *name);
+
+/**
+ * Upsert points into a collection. `points_bytes` is a JSON array:
+ * `[{"id":1,"vector":[0.1,0.2],"payload":{"text":"..."}}]`. Point ids are
+ * non-negative integers (required by the pgvector-backed store; kept
+ * consistent across backends so the same request works against either).
+ * Returns `NullPtr` if any pointer is null, `InvalidUtf8` if `points_bytes`
+ * is not a valid points array, `Internal` if the backend rejects the
+ * request (e.g. dimension mismatch, unknown collection).
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `collection` must be a valid
+ * null-terminated C string. `points_bytes` must point to at least
+ * `points_len` valid bytes.
+ */
+enum AncorErrorCode ancora_memory_upsert(struct AncorRuntime *rt,
+                                         const char *collection,
+                                         const uint8_t *points_bytes,
+                                         uintptr_t points_len);
+
+/**
+ * Run a similarity query against a collection. `query_bytes` is JSON:
+ * `{"vector":[0.1,0.2],"top_k":5,"score_threshold":0.0}` (`top_k` defaults
+ * to 10, `score_threshold` is optional). Writes a JSON array of
+ * `{"id":..,"score":..,"payload":{..}}` into `out`.
+ * Returns `NullPtr` if any pointer is null, `InvalidUtf8` if `query_bytes`
+ * is malformed, `Internal` if the backend rejects the request.
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `collection` must be a valid
+ * null-terminated C string. `query_bytes` must point to at least
+ * `query_len` valid bytes. `out` must point to valid, writable memory for
+ * an `AncorBuffer`.
+ */
+enum AncorErrorCode ancora_memory_query(struct AncorRuntime *rt,
+                                        const char *collection,
+                                        const uint8_t *query_bytes,
+                                        uintptr_t query_len,
+                                        struct AncorBuffer *out);
+
+/**
+ * Delete points from a collection by id. `ids_bytes` is a JSON array of
+ * non-negative integers: `[1,2,3]`. Returns `NullPtr` if any pointer is
+ * null, `InvalidUtf8` if `ids_bytes` is not a valid id array, `Internal` if
+ * the backend rejects the request.
+ *
+ * # Safety
+ * `rt` must be a live runtime pointer. `collection` must be a valid
+ * null-terminated C string. `ids_bytes` must point to at least `ids_len`
+ * valid bytes.
+ */
+enum AncorErrorCode ancora_memory_delete(struct AncorRuntime *rt,
+                                         const char *collection,
+                                         const uint8_t *ids_bytes,
+                                         uintptr_t ids_len);
 
 /**
  * Allocate a new run ID from a null-terminated UTF-8 string.

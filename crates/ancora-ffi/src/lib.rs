@@ -1,6 +1,8 @@
 pub mod buffer;
 pub mod error_code;
 pub mod handles;
+mod memory_backend;
+pub mod memory_ops;
 mod model_client;
 pub mod run_id;
 pub mod run_ops;
