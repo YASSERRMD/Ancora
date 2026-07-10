@@ -6,4 +6,5 @@ pub mod openai;
 pub mod policy;
 pub mod provider;
 pub mod providers;
+pub mod retry;
 pub mod types;

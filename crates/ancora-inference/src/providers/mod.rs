@@ -16,6 +16,7 @@ pub mod litellm;
 pub mod mimo;
 pub mod minimax;
 pub mod mistral;
+pub mod nvidia_nim;
 pub mod openai;
 pub mod openrouter;
 pub mod portkey;
