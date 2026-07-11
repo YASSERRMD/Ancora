@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - "sdk/dotnet/**"
+      - "examples/dotnet/**"
       - "crates/ancora-ffi/**"
       - ".github/workflows/dotnet-e2e-ci.yml"
   pull_request:
     paths:
       - "sdk/dotnet/**"
+      - "examples/dotnet/**"
       - "crates/ancora-ffi/**"
       - ".github/workflows/dotnet-e2e-ci.yml"
 
@@ -36,7 +38,7 @@ jobs:
         working-directory: sdk/dotnet
         run: |
           dotnet test --no-build --configuration Release --verbosity normal \
-            --filter "FullyQualifiedName!~Phase148&FullyQualifiedName!~MemoryStoreTests&FullyQualifiedName!~HumanInLoopSurfaceTests"
+            --filter "FullyQualifiedName!~Phase148&FullyQualifiedName!~MemoryStoreTests&FullyQualifiedName!~HumanInLoopSurfaceTests&FullyQualifiedName!~ComplianceReviewE2ETests"
 
   e2e:
     name: .NET e2e tests (with native library)
@@ -116,3 +118,13 @@ jobs:
             exit 1
           fi
           echo "Coverage ${LINE_RATE}% meets threshold ${COVER_MIN}%"
+
+      - name: Build and run dotnet examples
+        run: |
+          set -e
+          for example in single-agent multi-agent compliance-review; do
+            echo "=== $example ==="
+            dotnet build "examples/dotnet/$example" --configuration Release
+            cp target/release/libancora_ffi.so "examples/dotnet/$example/bin/Release/net8.0/libancora_ffi.so"
+            dotnet run --no-build --project "examples/dotnet/$example" --configuration Release
+          done
