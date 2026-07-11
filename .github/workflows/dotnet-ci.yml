@@ -6,11 +6,13 @@ on:
       - "sdk/dotnet/**"
       - "crates/ancora-ffi/**"
       - ".github/workflows/dotnet-ci.yml"
+      - ".github/workflows/dotnet-native-pack.yml"
   pull_request:
     paths:
       - "sdk/dotnet/**"
       - "crates/ancora-ffi/**"
       - ".github/workflows/dotnet-ci.yml"
+      - ".github/workflows/dotnet-native-pack.yml"
 
 jobs:
   test:
