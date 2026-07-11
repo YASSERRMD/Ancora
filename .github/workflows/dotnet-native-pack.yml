@@ -101,3 +101,49 @@ jobs:
           path: |
             sdk/dotnet/Ancora/nupkgs/*.nupkg
             sdk/dotnet/Ancora/nupkgs/*.snupkg
+
+  verify-local-install:
+    name: Verify local feed install (clean project)
+    runs-on: ubuntu-latest
+    needs: pack
+    steps:
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Download NuGet artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: /tmp/local-nuget-feed
+
+      - name: Create a clean console project with no reference to this repo
+        run: dotnet new console -o /tmp/clean-consumer
+
+      - name: Install Ancora from the local feed only
+        working-directory: /tmp/clean-consumer
+        run: dotnet add package Ancora --source /tmp/local-nuget-feed
+
+      - name: Write a minimal offline-agent program
+        run: |
+          cat > /tmp/clean-consumer/Program.cs <<'EOF'
+          using Ancora;
+
+          using var agent = new Agent();
+          var handle = agent.Run(new AgentSpec(Model: "mock", Instructions: "hello from a clean nuget install"));
+          var events = await handle.CollectAsync();
+
+          var completed = events.OfType<CompletedEvent>().FirstOrDefault();
+          if (completed is null)
+          {
+              Console.Error.WriteLine("clean install failed: no completed event");
+              Environment.Exit(1);
+          }
+
+          Console.WriteLine($"Clean install works. Output: {completed.Output}");
+          EOF
+
+      - name: Run the clean consumer project
+        working-directory: /tmp/clean-consumer
+        run: dotnet run
