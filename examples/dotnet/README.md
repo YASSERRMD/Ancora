@@ -28,6 +28,10 @@ dotnet run --project examples/dotnet/single-agent
 
 # Multi-agent verifier pattern (drafter + verifier)
 dotnet run --project examples/dotnet/multi-agent
+
+# Retrieval-augmented, structured-output compliance review (runs fully
+# offline against an in-process demo server by default -- no setup needed)
+dotnet run --project examples/dotnet/compliance-review
 ```
 
 ## Examples
@@ -47,3 +51,19 @@ Demonstrates the verifier pattern:
 - A drafter generates an answer to a question
 - A verifier reviews the draft and returns APPROVED or REVISE
 - Both agents cost summaries are printed at the end
+
+### compliance-review
+
+The end-to-end, Attestra-shaped example: embeddings, retrieval, tool
+calling, and structured output against a real NVIDIA NIM-compatible
+endpoint, in one flow.
+- `NimEmbedder` embeds two contract clauses and indexes them with
+  `Runtime.Upsert`
+- The review question is embedded and `Runtime.Query` retrieves the
+  relevant clause
+- The review agent calls a registered tool (`lookup_precedent`) before
+  producing its verdict
+- The final output is deserialized into a typed `ComplianceVerdict` record
+- Runs fully offline by default against a small in-process demo server; set
+  `NIM_BASE_URL` (and `NVIDIA_API_KEY` for hosted NIM) to point it at a real
+  deployment instead -- switching is a base-url change only
