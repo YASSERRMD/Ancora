@@ -10,6 +10,10 @@ use crate::error::AncoraError;
 use crate::journal::JournalStore;
 use crate::run::Run;
 
+/// Maximum repair attempts for a structured-output validation failure before
+/// giving up with `AncoraError::OutputValidation`.
+const MAX_REPAIR_ATTEMPTS: u32 = 3;
+
 /// Drives model completions for the agent loop.
 pub trait ModelClient: Send + Sync {
     fn complete(
@@ -114,18 +118,7 @@ impl Agent {
             })
             .collect();
 
-        let text: String = response
-            .content
-            .iter()
-            .filter_map(|b| {
-                if let Some(Block::Text(t)) = &b.block {
-                    Some(t.text.clone())
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>()
-            .join("");
+        let text = extract_text(&response);
 
         let key = format!("step:{}:model", self.step);
         self.journal_append(key, "model_call", &text)?;
@@ -196,7 +189,10 @@ impl Agent {
 
                 let step_num = self.step;
                 match self.step(model)? {
-                    StepOutcome::FinalOutput { text } => return Ok(AgentOutcome::Completed(text)),
+                    StepOutcome::FinalOutput { text } => {
+                        let validated = self.validate_and_repair_output(text, model)?;
+                        return Ok(AgentOutcome::Completed(validated));
+                    }
                     StepOutcome::ToolCalls { calls } => {
                         self.pending_calls = calls;
                         self.pending_step = step_num;
@@ -217,6 +213,47 @@ impl Agent {
                 self.journal_append(key, "tool_result", &result.result_json)?;
                 self.messages.push(tool_result_message(result));
                 self.pending_calls.remove(0);
+            }
+        }
+    }
+
+    /// When `spec.output_schema_json` is set, validate `text` and, on
+    /// failure, ask the model to repair it (bounded by
+    /// `MAX_REPAIR_ATTEMPTS`). Returns `text` unchanged when no schema is
+    /// configured, so every existing caller that never sets
+    /// `output_schema_json` keeps its current behavior exactly.
+    fn validate_and_repair_output(
+        &mut self,
+        mut text: String,
+        model: &dyn ModelClient,
+    ) -> Result<String, AncoraError> {
+        if self.spec.output_schema_json.is_empty() {
+            return Ok(text);
+        }
+
+        let mut attempt = 0u32;
+        loop {
+            match crate::output::validate_output(&text, &self.spec.output_schema_json) {
+                Ok(()) => return Ok(text),
+                Err(reason) => {
+                    attempt += 1;
+                    if attempt >= MAX_REPAIR_ATTEMPTS {
+                        return Err(AncoraError::OutputValidation {
+                            attempts: attempt,
+                            reason,
+                        });
+                    }
+                    let repair_request = crate::output::repair_prompt(&text, &reason);
+                    self.messages
+                        .push(text_message(Role::User, &repair_request));
+                    let response = model.complete(&self.messages, &self.spec)?;
+                    text = extract_text(&response);
+
+                    let key = format!("step:{}:repair", self.step);
+                    self.journal_append(key, "model_call", &text)?;
+                    self.messages.push(response);
+                    self.step += 1;
+                }
             }
         }
     }
@@ -250,6 +287,22 @@ impl Agent {
             )
             .map(|_| ())
     }
+}
+
+/// Concatenate every text content block in `response` into one string.
+fn extract_text(response: &ProtoMessage) -> String {
+    response
+        .content
+        .iter()
+        .filter_map(|b| {
+            if let Some(Block::Text(t)) = &b.block {
+                Some(t.text.clone())
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("")
 }
 
 fn text_message(role: Role, text: &str) -> ProtoMessage {
@@ -583,5 +636,137 @@ mod tests {
         };
         let outcome = agent.resume(decision_b, &model, &dispatcher).unwrap();
         assert!(matches!(outcome, AgentOutcome::Completed(text) if text == "done"));
+    }
+
+    // ---- structured output validation and repair --------------------------
+
+    fn make_spec_with_schema(max_steps: u32, schema_json: &str) -> AgentSpec {
+        AgentSpec {
+            output_schema_json: schema_json.to_string(),
+            ..make_spec(max_steps)
+        }
+    }
+
+    struct Noop;
+    impl ToolDispatcher for Noop {
+        fn dispatch(&self, _: &ToolCallContent) -> Result<ToolResultContent, AncoraError> {
+            unreachable!("no tools should be called")
+        }
+    }
+
+    #[test]
+    fn valid_structured_output_passes_without_repair() {
+        struct AlwaysValidJson;
+        impl ModelClient for AlwaysValidJson {
+            fn complete(
+                &self,
+                _: &[ProtoMessage],
+                _: &AgentSpec,
+            ) -> Result<ProtoMessage, AncoraError> {
+                Ok(text_response(r#"{"decision":"ok"}"#))
+            }
+        }
+
+        let mut agent = Agent::new(
+            make_spec_with_schema(10, r#"{"type":"object"}"#),
+            "run-schema-1",
+            Arc::new(MemoryStore::new()),
+        );
+        let outcome = agent.run_loop("go", &AlwaysValidJson, &Noop).unwrap();
+        assert!(matches!(
+            outcome,
+            AgentOutcome::Completed(text) if text == r#"{"decision":"ok"}"#
+        ));
+        // No repair needed: exactly one model call.
+        assert_eq!(agent.step, 1);
+    }
+
+    #[test]
+    fn invalid_structured_output_triggers_repair_then_completes() {
+        struct InvalidThenValid {
+            calls: std::sync::atomic::AtomicU32,
+        }
+        impl ModelClient for InvalidThenValid {
+            fn complete(
+                &self,
+                _: &[ProtoMessage],
+                _: &AgentSpec,
+            ) -> Result<ProtoMessage, AncoraError> {
+                let n = self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                if n == 0 {
+                    Ok(text_response("not json"))
+                } else {
+                    Ok(text_response(r#"{"decision":"fixed"}"#))
+                }
+            }
+        }
+
+        let model = InvalidThenValid {
+            calls: std::sync::atomic::AtomicU32::new(0),
+        };
+        let mut agent = Agent::new(
+            make_spec_with_schema(10, r#"{"type":"object"}"#),
+            "run-schema-2",
+            Arc::new(MemoryStore::new()),
+        );
+        let outcome = agent.run_loop("go", &model, &Noop).unwrap();
+        assert!(matches!(
+            outcome,
+            AgentOutcome::Completed(text) if text == r#"{"decision":"fixed"}"#
+        ));
+        assert_eq!(
+            model.calls.load(std::sync::atomic::Ordering::SeqCst),
+            2,
+            "expected exactly one repair call"
+        );
+    }
+
+    #[test]
+    fn structured_output_repair_is_bounded() {
+        struct AlwaysInvalid;
+        impl ModelClient for AlwaysInvalid {
+            fn complete(
+                &self,
+                _: &[ProtoMessage],
+                _: &AgentSpec,
+            ) -> Result<ProtoMessage, AncoraError> {
+                Ok(text_response("still not json"))
+            }
+        }
+
+        let mut agent = Agent::new(
+            make_spec_with_schema(10, r#"{"type":"object"}"#),
+            "run-schema-3",
+            Arc::new(MemoryStore::new()),
+        );
+        let err = agent.run_loop("go", &AlwaysInvalid, &Noop).unwrap_err();
+        assert!(matches!(
+            err,
+            AncoraError::OutputValidation { attempts, .. } if attempts == MAX_REPAIR_ATTEMPTS
+        ));
+    }
+
+    #[test]
+    fn empty_schema_never_validates_or_repairs() {
+        struct AlwaysInvalidText;
+        impl ModelClient for AlwaysInvalidText {
+            fn complete(
+                &self,
+                _: &[ProtoMessage],
+                _: &AgentSpec,
+            ) -> Result<ProtoMessage, AncoraError> {
+                Ok(text_response("not json at all"))
+            }
+        }
+
+        // No schema configured (the default in make_spec) -- must pass
+        // through unvalidated, exactly like every pre-existing test above.
+        let mut agent = Agent::new(make_spec(10), "run-schema-4", Arc::new(MemoryStore::new()));
+        let outcome = agent.run_loop("go", &AlwaysInvalidText, &Noop).unwrap();
+        assert!(matches!(
+            outcome,
+            AgentOutcome::Completed(text) if text == "not json at all"
+        ));
+        assert_eq!(agent.step, 1);
     }
 }
