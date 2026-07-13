@@ -38,7 +38,7 @@ jobs:
         working-directory: sdk/dotnet
         run: |
           dotnet test --no-build --configuration Release --verbosity normal \
-            --filter "FullyQualifiedName!~Phase148&FullyQualifiedName!~MemoryStoreTests&FullyQualifiedName!~HumanInLoopSurfaceTests&FullyQualifiedName!~ComplianceReviewE2ETests"
+            --filter "FullyQualifiedName!~Phase148&FullyQualifiedName!~MemoryStoreTests&FullyQualifiedName!~HumanInLoopSurfaceTests&FullyQualifiedName!~ComplianceReviewE2ETests&FullyQualifiedName!~StructuredOutputValidationTests"
 
   e2e:
     name: .NET e2e tests (with native library)

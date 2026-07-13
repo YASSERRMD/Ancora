@@ -45,13 +45,21 @@ public record ToolSpec(
 /// <param name="Temperature">Optional sampling temperature (0.0 to 2.0).</param>
 /// <param name="MaxSteps">Maximum agent loop iterations before the run fails
 /// with a max-steps error. 0 (the default) means unlimited.</param>
+/// <param name="OutputSchemaJson">
+/// Optional JSON Schema (as a JSON string) the final output must satisfy.
+/// When set, the run validates the model's output and asks the model to
+/// repair it (a few bounded attempts) before completing, failing with an
+/// output-validation error if it never becomes valid. Empty (the default)
+/// means output is returned unvalidated, exactly like before this existed.
+/// </param>
 public record AgentSpec(
     string Model,
     string Instructions = "",
     List<ToolSpec>? Tools = null,
     int? MaxTokens = null,
     double? Temperature = null,
-    int MaxSteps = 0
+    int MaxSteps = 0,
+    string OutputSchemaJson = ""
 );
 
 /// <summary>
