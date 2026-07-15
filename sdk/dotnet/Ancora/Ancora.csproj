@@ -7,14 +7,17 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>Ancora</AssemblyName>
     <RootNamespace>Ancora</RootNamespace>
-    <Version>0.1.0</Version>
-    <!-- The plain "Ancora" package id on nuget.org belongs to an unrelated
-         library from 2016 (a recursive descent parser), so this SDK
-         publishes as Ancora.Agent instead. AssemblyName/RootNamespace stay
-         "Ancora": only the NuGet package id differs, so all C# code using
-         this SDK still writes "using Ancora;" and references the same
-         types regardless of which package id installed them. -->
-    <PackageId>Ancora.Agent</PackageId>
+    <Version>0.1.1</Version>
+    <!-- nuget.org has an id-prefix reservation on "Ancora" that blocks any
+         id starting with that string, including "Ancora.Agent" and
+         "AncoraAgent" (confirmed by real upload attempts, both rejected
+         with "This package ID has been reserved"). Publishing instead
+         under the Author.Product convention, Yasserrmd.Ancora, sidesteps
+         it. AssemblyName/RootNamespace stay "Ancora": only the NuGet
+         package id differs, so all C# code using this SDK still writes
+         "using Ancora;" and references the same types regardless of which
+         package id installed them. -->
+    <PackageId>Yasserrmd.Ancora</PackageId>
     <Description>Ancora .NET SDK: local-first agentic framework P/Invoke bindings.</Description>
     <PackageTags>ancora;agents;ai;llm;local-first</PackageTags>
     <Authors>YASSERRMD</Authors>

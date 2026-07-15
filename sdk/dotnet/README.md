@@ -25,16 +25,17 @@ Place the library where the .NET runtime can find it:
 
 ```xml
 <!-- add to your .csproj -->
-<PackageReference Include="Ancora.Agent" Version="0.1.0" />
+<PackageReference Include="Yasserrmd.Ancora" Version="0.1.1" />
 ```
 
 ```bash
-dotnet add package Ancora.Agent
+dotnet add package Yasserrmd.Ancora
 ```
 
-The package id is `Ancora.Agent` (the plain `Ancora` id on nuget.org belongs
-to an unrelated library), but the assembly and namespace are still `Ancora`,
-so your code writes `using Ancora;` regardless.
+The package id is `Yasserrmd.Ancora` (nuget.org has an id-prefix reservation
+on `Ancora` that blocks any id starting with that string, so this SDK
+publishes under the Author.Product convention instead), but the assembly and
+namespace are still `Ancora`, so your code writes `using Ancora;` regardless.
 
 ## Quickstart: run a single agent
 
