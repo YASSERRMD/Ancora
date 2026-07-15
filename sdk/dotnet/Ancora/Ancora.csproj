@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>Ancora</AssemblyName>
     <RootNamespace>Ancora</RootNamespace>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <!-- nuget.org has an id-prefix reservation on "Ancora" that blocks any
          id starting with that string, including "Ancora.Agent" and
          "AncoraAgent" (confirmed by real upload attempts, both rejected

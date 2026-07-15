@@ -10,7 +10,7 @@ dotnet add package Yasserrmd.Ancora
 
 ```xml
 <!-- or add directly to your .csproj -->
-<PackageReference Include="Yasserrmd.Ancora" Version="0.1.1" />
+<PackageReference Include="Yasserrmd.Ancora" Version="0.1.2" />
 ```
 
 That's the whole prerequisite: .NET 8 SDK or later. No Rust or Cargo needed
