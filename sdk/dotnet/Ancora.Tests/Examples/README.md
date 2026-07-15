@@ -20,7 +20,7 @@ dotnet test Ancora.Tests/Ancora.Tests.csproj --filter "FullyQualifiedName~Exampl
 | `MultiAgentVerifierExampleTests` | Run primary and verifier agents concurrently |
 | `HumanInLoopExampleTests` | Pause a run and resume with a decision |
 | `StreamingChatExampleTests` | Consume events via `IAsyncEnumerable` |
-| `RagPgvectorExampleTests` | Offline keyword retrieval injected as context (stands in for pgvector) |
+| `ComplianceReviewE2ETests` | Real RAG: embed via `NimEmbedder`, store and retrieve via `Runtime.Upsert`/`Query`, call a tool, produce a structured verdict |
 | `McpToolExampleTests` | Define tool specs and wire them into `AgentSpec` |
 | `GlmSelfHostExampleTests` | Configure GLM model variants and run them |
 | `DurableRestartExampleTests` | Persist events to `RunJournal` and replay on restart |
