@@ -8,7 +8,13 @@
     <AssemblyName>Ancora</AssemblyName>
     <RootNamespace>Ancora</RootNamespace>
     <Version>0.1.0</Version>
-    <PackageId>Ancora</PackageId>
+    <!-- The plain "Ancora" package id on nuget.org belongs to an unrelated
+         library from 2016 (a recursive descent parser), so this SDK
+         publishes as Ancora.Agent instead. AssemblyName/RootNamespace stay
+         "Ancora": only the NuGet package id differs, so all C# code using
+         this SDK still writes "using Ancora;" and references the same
+         types regardless of which package id installed them. -->
+    <PackageId>Ancora.Agent</PackageId>
     <Description>Ancora .NET SDK: local-first agentic framework P/Invoke bindings.</Description>
     <PackageTags>ancora;agents;ai;llm;local-first</PackageTags>
     <Authors>YASSERRMD</Authors>

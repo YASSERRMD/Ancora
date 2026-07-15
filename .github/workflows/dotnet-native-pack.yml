@@ -121,9 +121,9 @@ jobs:
       - name: Create a clean console project with no reference to this repo
         run: dotnet new console -o /tmp/clean-consumer
 
-      - name: Install Ancora from the local feed only
+      - name: Install Ancora.Agent from the local feed only
         working-directory: /tmp/clean-consumer
-        run: dotnet add package Ancora --source /tmp/local-nuget-feed
+        run: dotnet add package Ancora.Agent --source /tmp/local-nuget-feed
 
       - name: Write a minimal offline-agent program
         run: |
