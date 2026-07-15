@@ -2,12 +2,32 @@
 
 Local-first agentic framework bindings for .NET 8+.
 
-## Prerequisites
+## Installation
 
-- .NET 8 SDK or later
-- The `ancora_ffi` native library (`.dylib` on macOS, `.so` on Linux, `.dll` on Windows)
+```bash
+dotnet add package Yasserrmd.Ancora
+```
 
-### Building the native library
+```xml
+<!-- or add directly to your .csproj -->
+<PackageReference Include="Yasserrmd.Ancora" Version="0.1.1" />
+```
+
+That's the whole prerequisite: .NET 8 SDK or later. No Rust or Cargo needed
+-- the package bundles pre-built native libraries for linux-x64, linux-arm64,
+osx-x64, osx-arm64, win-x64, and win-arm64 under `runtimes/<rid>/native/`,
+and the .NET runtime picks the right one for you automatically at restore
+time.
+
+The package id is `Yasserrmd.Ancora` (nuget.org has an id-prefix reservation
+on `Ancora` that blocks any id starting with that string, so this SDK
+publishes under the Author.Product convention instead), but the assembly and
+namespace are still `Ancora`, so your code writes `using Ancora;` regardless.
+
+### Building the native library from source
+
+Only needed if you're working on `ancora-ffi` itself, or targeting a
+platform/architecture the package doesn't ship a native library for:
 
 ```bash
 # from the repo root
@@ -19,23 +39,8 @@ cargo build -p ancora-ffi --release
 Place the library where the .NET runtime can find it:
 - Next to the test binary (for local testing)
 - In a directory listed in `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH` (macOS)
-- Bundled in the NuGet package under `runtimes/<rid>/native/`
-
-## Installation
-
-```xml
-<!-- add to your .csproj -->
-<PackageReference Include="Yasserrmd.Ancora" Version="0.1.1" />
-```
-
-```bash
-dotnet add package Yasserrmd.Ancora
-```
-
-The package id is `Yasserrmd.Ancora` (nuget.org has an id-prefix reservation
-on `Ancora` that blocks any id starting with that string, so this SDK
-publishes under the Author.Product convention instead), but the assembly and
-namespace are still `Ancora`, so your code writes `using Ancora;` regardless.
+- Bundled in the NuGet package under `runtimes/<rid>/native/` (this is what
+  `dotnet pack` already does for the published package)
 
 ## Quickstart: run a single agent
 
