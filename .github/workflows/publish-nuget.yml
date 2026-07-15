@@ -38,6 +38,8 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - uses: actions/checkout@v4
+
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
@@ -68,3 +70,25 @@ jobs:
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
+
+      # --skip-duplicate makes dotnet nuget push exit 0 even when nuget.org
+      # rejected the package (for example a reserved-id-prefix error, which
+      # a 2026-07-15 release attempt hit and only surfaced through a manual
+      # web upload, not this job). Confirm the version is actually queryable
+      # before calling the release a success.
+      - name: Verify the package is actually live on nuget.org
+        run: |
+          PACKAGE_ID=$(grep -oP '(?<=<PackageId>)[^<]+' sdk/dotnet/Ancora/Ancora.csproj | tr '[:upper:]' '[:lower:]')
+          VERSION=$(grep -oP '(?<=<Version>)[^<]+' sdk/dotnet/Ancora/Ancora.csproj)
+          URL="https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/${VERSION}/${PACKAGE_ID}.${VERSION}.nupkg"
+          for i in $(seq 1 20); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            if [ "$STATUS" = "200" ]; then
+              echo "confirmed: $PACKAGE_ID $VERSION is live at $URL"
+              exit 0
+            fi
+            echo "attempt $i: $URL returned $STATUS, retrying in 15s"
+            sleep 15
+          done
+          echo "::error::$PACKAGE_ID $VERSION never became queryable on nuget.org after the push reported success"
+          exit 1
