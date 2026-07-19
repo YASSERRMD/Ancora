@@ -1,7 +1,10 @@
-# Contributing to Ancora Documentation
+# Contributing to Ancora documentation
 
-Thank you for contributing. This page describes the conventions for writing
-and reviewing docs in the `docs/` directory.
+Thank you for helping improve the Ancora documentation. This page covers
+the conventions for writing and reviewing pages in the `docs/` directory.
+For the general contribution process (branching, commits, CI, and pull
+requests), see the repository-level
+[contributing guide](../CONTRIBUTING.md).
 
 ## File structure
 
@@ -14,15 +17,19 @@ docs/
   spec/           # Architecture specs and ADRs
 ```
 
+Place new pages in the directory that matches their purpose, and keep
+each page focused on a single concept.
+
 ## Writing conventions
 
-- Use sentence case for headings (not title case).
-- Use plain hyphens, not em dashes. A single hyphen (`-`) for
-  parenthetical asides; two hyphens (`--`) for ranges.
+- Use sentence case for headings, not title case.
+- Use plain hyphens, never em dashes. A single hyphen (`-`) marks a
+  parenthetical aside; two hyphens (`--`) mark a range.
 - Do not leave trailing whitespace at the end of lines.
-- Wrap links in `[text](path)` form; never use bare URLs.
+- Write links in `[text](path)` form; never use bare URLs.
 - Prefer concrete examples over abstract descriptions.
-- Keep pages focused: one concept per file.
+- Give every page exactly one H1 heading, matching its entry in the
+  `mkdocs.yml` navigation.
 
 ## Internal links
 
@@ -32,8 +39,18 @@ Always use relative paths from the linking file:
 [Agents](../concepts/agents.md)
 ```
 
-Not absolute paths (`/concepts/agents.md`) and not bare filenames
-(`agents.md` from a different directory).
+Do not use absolute paths (`/concepts/agents.md`) or bare filenames
+(`agents.md`) when linking from a different directory.
+
+## Previewing locally
+
+The site is built with MkDocs. To preview your changes with live reload:
+
+```bash
+mkdocs serve
+```
+
+Then open the local address it prints (by default `http://127.0.0.1:8000`).
 
 ## Validating your changes
 
@@ -49,11 +66,13 @@ Run the style checker:
 bash scripts/check-style.sh
 ```
 
-Both scripts exit with status 0 on success and 1 on violations.
+Both scripts exit with status 0 on success and 1 on violations. CI runs
+the same checks, so passing them locally means your pull request will
+pass the documentation checks.
 
 ## Pull request checklist
 
 - [ ] All new internal links resolve to real files (`check-links.sh` passes)
-- [ ] No em dashes, no trailing whitespace (`check-style.sh` passes)
-- [ ] New concept pages are added to `mkdocs.yml` nav
+- [ ] No em dashes and no trailing whitespace (`check-style.sh` passes)
+- [ ] New pages are added to the `mkdocs.yml` navigation
 - [ ] Each page has a single H1 heading matching its nav entry

@@ -1,108 +1,133 @@
 # Contributing to Ancora
 
-## Git identity
+Thank you for your interest in contributing to Ancora. This guide explains
+how to set up a development environment, the standards your changes must
+meet, and how to get them merged. Contributions of all kinds are welcome:
+bug reports, fixes, features, documentation, and SDK bindings.
 
-Every commit must be authored as **YASSERRMD** with email
-`arafath.yasser@gmail.com`. Before your first push on any branch run:
+## Getting started
+
+1. Fork the repository and clone your fork.
+2. Install the Rust toolchain. The required version is pinned in
+   [`rust-toolchain.toml`](rust-toolchain.toml) and is picked up
+   automatically by `rustup`.
+3. Build and test the workspace:
 
 ```bash
-git config user.name "YASSERRMD"
-git config user.email "arafath.yasser@gmail.com"
+cargo build --all
+cargo test --all
 ```
 
-Verify before every push:
+The full test suite runs offline. If a test you add requires network
+access, it will not be accepted; see [Testing](#testing) below.
+
+Before committing, make sure git is configured with your real name and a
+valid email address so your work is correctly attributed:
 
 ```bash
-git config user.name   # must print: YASSERRMD
-git config user.email  # must print: arafath.yasser@gmail.com
+git config user.name "Your Name"
+git config user.email "you@example.com"
 ```
 
-## Branch protection
+## Reporting issues
 
-`main` is protected. You cannot push to it directly. All changes reach
-`main` only through a merged pull request that has passed CI.
+Open a GitHub issue with:
 
-Required CI checks before merge:
-- fmt (rustfmt --check)
-- clippy (deny warnings)
-- build (cargo build --all)
-- test (cargo test --all)
-- commit-lint (Conventional Commits + no em dash)
+- What you expected to happen and what happened instead.
+- Steps to reproduce, ideally as a minimal example.
+- Your platform, Rust version, and the Ancora version or commit hash.
 
-## Git workflow
+For security vulnerabilities, please do not open a public issue. Refer to
+the [threat model](docs/security/threat-model.md) and report privately to
+the maintainers.
 
-### Starting a phase
+## Development workflow
+
+`main` is protected. All changes land through a pull request that has
+passed CI; direct pushes are not possible.
+
+1. Create a branch from an up-to-date `main`:
 
 ```bash
 git checkout main
 git pull origin main
-git checkout -b phase-NN-short-slug
+git checkout -b feat/short-description
 ```
 
-Use zero-padded two-digit numbers, for example `phase-03-event-journal`.
+   Use a `type/short-slug` branch name that matches the change, for
+   example `fix/journal-replay-offset` or `docs/quickstart-go`.
 
-### Committing
+2. Make your changes in atomic commits: one logical change per commit,
+   with its tests in the same commit or the one immediately following.
 
-Commit each atomic task separately immediately after it is complete and
-its tests pass. Follow Conventional Commits:
+3. Push the branch to your fork and open a pull request against `main`.
+
+## Commit conventions
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
+and are enforced by the `commit-lint` CI check:
 
 ```
 type(scope): imperative summary under 72 chars
 
-Why this change is needed and what problem it solves. Wrap at 72
-columns. Reference the phase and atomic task. No em dash characters.
-
-Phase: NN
+Why the change is needed and what problem it solves. Wrap the body at
+72 columns.
 ```
 
-Allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`,
-`build`, `ci`, `perf`, `style`.
+- Allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`,
+  `build`, `ci`, `perf`, `style`.
+- The scope is the affected crate or package, for example `core`,
+  `proto`, `ffi`, or `go-sdk`.
+- Em dash characters are not permitted anywhere in the repository,
+  including commit messages. Use a plain hyphen instead.
 
-Scope is the crate or package name: `core`, `proto`, `ffi`, `go-sdk`,
-etc.
+## Continuous integration
 
-### Finishing a phase
+Every pull request must pass the following checks before it can merge:
 
-Push the branch once the phase is functionally complete and all tests
-pass:
+| Check | Command |
+|-------|---------|
+| fmt | `cargo fmt --all -- --check` |
+| clippy | `cargo clippy --all -- -D warnings` |
+| build | `cargo build --all` |
+| test | `cargo test --all` |
+| commit-lint | Conventional Commits and style rules |
 
-```bash
-git push -u origin phase-NN-short-slug
-```
+Running these locally before pushing saves a review round trip.
 
-Open a PR into `main`:
+## Testing
 
-```bash
-gh pr create --base main --head phase-NN-short-slug \
-  --title "Phase NN: <title>" \
-  --body "<summary, tests added, decisions>"
-```
+- Tests ship with the code they cover, in the same or immediately
+  following commit.
+- The full suite must pass offline. The default model adapter targets a
+  local OpenAI-compatible endpoint, so no test may depend on external
+  network access or cloud credentials.
+- Non-deterministic activities (model calls, tool calls) must be
+  journaled on first execution and never re-executed on replay. Changes
+  that break replay determinism will not be accepted.
 
-After CI is green, squash-merge and delete the branch:
+## Pull requests
 
-```bash
-gh pr merge --squash --delete-branch
-git checkout main && git pull origin main
-git branch -d phase-NN-short-slug
-```
+A good pull request:
 
-### Fixes to merged phases
+- Does one thing, described clearly in the title and body.
+- Explains the motivation, the approach, and any trade-offs.
+- Lists the tests added or updated.
+- Keeps its commit history clean and atomic.
 
-Never reopen an old phase branch. Create a new branch:
+Maintainers merge approved pull requests with a merge commit to preserve
+the commit history; pull requests are not squashed. The source branch is
+deleted after merge. If you need to follow up on an already merged change,
+open a new branch and a new pull request rather than reusing the old
+branch.
 
-```bash
-git checkout -b fix-NN-short-slug
-```
+## Documentation
 
-Commit the fix atomically, push, open a PR, merge, delete.
+Documentation lives in [`docs/`](docs/) and is built with MkDocs. Writing
+conventions, link rules, and validation scripts are described in
+[docs/contributing.md](docs/contributing.md).
 
-## Standing rules
+## License
 
-1. No em dash anywhere: not in code, comments, docs, or commits.
-2. Atomic commits: one logical change per commit.
-3. No direct work on `main`.
-4. Tests ship with code in the same or immediately following commit.
-5. Default model adapter targets a local OpenAI-compatible endpoint.
-   The full test suite must pass offline.
-6. Non-deterministic activities (model calls, tool calls) must be
-   journaled on first execution and never re-run on replay.
+Ancora is licensed under the [Apache License 2.0](LICENSE). By submitting
+a contribution you agree that it is licensed under the same terms.
