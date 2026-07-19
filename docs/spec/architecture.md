@@ -14,25 +14,7 @@ C ABI. This means:
 
 ## Layer diagram
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  User code: agent graphs, tool implementations               │
-├──────────────────────────────────────────────────────────────┤
-│  Language bindings                                           │
-│  Go  |  Python  |  TypeScript  |  .NET  |  Java             │
-├──────────────────────────────────────────────────────────────┤
-│  ancora-ffi  (C ABI, no unsafe in callers)                   │
-├──────────────────────────────────────────────────────────────┤
-│  ancora-core: engine, journal, replay, graph validation      │
-│  ancora-tools: registry, MCP server, LangChain adapter       │
-│  ancora-policy: egress control, PII redaction, audit         │
-│  ancora-grpc: A2A protocol, identity, task lifecycle         │
-│  ancora-proto: Protobuf definitions                          │
-└──────────────────────────────────────────────────────────────┘
-         |                         |
-  local storage              remote agents
-  (SQLite / memory)         (A2A over HTTP)
-```
+![Ancora layered architecture: user code on top of the language bindings (Go, Python, TypeScript, .NET, Java), the C ABI (ancora-ffi), and the Rust core crates (ancora-core, ancora-tools, ancora-policy, ancora-grpc, ancora-proto), backed by local storage (SQLite) and remote agents (A2A)](../assets/architecture-layers.png)
 
 ## Crate responsibilities
 
